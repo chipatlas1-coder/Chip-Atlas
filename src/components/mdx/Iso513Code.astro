@@ -1,0 +1,103 @@
+---
+/**
+ * Anatomy of a full ISO 513 designation, using the standard's own three examples
+ * (HW-P10, HC-K20, CA-K10): material symbol, dash, main group letter, application group number.
+ * The scale below shows where the number sits in that group's range (P01–P50, K01–K40).
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { mat: 'Kesici malzeme', grp: 'Ana grup', app: 'Uygulama grubu', wear: '← aşınma direnci, daha yüksek hız', tough: 'tokluk, daha yüksek ilerleme →', pick: 'Standardın örnekleri' }
+  : { mat: 'Cutting material', grp: 'Main group', app: 'Application group', wear: '← wear resistance, higher speed', tough: 'toughness, higher feed →', pick: "The standard's examples" };
+const MAT: Record<string, string> = tr
+  ? { HW: 'Kaplamasız sert metal, esas olarak WC, tane boyutu ≥ 1 µm', HC: 'Kaplamalı sert metal', CA: 'Oksit seramik, esas olarak Al₂O₃' }
+  : { HW: 'Uncoated hardmetal, mainly WC, grain size ≥ 1 µm', HC: 'Coated hardmetal', CA: 'Oxide ceramic, mainly Al₂O₃' };
+const GRP: Record<string, { name: string; color: string; max: number }> = {
+  P: { name: tr ? 'Çelik' : 'Steel', color: '#276ede', max: 50 },
+  K: { name: tr ? 'Dökme demir' : 'Cast iron', color: '#c2413b', max: 40 },
+};
+const APP = (g: string, v: number) => {
+  const max = GRP[g].max, range = `${g}01–${g}${max}`;
+  const mid = v === (max / 2);
+  return tr ? (mid ? `${range} aralığının ortasında` : `${range} ölçeğinin aşınma direnci tarafında`) : (mid ? `in the middle of ${range}` : `toward the wear-resistant end of ${range}`);
+};
+const examples = [['HW', 'P', 10], ['HC', 'K', 20], ['CA', 'K', 10]].map(([m, g, v]) => ({
+  code: `${m}-${g}${v}`, m, g, v, mat: MAT[m as string], grp: GRP[g as string].name, color: GRP[g as string].color, max: GRP[g as string].max, app: APP(g as string, v as number),
+}));
+const cur = examples[1];
+const pos = (v: number, max: number) => ((v - 1) / (max - 1)) * 100;
+const ticks = (max: number) => [1, ...Array.from({ length: max / 5 }, (_, i) => (i + 1) * 5)];
+const pad = (v: number) => String(v).padStart(2, '0');
+---
+<div class="isocode" data-isocode={JSON.stringify(examples)} style={`--g:${cur.color}`}>
+  <div class="pick" role="radiogroup" aria-label={T.pick}>
+    {examples.map((e) => <button type="button" role="radio" aria-checked={e.code === cur.code ? 'true' : 'false'} data-code={e.code}>{e.code}</button>)}
+  </div>
+  <div class="code" aria-live="polite">
+    <div class="part p-m"><span class="big" data-o="m">{cur.m}</span><span class="cap">{T.mat}</span><span class="txt" data-o="mat">{cur.mat}</span></div>
+    <div class="part dash"><span class="big">-</span></div>
+    <div class="part p-g"><span class="big" data-o="g">{cur.g}</span><span class="cap">{T.grp}</span><span class="txt"><i class="sw"></i><span data-o="grp">{cur.grp}</span></span></div>
+    <div class="part p-v"><span class="big" data-o="v">{cur.v}</span><span class="cap">{T.app}</span><span class="txt" data-o="app">{cur.app}</span></div>
+  </div>
+  <div class="scale">
+    <div class="bar">
+      <div class="ticks" data-o="ticks">
+        {ticks(cur.max).map((t) => <span style={`left:${pos(t, cur.max)}%`}>{cur.g}{pad(t)}</span>)}
+      </div>
+      <span class="knob" data-o="mark" style={`left:${pos(cur.v as number, cur.max)}%`}></span>
+    </div>
+    <div class="ends"><span>{T.wear}</span><span>{T.tough}</span></div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-isocode]').forEach((root) => {
+    const ex = JSON.parse(root.dataset.isocode!);
+    const o = (k: string) => root.querySelector(`[data-o="${k}"]`) as HTMLElement;
+    const pos = (v: number, max: number) => ((v - 1) / (max - 1)) * 100;
+    const pad = (v: number) => String(v).padStart(2, '0');
+    const set = (code: string) => {
+      const e = ex.find((x: any) => x.code === code);
+      root.style.setProperty('--g', e.color);
+      o('m').textContent = e.m; o('g').textContent = e.g; o('v').textContent = String(e.v);
+      o('mat').textContent = e.mat; o('grp').textContent = e.grp; o('app').textContent = e.app;
+      const ticks = o('ticks'); ticks.textContent = '';
+      [1, ...Array.from({ length: e.max / 5 }, (_, i) => (i + 1) * 5)].forEach((t) => { const s = document.createElement('span'); s.style.left = `${pos(t, e.max)}%`; s.textContent = `${e.g}${pad(t)}`; ticks.appendChild(s); });
+      o('mark').style.left = `${pos(e.v, e.max)}%`;
+      root.querySelectorAll('.pick button').forEach((b) => b.setAttribute('aria-checked', String((b as HTMLElement).dataset.code === code)));
+    };
+    root.querySelectorAll<HTMLButtonElement>('.pick button').forEach((b) => b.addEventListener('click', () => set(b.dataset.code!)));
+  });
+</script>
+
+<style>
+  .isocode { display: grid; gap: 1.1rem; padding: 1rem 1.1rem 1.1rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .pick button { font-family: var(--font-mono); font-size: 0.82rem; padding: 0.3rem 0.75rem; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink-2); transition: border-color 150ms, color 150ms, background-color 150ms; }
+  .pick button:hover { border-color: var(--ink-3); color: var(--ink); }
+  .pick button[aria-checked="true"] { border-color: var(--accent); color: var(--ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+  .code { display: grid; grid-template-columns: minmax(0, 1.3fr) auto minmax(0, 1fr) minmax(0, 1.3fr); gap: 0 0.9rem; align-items: start; }
+  .part { display: grid; gap: 0.35rem; min-width: 0; }
+  .big { font-family: var(--font-mono); font-size: clamp(2.2rem, 6vw, 3.4rem); line-height: 1; color: var(--ink); padding-bottom: 0.45rem; border-bottom: 2px solid var(--line-strong); }
+  .p-g .big { color: var(--g); border-bottom-color: var(--g); transition: color 250ms, border-color 250ms; }
+  .p-m .big { border-bottom-color: var(--ink-2); }
+  .p-v .big { border-bottom-color: var(--color-spark-400); }
+  .dash .big { color: var(--ink-3); border-bottom-color: transparent; }
+  .cap { font-family: var(--font-sans); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+  .txt { font-family: var(--font-sans); font-size: 0.9rem; color: var(--ink); line-height: 1.35; display: flex; gap: 0.45rem; align-items: baseline; }
+  .sw { width: 0.7rem; height: 0.7rem; border-radius: 2px; background: var(--g); display: inline-block; flex: none; transform: translateY(1px); transition: background-color 250ms; }
+  @media (max-width: 40rem) {
+    .code { grid-template-columns: auto auto auto; grid-template-areas: "m d g" "v v v"; gap: 0.9rem 0.7rem; }
+    .p-m { grid-area: m; } .dash { grid-area: d; } .p-g { grid-area: g; } .p-v { grid-area: v; }
+  }
+  .scale { display: grid; gap: 0.4rem; padding-top: 0.2rem; }
+  .bar { position: relative; height: 2.6rem; margin: 0 1rem; }
+  .bar::before { content: ""; position: absolute; left: 0; right: 0; top: 0.35rem; height: 0.55rem; border-radius: 999px; background: linear-gradient(90deg, color-mix(in oklab, var(--g) 35%, transparent), var(--g)); transition: background 250ms; }
+  .ticks span { position: absolute; top: 1.25rem; transform: translateX(-50%); font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-3); white-space: nowrap; }
+  .ticks span::before { content: ""; position: absolute; left: 50%; top: -0.4rem; width: 1px; height: 0.3rem; background: var(--ink-3); }
+  .knob { position: absolute; top: 0.08rem; width: 1.1rem; height: 1.1rem; margin-left: -0.55rem; border-radius: 50%; background: var(--color-spark-400); border: 2.5px solid var(--bg-sunk); box-shadow: 0 0 0 1.5px var(--color-spark-400); transition: left 350ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .ends { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.78rem; color: var(--ink-3); }
+  @media (max-width: 40rem) { .ticks span:nth-child(even) { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .knob, .p-g .big, .sw, .bar::before { transition: none; } }
+</style>

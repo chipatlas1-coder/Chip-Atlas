@@ -1,0 +1,119 @@
+---
+key: iso-513
+locale: en
+slug: iso-513
+title: 'ISO 513 — the P M K N S H classification'
+description: 'How ISO 513 sorts carbide, ceramic, diamond and cBN cutting materials by application. The six main groups and their colours, what the numbers 01 to 50 mean, the letter symbols such as HW, HC and CA, and how to read a designation like HC-P10.'
+section: 4
+subsection: tool-materials
+order: 1
+updated: 2026-10-11
+tools: [decoder]
+glance:
+  - value: '6'
+    label: 'Main groups: P, M, K, N, S, H'
+  - value: 'P01–P50'
+    label: 'The widest range of application groups'
+  - value: '2012'
+    label: 'Current edition, the fourth; confirmed in 2018'
+sources:
+  - label: 'ISO 513:2012, Classification and application of hard cutting materials for metal removal with defined cutting edges, 4th edition (official preview)'
+    url: https://cdn.standards.iteh.ai/samples/59932/d271ad516f744c8ca6782f6b4772bf87/ISO-513-2012.pdf
+  - label: 'ISO 513:2012 catalogue page (status, last confirmed 2018)'
+    url: https://www.iso.org/standard/59932.html
+  - label: 'Bureau of Indian Standards, IS 2428:2024, identical to ISO 513:2012'
+  - label: 'ISCAR, Iscar''s World brochure 2018, p. 51 (meaning of the application numbers)'
+    url: https://iscar.com/Catalogs/flipview/iscars-world/Iscars_World_Brochure_2018/files/basic-html/page51.html
+  - label: 'Dormer Pramet, Holemaking catalogue 2021–2022 (S group shown brown)'
+    url: https://static.chipdip.ru/lib/081/DOC042081563.pdf
+  - label: 'Dormer Pramet, Workpiece material groups (S group shown orange)'
+    url: https://dormerpramet.com/WMG
+  - label: 'Seco Tools, "The ISO application standardization" (Seco''s own 01–60 scale)'
+    url: https://www.secotools.com/article/120339
+---
+import Iso513 from '../../../components/mdx/Iso513.astro';
+import Iso513Code from '../../../components/mdx/Iso513Code.astro';
+
+Insert boxes and catalogues mark grades with a letter and a number such as P25 or K10, often with a coloured stripe. They come from ISO 513, the standard that tells you which work materials a cutting material is meant for and whether it leans toward wear resistance or toughness. It is the first filter when choosing a grade.
+
+## What the standard does — and does not do
+
+ISO 513 covers hard cutting materials for tools with defined cutting edges: hardmetals (cemented carbides), cermets, ceramics, diamond and cubic boron nitride. It classifies them **by application**, not by composition or measured properties. Its introduction states that it was not possible, at the time of publication, to standardise hard cutting materials by their characteristics, so the standard limits itself to their application. The standard defines no test, so where a particular grade sits on these scales comes from its maker's catalogue.
+
+The current version is ISO 513:2012, the fourth edition. ISO last reviewed and confirmed it in 2018.
+
+## Six main groups
+
+The main groups are named after the work material, each with an identification colour.
+
+<Figure caption="ISO 513:2012 main groups, identification colours and the span of their application groups. Only P runs to 50; M and K stop at 40; N, S and H stop at 30.">
+  <Iso513 locale="en" />
+</Figure>
+
+| Group | Colour | Work materials |
+|---|---|---|
+| **P** | blue | Steel: all kinds of steel and cast steel, except stainless steel with an austenitic structure |
+| **M** | yellow | Stainless steel: austenitic and austenitic-ferritic (duplex) steel and cast steel |
+| **K** | red | Cast iron: grey, spheroidal-graphite and malleable cast iron |
+| **N** | green | Non-ferrous metals: aluminium and other non-ferrous metals; non-metallic materials |
+| **S** | brown | Superalloys and titanium: heat-resistant alloys based on iron, nickel and cobalt; titanium and titanium alloys |
+| **H** | grey | Hard materials: hardened steel, hardened cast iron, chilled cast iron |
+
+<Note kind="note" title="Brown or orange?">
+The standard specifies brown for S. Some manufacturers print it as orange; Dormer Pramet, for example, uses brown in one catalogue and orange on its website. Read the letter, not the colour.
+</Note>
+
+## What the numbers mean
+
+Within each main group, application groups are numbered 01, 05, 10, 15 and so on: P01 to P50, M01 to M40, K01 to K40, N01 to N30, S01 to S30 and H01 to H30.
+
+- **Low numbers** mean a more wear-resistant cutting material, for higher cutting speeds.
+- **High numbers** mean a tougher cutting material, for higher feeds.
+
+The footnotes to the standard's table say exactly this: increasing speed calls for increasing wear resistance, increasing feed for increasing toughness. A K10 grade is therefore meant for cast iron at high speed and light feed; a P40 grade for steel at lower speed and heavier feed, where toughness matters more than wear resistance.
+
+<Note kind="warn" title="Not every number on an insert box is ISO 513">
+Some makers use their own scales next to or instead of the ISO numbers. Seco, for example, publishes its own 01–60 scale of operations. Check which scale a catalogue uses before comparing grades from different makers.
+</Note>
+
+## Letter symbols for the cutting material
+
+A second set of letters names the type of cutting material.
+
+| Symbol | Cutting material |
+|---|---|
+| **HW** | Uncoated hardmetal, mainly tungsten carbide (WC), grain size ≥ 1 µm |
+| **HF** | Uncoated hardmetal, mainly WC, grain size < 1 µm |
+| **HT** | Uncoated hardmetal, mainly titanium carbide or nitride (TiC, TiN or both); also called cermet |
+| **HC** | Hardmetals as above, but coated |
+| **CA** | Oxide ceramic, mainly aluminium oxide (Al₂O₃) |
+| **CR** | Oxide ceramic, Al₂O₃, reinforced |
+| **CM** | Mixed ceramic, Al₂O₃ with components other than oxides |
+| **CN** | Silicon nitride ceramic (Si₃N₄) |
+| **CC** | Ceramics as above, but coated |
+| **DM** | Monocrystalline diamond |
+| **DD** | Polycrystalline diamond without binder |
+| **DP** | Polycrystalline diamond with binder |
+| **BL** | Cubic boron nitride with low cBN content |
+| **BH** | Cubic boron nitride with high cBN content |
+| **BC** | Cubic boron nitride as above, but coated |
+
+## Reading a full designation
+
+The full designation is the material symbol, a dash, and the application group. The standard's own examples:
+
+- **HW-P10**: uncoated carbide, WC grain ≥ 1 µm, for steel, toward the wear-resistant end.
+- **HC-K20**: coated carbide for cast iron, in the middle of the K range.
+- **CA-K10**: aluminium oxide ceramic for cast iron, toward the wear-resistant end.
+
+<Figure caption="The three example designations taken apart. The scale shows where the application group sits in its main group's range. Pick an example to compare.">
+  <Iso513Code locale="en" />
+</Figure>
+
+## Using it in practice
+
+1. Find the main group from the work material. An austenitic stainless steel is M, not P, even though it is steel.
+2. Choose the position on the scale from the operation. High speed and light feed point to low numbers; heavy feed and a need for toughness point to high numbers.
+3. Pick a grade whose published range covers that position, then confirm it with the maker's own cutting data.
+
+To decode the rest of an insert's designation — shape, clearance, tolerance, size — use the [insert code decoder](/tools/insert-code-decoder/).

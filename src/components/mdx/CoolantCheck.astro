@@ -1,0 +1,163 @@
+---
+/**
+ * Coolant concentration check and correction. Left: a schematic refractometer eyepiece, a Brix scale with the
+ * light/dark boundary at the reading; on entry the boundary starts at zero (the water check) and moves to the sample's
+ * reading. "Tramp oil" blurs the boundary. Right: concentration = reading × factor. Below: how many litres of
+ * concentrate, premix or water take the sump from the measured to the target concentration (volume balance).
+ * Arithmetic in src/lib/coolant.ts.
+ */
+interface Props { locale: 'en' | 'tr'; c?: number; target?: number; volume?: number }
+const { locale, c = 3, target = 5, volume = 400 } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { conc: 'Tanktaki gerçek konsantrasyon', factor: 'Refraktometre faktörü (ürün bilgi formundan)', oil: 'yabancı yağ (tramp oil) var', read: 'Okunan değer', result: 'Konsantrasyon = okuma × faktör', fix: 'Tankı düzeltin', vol: 'Tank hacmi', tgt: 'Hedef konsantrasyon', add: 'Ne eklenecek', neat: 'saf konsantre', pre: 'hazır karışım', water: 'su', preS: 'Hazır karışımın konsantrasyonu', need: 'Eklenecek miktar', end: 'Sonuçta tank', no: 'bu yolla mümkün değil', zero: '1 · su → 0', sample: '2 · numune', brix: '°Brix', aria: 'Şematik refraktometre görüntüsü: aydınlık ve koyu alan arasındaki sınır Brix ölçeğinde okunur', blurNote: 'Sınır bulanık: okuma güvenilmez', l: 'L', pc: '%' }
+  : { conc: 'True concentration in the sump', factor: 'Refractometer factor (from the product sheet)', oil: 'tramp oil present', read: 'Reading', result: 'Concentration = reading × factor', fix: 'Correct the sump', vol: 'Sump volume', tgt: 'Target concentration', add: 'What to add', neat: 'neat concentrate', pre: 'premix', water: 'water', preS: 'Premix concentration', need: 'Amount to add', end: 'Sump afterwards', no: 'not possible this way', zero: '1 · water → 0', sample: '2 · sample', brix: '°Brix', aria: 'Schematic refractometer view: the boundary between the light and the dark field is read on the Brix scale', blurNote: 'Boundary blurred: the reading is unreliable', l: 'L', pc: '%' };
+const FACTORS = [0.9, 1, 2.5, 3.4];
+const num = (v: number, d = 1) => (tr ? v.toFixed(d).replace('.', ',') : v.toFixed(d));
+const pct = (v: string) => (tr ? `%${v}` : `${v} %`);
+---
+<div class="cc" data-cc data-locale={locale} data-anim>
+  <div class="top">
+    <svg class="eye" viewBox="0 0 300 326" role="img" aria-label={T.aria} data-eye></svg>
+    <div class="side">
+      <label class="field"><span>{T.conc} <output data-o="c">{pct(num(c))}</output></span><input type="range" min="0.5" max="15" step="0.1" value={c} data-i="c" /></label>
+      <div class="field"><span>{T.factor}</span><div class="seg" data-g="f">{FACTORS.map((f) => <button type="button" data-v={f} aria-pressed={String(f === 1)}>{num(f)}</button>)}</div></div>
+      <label class="chk"><input type="checkbox" data-i="oil" /> <span>{T.oil}</span></label>
+      <dl class="read">
+        <div><dt>{T.read}</dt><dd class="num" data-o="r">—</dd></div>
+        <div><dt>{T.result}</dt><dd class="num" data-o="k">—</dd></div>
+      </dl>
+      <p class="warn" data-o="w" hidden>{T.blurNote}</p>
+    </div>
+  </div>
+  <div class="mix">
+    <h4>{T.fix}</h4>
+    <div class="ctl">
+      <label class="field"><span>{T.vol} <output data-o="v">{volume}</output> {T.l}</span><input type="range" min="50" max="3000" step="10" value={volume} data-i="v" /></label>
+      <label class="field"><span>{T.tgt} <output data-o="t">{pct(num(target))}</output></span><input type="range" min="0.5" max="15" step="0.1" value={target} data-i="t" /></label>
+      <div class="field"><span>{T.add}</span><div class="seg" data-g="a"><button type="button" data-v="neat" aria-pressed="true">{T.neat}</button><button type="button" data-v="pre" aria-pressed="false">{T.pre}</button><button type="button" data-v="water" aria-pressed="false">{T.water}</button></div></div>
+      <label class="field" data-pre hidden><span>{T.preS} <output data-o="p">{pct(num(10))}</output></span><input type="range" min="1" max="30" step="0.5" value="10" data-i="p" /></label>
+    </div>
+    <dl class="read two">
+      <div><dt>{T.need}</dt><dd class="num big" data-o="x">—</dd></div>
+      <div><dt>{T.end}</dt><dd class="num" data-o="e">—</dd></div>
+    </dl>
+  </div>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .cc { display: grid; gap: 1rem; }
+  .top { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 1rem; align-items: center; }
+  @media (max-width: 40rem) { .top { grid-template-columns: 1fr; } .eye { max-width: 17rem; margin: 0 auto; } }
+  .eye { width: 100%; height: auto; display: block; }
+  .side { display: grid; gap: 0.8rem; }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .seg { display: flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1; font: inherit; font-size: 0.82rem; padding: 0.35rem 0.4rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.2rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .chk { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; color: var(--ink-2); }
+  .chk input { width: 1.05rem; height: 1.05rem; accent-color: var(--accent); }
+  .read { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem 1rem; margin: 0; }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; font: 600 1.1rem var(--font-mono); color: var(--ink); }
+  .read dd.big { font-size: 1.4rem; color: #0f7a6e; }
+  .warn { margin: 0; font-size: 0.85rem; color: #b23a34; }
+  .mix { border-top: 1px solid var(--line); padding-top: 0.9rem; display: grid; gap: 0.7rem; }
+  .mix h4 { margin: 0; font: 600 0.95rem var(--font-sans); color: var(--ink); }
+  .ctl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 1.2rem; align-items: end; }
+  @media (max-width: 40rem) { .ctl { grid-template-columns: 1fr; } }
+  .cc :global(.tk) { stroke: #364554; stroke-width: 1.2; }
+  .cc :global(.tn) { font: 600 13px var(--font-mono); fill: #152230; }
+  .cc :global(.tu) { font: 11px var(--font-mono); fill: #364554; }
+  .cc :global(.tl) { font: 600 13px var(--font-sans); fill: #364554; }
+</style>
+
+<script>
+  import { concentration, readingFor, addFor, mixed } from '../../lib/coolant';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-cc]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const I = (k: string) => q<HTMLInputElement>(`[data-i="${k}"]`);
+    const eye = q<SVGSVGElement>('[data-eye]');
+    const uid = `cc-${root.dataset.locale}-${Math.random().toString(36).slice(2, 7)}`;
+    let factor = 1, add = 'neat', shown = 0, anim = false;
+    const dec = (v: number, d = 1) => (tr ? v.toFixed(d).replace('.', ',') : v.toFixed(d));
+    const pct = (s: string) => (tr ? `%${s}` : `${s} %`);
+    const MAX = 20;                                             // scale 0–20 °Brix
+    const drawEye = (reading: number, blur: boolean, label: string, stage: string) => {
+      const c = 150, R = 128, top = 50, bot = 250;
+      const Y = (b: number) => bot - (Math.min(MAX, Math.max(0, b)) / MAX) * (bot - top);
+      const yb = Y(reading);
+      let ticks = '';
+      for (let b = 0; b <= MAX; b += 1) {
+        const y = Y(b), long = b % 5 === 0;
+        ticks += `<line x1="${c - 4}" x2="${c + (long ? 22 : 12)}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" class="tk"/>`;
+        if (long) ticks += `<text x="${c - 10}" y="${(y + 4.5).toFixed(1)}" class="tn" text-anchor="end">${b}</text>`;
+      }
+      eye.innerHTML = `
+        <defs>
+          <clipPath id="${uid}-c"><circle cx="${c}" cy="${c}" r="${R}"/></clipPath>
+          <linearGradient id="${uid}-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e5fc4"/><stop offset="1" stop-color="#6ea6e8"/></linearGradient>
+          <filter id="${uid}-b" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="0 7"/></filter>
+        </defs>
+        <circle cx="${c}" cy="${c}" r="${R + 10}" fill="#152230"/>
+        <g clip-path="url(#${uid}-c)">
+          <rect x="0" y="0" width="300" height="300" fill="#f7f9fb"/>
+          <rect x="0" y="0" width="300" height="${yb.toFixed(1)}" fill="url(#${uid}-g)" ${blur ? `filter="url(#${uid}-b)"` : ''}/>
+          ${ticks}
+          <text x="${c + 30}" y="${(Y(17.5) + 4).toFixed(1)}" class="tu">${T.brix}</text>
+        </g>
+        <circle cx="${c}" cy="${c}" r="${R}" fill="none" stroke="#0b1520" stroke-width="3"/>
+        <g clip-path="url(#${uid}-c)"><line x1="${c - R}" x2="${c + 26}" y1="${yb.toFixed(1)}" y2="${yb.toFixed(1)}" stroke="#e2601a" stroke-width="2" stroke-dasharray="5 4"/></g>
+        <rect x="${c + 28}" y="${(yb - 10).toFixed(1)}" width="44" height="20" rx="5" fill="#fff" stroke="#e2601a" stroke-width="1.5"/>
+        <text x="${c + 50}" y="${(yb + 4.5).toFixed(1)}" class="tn" text-anchor="middle" style="fill:#c94f0c">${label}</text>
+        <text x="${c}" y="318" class="tl" text-anchor="middle">${stage}</text>`;
+    };
+    const update = () => {
+      const conc = +I('c').value, blur = I('oil').checked;
+      const reading = readingFor(conc, factor);
+      if (!anim) shown = reading;
+      drawEye(shown, blur, dec(shown, 1), T.sample);
+      q('[data-o="c"]').textContent = pct(dec(conc));
+      q('[data-o="r"]').textContent = `${dec(Math.round(reading * 10) / 10)} ${T.brix}`;
+      const rs = Math.round(reading * 10) / 10;          // one reads the scale to 0.1 °Brix
+      q('[data-o="k"]').textContent = `${dec(rs)} × ${dec(factor)} = ${pct(dec(concentration(rs, factor), 2))}`;
+      (q('[data-o="w"]') as HTMLElement).hidden = !blur;
+      // sump correction from the measured concentration
+      const V = +I('v').value, t = +I('t').value, ps = +I('p').value;
+      const cA = add === 'neat' ? 100 : add === 'pre' ? ps : 0;
+      const x = addFor(V, conc, t, cA);
+      q('[data-o="v"]').textContent = String(V);
+      q('[data-o="t"]').textContent = pct(dec(t));
+      q('[data-o="p"]').textContent = pct(dec(ps));
+      (q('[data-pre]') as HTMLElement).hidden = add !== 'pre';
+      if (Number.isNaN(x)) { q('[data-o="x"]').textContent = T.no; q('[data-o="e"]').textContent = '—'; }
+      else {
+        q('[data-o="x"]').textContent = `${dec(x, x < 10 ? 2 : 1)} ${T.l}`;
+        q('[data-o="e"]').textContent = `${dec(V + x, 0)} ${T.l} · ${pct(dec(mixed(V, conc, x, cA)))}`;
+      }
+    };
+    const seg = (g: string, set: (v: string) => void) => root.querySelectorAll<HTMLButtonElement>(`[data-g="${g}"] button`).forEach((b, _, all) => b.addEventListener('click', () => { set(b.dataset.v!); all.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); update(); }));
+    seg('f', (v) => (factor = Number(v))); seg('a', (v) => (add = v));
+    ['c', 'oil', 'v', 't', 'p'].forEach((k) => I(k).addEventListener('input', update));
+    update();
+    whenIn(root, () => {
+      // zero with water first, then the sample
+      anim = true; const target = readingFor(+I('c').value, factor), t0 = performance.now();
+      const step = (now: number) => {
+        const u = Math.min(1, (now - t0) / 2600);
+        if (u < 0.35) { shown = 0; drawEye(0, I('oil').checked, dec(0, 1), T.zero); }
+        else { const e = (u - 0.35) / 0.65, k = 1 - (1 - e) ** 3; shown = target * k; drawEye(shown, I('oil').checked, dec(shown, 1), T.sample); }
+        if (u < 1) requestAnimationFrame(step); else { anim = false; update(); }
+      };
+      requestAnimationFrame(step);
+    });
+  });
+</script>

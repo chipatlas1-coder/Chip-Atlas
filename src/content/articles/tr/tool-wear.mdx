@@ -1,0 +1,145 @@
+---
+key: tool-wear
+locale: tr
+slug: takim-asinmasi
+title: 'Takım aşınması — tipler, mekanizmalar ve kriterler'
+description: 'Bir kesici kenar nasıl aşınır? Aşınma eğrisi, beş aşınma mekanizması, kesici uçta görülen sekiz aşınma tipi ile nedenleri ve çözümleri, ISO 3685 ve ISO 8688''in takım ömrü kriterleri.'
+section: 1
+subsection: tool-wear
+order: 1
+updated: 2026-10-11
+tools: []
+glance:
+  - value: '0,3'
+    unit: 'mm'
+    label: 'Karbür için ISO 3685 kriteri: ortalama serbest yüzey aşınması VB'
+  - value: '0,14'
+    unit: 'mm'
+    label: 'f = 0,25 mm/dev için krater kriteri KT'
+  - value: '5'
+    label: 'Aşınma mekanizması'
+  - value: '8'
+    label: 'Kesici uçta görülebilen aşınma tipi'
+sources:
+  - label: 'Sandvik Coromant, "Diagnosing insert wear — causes, signs, remedies", izinle Fastenal Blue Print''te yeniden yayımlandı, 2025'
+    url: https://blueprint.fastenal.com/diagnosing-insert-wear-causes-signs-remedies.html
+  - label: 'Seco Tools, "Tool wear patterns & how to optimize them"'
+    url: https://www.secotools.com/article/122073
+  - label: 'ISCAR, "ISO Turning — Insert wear troubleshooting"'
+    url: https://www.iscar.com/products.aspx/countryid/1/productid/12344
+  - label: 'Mitsubishi Materials, "Tool damage form" (teknik bilgi)'
+    url: https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/information/wear.html
+  - label: 'Kennametal, tornalamada sorun giderme (teknik ipuçları)'
+    url: https://stage65.kennametal.com/nl/en/resources/technical-tips/technical-tips--turning/troubleshooting-turning.html
+  - label: 'Kennametal, değiştirilebilir uçlu frezelemede sorun giderme (teknik ipuçları)'
+    url: https://stage65.kennametal.com/ca/en/resources/technical-tips/milling/troubleshooting-indexable-milling.html
+  - label: 'J. A. Arsecularatne, L. C. Zhang, C. Montross, "Wear and tool life of tungsten carbide, PCBN and PCD cutting tools", Int. J. Machine Tools & Manufacture 46, 482–491, 2006'
+    url: https://www.precision-manufacturing.unsw.edu.au/sites/pm/files/uploads/Publications/Cutting_Drilling_Polishing/wear_and_tool_life_of_tungsten_carbide_pcbn_and_pcd_cutting_tools.pdf
+  - label: 'Gaziantep Üniversitesi, takım aşınması ve takım ömrü ders notları'
+    url: https://akbis.gantep.edu.tr/yonetim/upload/files/26786-8194.pdf
+  - label: 'ACS College of Engineering, Metal cutting modül 3 (aşınma mekanizmaları, Taylor üssü)'
+    url: https://www.acsce.edu.in/acsce/wp-content/uploads/2020/04/Metal-Cutting-Forming-Module-3.pdf
+  - label: 'King Saud Üniversitesi, ders 2 bölüm 2, "Tool wear and tool life"'
+    url: https://faculty.ksu.edu.sa/sites/default/files/lecture-02-part-2-tool_wear_and_tool_life.pdf
+  - label: 'ISO 3685:1993, Tool-life testing with single-point turning tools (resmî önizleme)'
+    url: https://cdn.standards.iteh.ai/samples/9151/fa7bcfc3345a409091210d0fafe0676d/ISO-3685-1993.pdf
+  - label: 'Annals of the Faculty of Engineering Hunedoara 2017/4, makale 17 (ISO 3685 takım ömrü kriterlerini verir)'
+    url: https://annals.fih.upt.ro/pdf-full/2017/ANNALS-2017-4-17.pdf
+  - label: 'ISO 8688-2:1989, Tool life testing in milling — Part 2: End milling (iTeh önizlemesi)'
+    url: https://standards.iteh.ai/catalog/standards/iso/fcfc12ce-1d33-4e59-92a8-f45fcfecc6b4/iso-8688-2-1989
+  - label: 'Padova Üniversitesi, Kalpakjian & Schmid''e göre takım ömrü dersi (ders kitabı aşınma sınırları)'
+    url: https://stem.elearning.unipd.it/mod/resource/view.php?id=314998
+---
+import WearCurve from '../../../components/mdx/WearCurve.astro';
+import WearTypes from '../../../components/mdx/WearTypes.astro';
+import WearMeasures from '../../../components/mdx/WearMeasures.astro';
+import Model3D from '../../../components/mdx/Model3D.astro';
+
+Her kesici kenar ilk saniyesinden itibaren aşınır. Önemli olan ne hızla, hangi biçimde aşındığı ve ne zaman durulacağıdır. Aşınmış bir kenar kuvvetleri ve sıcaklığı artırır, ölçüyü ve yüzeyi bozar; çok uzun kullanılırsa kırılır ve parçayı da beraberinde götürebilir. Kullanılmış bir uçtaki aşınmayı okumak, bir kesmede neyin yanlış gittiğini anlamanın en hızlı yoludur.
+
+## Aşınma eğrisi
+
+Serbest yüzey aşınma bandının genişliği VB'yi kesme süresine karşı çizin; hemen her takım aynı üç bölümlü eğriyi verir.
+
+<Figure caption="Şematik serbest yüzey aşınma eğrisi. Takım, VB seçilen kritere ulaştığında değiştirilir; ISO 3685 karbür için ortalama VB = 0,3 mm kullanır.">
+  <WearCurve locale="tr" />
+</Figure>
+
+1. **Alışma.** Yeni bir kenar, yeni bilenmiş kenarın küçük düzensizlikleri giderilirken önce hızla aşınır.
+2. **Kararlı aşınma.** Aşınma zamanla yaklaşık doğrusal artar. Eğim kesme hızına, takım geometrisine, iş malzemesine ve soğutma sıvısına bağlıdır. Takım ömrünün büyük kısmı bu bölgede geçer.
+3. **Hızlanan aşınma.** Aşınmış kenar daha sıcak çalışır ve daha ağır yüklenir; aşınma hızlanır, ardından termal çatlaklar ve plastik deformasyon gelir ve sonunda kenar kırılır.
+
+Mantıklı bir takım değiştirme noktası, eğri yukarı kıvrılmadan önce, kararlı bölgededir.
+
+## Beş mekanizma
+
+Takımdan malzeme kaldıran birkaç fiziksel mekanizma vardır. Hangisinin baskın olduğu esas olarak kesme sıcaklığına, dolayısıyla kesme hızına bağlıdır.
+
+- **Abrazyon.** İş malzemesindeki sert parçacıklar takımı bir aşındırıcı gibi çizer. Düşük hız ve sıcaklıklarda baskındır.
+- **Adezyon.** Yüksek basınç ve sıcaklıkta iş malzemesi takıma kaynar; kaynak koptuğunda takımdan parçacıklar koparır. Düşük kesme sıcaklıklarında aynı mekanizma yığıntı talaş oluşturur.
+- **Difüzyon.** Yüksek sıcaklıkta atomlar takım–talaş ara yüzeyinden geçer ve takım sertleştirici elementlerini kaybeder. Difüzyon krater aşınmasının ana mekanizması olarak kabul edilir. Arsecularatne ve arkadaşları, karbür takımla pratik hızlarda çelik kesmede baskın aşınma mekanizmasının difüzyon olduğunu belirtir.
+- **Oksidasyon.** Yüksek sıcaklıkta açıktaki takım yüzeylerinde bir oksit tabakası oluşur. Takım malzemesinden yumuşak olduğu için bu tabaka sıyrılıp gider.
+- **Termal yorulma.** Frezelemede ve kesintili kesmelerde olduğu gibi tekrarlanan ısınma ve soğuma kenarı çatlatır ve sonunda kırabilir.
+
+Kenarın plastik deformasyonu da çoğu zaman bunların yanında sayılır: bağlayıcı yüksek sıcaklıkta yumuşar ve yük kenarın biçimini bozar.
+
+<Note kind="note" title="Hız arttıkça sıralama">
+Arsecularatne ve arkadaşlarının atıf yaptığı Opitz ve König şemasında en düşük hızlarda abrazyon, sonra adezyon, en yüksek hızlarda difüzyon baskındır. Bunu bir eğilim olarak okuyun: genellikle birkaç mekanizma aynı anda etkilidir.
+</Note>
+
+## Kesici uçta sekiz aşınma tipi
+
+Tablo, Sandvik Coromant, Seco, ISCAR, Mitsubishi ve Kennametal'in sorun giderme kılavuzlarında anlatılan aşınma tiplerini özetler. Yalnızca bu üreticilerden birkaçının hemfikir olduğu nedenleri ve çözümleri listeler.
+
+| Aşınma tipi | Görünüşü | Tipik nedenleri | İlk çözümler |
+|---|---|---|---|
+| **Serbest yüzey aşınması** | Serbest yüzeyde, kenar çizgisinden başlayıp aşağı doğru büyüyen aşınma bandı | Abrazyon; hız çok yüksek; kalite yeterince aşınma dirençli değil | Kesme hızını düşürün; daha aşınma dirençli bir kalite kullanın |
+| **Krater aşınması** | Talaş yüzeyinde kenarın arkasında düzgün bir çukur | Yüksek sıcaklıkta difüzyon; hız veya ilerleme çok yüksek | Hızı ve ilerlemeyi düşürün; aşınma dirençli bir kaplama (Seco kalın Al₂O₃ önerir); daha pozitif bir geometri |
+| **Çentik aşınması** | Kesme derinliği çizgisinde yerel hasar | Pekleşmiş, tufalli ya da sert yüzey tabakası; çapak oluşumu; oksidasyon | Pasolar arasında kesme derinliğini değiştirin; daha küçük bir yanaşma açısı kullanın |
+| **Plastik deformasyon** | Kenar çöker ya da içeri basılır; biçim kalıcı olarak değişir | Yüksek sıcaklıkla birlikte yüksek kuvvet; bağlayıcı yumuşar | Sıcak sertliği daha yüksek bir kalite; daha düşük hız ve ilerleme |
+| **Kenar ufalanması** | Kenar çizgisinden küçük parçalar kopmuş; uç hâlâ kesebilir | Titreşim, kesintili kesme, sert kalıntılar, zayıf kenar, yığıntı talaş | Daha tok bir kalite; daha dayanıklı kenar (honlama ya da pah); daha rijit bağlama; giriş ve çıkışta daha düşük ilerleme |
+| **Termal çatlaklar** | Kenara yaklaşık dik, tarak dişlerine benzeyen çatlaklar | Frezelemede, kesintili kesmede ya da aralıklı soğutmada hızlı sıcaklık değişimleri | Daha tok bir kalite; daha düşük hız ve ilerleme; aralıklı soğutmadan kaçının (aşağıya bakın) |
+| **Yığıntı talaş** | Talaş yüzeyine ya da kenara kaynamış iş malzemesi | Kesme sıcaklığı ya da hızı çok düşük; düşük karbonlu çelik, paslanmaz çelik, alüminyum gibi yapışkan malzemeler | Kesme hızını artırın (tüm üreticiler hemfikir); daha keskin, daha pozitif bir kenar; soğutma sıvısı |
+| **Kırılma** | Kenarın büyük bir kısmı kopmuş; uç bitmiştir | Kenarın dayanımını aşan yük; çoğu zaman aşırı aşınmadan sonra ya da yanlış kesme verileriyle | Daha tok bir kalite ya da daha dayanıklı geometri; daha düşük ilerleme ve kesme derinliği; ucu daha erken çevirin; rijitliği kontrol edin |
+
+<Figure wide caption="Tablodaki sekiz aşınma tipi, ana kesme kenarı sağda olacak şekilde aynı uç köşesi üzerinde. Hasarlı bölgeler turuncu çizgiyle gösterilir.">
+  <WearTypes locale="tr" />
+</Figure>
+
+<Figure caption="Aynı üç aşınma tipi, 80°'lik eşkenar dörtgen bir uç üzerinde 3B: ana kesme kenarının altındaki serbest yüzey aşınma bandı, arkasında talaş yüzeyindeki krater ve kesme derinliği çizgisindeki çentik. Aşınma bu ölçekte görülebilsin diye gerçekte olduğundan büyük çizilmiştir.">
+  <Model3D locale="tr" kind="insert" />
+</Figure>
+
+<Note kind="warn" title="Üreticilerin ayrıştığı yerler">
+**Çentik aşınması:** Mitsubishi ve ISCAR daha aşınma dirençli bir kalite önerir; Seco daha tok bir kalite önerir. Isıya dayanıklı alaşımlarda Seco hızı artırmanın yardımcı olduğunu, ISCAR ise düşürmenin yardımcı olduğunu söyler.
+**Termal çatlaklar ve soğutma:** Sandvik Coromant soğutmayı ya bol uygulayın ya da hiç uygulamayın der; ISCAR kesintili kesmede kapatılmasını söyler; Seco sürekli uygulanmasını söyler; Mitsubishi bol (taşırma) soğutma önerir. Hepsi nedenin sıcaklık değişimi olduğunda hemfikirdir; ortak nokta aralıklı soğutmadan kaçınmaktır.
+</Note>
+
+## Takım ne zaman aşınmış sayılır?
+
+Takım ömrü kriteri, takımın aşınmış sayıldığı, önceden belirlenmiş bir aşınma ölçüsü değeridir. Standart deneyler, farklı laboratuvarların sonuçları karşılaştırılabilsin diye sabit değerler kullanır.
+
+**ISO 3685:1993, tek ağızlı tornalama takımları:**
+
+| Takım malzemesi | Kriter |
+|---|---|
+| Sinterlenmiş karbür | Serbest yüzey düzenli aşınmışsa ortalama aşınma VB<sub>B</sub> = 0,3 mm |
+| | Serbest yüzey düzensiz aşınmışsa en büyük aşınma VB<sub>B max</sub> = 0,6 mm |
+| | Krater derinliği KT = 0,06 + 0,3 f (mm; f, mm/dev cinsinden ilerleme) |
+| Yüksek hız çeliği | Tam kırılma ya da yukarıdaki VB<sub>B</sub> sınırları |
+
+0,25 mm/dev ilerleme için krater kriteri KT = 0,06 + 0,3 · 0,25 ≈ 0,14 mm'dir.
+
+<Figure caption="Tablodaki ölçülerin alındığı yerler, şematik: önden görülen serbest yüzey aşınma bandı, ISO 3685'in C (köşe), B (düz kenar) ve N (kesme derinliği çizgisine doğru uç) bölgelerine ayrılmış, ve krater derinliği KT ile kenardan geçen bir kesit. Başka bir ilerlemenin krater kriterini görmek için sürgüyü kaydırın.">
+  <WearMeasures locale="tr" />
+</Figure>
+
+**ISO 8688-2:1989, parmak frezeleme:** tüm dişlerin ortalaması olarak 0,3 mm düzenli serbest yüzey aşınması önerilir.
+
+<Note kind="key" title="Deney kriterleri atölye kuralı değildir">
+Bunlar karşılaştırılabilir deneyler için verilmiş değerlerdir. Üretimde doğru sınır toleransa, yüzey kalitesine ve kırık bir kenarın maliyetine bağlıdır. Kalpakjian ve Schmid'in tornalama için verdiği ders kitabı sınırları daha geniştir: HSS için 1,5 mm, karbür için 0,4 mm. Kennametal, değiştirilebilir uçlu frezelemede kaba işlemde 0,38–0,50 mm, ince işlemde 0,25–0,38 mm ya da daha erken serbest yüzey aşınmasında ucun çevrilmesini önerir.
+</Note>
+
+## Aşınmadan takım ömrüne
+
+Kritere ulaşma süresi takım ömrü T'dir. Kesme hızı arttıkça keskin biçimde düşer; Taylor denklemi bunu anlatır. Nasıl ölçüldüğü ve en düşük maliyeti veren hızın nasıl seçildiği için [Taylor takım ömrü denklemi](/tr/temeller/taylor-takim-omru/) sayfasına bakın.

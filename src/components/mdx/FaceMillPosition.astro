@@ -1,0 +1,147 @@
+---
+/**
+ * Face mill over the work, plan view: cutter diameter against the width of cut and the cutter's position across
+ * it. The engaged arc is split into its conventional part (α > 0: the chip grows from the entry) and its climb part
+ * (α < 0: the chip thins towards the exit); the offset is limited so the cutter always covers the width of cut;
+ * the chip ribbon along it is drawn as thick as h = fz · cos α · sin κr, and the readouts give the chip at
+ * entry and exit as a share of fz · sin κr. Under the slider, the cutter-to-width ratios makers publish.
+ * Geometry in src/lib/facemill.ts. The cutter turns clockwise seen from the spindle (M03).
+ */
+import { RATIOS, maxOffset } from '../../lib/facemill';
+interface Props { locale: 'en' | 'tr'; ratio?: number; off?: number }
+const { locale, ratio = 1.3, off: off0 = 0 } = Astro.props;
+const lim0 = maxOffset(ratio), off = Math.max(-lim0, Math.min(lim0, off0));
+const tr = locale === 'tr';
+const T = tr
+  ? { ratio: 'Freze çapı / kesme genişliği Dc/ae', off: 'Freze merkezinin kayması e/ae', entry: 'giriş', exit: 'çıkış', climb: 'aynı yönlü', conv: 'zıt yönlü', feed: 'ilerleme', hIn: 'Girişte talaş', hOut: 'Çıkışta talaş', share: 'Aynı yönlü pay', unit: '× fz·sin κr', makers: 'Üreticilerin önerdiği oranlar', equal: 'Dc = ae: dişler teğet girer, sürtme', work: 'iş parçası', aria: 'Alın frezeleme, üstten: freze çapı ve kesme genişliğine göre konumu; kavrama yayı zıt ve aynı yönlü kısımlara ayrılmış, talaş kalınlığı yay boyunca' }
+  : { ratio: 'Cutter diameter / width of cut Dc/ae', off: 'Cutter centre offset e/ae', entry: 'entry', exit: 'exit', climb: 'climb', conv: 'conventional', feed: 'feed', hIn: 'Chip at entry', hOut: 'Chip at exit', share: 'Climb share', unit: '× fz·sin κr', makers: 'Ratios the makers recommend', equal: 'Dc = ae: tangential entry, rubbing', work: 'workpiece', aria: 'Face milling, plan view: the cutter diameter and its position across the width of cut; the engaged arc split into climb and conventional parts, with the chip thickness along it' };
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+const bandX = (r: number) => 1 + (r - 1) * 98;      // % across the 1.0–2.0 scale, under the slider
+---
+<div class="fp" data-fp data-locale={locale} data-anim>
+  <svg viewBox="0 0 640 330" role="img" aria-label={T.aria} class="plot" data-svg></svg>
+  <div class="ctl">
+    <label class="field"><span>{T.ratio} <output data-o="r">{dec(ratio.toFixed(2))}</output></span>
+      <input type="range" min="1" max="2" step="0.01" value={ratio} data-i="r" />
+      <span class="bands" aria-hidden="true">
+        {RATIOS.map((b, i) => <i class={`b${i}`} style={`left:${bandX(b.lo)}%; width:${Math.max(1.2, bandX(b.hi) - bandX(b.lo))}%; top:${i * 7}px`} title={b.who}></i>)}
+      </span>
+      <span class="bandkey">{RATIOS.map((b, i) => <em class={`k${i}`}>{b.who}</em>)}</span>
+    </label>
+    <label class="field"><span>{T.off} <output data-o="e">{dec(off.toFixed(2))}</output></span>
+      <input type="range" min={-lim0} max={lim0} step="0.01" value={off} data-i="e" /></label>
+  </div>
+  <dl class="read">
+    <div><dt>{T.hIn}</dt><dd class="num" data-o="hi">—</dd></div>
+    <div><dt>{T.hOut}</dt><dd class="num" data-o="ho">—</dd></div>
+    <div><dt>{T.share}</dt><dd class="num" data-o="cs">—</dd></div>
+  </dl>
+  <p class="warn" data-o="w" hidden>{T.equal}</p>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .fp { display: grid; gap: 0.8rem; }
+  .plot { width: 100%; height: auto; display: block; }
+  .ctl { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 0.8rem 1.2rem; align-items: start; }
+  @media (max-width: 40rem) { .ctl { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; position: relative; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .bands { position: relative; display: block; height: 30px; margin: 0 2px; border-top: 1px dashed var(--line-strong); }
+  .bands i { position: absolute; height: 5px; border-radius: 3px; }
+  .b0, .k0::before { background: #2a6fd6; }
+  .b1, .k1::before { background: #13998a; }
+  .b2, .k2::before { background: #e2601a; }
+  .b3, .k3::before { background: #8b52c9; }
+  .bandkey { display: flex; flex-wrap: wrap; gap: 0.2rem 0.8rem; font-size: 0.72rem; color: var(--ink-3); }
+  .bandkey em { font-style: normal; display: inline-flex; align-items: center; gap: 0.3rem; }
+  .bandkey em::before { content: ''; width: 0.9rem; height: 5px; border-radius: 3px; }
+  .read { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem 1rem; margin: 0; }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; color: var(--ink); font-size: 1.05rem; font-family: var(--font-mono); }
+  .warn { margin: 0; font-size: 0.85rem; color: #b23a34; }
+  .fp :global(.wk) { fill: url(#ca-hatch); stroke: #364554; stroke-width: 1.5; }
+  .fp :global(.cut) { fill: #e9eef3; stroke: none; }
+  .fp :global(.body) { fill: url(#ca-face); fill-opacity: 0.35; stroke: #364554; stroke-width: 1.4; }
+  .fp :global(.ins) { fill: url(#ca-coat); stroke: #8a6420; stroke-width: 0.8; }
+  .fp :global(.arcc) { fill: none; stroke: #13998a; stroke-width: 5; stroke-linecap: round; }
+  .fp :global(.arcv) { fill: none; stroke: #e2601a; stroke-width: 5; stroke-linecap: round; }
+  .fp :global(.rib) { fill: #e3b23c; fill-opacity: 0.55; stroke: #b9822a; stroke-width: 0.8; }
+  .fp :global(.ax) { stroke: #5f6c79; stroke-dasharray: 6 3 1.5 3; stroke-width: 1; }
+  .fp :global(.dim) { stroke: #1e5fc4; stroke-width: 1.2; }
+  .fp :global(.feed) { stroke: #e2601a; stroke-width: 2; }
+  .fp :global(.t) { font: 12px var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+  .fp :global(.t.c) { fill: #0f7a6e; }
+  .fp :global(.t.v) { fill: #c94f0c; }
+  .fp :global(.t.d) { fill: #1e5fc4; }
+  .fp :global(.t.k) { fill: #152230; font-weight: 600; }
+  :global(html.anim) .fp :global(.rot) { animation: fp-spin 6s linear infinite; }
+  @keyframes fp-spin { to { transform: rotate(360deg); } }
+</style>
+
+<script>
+  import { engagement, maxOffset } from '../../lib/facemill';
+  document.querySelectorAll<HTMLElement>('[data-fp]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const rIn = q<HTMLInputElement>('[data-i="r"]'), eIn = q<HTMLInputElement>('[data-i="e"]');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const f1 = (v: number) => v.toFixed(1);
+    const pct = (v: number) => (tr ? `%${Math.round(v * 100)}` : `${Math.round(v * 100)} %`);
+    const draw = () => {
+      const ratio = Number(rIn.value), lim = maxOffset(ratio);
+      eIn.min = String(-lim); eIn.max = String(lim);
+      const off = Math.max(-lim, Math.min(lim, Number(eIn.value)));
+      eIn.value = String(off);
+      const g = engagement({ ratio, off });
+      const S = 118;                                   // px per ae
+      const cy = 160, cx = 330, R = (ratio / 2) * S, yc = cy - off * S;
+      const yTop = cy - S / 2, yBot = cy + S / 2;
+      const P = (a: number, r = R) => [cx + r * Math.cos(a), yc - r * Math.sin(a)];
+      // ribbon: from entry to exit, inward by the chip thickness (exaggerated)
+      const N = 60, k = 26, outer: string[] = [], inner: string[] = [];
+      for (let i = 0; i <= N; i++) { const a = g.aIn - (g.span * i) / N, h = Math.cos(a); const [x, y] = P(a), [xi, yi] = P(a, R - k * h); outer.push(`${f1(x)},${f1(y)}`); inner.push(`${f1(xi)},${f1(yi)}`); }
+      const rib = `M${outer.join(' L')} L${inner.reverse().join(' L')} Z`;
+      const teeth = Array.from({ length: 8 }, (_, i) => { const a = (i * Math.PI) / 4, [x, y] = P(a, R - 4); return `<rect x="${f1(x - 6)}" y="${f1(y - 6)}" width="12" height="12" rx="2" class="ins" transform="rotate(${f1((-a * 180) / Math.PI + 45)} ${f1(x)} ${f1(y)})"/>`; }).join('');
+      // arcs are drawn clockwise in screen terms from the larger angle to the smaller one
+      const cw = (a0: number, a1: number) => { const [x0, y0] = P(a0), [x1, y1] = P(a1); return `M${f1(x0)},${f1(y0)} A${f1(R)},${f1(R)} 0 0,1 ${f1(x1)},${f1(y1)}`; };
+      const vA = g.aIn > 0 ? cw(g.aIn, Math.max(0, g.aOut)) : '';        // α > 0: conventional
+      const cA = g.aOut < 0 ? cw(Math.min(0, g.aIn), g.aOut) : '';       // α < 0: climb
+      const [xi, yi] = P(g.aIn), [xo, yo] = P(g.aOut);
+      const svg = `
+        <rect x="24" y="${f1(yTop)}" width="592" height="${S}" class="cut"/>
+        <path d="M${f1(xi)},${f1(yTop)} L616,${f1(yTop)} L616,${f1(yBot)} L${f1(xo)},${f1(yBot)} A${f1(R)},${f1(R)} 0 0,0 ${f1(xi)},${f1(yTop)} Z" class="wk"/>
+        <text x="${f1(612)}" y="${f1(yTop - 8)}" class="t" text-anchor="end">${T.work}</text>
+        <line x1="10" x2="630" y1="${f1(yc)}" y2="${f1(yc)}" class="ax"/>
+        <g class="rot" style="transform-origin:${f1(cx)}px ${f1(yc)}px; animation-direction: normal">
+          <circle cx="${f1(cx)}" cy="${f1(yc)}" r="${f1(R)}" class="body"/>
+          ${teeth}
+        </g>
+        <path d="${rib}" class="rib"/>
+        ${cA ? `<path d="${cA}" class="arcc"/>` : ''}
+        ${vA ? `<path d="${vA}" class="arcv"/>` : ''}
+        <circle cx="${f1(cx)}" cy="${f1(yc)}" r="3" fill="#152230"/>
+        <circle cx="${f1(xi)}" cy="${f1(yi)}" r="5" fill="#152230" stroke="#fff" stroke-width="1.5"/><circle cx="${f1(xo)}" cy="${f1(yo)}" r="5" fill="#152230" stroke="#fff" stroke-width="1.5"/>
+        <text x="${f1(xi + 10)}" y="${f1(yi - 8)}" class="t k">${T.entry} ${dec(g.hIn.toFixed(2))}</text>
+        <text x="${f1(xo + 10)}" y="${f1(yo + 18)}" class="t k">${T.exit} ${dec(g.hOut.toFixed(2))}</text>
+        <line x1="40" x2="40" y1="${f1(yTop)}" y2="${f1(yBot)}" class="dim" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)"/>
+        <text x="48" y="${f1(cy + 4)}" class="t d">ae</text>
+        <line x1="${f1(cx - 40)}" x2="${f1(cx + 60)}" y1="300" y2="300" class="feed" marker-end="url(#ca-arr-acc)"/>
+        <text x="${f1(cx + 68)}" y="304" class="t v">${T.feed}</text>
+        ${g.aIn > 0.12 ? (() => { const [x, y] = P(Math.max(0, g.aOut) / 2 + g.aIn / 2, R + 14); return `<text x="${f1(x)}" y="${f1(y + 4)}" class="t v">${T.conv}</text>`; })() : ''}
+        ${g.aOut < -0.12 ? (() => { const [x, y] = P(Math.min(0, g.aIn) / 2 + g.aOut / 2, R + 14); return `<text x="${f1(x)}" y="${f1(y + 4)}" class="t c">${T.climb}</text>`; })() : ''}`;
+      q('[data-svg]').innerHTML = svg;
+      q('[data-o="r"]').textContent = dec(ratio.toFixed(2));
+      q('[data-o="e"]').textContent = dec(off.toFixed(2));
+      q('[data-o="hi"]').textContent = `${dec(g.hIn.toFixed(2))} ${T.unit}`;
+      q('[data-o="ho"]').textContent = `${dec(g.hOut.toFixed(2))} ${T.unit}`;
+      q('[data-o="cs"]').textContent = pct(g.climbShare);
+      (q('[data-o="w"]') as HTMLElement).hidden = ratio > 1.02;
+    };
+    rIn.addEventListener('input', draw); eIn.addEventListener('input', draw);
+    draw();
+  });
+</script>

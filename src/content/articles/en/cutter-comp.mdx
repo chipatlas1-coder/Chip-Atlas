@@ -1,0 +1,108 @@
+---
+key: cutter-comp
+locale: en
+slug: g40-g41-g42-cutter-radius-compensation
+title: 'G40, G41, G42: cutter radius compensation'
+description: 'Programming the part contour and letting the control offset the tool by its radius: G41 left, G42 right, G40 off; the move that turns it on and off, outside corners and small inside arcs, look-ahead, geometry and wear offsets, the CAM compensation types, and tool nose radius compensation on the lathe.'
+section: 9
+subsection: g-code-reference
+order: 2
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'G41 / G42'
+    label: 'Tool left / right of the programmed path, seen in the direction of travel (Haas, LinuxCNC, Siemens, Yaskawa)'
+  - value: '≥ r'
+    label: 'Length of the linear move that turns compensation on: at least the tool radius (LinuxCNC; Productivity for Haas)'
+  - value: '2 blocks'
+    label: 'Haas looks ahead to the next two blocks with X or Y motion to check for interference (Productivity)'
+  - value: '349'
+    label: 'Haas alarm (older lathe documents) when a program stops with compensation still on: PROG STOP W/O CANCEL CUTTER COMP'
+sources:
+  - label: 'LinuxCNC documentation, “Cutter Compensation”'
+    url: https://linuxcnc.org/docs/html/gcode/tool-compensation.html
+  - label: 'LinuxCNC documentation, “G-Codes” (G40, G41/G42, G41.1/G42.1)'
+    url: https://linuxcnc.org/docs/html/gcode/g-code.html
+  - label: 'Productivity Inc. (Haas Factory Outlet), Haas Mill Programming Manual, revised 06/26, pp. 19–41'
+    url: https://productivity.com/wp-content/uploads/2025/10/Mill-Programming-2026.pdf
+  - label: 'Productivity Inc. (Haas Factory Outlet), Haas Mill Programming Manual, revised 05/25, pp. 20–42'
+    url: https://www.productivity.com/wp-content/uploads/2025/05/Mill-Programming-2025.pdf
+  - label: 'Productivity Inc. (Haas Factory Outlet), Haas Lathe Programming Manual, revised 12/2024, pp. 6, 23–24'
+    url: https://www.productivity.com/wp-content/uploads/2025/05/Lathe-Programming.pdf
+  - label: 'Productivity Inc. (Haas Factory Outlet), Haas Lathe Programming Training Manual, revised 8/2022'
+    url: https://www.productivity.com/wp-content/uploads/2022/08/Haas-Lathe-Programming-8-2022.pdf
+  - label: 'Haas Automation, Programming ST/TL, Haas lathe series workbook, 2015, pp. 17–21 (copy hosted by the University of Florida)'
+    url: https://web.mae.ufl.edu/designlab/TA/Manuals/Haas%20SL-10%20Programming%20Workbook.pdf
+  - label: 'Siemens, SINUMERIK 840D/840Di, 810D/FM-NC Short Guide: Programming, edition 10.2000, pp. 3-32 to 3-37'
+    url: https://i.kontrolkalemi.com/2/Short_Guide_Programming.pdf
+  - label: 'Yaskawa America, Compass online help, “G40, G41, G42: Tool Radius Offset”'
+    url: https://compass2.yaskawa.com/latest/YiCE_g40_g41_g42_tool_radius_offset.htm
+  - label: 'Autodesk, Fusion CAM help, “Cutter Radius Compensation reference”'
+    url: https://help.autodesk.com/cloudhelp/ENU/Fusion-CAM/files/GUID89C78618-20FD-4A82-BFB4-BC66AFE417DD.htm
+  - label: 'camInstructor (byline “camInstructor Mike”, M. Wearne), “Mastercam Cutter Compensation”, blog, 1 March 2018 (a Mastercam trainer, not CNC Software)'
+    url: https://blog.caminstructor.com/mastercam-cutter-compensation
+---
+import CutterComp from '../../../components/mdx/CutterComp.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+A program describes the part, but the centre of a milling cutter has to run one radius away from it. Cutter radius compensation lets the control do that offset: the program follows the contour, and the tool's radius sits in the control's offset table. On a Haas, in Productivity's training manual (2026 edition; quotes below are from it unless marked 2025), "A G41 or G42 command must include a Dnnn value to select the correct offset from the tool offset table." What D means differs by control: on LinuxCNC it is an optional tool number ("If supplied, the D word is the tool number to use."), on Siemens the tool offset that also switches on length compensation. LinuxCNC's advice for the first line: "Start a program with G40 to make sure compensation is off." For the motion codes the compensation acts on, see [G00, G01, G02, G03](/cnc-programming/g00-g01-g02-g03-motion-commands/).
+
+## Left or right
+
+The side is seen from behind the tool, looking the way it moves. LinuxCNC: "G41 is your left side of the line and G42 is the right side of the line."; Siemens: "G41 Call for cutter path compensation, tool in traversing direction left of contour". LinuxCNC and Yaskawa define G40 as switching it off. Reverse the direction of travel and the same side of the part becomes the other code, so an outside contour run one way needs G41 and run the other way G42.
+
+Productivity's 2026 Haas manual labels the two "G41 (Climb Milling)" and "G42 (Conventional Milling)"; its 2025 edition defines them by direction only. A Mastercam trainer says the same: "typically CNC use a climb cut which is offset left, or G41" (camInstructor). The pairing holds for a spindle turning clockwise (M03) with a right-hand cutter: on the left of the contour, its teeth at the cut move the same way as the work moves relative to the tool. That condition is this page's reasoning; no source read for this page states it. The difference between the two is on the [climb vs conventional milling](/processes/climb-vs-conventional-milling/) page.
+
+<Figure caption="One programmed step profile with the tool centre path computed for the chosen code: the program (in the panel) follows the contour, the control keeps the centre one radius away. G42 in the same direction puts the tool on the material side. The outside corner is closed either by a transition arc or by extending both offset lines to their intersection; a radius above the inside arc’s R20 does not fit. The lead-in and lead-out are longer than the largest tool radius on the slider, the lead-out also longer than its diameter. Geometry by this page’s model, not a particular control.">
+  <CutterComp locale="en" />
+</Figure>
+
+## Turning it on and off
+
+- **On a straight move.** Productivity: "Cutter compensation cannot be turned ON or OFF during a G02 or G03 arc move."; LinuxCNC lists "A G2/G3 arc move is programmed next after a G40." among its errors. Productivity's lathe manual allows the approach as "a linear move, that is a G01 or G00"; its mill manual asks for "a G01 X,Y move".
+- **At least one radius long.** LinuxCNC: "The lead in move must be at least as long as the tool radius."; Productivity: a move "equal to or greater than the cutter radius", and, in a thread-milling note, that it works "as long as the move is greater than the amount being compensated". LinuxCNC adds that the lead-in should suit "the largest tool radius that might be used".
+- **Out the way it came in.** Productivity: "The entry and exit moves must follow the same rules—what is put in must be taken out." LinuxCNC is stricter on the way out: "If tool compensation was on the next move must be a linear move and longer than the tool diameter."
+- **Approach on Siemens.** "NORM The tool travels directly along a straight line and is perpendicular to the contour point."; "KONT The tool travels around the contour point in accordance with the programmed behavior at corners G450/G451."
+- **Not left on.** A program stopped with compensation active gives the alarm "349 PROG STOP W/O CANCEL CUTTER COMP" on a Haas (Haas workbook; Productivity), and "Pressing RESET or POWER OFF will also cancel cutter compensation." (Haas). These numbers are from older Haas lathe documents.
+
+## Corners and small arcs
+
+On an **outside corner** the offset lines leave a gap, and controls close it in one of two ways. Siemens: "G450 Transition circle, the tool travels around workpiece corners along a circular path with tool radius." and "G451 Intersection point, the tool cuts free in the workpiece corner." On a Haas, Setting 58 chooses: in YASNAC mode "A circular motion joins all of the outside angles."; in Fanuc mode "The control joins outside angles less than or equal to 270 degrees with a sharp corner", and larger ones with "an extra linear motion" (Productivity, 2025 edition). Yaskawa's control can likewise insert a blending arc or extend the lines to their intersection.
+
+On an **inside corner** the offset lines overlap, and the control has to trim them, or stop. LinuxCNC: "If the next move creates in an inside corner the move will stop short so to not gouge the part." Haas, in Productivity's manual: "if the programmed path would cause an overcut, the control will stop and issue an alarm", and "machining an inside arc with a radius smaller than the active D-value will generate an alarm". Siemens has collision detection switched with CDON and CDOF: "The control detects and corrects critical machining situations."
+
+To see these situations coming, the control reads ahead. Productivity's 2026 manual: the Haas control "looks ahead to the next two blocks containing X or Y motion to check for interference". How other controls count, and what blocks without motion in between do, was not found in the sources read for this page.
+
+## Geometry, wear, diameter or radius
+
+On a Haas, "Total compensation is the sum of the geometry and wear values.", and "The offset may be specified as either a Diameter or a Radius, depending on Setting 40."; with diameter, "the shift amount is half of the value entered" (Productivity, 2025 edition). LinuxCNC keeps a diameter in its tool table, "a positive real number representing the measured diameter of the tool", and G41.1/G42.1 take the diameter in the block itself. On Siemens, "The tool length compensation acts automatically after tool offset D has been called."
+
+CAM systems offer the same choice in five settings. Fusion's names are first, Mastercam's (as a trainer describes them) second:
+
+| Fusion | Mastercam | What the program contains |
+|---|---|---|
+| In computer | Computer | A path already offset by the tool radius, no G41/G42: "Tool compensation is calculated automatically by CAM, based on the selected tool diameter" (Fusion) |
+| In control | Control | The part contour with G41/G42; the radius goes in the offset table: "Tool compensation is not calculated, but rather G41/G42 codes are output" (Fusion) |
+| Wear | Wear | An offset path and G41/G42; the table holds only the difference from the nominal tool |
+| Inverse wear | Reverse wear | As wear, with the sign of the difference reversed: "Reverse Wear is the same as wear except it will compensate to the opposite side of the toolpath" (camInstructor) |
+| Off | Off | No compensation at all |
+
+Fusion applies the control settings only on finishing passes (Fusion help).
+
+## Planes
+
+Compensation works in one plane at a time. Productivity: "Cutter compensation is available in X and Y for 2D machining (G17), and in X, Y, and Z for 3D machining with G141." LinuxCNC: "Cutter compensation may be performed if the XY-plane or XZ-plane is active."; with YZ it gives an error.
+
+## On the lathe: tool nose radius compensation
+
+A turning insert has a nose radius, but the offsets measure an imaginary point: the geometry offsets "intersect at a point, called the IMAGINARY TOOL TIP" (Productivity). Along X or Z alone it generally does not need to be used (Productivity); "For taper and circular cuts, as the tool nose radius changes, under or overcutting can occur." (Productivity). The same codes do the correction: "G41 Tool Nose Compensation LEFT of the programmed path", "G42 Tool Nose Compensation RIGHT of the programmed path" (Haas), and "normal I.D. turning will require a G41", normal outside turning from the face toward the chuck G42 (Productivity). The control also needs the direction of the nose, "coded as a single integer from 0 to 9", where "Zero (0) indicates no Specified direction." (Productivity).
+
+The approach and departure moves "should be equal to or greater than the tool nose radius of the tool", with twice that on X moves because X is programmed as a diameter; too short a move gives "alarm (369 TOOL TOO BIG)" (Productivity). Productivity's lathe manual also has compensation cancelled before the canned cycles G74, G75, G76 and G92, which ignore it.
+
+<CheckList id="cutter-comp" locale="en" items={[
+  { icon: 'sync', title: 'Side', check: 'G41 or G42 for this direction of travel.', fix: 'Left of the path, seen in the direction of travel, is G41 (LinuxCNC, Siemens); reversing the direction therefore swaps the code.', src: 'LinuxCNC; Siemens' },
+  { icon: 'feed', title: 'Lead-in and lead-out', check: 'The moves that turn compensation on and off.', fix: 'Straight, never an arc (LinuxCNC, Productivity); at least the tool radius, and programmed for the largest tool that might be used (LinuxCNC); on LinuxCNC the move after G40 longer than the diameter.', src: 'LinuxCNC; Productivity' },
+  { icon: 'edge', title: 'Inside arcs', check: 'The smallest inside radius in the contour.', fix: 'Larger than the tool radius in the offset; otherwise a Haas control alarms (Productivity). At inside corners between straight moves LinuxCNC stops the move short.', src: 'Productivity; LinuxCNC' },
+  { icon: 'holder', title: 'Offset entry', check: 'Diameter or radius, geometry or wear.', fix: 'Check the control setting (Haas Setting 40) and the CAM compensation type before entering a value.', src: 'Productivity; Fusion' },
+  { icon: 'bottom', title: 'End', check: 'Compensation still on at the end.', fix: 'Cancel with G40 on a straight move before the program stops (Haas alarm 349).', src: 'Haas; Productivity' },
+]} />

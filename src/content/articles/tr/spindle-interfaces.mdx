@@ -1,0 +1,142 @@
+---
+key: spindle-interfaces
+locale: tr
+slug: is-mili-arayuzleri-7-24-koni-hsk
+title: 'İş mili arayüzleri: 7:24 koni, çift temas ve HSK'
+description: 'Takım tutucu iş miline nasıl oturur: yalnız konisinde temas eden 7:24 koni, alnına da oturan çift temaslı türü ve içeriden sıkılan, içi boş 1:10 HSK konisi. Devir yükseldikçe her birine ne olur; üreticilerin iddiası nerede biter, bağımsız veri nerede başlar.'
+section: 5
+subsection: spindle-interfaces
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: '7:24'
+    label: 'Kendiliğinden çözülen koni (*self-release*; BS 1660-4, Smith); CAT, ISO ve BT tutucular flanşları ve *pull stud*’larıyla ayrılır (Smith)'
+  - value: '1:10'
+    label: 'HSK: konide ve flanş alnında temas eden içi boş koni (ISO 12164-1, HAIMER, BIG DAISHOWA)'
+  - value: '%25–50'
+    label: 'Takım ucundaki toplam şekil değişiminde iş mili–tutucu koni bağlantısının payı bu kadar olabilir (Purdue, kaynak gösterilmeden)'
+  - value: '20.000 ya da 30.000'
+    label: '40 numara konik tutucular için iki üreticinin verdiği, birbirinden farklı devir sınırları, dev/dak (IBAG, BIG KAISER; CTE’de)'
+sources:
+  - label: 'T.C. Millî Eğitim Bakanlığı, CNC Freze Tezgâhları (Makine Teknolojisi alanı), Ankara, 2013'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/08111652_CNC_Freze_TezgahlarY.pdf
+  - label: 'Purdue University, Manufacturing Laboratories, Taper Joint Dynamics (araştırma özeti), 2000'
+    url: https://engineering.purdue.edu/ManLab/t_taper.html
+  - label: 'S. Smith, “Understanding tapered spindle connections”, Cutting Tool Engineering, Aralık 2014'
+    url: https://www.ctemag.com/articles/understanding-tapered-spindle-connections
+  - label: 'E. Rivin, J. Agapiou, C. Xie, K. R. Cagle, “Steep Trouble”, Cutting Tool Engineering, Nisan 1999'
+    url: https://ctemag.com/node/28642
+  - label: 'K. Hanson, “Alternatives to steep tapers”, Cutting Tool Engineering, Eylül 2017'
+    url: https://ctemag.com/?p=96096
+  - label: 'ISO 7388-1:2007, Tool shanks with 7/24 taper for automatic tool changers, Part 1 (katalog sayfası)'
+    url: https://www.iso.org/standard/44098.html
+  - label: 'BSI, BS 1660-4:1989, Machine tapers: spindle noses and tool shanks with self-release 7/24 tapers (katalog sayfası)'
+    url: https://knowledge.bsigroup.com/products/machine-tapers-specification-for-spindle-noses-and-tool-shanks-with-self-release-7-24-tapers
+  - label: 'ISO 12164-1:2023, Hollow taper interface with flange contact surface, Part 1 (katalog sayfası)'
+    url: https://www.iso.org/standard/77916.html
+  - label: 'ISO 26623-1:2020, Polygonal taper interface with flange contact surface, Part 1 (katalog sayfası)'
+    url: https://www.iso.org/standard/72968.html
+  - label: 'BIG DAISHOWA, BIG-PLUS Dual Contact Spindle System'
+    url: https://www.bigdaishowa.com/node/1209
+  - label: 'BIG DAISHOWA, FAQ: BIG-PLUS Dual Contact'
+    url: https://www.bigdaishowa.com/en/node/1662
+  - label: 'BIG DAISHOWA, HSK 101: Everything You Need to Know About HSK Tool Holders'
+    url: https://www.bigdaishowa.com/node/1606
+  - label: 'BIG DAISHOWA, Why HSK-A63 Isn’t Always the Best Choice for Milling Applications (blog)'
+    url: https://www.bigdaishowa.com/en/blog/why-hsk-a63-isnt-always-best-choice-milling-applications
+  - label: 'HAIMER, Hollow taper shank DIN 69893 HSK-A, HSK-E, HSK-F (ürün sayfası)'
+    url: https://haimer.com/en/products/tool-holders/hollow-taper-shank-din-69893-hsk-a,-hsk-e,-hsk-f
+  - label: 'Sandvik Coromant, Coromant Capto system – The original, C-2940:133 ENG/01, 2010'
+    url: https://cdn2.sandvik.coromant.com/files/a53b485b-be0f-019d-8100-3f0d1619b9fa/41a1ea28-68bd-444e-a71d-7442975ae940/c-2940-133.pdf
+---
+import SpindleTaper from '../../../components/mdx/SpindleTaper.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+İş mili arayüzü, tezgâhın iş mili ile takım tutucu arasındaki bağlantıdır. Tutucuyu merkezler, kesme kuvvetlerini taşır ve her takım değişiminde onu yeniden bırakabilmelidir. MEB’in CNC freze modülü iş miline fener mili der: "CNC frezelerde kesicinin dönme hareketini sağlayan parçasına fener mili denir." Bu bağlantı küçük bir ayrıntı değildir: Purdue Üniversitesi’nin imalat laboratuvarları, standart 7/24 koni arayüzü üzerine çalışmalarını tanıtırken, kaynak göstermeden, iş mili ile takım tutucu arasındaki koni bağlantısının iş mili sistemlerinde başlıca yapısal zayıflık kaynaklarından biri olduğunu ve takım ucundaki toplam şekil değişiminin %25 ila %50’sini oluşturabileceğini yazar. Burada üç tasarım karşılaştırılıyor: 7:24 koni (*steep taper*), aynı koniye alın temasının (*face contact*) eklendiği çift temaslı tür (*dual contact*) ve içi boş HSK konisi. Kesici takımın tutucunun içinde nasıl sıkıldığı [shrink fit, hidrolik, milling chuck ve pens tutucular](/tr/takim-ve-is-baglama/shrink-fit-hidrolik-milling-chuck-pens/) sayfasında, salgının kesmeye etkisi [takım salgısı](/tr/takim-ve-is-baglama/takim-salgisi/) sayfasında.
+
+## 7:24 koni
+
+Koni, 24 birimlik boyda çapça 7 birim daralır; Smith (Cutting Tool Engineering) bunu fit başına 3,5 inç olarak verir. ISO 7388-1 otomatik takım değiştiriciler için 7/24 konik takım saplarını kapsar; ISO 297 ile özdeş olan BS 1660-4’ün başlığında ise kendiliğinden çözülen (*self-release*) 7/24 koniler geçer.
+
+- **Kendiliğinden çözülür.** Smith konik tutucuları kendiliğinden kilitlenen (*self-locking*) ve serbest bırakan (*free-releasing*) diye ikiye ayırır; makineciler 7/24 koniyi iş milinde kendiliğinden kilitlenmediği için tercih eder. Sürtünme ve başka kuvvetlerle iş milinde tutunan sığ koniler ise Mors (çoğu zaman *drift* denen ince bir kamayla çıkarılır), Jacobs ve Brown & Sharpe konileridir. Rivin ve arkadaşlarına göre basit bir çekme mili (*drawbar*) 7:24 konileri ayrı bir itici düzenek (*kick-out*) olmadan bırakabilir.
+- **Boylar ve türler.** 30, 40, 50 ve 60 numaralar aynı koni açısını paylaşır ve koni boyunca farklı yerlerden alınmış kesitlerdir (Smith). CAT, ISO ve BT tutucuların hepsi 7/24 koniyi kullanır, flanşları ve *pull stud*’larıyla (tutucuyu iş miline çeken saplama) ayrılır (Smith); bu sayfa için okunan kaynaklar ayrıntı vermiyor. MEB modülü BT boylarını adıyla anar: "Kesici uçlar bir tutucuya bağlandıktan sonra doğrudan fener miline (BT32, BT40, BT50, vb.) bağlanır." (Modül BT32 yazar; Smith’in verdiği boylar 30, 40, 50 ve 60’tır.)
+- **Nerede temas eder.** Temasın ölçü çizgisine (*gage line*) yakın olması, kuyrukta, *retention knob*’un yanında ise boşluk kalması amaçlanır (Smith). Tutucunun flanşı ile iş mili alnı arasında bir boşluk vardır: Rivin ve arkadaşlarına göre bu kadar dik bir konide hem koniye hem alına aynı anda temas eden, birbirinin yerine geçebilen tutucular üretmek neredeyse imkânsızdır; bunun için mikronun altında toleranslar gerekir, oysa iş mili ölçü çapları onlarca mikron değişebilir. Sektör orada büyük bir boşluk bırakan bir tasarımı benimsemiştir.
+- **Tolerans sınıfları** (*tolerance classes*). ASME B5.50 ve ISO 1947 koni uyumunu AT1’den (en sıkı) AT11’e kadar sınıflar; iş millerinin çoğu AT2 ya da daha iyi, tutucuların çoğu AT3 ya da daha iyidir (Smith). AT4 bir tutucu her açıda 13 açı saniyesine izin verir; bu, bağlantının arkasında 13 µm’ye kadar radyal boşluk bırakabilir (Rivin ve arkadaşları; ISO 1947 için AT1–AT9 verirler).
+
+### Sıkma kuvveti ve rijitlik
+
+Tutucu, *pull stud*’ından (*retention knob*) içeri çekilir. Rivin ve arkadaşları No. 50 bir tutucuyu tutan eksenel kuvvet için olağan değer olarak 2.000–5.500 lbf (yaklaşık 8,9–24,5 kN) verir. Purdue’nün çalışması, bağlantı rijitliğinin eksenel ön yükle (*preload*) düzensiz biçimde arttığını ve radyal yük arttıkça düştüğünü göstermiştir. Rivin ve arkadaşları da adını vermedikleri araştırmacıların ön yükü %400–800 artırarak rijitliği %20–50 artırdığını aktarır; sık takım değişiminde tekrarlanan yüksek eksenel kuvvetin iş mili deliğini hızla aşındırdığını ve ön yatağa zarar verebileceğini de eklerler.
+
+Saplamanın kendisi de önemlidir. Sıkı toleranslı bir tutucuda saplama aşırı sıkılırsa tutucunun kuyruğunu şişirebilir ve teması burundan kuyruğa kaydırabilir; burun temasının kaybı rijitliği çarpıcı biçimde düşürür (Smith). Smith saplamanın üreticinin değerinde torklanmasını söyler; Hanson da Cutting Tool Engineering’deki yazısında IBAG North America’dan Bill Popoli’nin önerisini aktarırken balanslı tutucular ve doğru torklanmış kaliteli saplamalar kullanılmazsa koninin ince ucunda çarpılma olabileceğini yazar.
+
+Yalnız koniden temas eden bağlantının iki yan etkisi, ikisi de Rivin ve arkadaşlarından: takımın eksenel konumu bir tutucudan ötekine ya da kullanım öncesiyle sonrası arasında 25–50 µm değişebilir, bu da dokunmalı sondayla (*touch probe*) ölçmeyi zorlaştırır; arkadaki boşluk da tutucunun ağır kesme yükü altında kaymasına izin verir. Bu mikroskobik kaymalar iş mili deliğinin ön kısmındaki aşınmayı hızlandırır, yazarlar buna çan ağzı aşınması (*bell mouthing*) der; uç durumlarda *fretting* korozyonu görülebilir.
+
+## Yüksek devirde
+
+İş mili tutucudan fazla genişler. Rivin ve arkadaşları: No. 30 bir iş mili 30.000 dev/dak’ta 5 µm’ye kadar genişleyebilir, tutucu ise daha az genişler; bağlantı gevşer, etkin sarkma boyu (*effective overhang*) uzar, rijitlik düşer ve takım eksenel olarak kayar. Hanson, iş mili gövdesinin yüksek devirdeki genişlemesinin tutucunun koninin içine doğru çekilmesine ve sıkışabilmesine yol açtığını yazar; BIG DAISHOWA buna batma (*sinking*) etkisi der: iş mili yüksek devirde tutucuyu içeri çeker ve bu, hassasiyeti olumsuz etkileyebilir.
+
+<Figure caption="Üç arayüz kesitte, şematik. Çekme mili tutucuyu içeri çeker, ardından kaydırıcıya dokunulana kadar iş mili devri kendiliğinden yükselip alçalır; iş mili deliği devirle büyür (kat kat abartılmış). Düz 7:24 koni: durgunken temas ölçü çizgisine yakındır, kuyrukta boşluk vardır (Smith), alında büyük bir boşluk kalır (Rivin ve ark.); yüksek devirde ağız açılır, tutucu içeri çekilir ve temas, yüzeylerin hâlâ buluştuğu daha geriye çizilir (Rivin ve ark.: bağlantı gevşer, etkin sarkma boyu uzar; hiçbir kaynak temas boyu vermez). Çift temas: alın tutucuyu durdurur; çizim koni ve alın temasını korur, delik büyümesini göstermez (BIG DAISHOWA; Burley, Hanson’da). HSK: sap, BIG DAISHOWA’nın ve Hanson’ın anlattığı gibi iş miliyle birlikte büyür; Rivin ve arkadaşlarının (1999) aktardığı bir çalışma ise ince duvarın içe doğru eğildiğini bulmuştur. Kaydırıcıda sayı yok: çizim ölçekli değil ve kaynaklardaki değerler belirli boylar için geçerli.">
+  <SpindleTaper locale="tr" />
+</Figure>
+
+Çare daha fazla sıkılık (*interference*) değildir. Yüksek devirde teması korumak için No. 40 bir koni 20 µm’ye kadar sıkılık isteyebilir; bu kadar sıkılık son derece yüksek çekme kuvveti gerektirir, operatörün takımı değiştirmesini neredeyse imkânsız kılar ve iş milini yatağa zarar verecek kadar şişirebilir (Rivin ve ark.).
+
+Pratik kurallar birbirinden farklı. Hanson’ın yazısında Popoli’nin önerisi, 40 numara konik tutucularla her zaman 20.000 dev/dak’ın altında, 30 numaralarla en çok 30.000 dev/dak’ta kalınması olarak aktarılır; BIG KAISER’den Jack Burley ise BIG-PLUS’ı anlatan bir paragrafta 40 numara için 30.000 dev/dak’ın altında kalınmasını önerir. İkisi de bir balans kalitesi ya da takım kütlesi belirtmez.
+
+Karıştırılan bir sözcük: burada okunan kaynaklarda yalnız koniden temas eden tutucular zamanla iş milini çan ağzı biçiminde aşındırma eğilimindedir (*bellmouth*; Burley, Hanson’da); Rivin ve arkadaşları da *bell mouthing* sözünü iş mili deliğinin önündeki aşınma için kullanır. Bu bir aşınmadır; yukarıda anlatılan devirle genişleme değildir.
+
+## 7:24 konide çift temas
+
+BIG DAISHOWA’nın 1992’de geliştirilen (BIG KAISER’den Burley, Hanson’da) BIG-PLUS sistemi 7:24 koniyi korur ama alın teması ekler: üreticiye göre sap, iş mili konisine ve iş mili alnına aynı anda temas eder. Sistem iş milinin biraz elastik şekil değiştirmesine dayanır (Burley, Hanson’da). Üretici sırayı önce koni teması, sonra alın teması diye anlatır; dayanağı, her tezgâhta olduğunu söylediği, sıkma sırasında yaklaşık 0,0005–0,001 inçlik (13–25 µm kadar) eksenel harekettir.
+
+- **Yüksek devirde.** Flanş iş mili alnında sert bir dayanak olur, bu yüzden iş mili genişlerken tutucu içeri çekilmez (Burley, Hanson’da); BIG DAISHOWA yüksek devirde Z eksenindeki hareketin ortadan kalktığını yazar, sayı vermeden.
+- **Yine de neden çalışıyor.** Lisanslı üreticilerin yaptığı iş millerinin ölçüleri BIG’in ana mastarıyla (*Master Gage*) denetlenir ve bu iş milleri için yalnız BIG-PLUS tutucular önerilir; bütün BIG-PLUS tutucular aynı tolerans ve şartnameyle üretilir (BIG DAISHOWA).
+- **Tutucu ve iş milini karıştırmak.** BIG-PLUS tutucu standart bir iş miline takılır ama yalnızca koniye oturur; standart tutucu BIG-PLUS iş milinde çalışır, ama aynı anda temas sağlanamaz (BIG DAISHOWA). Üreticiye göre magazin ve takım değiştiricide değişiklik gerekmez.
+- **Üretici değerleri, bağımsız test yok.** BIG DAISHOWA: çift temas, tutucuyu takım değişiminde 1 mikron içinde konumlar. Burley’in aktardığı testlere göre (Hanson’da) CV40 bir BIG-PLUS tutucu 500 kg radyal yük altında iş mili alnından 70 mm’de 60 µm esnemiş, bu da geleneksel V flanşlı bir tutucunun yaklaşık yarısıdır. Bağımsız bir test bulunamadı.
+- **Kir.** Hanson, Burley’in görüşlerini aktardığı paragrafta BIG-PLUS’ın her çift temaslı tutucu gibi temizliğe özel dikkat istediğini yazar; iş mili alnı ile tutucu arasına sıkışan talaş ciddi sorun çıkarabilir. HSK’yi ve Capto’yu da çift temaslı tasarımlar arasında sayar.
+
+## HSK: içi boş 1:10 koni
+
+ISO 12164-1’in başlığı *hollow taper interface with flange contact surface*, yani flanş temas yüzeyli içi boş koni arayüzüdür; HAIMER da tutucunun konisinden, flanş temas yüzeyiyle birlikte sıkıldığını yazar. Koni 1:10’dur (BIG DAISHOWA, Rivin ve ark.); HAIMER’in tablosu HSK-A63 için 32 mm, HSK-A100 için 50 mm L1 verir. 1980’lerin sonunda RWTH Aachen’de geliştirilmiştir (Hanson).
+
+- **İçeriden sıkılır.** BIG DAISHOWA, içi boş sapın içinde iş miliyle birlikte dışa açılmak üzere tasarlanmış çekme mili parmaklarını (*drawbar fingers*) anlatır; HAIMER bütün formlar için sıkma omzuna (*clamping shoulder*) simetrik kuvvet iletimini sayar. Bu sayfa için okunan kaynaklar omuz açısı ya da sıkma kuvveti vermiyor.
+- **Kendiliğinden kilitlenir.** Sığ koni sürtünmeyle tutunur, bu yüzden çekme milinin bir itici düzeneğe (*kick-out*) ihtiyacı vardır; flanş temasını korumak 15–20 µm ek sıkılık ister ve bu, çekme kuvvetinin büyük kısmını yer (Rivin ve ark.).
+- **Devir.** Hanson’a göre bazı HSK tutucular 50.000 dev/dak ve üstünde çalışabilir; BIG DAISHOWA bu devirleri belirli mikro işleme uygulamaları için anar.
+- **Merkezkaç kuvveti: kaynaklar ayrışıyor.** BIG DAISHOWA’ya göre daha fazla merkezkaç kuvveti daha iyi sıkma demektir ve HSK arayüzleri yüksek devirde merkezkaç etkisinden yararlanır, bu da koni ile alın temasını kararlı tutmaya yardım eder; Hanson içi boş gövdenin iş miliyle birlikte genişlediğini yazar. Rivin ve arkadaşları (1999) ise ince duvarın çekme kuvvetiyle, yüksek devirde de merkezkaç kuvvetiyle içe doğru eğildiği, temasın yalnızca iki dar dairesel banda indiği ya da hiç kalmadığı bir çalışmayı aktarır; geniş temas alanının kire duyarlı olduğunu da yazarlar. 1999’daki yazarlar kendi tasarımlarını öneriyordu; BIG DAISHOWA ise hem HSK hem BIG-PLUS tutucu satıyor.
+- **Üreticinin çizdiği sınır.** BIG DAISHOWA’ya göre düşük devirlerde, özellikle 25.000 dev/dak’ın altında, HSK-A63’ün kısa kavrama boyu (*engagement length*) eğilme rijitliğini sınırlar; kendi testleri de tutucu uzadıkça BIG-PLUS’ın avantajlı ve daha rijit olduğunu bulmuştur.
+
+### Formlar
+
+ISO 12164-1:2023 A, AB, C, CB ve EB tiplerini kapsar: A, AB ve EB’de otomatik takım değişimi için kanallı bir flanş vardır, C ve CB yalnız elle değiştirilir. HAIMER, HSK-A’yı DIN 69893-1, HSK-E’yi DIN 69893-5, HSK-F’yi DIN 69893-6 olarak verir.
+
+| Form | Kaynakların söyledikleri | Kaynak |
+|---|---|---|
+| A | Konik sapta kamalarla (*drive keys*) ek tork iletimi; takım değiştirici kanalı; veri çipi (*data chip*) deliği; çoğu durumda, orta-yüksek tork isteyen genel yüksek hızlı işlerde 45.000 dev/dak’a kadar | HAIMER; BIG DAISHOWA |
+| E | Neredeyse simetrik, çentik ya da kama yuvası yok: çok yüksek devirde balans, ama çok küçük takımlar ve düşük tork için | BIG DAISHOWA; HAIMER (kama listelenmiyor) |
+| F | E gibi; BIG DAISHOWA’ya göre koni, aynı boydaki HSK-E’ninkinden biraz küçüktür. HAIMER’in tablolarında HSK-F63’te D3 38,009 mm ve L1 25 mm, HSK-A63’te ise 48,010 mm ve 32 mm | BIG DAISHOWA; HAIMER |
+| T | Çok işlevli tezgâhlarda (*multitask machine*) tornalama için, HSK-A ile uyumlu, daha sıkı kama oturuşlu | BIG DAISHOWA; Hanson |
+
+Bu sayfa için okunan kaynaklar B ve D formlarının farkını söylemiyor.
+
+## Kısaca çokgen koni
+
+ISO 26623-1, torna, delme, freze, tornalama-frezeleme ve taşlama tezgâhları için flanş temas yüzeyli çokgen koni (*polygonal taper*) arayüzlerini kapsar: tork biçim kilidiyle (*form lock*; çokgen) iletilir, sıkma ise dairesel bir kanalda segmentlerle ya da bir merkez civatasıyla (*centre bolt*) yapılır. Sandvik Coromant’ın Capto broşürü ISO 26623’ü anar; Capto’nun patenti 1988’de alınmıştır (Hanson), C3’ten C10’a altı boyu vardır (Sandvik). Sandvik, WZL’nin (Aachen) 2009’da yaptığı, WZL/Fraunhofer IPT’ye dayandırılan bir test dizisinde bir C6’nın arayüz rijitliğinin HSK-A 63’ün 1,65 katı çıktığını aktarır; test raporunun kendisi bulunamadı.
+
+## Yan yana
+
+| | 7:24 koni | Çift temas (BIG-PLUS) | HSK |
+|---|---|---|---|
+| Koni | 7:24, dolu | 7:24, dolu | 1:10, içi boş, kısa kavrama (BIG DAISHOWA) |
+| Temas | Yalnız koni, alında boşluk | Önce koni, sonra alın | Koni ve alın |
+| Çözülme | Kendiliğinden çözülür | Okunan kaynaklarda belirtilmiyor | Kendiliğinden kilitlenir: itici düzenek gerekir (Rivin ve ark.) |
+| Yüksek devirde | Tutucu iş milinin içine çekilir (Hanson, BIG DAISHOWA) | Alın eksenel hareketi durdurur (Burley Hanson’da, BIG DAISHOWA) | BIG DAISHOWA, Hanson: temas iyileşir; Rivin ve ark.’nın aktardığı çalışma: daralabilir |
+| Anılan standartlar | ISO 7388-1, BS 1660-4 (= ISO 297), ASME B5.50 | ASME B5.50, JIS B6339, DIN 69871 (BIG DAISHOWA) | ISO 12164-1, DIN 69893, ASME B5.62 (BIG DAISHOWA) |
+
+<CheckList id="spindle-interfaces" locale="tr" items={[
+  { icon: 'chips', title: 'Temiz yüzeyler', check: 'Konide, flanşta ya da iş mili alnında talaş veya kir.', fix: 'Sıkmadan önce iki tarafı da temizleyin: her çift temaslı tutucu temizliğe özel dikkat ister ve iş mili alnı ile tutucu arasına sıkışan talaş ciddi sorun çıkarabilir (Hanson); HSK’nin geniş temas alanı da kire duyarlıdır (Rivin ve ark.).', src: 'Hanson; Rivin ve ark.' },
+  { icon: 'holder', title: 'Pull stud', check: 'Saplamanın üreticinin değerinde torklanıp torklanmadığı.', fix: 'Aşırı sıkmak sıkı toleranslı bir tutucunun kuyruğunu şişirebilir ve teması oraya kaydırabilir, bu da rijitliği çarpıcı biçimde düşürür (Smith); Hanson, Popoli’ye (IBAG) dayanarak koninin ince ucunda çarpılma uyarısı yapar.', src: 'Smith; Hanson' },
+  { icon: 'align', title: 'Eşleşen çift', check: 'Tutucu ile iş milinin aynı arayüzden olması.', fix: 'Standart iş milindeki BIG-PLUS tutucu yalnız koniye oturur; BIG-PLUS iş milindeki standart tutucu alın teması kazanmaz (BIG DAISHOWA).', src: 'BIG DAISHOWA' },
+  { icon: 'speed', title: 'Devir', check: 'İş mili devri ile arayüzün uyumu.', fix: '40 numara konik tutucular için IBAG 20.000 dev/dak’ın, BIG KAISER 30.000 dev/dak’ın altını söyler; yüksek devirli işler için BIG DAISHOWA HSK’yi gösterir.', src: 'Hanson; BIG DAISHOWA' },
+  { icon: 'wear', title: 'İş mili aşınması', check: 'İş mili konisinin önünde aşınma ya da fretting.', fix: 'Yalnız koniden temas eden bağlantının arkasındaki boşluk tutucunun kaymasına izin verir ve iş mili deliğinin önünü aşındırır; uç durumlarda fretting korozyonu görülebilir (Rivin ve ark.).', src: 'Rivin ve ark.' },
+]} />

@@ -1,0 +1,214 @@
+---
+key: turning-operations
+locale: tr
+slug: tornalama-islemleri
+title: 'Tornalama işlemleri'
+description: 'Tornalamanın ne olduğu ve DIN 8589-1’in onu nasıl grupladığı; bir tornanın yaptığı işlemler, her birinin ilerleme yönü, takımı ve tipik sorunu; yanaşma açısı ve kestiği talaş; devir sınırlı sabit kesme hızı; delik tornalama barasının sarkması; iki takım üreticisinden başlangıç ilerlemeleri.'
+section: 2
+subsection: turning
+order: 1
+updated: 2026-10-17
+tools: [turning]
+glance:
+  - value: '0,1–0,3'
+    unit: 'mm/dev'
+    label: 'İnce işlemede ilerleme (Sandvik Coromant)'
+  - value: '0,71 × fn'
+    label: 'κr = 45°’de talaş kalınlığı, hex = fn · sin κr’den'
+  - value: '4 × D'
+    label: 'Çelik delik tornalama barasında en uzun sarkma (Sandvik Coromant)'
+  - value: '%75’e kadar'
+    label: 'Kesme (ayırma) işleminde merkeze yaklaşırken ilerleme azaltımı (Sandvik Coromant)'
+sources:
+  - label: 'DIN 8589-1:2003-09, Fertigungsverfahren Spanen – Teil 1: Drehen; Einordnung, Unterteilung, Begriffe (DIN Media ürün sayfası)'
+    url: https://www.dinmedia.de/en/standard/din-8589-1/65030260
+  - label: 'H. Möllers, Maschinelle Werkstoffbearbeitung, Teil: Drehen, Christiani, 3. baskı 2013 (yayınevi örnek sayfaları, s. 4–5)'
+    url: https://www.christiani.de/out/media/pdf/97339-leseprobe.pdf
+  - label: 'H. Möllers, Machine-based material processing: Turning, Christiani, 2. baskı 2014 (yayınevi örnek sayfaları, s. 4–5)'
+    url: https://christiani-international.com/out/media/pdf/74326-leseprobe-printversion.pdf
+  - label: 'Verlag Handwerk und Technik, “2.1 Drehverfahren” (yayınevi örnek sayfası LP_23128, s. 17)'
+    url: https://lp.hpt.at/LP_23128.pdf
+  - label: 'IndustryArena Wiki, “Drehen”'
+    url: https://de.industryarena.com/wiki/Drehen
+  - label: 'TU Dresden, Werkstatt- und Versuchsfeldverbund, “Drehen”'
+    url: https://tu-dresden.de/ing/maschinenwesen/wvv/technik/drehen
+  - label: 'Industrieverband Massivumformung, Extra-Info, “2. Drehen” bölümü (DIN 8589 tanımı)'
+    url: https://www.massivumformung.de/fileadmin/user_upload/6_Presse_und_Medien/Veroeffentlichungen/Extra-Info/00000118.pdf
+  - label: 'Sandvik Coromant, Katalog A, General turning, s. A2–A8 (bir bayinin sitesinde)'
+    url: https://www.directools.com/documents/all/Sandvik_5765051_Catalog.pdf
+  - label: 'Sandvik Coromant Academy, Metal Cutting Technology Training Handbook, A (genel ve iç çap tornalama) ve B (kesme ve kanal açma) bölümleri; inç baskısı, incelenen kopyada yıl yok'
+  - label: 'US 9925594 B2, “Method to machine a metal work piece by turning”, Sandvik Intellectual Property AB, 2018 (talaş kalınlığı tanımı)'
+    url: https://patents.google.com/patent/US9925594
+  - label: 'Mitsubishi Materials, “Function of tool features for turning: side cutting edge angle (lead angle)”'
+    url: https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/information/t_yokokirehakaku.html
+  - label: 'Mitsubishi Materials, tornalamada kesme boyu formülleri (dış çap, alın ve konik tornalama, pah kırma)'
+    url: https://www.mmc-carbide.com/in/technical_information/formula/tec_length_formula
+  - label: 'Sumitomo Electric, General Catalog 2025-2026, Technical Guidance – Turning, N38–N40'
+    url: https://online.flippingbook.com/view/410142785/1246/
+  - label: 'Tungaloy, Technical reference, General Catalogue 2023-2024, s. L002–L030'
+    url: https://tungaloy.com/wpdata/wp-content/uploads/GC_2023-2024_G_L_UsersGuide.pdf
+  - label: 'Tungaloy Türkiye, tornalama ürün sayfası (kategoriler: Dış Çap Tornalama, İç Çap Tornalama, Diş Çekme; “Profil İşleme” ürün açıklamalarında; “Kesme ve Kanal” ayrı ürün grubu)'
+    url: https://tungaloy.com/tr/products/turning/
+  - label: 'M. Vural (İTÜ), EUT 231 Üretim Yöntemleri, talaşlı imalat yöntemleri (Türkçe terimler: alın, konik, kontur ve şekil tornalama, pah kırma, kesme)'
+    url: https://ntmyo.gaziantep.edu.tr/files/dosyalar/ch22-talasli-imalat-yontemleri.pdf
+  - label: 'Siemens, SinuTrain – Einsteiger-Anleitung Fräsen und Drehen, SINUMERIK 810D/840D, 10/2003, s. 16 (G96, LIMS, G97)'
+    url: https://cache.industry.siemens.com/dl/files/723/28823723/att_863989/v1/Einsteiger_Fraesen_Drehen_1003_de.pdf
+  - label: 'Siemens, SINUMERIK live: longitudinal turning and plunge-turning, 2017'
+    url: https://static.dc.siemens.com/cnc4you/tips-n-tricks/SINUMERIK-live/sinumerik-live-longitudinal-plunge-turning-cnc4you-en.pdf
+  - label: 'Hoffmann Group, “From longitudinal turning to facing – the basic turning methods at a glance”'
+    url: https://www.hoffmann-group.com/IE/en/brownlo/online-ratgeber/zerspanung/laengs-und-plandrehen/e/1448799/
+  - label: 'Europa-Lehrmittel, Fachwissen Metalltechnik in Lernfeldern – Industriemechanik, 2024 (yayınevi örnek sayfası, s. 17)'
+    url: https://www.europa-lehrmittel.de/leseprobe/15897-1.pdf
+  - label: 'Verlag Handwerk und Technik, Lernfeld 5 “Drehen” (yayınevi örnek sayfası, s. 7)'
+    url: https://www.handwerk-technik.de/_files_media/probeseiten/30175_02.pdf
+  - label: 'Verlag Handwerk und Technik, Lernfeld 5 “Drehen” (yayınevi örnek sayfası, s. 37: pasif kuvvet)'
+    url: https://lesejury.de/media/samples/758/9783582301758_leseprobe.pdf
+  - label: 'Sandvik Coromant, Cutting Tools 2015 – Turning tools, General information, s. I2–I5 (ISO 13399 simgeleri KAPR ve PSIR; bir bayinin sitesinde)'
+    url: https://productivitysolution.co.th/wp-content/uploads/2017/Downloadfiles/Sandvik/Turning%20Tools%202015%20Chapters%20I.pdf
+  - label: 'Wikipedia (de), “Drehen (Verfahren)” (DIN 8589 grupları: Schraub-, Wälz- ve NC-Formdrehen)'
+    url: https://de.wikipedia.org/wiki/Drehen_(Verfahren)
+---
+import TurningOps from '../../../components/mdx/TurningOps.astro';
+import DinGroups from '../../../components/mdx/DinGroups.astro';
+import EnteringAngle from '../../../components/mdx/EnteringAngle.astro';
+import FacingSpeed from '../../../components/mdx/FacingSpeed.astro';
+import BarOverhang from '../../../components/mdx/BarOverhang.astro';
+
+Tornalama yuvarlak parçalar üretir. İş parçası döner ve bu dönüş kesme hareketidir; tek kesme noktalı bir takım iş parçası boyunca ya da ona dik olarak ilerletilir. Sandvik Coromant tornalamayı iki hareketin birleşimi olarak tanımlar: iş parçasının dönmesi ve takımın ilerlemesi. DIN 8589 ise tornalamayı, kapalı ve çoğunlukla dairesel bir kesme hareketiyle, kesme yönüne dik bir düzlemde herhangi bir yönde ilerleyerek yapılan talaş kaldırma olarak tanımlar.
+
+Bundan sonraki her şey bu iki hareketten çıkar: takımın hangi yöne ilerlediği, kesici ağzın hangi kısmının kestiği ve takım eksene yaklaşırken kesme hızına ne olduğu.
+
+<Figure caption="Bir tornanın işlemleri tek parça üzerinde, şematik: üst yarı görünüş, alt yarı kesit; böylece iç çap ve delinmiş delik görünür. Farklı zamanlarda çalışan takımlar birlikte çizildi. Mavi oklar ilerleme yönleridir. Takımını tek başına görmek için bir işlem seçin.">
+  <TurningOps
+    locale="tr"
+    aria="Tek parça üzerinde tornalama işlemleri, yarım kesitte, her birinin takımı ve ilerleme yönüyle"
+    all="Tüm işlemler"
+    ops={[
+      { k: 'face', name: 'Alın tornalama', feed: 'eksene dik, merkeze doğru' },
+      { k: 'long', name: 'Boyuna tornalama', feed: 'eksen boyunca' },
+      { k: 'prof', name: 'Profil işleme (kontur tornalama)', feed: 'aynı anda boyuna ve enine' },
+      { k: 'chamfer', name: 'Pah kırma', feed: 'iki eksen birlikte ya da 45° ağızla' },
+      { k: 'groove', name: 'Kanal açma', feed: 'eksene dik, dalarak' },
+      { k: 'thread', name: 'Diş açma', feed: 'eksen boyunca, her devirde bir adım' },
+      { k: 'part', name: 'Kesme (ayırma)', feed: 'eksene dik, merkeze kadar' },
+      { k: 'drill', name: 'Delik delme', feed: 'eksen çizgisi boyunca' },
+      { k: 'bore', name: 'İç çap tornalama (delik büyütme)', feed: 'eksen boyunca, delik içinde' },
+    ]}
+  />
+</Figure>
+
+## DIN 8589-1 tornalamayı nasıl gruplar
+
+DIN 8589-1 tornalama yöntemlerini ürettikleri yüzeyin türüne, kesme hareketine ve takımın biçimine göre sınıflandırır. Ortaya altı grup çıkar; dördü ürettiği yüzeyin, ikisi (Profildrehen ve Formdrehen) biçimin nasıl elde edildiğinin adını taşır:
+
+<Figure caption="DIN 8589-1’deki altı tornalama grubu, şematik. Turuncu, grubun ürettiği yüzeydir; mavi ilerlemedir. Almanca adlar ders kitaplarının (Christiani, Handwerk und Technik) aktardığı biçimdedir; Türkçe adlar açıklayıcı karşılıklardır, standart terim değildir.">
+  <DinGroups
+    aria="DIN 8589-1’deki altı tornalama grubu"
+    groups={[
+      { de: 'Plandrehen', name: 'Alın (düzlem) tornalama', text: 'Parçanın alın yüzleri gibi düzlem yüzeyler.' },
+      { de: 'Runddrehen', name: 'Silindirik tornalama', text: 'Bir silindirin yanal yüzeyindeki yuvarlak yüzeyler.' },
+      { de: 'Schraubdrehen', name: 'Vida tornalama', text: 'Vida dişleri: devir başına ilerleme, tek ağızlı vidada adıma eşittir (çok ağızlıda adım × ağız sayısı).' },
+      { de: 'Wälzdrehen', name: 'Yuvarlanma tornalaması', text: 'Dişli dişleri gibi yuvarlanma yüzeyleri; ilerlemeye bir yuvarlanma hareketi eklenir.' },
+      { de: 'Profildrehen', name: 'Şekil tornalama', text: 'Biçim, negatifi olarak takımın üzerindedir.' },
+      { de: 'Formdrehen', name: 'Kontur tornalama', text: 'Kumandalı takım yoluyla her biçim; CNC tornada iki eksen birlikte tahrik edilir.' },
+    ]}
+  />
+</Figure>
+
+Plandrehen, Runddrehen ve Profildrehen gruplarında ön ek ilerleme yönünü verir: *Quer-* eksene dik (enine), *Längs-* eksen boyunca (boyuna). *Abstech-* ve *Einstech-* kesmeyi (ayırmayı) ve kanal açmayı belirtir. Böylece alın yüzeyini tornalamak *Quer-Plandrehen*, bir mil boyunca olağan tornalama *Längs-Runddrehen*, parça kesmek ise *Quer-Abstechdrehen* olur.
+
+Adlar diller arasında kolay geçmez. Takım üreticilerinin **profil işleme** dediği iş, yani takımın aynı anda boyuna ve enine hareket ettiği kontur kesmesi, DIN’de *Formdrehen*’dir, *Profildrehen* değil; DIN’de *Profildrehen*, biçimi üzerinde taşıyan bir form takımıyla tornalamaktır. Türkçe ders notları da (M. Vural, İTÜ) ikisini ayırır: takımın izlediği yolla biçim üretmeye *kontur tornalama*, biçimini takımdan alan işleme *şekil (form) tornalama* der. Almanca adlar kelimesi kelimesine çevrilirse yanıltır: *Formdrehen* “form tornalama” gibi okunur ama kontur tornalamadır; *Profildrehen* ise şekil (form) tornalamadır. Ayrıca DIN *Plandrehen*’i ilerleme yönünden bağımsız olarak ürettiği düzlem yüzeyden adlandırır; atölye Almancasında ise *Plandrehen* çoğu zaman yalnızca enine ilerleme anlamına gelir.
+
+## İşlemler tek tek
+
+Takım üreticileri aynı işlemleri operatörün yaptığı işe göre gruplar. Sandvik Coromant’ın genel tornalama kataloğu boyuna tornalama, profil işleme, alın tornalama ve dalma ile başlar; kesme ve kanal açma ile diş açmanın kendi bölümleri vardır; iç çap tornalama ise genel tornalama bölümünün içinde ayrı bir kısımdır. Tablo, ilk şekildeki işlemleri kapsar; dalma ve konik tornalama da eklenmiştir.
+
+| İşlem | İlerleme | Takım | Dikkat edilecek nokta |
+|---|---|---|---|
+| Boyuna tornalama (*Längs-Runddrehen*) | Eksen boyunca | Tutucuda genel tornalama ucu; Sandvik olağan seçim olarak 95° ya da 93° yanaşma açılı tutucuda 80°’lik C ucunu gösterir | Kademe için yanaşma açısı κr en az 90° olmalıdır. İnce uzun parçalarda κr’yi 90°’ye yakın tutun; pasif kuvvet orada en küçüktür |
+| Alın tornalama (*Quer-Plandrehen*) | Eksene dik, genellikle merkeze doğru | Genel tornalama ucu; Sandvik C, S ve T uçlarla κr 75° ve 95°/91° verir | Kumanda devri artırmazsa kesme hızı merkeze doğru düşer (aşağıya bakın) |
+| Profil işleme (DIN *Formdrehen*) | Aynı anda boyuna ve enine | En çok D (55°), V (35°) ve T (60°) uçlar kullanılır (Sandvik) | Takımın ne kadar dik bir konturu izleyebildiği: Sandvik her tutucu için en büyük iç kopyalama açısını verir; κr 93° 22–27°’ye izin verir |
+| Dalma ve kanal açma | Eksene dik; alın kanalında eksen boyunca | Bıçakta ya da tutucuda kanal ucu | Talaş tahliyesi; Siemens talaşın sıkışabildiğini ve yüksek kuvvetlerin uzun, ince parçaları büktüğünü ekler |
+| Kesme, ayırma (*Quer-Abstechdrehen*) | Eksene dik, merkeze kadar | Dar kesme bıçağı | Kesme hızı merkezde sıfıra iner; merkezde küçük bir çıkıntı kalır; talaş dışarı çıkabilmelidir |
+| Diş açma (*Gewindedrehen*) | Eksen boyunca; devir başına ilerleme = adım (tek ağızlı vidada) | Tek profilli diş ucu | Devir ve ilerleme adımı tam tutmalıdır; genellikle sabit devirle (G97) çalışın |
+| İç çap tornalama (delik büyütme) | Delik içinde eksen boyunca, ayrıca iç alın tornalama | Delik tornalama barası | Sarkma ve titreşim; talaş tahliyesi; κr 90°’ye yakın, asla 75°’nin altında değil (Sandvik) |
+| Tornada delme | Eksen çizgisi boyunca | Dönmeyen (sabit) matkap | Sabit kesme hızı değil, sabit devir |
+| Pahlar ve konikler | Aynı anda boyuna ve enine | Genel tornalama ucu | Mitsubishi’nin kesme boyu hesaplayıcısı konik tornalamayı ve pah kırmayı, dış çap ve alın tornalamanın yanında ayrı durumlar olarak ele alır |
+
+DIN şemasında delme, tornalamanın yanında ayrı bir yöntemdir; tornalar bu işin çoğunu yaptığı için tabloda yer alıyor. Matkabı [delme sayfası](/tr/prosesler/delme/) anlatır.
+
+## Her işlemin ortak parametreleri
+
+Her tornalama kesmesini beş büyüklük tanımlar. **Kesme derinliği ap**, işlenmemiş ve işlenmiş çap farkının yarısı, yani iş parçası yüzeyinden işlenmiş yüzeye olan uzaklıktır. **İlerleme fn**, iş parçasının her devrinde takımın aldığı yoldur (mm/dev). **Kesme hızı vc** yüzey hızıdır (m/dak); devir n ondan ve çaptan çıkar. **Yanaşma açısı κr** ana kesici ağız ile ilerleme yönü arasındaki açıdır; **uç yarıçapı rε** ana ve yardımcı kesici ağzın birleştiği köşeyi yuvarlatır. Bunları birbirine bağlayan formüller [tornalama formülleri sayfasındadır](/tr/kesme-verileri/tornalama-formulleri/).
+
+Açılar konusunda bir uyarı: Sandvik ve ISO yanaşma açısı κr’yi verir; 90°, ilerlemeye dik duran bir ağız demektir. Sandvik ayrıca 90° − κr olan *lead* açısını kullanır; Japon üreticiler (Mitsubishi, Sumitomo, Tungaloy) da *side cutting edge angle* (yan kesici ağız açısı) adıyla aynı lead açısı anlamında bir değer basar. Yani onların kataloglarında daha büyük açı daha küçük κr demektir. Bir tablonun hangisini verdiğine her zaman bakın.
+
+<Figure caption="Yanaşma açısı ve kestiği talaş, üstten görünüş: kesilmemiş talaş, ağız ile ağzın bir devir sonraki konumu arasındaki paralelkenardır. Kalınlığı h = fn · sin κr ve genişliği b = ap / sin κr, κr ile değişir; kesiti ap · fn değişmez. Şekil görünüme girince açı 90°’den 45°’ye gider ve geri döner.">
+  <EnteringAngle locale="tr" />
+</Figure>
+
+Bir tornalama ağzının kestiği talaş ince bir paralelkenardır. Ağza dik ölçülen kalınlığı en büyük talaş kalınlığıdır:
+
+$$
+h_{ex} = f_n \cdot \sin \kappa_r
+$$
+
+Ağız boyunca genişliği ap / sin κr’dir; dolayısıyla kesit ap · fn, açı ne olursa olsun aynı kalır. κr 90°’de talaş ilerleme kadar kalındır; 45°’de ilerlemenin 0,71 katıdır ve Sandvik’in bastığı katsayı da budur. Sandvik’in tornalama patenti tanımı sözle verir: talaş kalınlığı, ilerlemenin yanaşma açısının sinüsüyle çarpımıdır. Mitsubishi, Sumitomo ve Tungaloy aynı eğilimi öteki taraftan anlatır: aynı ilerlemede daha büyük lead açısı daha ince bir talaş verir; Mitsubishi talaşın genişlediğini de ekler.
+
+κr seçimi bir ödünleşimdir:
+
+- **Kademeye karşı tornalama:** κr en az 90° olmalıdır (Europa-Lehrmittel); Sandvik’in boyuna tornalama için olağan tutucuları 95° ve 93°’tür.
+- **İnce uzun parça, hafif ince işleme pasoları, zayıf tezgâh:** κr’yi 90°’ye yakın tutun (Mitsubishi). Pasif kuvvet 90°’de en küçüktür ve κr küçüldükçe artar (Handwerk und Technik); uzun, ince bir parça bu kuvvetle eğilir.
+- **Daha küçük bir κr** yükü daha uzun bir ağza yayar; Mitsubishi bunun takım ömrünü uzattığını belirtir, Sandvik de darbeyi yumuşatmak için mümkünse 90°’nin altında bir yanaşma açısı önerir. Bedeli: talaş daha zor kırılır (Mitsubishi), radyal kuvvet artar ve takım dik bir kademenin köşesine ulaşamaz.
+
+## Alın tornalama ve kesme: merkezde hız biter
+
+Sabit devirde kesme hızı çapla birlikte düşer ve merkezde sıfırdır; Hoffmann, sabit kesme hızı olmayan tezgâhlarda ortalama çapla hesap yapılmasını önerir. CNC torna ise kesme hızını sabit tutabilir. Siemens SINUMERIK kumandada **G96** vc’yi sabit tutar; çap küçüldükçe devir kuramsal olarak sınırsız artacağından bir devir sınırı programlanmalıdır, örneğin `G96 S180 LIMS=3000`. Sınıra ulaşılan çaptan itibaren iş mili sınırda kalır ve kesme hızı, Sandvik’in kesme (ayırma) için anlattığı gibi, merkezde sıfıra iner.
+
+<Figure caption="Devir sınırlı sabit kesme hızında alın tornalama, n = 1000 · vc / (π · D) ile hesaplandı. Üstte, çap küçüldükçe devir sınıra ulaşana kadar yükselir; noktalı eğri, sınır olmasaydı sabit vc’nin gerektireceği devirdir. Altta, vc o çapa kadar sabit kalır, sonra merkezde sıfıra iner. Şekil görünüme girince takım dışarıdan merkeze bir kez gider; Şekil yukarıdaki Siemens örneğiyle başlar (vc 180 m/dak, sınır 3000 dev/dak). Takımı taşımak için imleci ya da parmağınızı grafiğin üzerinde gezdirin.">
+  <FacingSpeed locale="tr" vc={180} nmax={3000} />
+</Figure>
+
+Siemens delmeyi ve genellikle diş açmayı **G97** ile, yani sabit devirle programlar; bunlarda devir çapla değişmemelidir. Sandvik kesmede (ayırmada) merkezde kalan çıkıntıyı küçük tutmak için parça kopmadan yaklaşık 2 mm önce ilerlemeyi %75’e varan oranda azaltır ve talaş tahliyesini kritik bir etken sayar.
+
+## Delik tornalama: sarkma belirler
+
+Delik tornalama barası parçanın içinde bir konsoldur ve boyunun çapına oranı kesmenin sakin olup olmayacağını belirler. Sandvik’in kuralı, işin izin verdiği en büyük bara çapı ve en kısa sarkmadır; bara tipine göre sınırlar şöyledir:
+
+<Figure caption="Bara tipine göre önerilen en uzun delik tornalama barası sarkması, bara çapı cinsinden: Sandvik Coromant eğitim el kitabı (tek üretici). Baralar aynı ölçekte çizildi; mavi bant bir sönümleme elemanını gösterir.">
+  <BarOverhang
+    aria="Bara çapı cinsinden önerilen en uzun delik tornalama barası sarkması: çelik 4, karbür 6, kısa titreşim sönümlü 7, uzun titreşim sönümlü 10, karbür takviyeli titreşim sönümlü 14"
+    unit="sarkma, bara çapı D cinsinden"
+    clamp="bağlama"
+    bars={[
+      { label: 'Çelik bara', times: 4 },
+      { label: 'Karbür bara', times: 6, carbide: true },
+      { label: 'Kısa, titreşim sönümlü bara', times: 7, damped: true },
+      { label: 'Uzun, titreşim sönümlü bara', times: 10, damped: true },
+      { label: 'Karbür takviyeli, titreşim sönümlü bara', times: 14, damped: true, carbide: true },
+    ]}
+  />
+</Figure>
+
+Sandvik delik tornalamada da yanaşma açısını 90°’ye yakın ve asla 75°’nin altında olmayacak şekilde tutar; çünkü daha küçük bir açı, barayı delik duvarından iten radyal kuvveti artırır. Tungaloy’un sorun giderme tablosu da titreşime karşı aynı önlemi verir: tutucunun sarkmasını kısaltın.
+
+## İki üreticiden başlangıç ilerlemeleri
+
+İki üretici de tornalamayı ince, orta ve kaba işleme olarak ayırır ve her biri için bir ilerleme aralığı verir. Sandvik’in aralıkları uç boyutu seçme grafiğinden, Sumitomo’nunkiler ilk tercih koşullarından alınmıştır; ikisi de kendi uçları içindir, sınır değildir; Sumitomo’nun tablosu belirli kaliteler ve talaş kırıcılar içindir ve inç olarak basılmıştır, burada mm’ye çevrildi.
+
+| Kategori | Sandvik Coromant, fn (mm/dev) | Sumitomo, fn (≈ mm/dev) | Sumitomo, ap (≈ mm) |
+|---|---|---|---|
+| İnce işleme (finiş) | 0,1–0,3 | 0,05–0,20 | 0,13–1,5 |
+| Orta / genel amaçlı | 0,2–0,5 | 0,20–0,51 | 1,0–5,1 |
+| Kaba işleme | 0,5–1,5 | 0,38–0,66 | 5,1 |
+
+İkisi sıralamada ve orta aralıkta kabaca uyuşur; kaba işlemede Sandvik’in grafiği Sumitomo’nun tablosundan çok daha yüksek ilerlemelere ulaşır.
+
+## Sık yapılan hatalar
+
+- **Devir sınırı olmadan sabit kesme hızı.** Takım eksene yaklaştıkça kumanda devri sınırsız artırırdı; Siemens merkezkaç kuvvetleri nedeniyle programlanmış bir sınır ister.
+- **Delme ya da diş açmada G96.** Delme sabit devir ister, diş açma da genellikle sabit devirle yapılır (SINUMERIK’te G97).
+- **Kademeye karşı 90°’nin altında κr.** Ağız köşeye ulaşamaz; 93° ya da 95° tutucu kullanın.
+- **Uzun bir delik tornalama barası.** Sığan en büyük barayı ve en kısa sarkmayı seçin; yukarıdaki sınırların ötesinde titreşim sönümlü ya da karbür bara kullanın.
+- **Kesmenin sonuna kadar tam ilerleme.** Parça kopmadan yaklaşık 2 mm önce azaltın; yoksa merkezdeki çıkıntı büyür.
+- **Açı gösterimlerini karıştırmak.** κr 75° ile 15° lead açısı aynı tutucudur; bir Japon kataloğundaki “side cutting edge angle 15°” da o tutucudur.

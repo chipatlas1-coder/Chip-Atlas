@@ -1,0 +1,15 @@
+---
+import Article from '../../layouts/Article.astro';
+import { articlesFor } from '../../lib/articles';
+import { sections } from '../../data/sections';
+
+export async function getStaticPaths() {
+  const list = await articlesFor('en');
+  return list.map((entry) => ({
+    params: { section: sections.find((s) => s.n === entry.data.section)!.slug.en, article: entry.data.slug },
+    props: { entry },
+  }));
+}
+const { entry } = Astro.props;
+---
+<Article entry={entry} />

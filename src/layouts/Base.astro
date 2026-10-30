@@ -1,0 +1,103 @@
+---
+import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/source-serif-4';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Defs from '../components/plates/Defs.astro';
+import type { Locale } from '../i18n';
+import { site } from '../data/site';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  /** Clean path of this page ("/tools/x/"). */
+  path: string;
+  /** Clean path of the same page in the other language. */
+  altPath: string;
+  /** Keep the page out of search indexes (the 404 page). */
+  noindex?: boolean;
+}
+const { locale, title, description, path, altPath, noindex = false } = Astro.props;
+const other: Locale = locale === 'en' ? 'tr' : 'en';
+const fullTitle = path === '/' || path === '/tr/' ? `${title}` : `${title} — Chip Atlas`;
+const canonical = site.url + path;
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f5f7fa" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {noindex ? <meta name="robots" content="noindex" /> : (
+      <>
+        <link rel="canonical" href={canonical} />
+        <link rel="alternate" hreflang={locale} href={canonical} />
+        <link rel="alternate" hreflang={other} href={site.url + altPath} />
+        <link rel="alternate" hreflang="x-default" href={site.url + (locale === 'en' ? path : altPath)} />
+      </>
+    )}
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Chip Atlas" />
+    <meta property="og:locale" content={locale === 'en' ? 'en_GB' : 'tr_TR'} />
+    {(path === '/' || path === '/tr/') && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        '@context': 'https://schema.org', '@type': 'Organization', name: site.name, url: site.url,
+        sameAs: Object.values(site.channels).filter(Boolean),
+      })} />
+    )}
+    <script is:inline>
+      /* Figure motion is opt-in: only with motion allowed and a real browser (automated
+         captures and print see every figure in its final state). ?anim forces it, ?static stops it. */
+      (function () {
+        var q = location.search, d = document.documentElement;
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if ((/[?&]anim\b/.test(q)) || (!reduce && !navigator.webdriver && !/[?&]static\b/.test(q))) d.classList.add('anim');
+      })();
+    </script>
+  </head>
+  <body>
+    <Defs />
+    <a class="skip" href="#main">{locale === 'en' ? 'Skip to content' : 'İçeriğe geç'}</a>
+    <Header locale={locale} altPath={altPath} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+    <script>
+      // Mark each [data-anim] figure once it is in view; without motion mark them all at once.
+      const els = Array.from(document.querySelectorAll('[data-anim]'));
+      const mark = (el: Element) => { if (!el.hasAttribute('data-in')) { el.setAttribute('data-in', ''); el.dispatchEvent(new CustomEvent('anim:in')); } };
+      if (!document.documentElement.classList.contains('anim') || !('IntersectionObserver' in window)) els.forEach(mark);
+      else {
+        const io = new IntersectionObserver((entries) => { for (const e of entries) if (e.isIntersecting) { mark(e.target); io.unobserve(e.target); } }, { threshold: 0.2, rootMargin: '0px 0px -6% 0px' });
+        els.forEach((el) => io.observe(el));
+        window.addEventListener('beforeprint', () => els.forEach(mark));
+      }
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .skip {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 0.5rem 0.8rem;
+    border-radius: 3px;
+    z-index: 100;
+    transition: top 120ms;
+  }
+  .skip:focus { top: 0.75rem; }
+</style>

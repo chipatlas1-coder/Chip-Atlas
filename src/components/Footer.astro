@@ -1,0 +1,73 @@
+---
+import Mark from './Mark.astro';
+import Social from './Social.astro';
+import { href, routes, t, type Locale } from '../i18n';
+import { sections, sectionPath } from '../data/sections';
+import { flagshipTools } from '../data/tools';
+import { site } from '../data/site';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const ui = t(locale);
+const year = new Date().getFullYear();
+const channels = Object.entries(site.channels).filter(([, url]) => url);
+---
+<footer class="site-footer">
+  <div class="sheet grid">
+    <div class="about">
+      <a class="brand" href={href(routes.home[locale])}>
+        <Mark size={24} />
+        <span>Chip Atlas</span>
+      </a>
+      <p class="accuracy">{ui.footer.accuracy}</p>
+    </div>
+
+    <div class="col">
+      <h2 class="h">{ui.footer.sections}</h2>
+      <ol class="list">
+        {sections.map((sec) => (
+          <li><a href={href(sectionPath(locale, sec))}><span class="num">{String(sec.n).padStart(2, '0')}</span> {sec.name[locale]}</a></li>
+        ))}
+      </ol>
+    </div>
+
+    <div class="col">
+      <h2 class="h">{ui.footer.tools}</h2>
+      <ul class="list">
+        {flagshipTools.map((tool) => (
+          <li><a href={href(routes[tool.route!][locale])}>{tool.name[locale]}</a></li>
+        ))}
+        <li><a href={href(routes.tools[locale])}>{ui.common.allTools}</a></li>
+      </ul>
+      {channels.length > 0 && (
+        <>
+          <h2 class="h mt">{ui.footer.channels}</h2>
+          <Social variant="footer" />
+        </>
+      )}
+    </div>
+  </div>
+  <div class="sheet legal">
+    <span>© {year} {ui.footer.rights}</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer { border-top: 1px solid var(--line); margin-top: 6rem; background: var(--bg-sunk); }
+  .grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 2.5rem;
+    padding-block: 3rem 2rem;
+  }
+  @media (max-width: 48rem) { .grid { grid-template-columns: 1fr; gap: 2rem; } }
+  .brand { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+  .brand :global(svg) { flex: none; }
+  .accuracy { margin-top: 1rem; color: var(--ink-2); font-size: 0.95rem; max-width: 44ch; }
+  .h { font-size: 0.85rem; font-weight: 500; color: var(--ink-3); margin-bottom: 0.75rem; }
+  .mt { margin-top: 1.5rem; }
+  .list { display: grid; gap: 0.35rem; font-size: 0.92rem; }
+  .list a:hover { color: var(--accent); }
+  .list .num { color: var(--ink-3); font-size: 0.78rem; margin-right: 0.25rem; }
+  .legal { border-top: 1px solid var(--line); padding-block: 1rem 1.5rem; font-size: 0.8rem; color: var(--ink-3); }
+</style>

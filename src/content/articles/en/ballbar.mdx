@@ -1,0 +1,93 @@
+---
+key: ballbar
+locale: en
+slug: ballbar-test
+title: 'The ballbar test (ISO 230-4)'
+description: 'Checking a CNC machine by running it round a circle against a telescoping bar: what the ballbar measures, ISO 230-4 and its terms, how the test is run, how backlash, reversal spikes, squareness, servo mismatch and scale errors show on the plot, and what follows.'
+section: 3
+subsection: machine-selection
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'CW + CCW'
+    label: 'Two runs, one in each direction, are the standard test (Renishaw)'
+  - value: '90° or 180°'
+    label: 'Overshoot Renishaw suggests on the 360° test arc'
+  - value: '220°'
+    label: 'Partial arc in the vertical planes with the QC20-W centre pivot (Renishaw)'
+  - value: '±(0.7 + 0.3% L) µm'
+    label: 'QC20-W measurement accuracy, L the measured length; valid 15–25 °C (Renishaw)'
+sources:
+  - label: 'ISO 230-4:2022, Test code for machine tools — Part 4: Circular tests for numerically controlled machine tools, edition 3 (catalogue page)'
+    url: https://www.iso.org/standard/79155.html
+  - label: 'SIS (Swedish Institute for Standards), ISO 230-4:2022 product page: edition 3, approved 2022-02-22, status valid'
+    url: https://www.sis.se/en/produkter/manufacturing-engineering/industrial-automation-systems/numerically-controlled-machines/iso-230-42022
+  - label: 'ISO 230-4:2005, second edition (preview: foreword and contents)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+230-4-2005.pdf
+  - label: 'Renishaw, QC20-W wireless ballbar system, brochure L-8014-1588-07-A'
+    url: https://renishaw.com/resourcecentre/en/download/qc20-w--25899
+  - label: 'Renishaw, QC20 ballbar, brochure L-8014-9054-01-A, 2024'
+    url: https://renishaw.com/media/pdf/en/24168909daf94465b81a3dbab3e99900.pdf
+  - label: 'Renishaw, white paper “Ballbar testing in tandem with circle, diamond, square machining tests”, H-5650-2055-01-A'
+    url: https://renishaw.com/resourcecentre/en/download/--99071
+  - label: 'Renishaw, application note “Errors diagnosed using partial arc analysis”, H-8014-1639-01-A'
+    url: https://renishaw.com/resourcecentre/en/download/application-note-errors-diagnosed-using-partial-arc-analysis--32314
+  - label: 'Haas Automation, “Ballbar - QC20-W - Analysis”, 2020'
+    url: https://www.haascnc.com/content/haascnc/en/service/troubleshooting-and-how-to/how-to/ballbar---qc20-w---analysis.html
+  - label: 'HEIDENHAIN, KGM 200 series grid encoders (product page)'
+    url: https://www.heidenhain.us/products/testing-inspection-devices/machine-tool-inspection/kgm-200/
+  - label: 'J. Józwik, Ł. Semotiuk, I. Kuric, “Diagnostic of CNC Lathe with QC 20 Ballbar System”, Advances in Science and Technology Research Journal 9(28), 2015, 96–102'
+    url: https://bibliotekanauki.pl/articles/103158.pdf
+  - label: 'M. Woźniak, P. Majda, “Analysis of results of circular tests for numerically controlled machine tools…”, Advances in Manufacturing Science and Technology 40(3), 2016'
+    url: https://yadda.icm.edu.pl/baztech/element/bwmeta1.element.baztech-d876e06c-7f30-4bcc-b7ec-45a1b34f8bd0/c/Wozniak_Majda_Analysis_of_results_of_circular_tests_Adv_in_Mfg_Science_and_Technol_V40_nr_3_2016.pdf
+  - label: 'Seoul National University OCW, Precision Metrology, Week 11: Contour measurement using the ball-bar sensor (lecture notes)'
+    url: https://ocw.snu.ac.kr/sites/default/files/NOTE/Precision%20Metrology%20Week11%20-%20contour_measurement.pdf
+  - label: 'C. Warren, “The In’s and Out’s of Ballbar Calibration”, MoldMaking Technology, 2003 (updated 2023)'
+    url: https://www.moldmakingtechnology.com/articles/the-ins-and-outs-of-ballbar-calibration
+---
+import BallbarPlot from '../../../components/mdx/BallbarPlot.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+A ballbar is a telescoping bar with a ball at each end, one held at the spindle and one on the table. The machine moves the spindle round a programmed circle, and the bar's transducer records how the radius varies; Renishaw: it "is used to measure variations in radius as the ballbar is rotated around a fixed point." The lecture notes of Seoul National University put the idea plainly: "Perfect (or error free) machine will give perfect (ideal) circle corresponding to the nominal circle." Apart from the bar's own small uncertainty, the deviations come from the machine, and different faults leave different shapes. For how a control interpolates a circle in the first place, see [G00, G01, G02, G03](/cnc-programming/g00-g01-g02-g03-motion-commands/).
+
+The test is standardised in ISO 230-4. Its current edition is the third, approved in February 2022 (ISO; SIS): "This document provides methods for the determination of the contouring performance of numerically controlled machine tools." The standard is not tied to the ballbar; HEIDENHAIN, for example, cites it for its non-contact grid encoder. Its terms have changed: the 2005 edition replaced "circular hysteresis H by bi-directional circular deviation G(b)" and introduced "the mean bi-directional radial deviation, D", and the 2022 abstract specifies the testing and evaluation of the "bi-directional circular error" and describes "differences between circular errors and radial errors"; its definitions were not seen for this page. The headline number is the spread of radii. Renishaw, in a white paper written before the 2022 edition: "The recorded data is centred and the difference between the maximum and minimum radii is computed." "In ISO 230-4 and B5.54 standards, this result is called the 'circular deviation'." Woźniak and Majda, citing the 2005 edition, define the circularity deviation G as "a difference between maximum and minimum distance of points of actual path" from the centre of the least-squares circle.
+
+## Running the test
+
+- **Both directions.** Renishaw: "The standard test calls for the machine tool to perform two consecutive circles; one in a clockwise direction, the other counter-clockwise."
+- **Overshoot.** "In practice there is an extra arc added before and after the test circle to allow for the machine speeding up and slowing down." (Renishaw). Its white paper suggests 90° or 180°, which "will ensure reliable capture of axis reversal features."
+- **Planes.** Haas runs the test "on each available axis combination, XY, XZ, and YZ". With the QC20-W's centre pivot the vertical planes are tested as a 220° arc, so all three planes can be checked "without the need to reposition the centre pivot" (Renishaw); Woźniak and Majda ran their YZ and XZ tests "in range from -20° to 200°" and the XY test as a full circle.
+- **Radius.** The QC20-W tests with "100, 150, 250, 300, 400, 450, 550 or 600 mm radii", with extensions up to 1350 mm, and "The optional small circle kit allows tests with a 50 mm radius" (Renishaw). Renishaw's 2024 QC20 brochure calls 100 mm the standard kit's minimum, while its specification table gives test radii from 30 mm to 1,350 mm. Small circles "emphasise the effects of servo and dynamic errors on the machine" (Renishaw); HEIDENHAIN, for its grid encoder, writes that "Circular interpolation tests with large radii deliver machine geometry data."
+- **Feed.** No single standard feed was found. Haas's procedure uses a 150 mm radius at 254 mm/min; Renishaw, when the test is to be compared with a machined part, writes: "The feedrate for the ballbar test should be the same as that used for the finishing cuts during the machining test."
+- **The bar itself.** "Ideally the ballbar length should be calibrated before the test starts, using the ballbar calibrator." (Renishaw); Haas lets the calibration kit "adjust to the ambient temperature for a minimum of 30 minutes." Renishaw gives the QC20-W's accuracy as ± (0.7 + 0.3% L) µm, where L is the length over which the error is measured, valid from 15 to 25 °C, with a resolution of 0.1 µm.
+
+## Reading the plot
+
+Renishaw sorts the errors by how they react to the feed. Positional errors, among them scaling and squareness: "These errors remain the same magnitude regardless of feedrate." Dynamic errors, among them backlash, reversal spikes and servo gain: "These errors will vary according to feedrate." The direction is the second test: some shapes flip when the circle is run the other way, some do not.
+
+<Figure caption="A ballbar plot, magnified: the deviation from the nominal 100 mm circle, counter-clockwise (red) and clockwise (blue), the pen tracing it as the machine goes round. One error at a time with its size on the slider; the data are centred, the scale in µm per division (in the middle) adapts to the size of the error, and the readout is the largest minus the smallest radius of each run. The shapes come from this page’s first-order models of a single error (backlash as a lag of half the backlash on each side of a reversal, squareness as a skew between the axes, a scale error on X, and servo mismatch as one axis lagging the other by a time Δt); they show the shapes the sources describe, not a measured machine.">
+  <BallbarPlot locale="en" />
+</Figure>
+
+- **Backlash.** A step where an axis reverses. Józwik and co-authors: "the backlash can be observed in the pie chart as a leap of the motion radius inside out or inside of the curve", with causes such as "the backlash in the screw-cap link". The SNU notes read it as the jump in radius at the reversal point. Renishaw: backlash "may need adjusting or compensating".
+- **Reversal spikes.** A short spike at the reversal points. Józwik and co-authors: the spike appears when the direction changes, and "The main reason for the error is too slow a response from the servo drive to the control system signal." On their lathe the Z-axis spike grew with feed, from −0.2 µm at 500 mm/min to −3.7 µm at 2000 mm/min, while the X-axis spike stayed between −1.8 and −2.1 µm. A trade article explains it as the axis that "may pause momentarily at the turnaround point."
+- **Squareness.** An oval on the diagonals. Józwik and co-authors: the plot takes "the shape of the oval or the shape of a peanut rotated aslant at a 45° or 135° angle", and its axis is "the same for both directions of the circular interpolation cycle, clockwise as well as anticlockwise." Their measured squareness stayed between −66 and −84 µm/m over feeds from 500 to 2000 mm/min. Renishaw: "The squareness of the machine may need adjusting or compensating."
+- **Servo mismatch.** Also an oval at 45°, but one that turns by 90° when the direction changes, from mismatched servo gains (MoldMaking Technology); the SNU notes give the term the opposite sign in the two directions. Renishaw expresses it as a time: an example plot is labelled "0.2mS servo mismatch"; how Renishaw defines that value was not found. In this page's model, one axis lagging by Δt at feed v gives an oval whose largest minus smallest radius is v·Δt: 1 ms at 1000 mm/min is about 17 µm, whatever the radius (the SNU notes' servo term has no radius in it either), while geometric errors such as squareness grow with the radius.
+- **Scale mismatch.** An oval along one axis, from an axis that travels too far or not far enough (MoldMaking Technology). Renishaw: with a calibrated ballbar the software "calculates absolute (rather than relative) errors for axis scaling and radial deviation values".
+
+Renishaw's software names more: among others lateral play, cyclic error, straightness and stick-slip. Trade press describes cyclic error as a waviness from a flaw in the leadscrew or its mounting (MoldMaking Technology); the plot shapes of the others were not found in the sources read for this page.
+
+## After the test
+
+Renishaw's Ballbar 20 software "ranks each diagnosed error according to its impact on overall machine accuracy", and Renishaw writes that "many errors can often be fixed in minutes." Its white paper lists what may follow: backlash, squareness and axis guideway straightness "may need adjusting or compensating", and for backlash or play: "The axis backlash may need adjusting or compensating and/or guideway play adjusting." No source found gives a full list of what the control can compensate and what needs mechanical work.
+
+No source found sets an interval for testing a machine. MoldMaking Technology describes one user who tests new equipment first, again after a machine is moved, crashes or loses a spindle, and once a year. Renishaw's 12 months is for recalibrating the ballbar itself: "Renishaw recommend the QC20 ballbar is recalibrated every 12 months to be confident that it is measuring within specification."
+
+<CheckList id="ballbar-before" locale="en" items={[
+  { icon: 'sync', title: 'Directions', check: 'Whether both runs were made.', fix: 'One clockwise and one counter-clockwise circle (Renishaw).', src: 'Renishaw' },
+  { icon: 'depth', title: 'Overshoot', check: 'The arcs before and after the test circle.', fix: '90° or 180° of overshoot, for the reversal features (Renishaw).', src: 'Renishaw' },
+  { icon: 'align', title: 'Planes and radius', check: 'Which planes and which radius.', fix: 'XY, XZ and YZ (Haas); 220° arcs in the vertical planes with the centre pivot; small radii for servo and dynamic errors (Renishaw).', src: 'Haas; Renishaw' },
+  { icon: 'hard', title: 'Temperature', check: 'The ballbar and the calibrator.', fix: 'Let the kit settle at least 30 min (Haas); calibrate the bar length before the test; accuracy valid 15–25 °C (Renishaw).', src: 'Haas; Renishaw' },
+  { icon: 'speed', title: 'Feed', check: 'Whether the errors change with feed.', fix: 'Positional errors stay the same, dynamic ones change (Renishaw), so a run at a second feed tells them apart.', src: 'Renishaw' },
+]} />

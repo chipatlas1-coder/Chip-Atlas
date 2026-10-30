@@ -1,0 +1,81 @@
+---
+/* Chatter in turning. Left, side view: the bar in the chuck, the tool on its spring and damper (the tool and
+   holder as a vibrating system), the turned part behind the tool carrying a regular pattern of chatter marks.
+   Right, end view: the bar's section with the waviness the last revolution left (exaggerated), the tool at the
+   top cutting it again; above, the vibration building up. Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { marks: 'tırlama izleri', kc: 'k, c', end: 'uçtan görünüş', wavy: ['önceki devrin', 'bıraktığı dalga'], grow: 'titreşim büyür', feed: 'f' }
+  : { marks: 'chatter marks', kc: 'k, c', end: 'end view', wavy: ['waviness left by', 'the last revolution'], grow: 'vibration builds up', feed: 'f' };
+const f1 = (v: number) => v.toFixed(1);
+const cy = 176, R = 50, r = 44, xc = 52, xt = 150, xe = 282;
+// chatter marks on the turned part: evenly spaced, inclined stripes (the pattern shifts a little each revolution)
+const marks = Array.from({ length: 13 }, (_, i) => xt + 10 + i * 10).filter((x) => x < xe - 6);
+// end view: the section with 11 waves round it
+const ex = 392, ey = 190, eR = 56, lobes = 15, amp = 2.6;
+const wav: string[] = [];
+for (let i = 0; i <= 220; i++) {
+  const a = (i / 220) * 2 * Math.PI, rr = eR + amp * Math.sin(lobes * a);
+  wav.push(`${f1(ex + rr * Math.cos(a))},${f1(ey + rr * Math.sin(a))}`);
+}
+// growing vibration trace
+const g: string[] = [];
+for (let i = 0; i <= 160; i++) { const t = i / 160, x = 318 + 148 * t, y = 54 - (1.5 + 14 * t * t) * Math.sin(t * 9 * 2 * Math.PI); g.push(`${f1(x)},${f1(y)}`); }
+// spring and damper between the turret and the holder
+const sx = xt - 30, y0 = 22, y1 = 70;
+const spring = [`${sx},${y0}`, `${sx},${y0 + 6}`, ...Array.from({ length: 6 }, (_, i) => `${sx + (i % 2 ? -6 : 6)},${f1(y0 + 6 + ((y1 - y0 - 12) * (i + 0.5)) / 6)}`), `${sx},${y1 - 6}`, `${sx},${y1}`].join(' ');
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <!-- side view: chuck, bar (uncut ahead of the tool, turned behind it) -->
+  <rect class="metal f" style="--i:0" x="16" y={cy - 82} width="36" height="164" rx="4" />
+  <path class="metal-h f" style="--i:1" d={`M${xc},${cy - R} L${xt},${cy - R} L${xt},${cy - r} L${xe},${cy - r} L${xe},${cy + r} L${xt},${cy + r} L${xt},${cy + R} L${xc},${cy + R} Z`} />
+  <g class="f" style="--i:2">
+    {marks.map((x, i) => <path d={`M${x},${cy - r + 1} L${x + 9},${cy + r - 1}`} stroke="#566370" stroke-width={i % 2 ? 1.2 : 2} stroke-opacity={i % 2 ? 0.35 : 0.55} fill="none" />)}
+  </g>
+  <path class="o2 d" style="--i:3" pathLength="1" d={`M${xc},${cy - R} L${xt},${cy - R} L${xt},${cy - r} L${xe},${cy - r} L${xe},${cy + r} L${xt},${cy + r} L${xt},${cy + R} L${xc},${cy + R}`} />
+  <line class="c f" style="--i:3" x1="10" y1={cy} x2="296" y2={cy} />
+
+  <!-- turret, spring and damper, holder, insert -->
+  <rect class="face f" style="--i:4" x={xt - 64} y="8" width="84" height="14" rx="2" />
+  <polyline class="o f" style="--i:5" points={spring} fill="none" />
+  <g class="f" style="--i:5">
+    <line x1={xt - 6} y1={y0} x2={xt - 6} y2="38" stroke="#364554" stroke-width="1.5" />
+    <rect x={xt - 13} y="38" width="14" height="16" fill="none" stroke="#364554" stroke-width="1.5" />
+    <line x1={xt - 11} y1="44" x2={xt - 1} y2="44" stroke="#364554" stroke-width="1.5" />
+    <line x1={xt - 6} y1="44" x2={xt - 6} y2={y1} stroke="#364554" stroke-width="1.5" />
+  </g>
+  <rect class="carbide f" style="--i:6" x={xt - 44} y={y1} width="48" height={cy - R - y1 - 22} rx="3" />
+  <path class="coat f" style="--i:7" d={`M${xt},${cy - r + 1} L${xt - 20},${cy - R - 22} L${xt + 4},${cy - R - 22} Z`} stroke="#8a6420" stroke-width="1" stroke-linejoin="round" />
+  <line class="a d" style="--i:8" pathLength="1" x1={xt - 50} y1={cy - R - 10} x2={xt - 92} y2={cy - R - 10} marker-end="url(#ca-arr-acc)" />
+  <line class="b d" style="--i:9" pathLength="1" x1={xt + 24} y1={y1 + 6} x2={xt + 24} y2={y1 - 10} marker-end="url(#ca-arr-data)" />
+  <line class="b d" style="--i:9" pathLength="1" x1={xt + 24} y1={y1 + 6} x2={xt + 24} y2={y1 + 22} marker-end="url(#ca-arr-data)" />
+
+  <!-- end view: waviness round the section, the tool at the top -->
+  <circle class="sunk f" style="--i:10" cx={ex} cy={ey} r={eR + 14} />
+  <circle class="dash f" style="--i:11" cx={ex} cy={ey} r={eR} />
+  <polygon class="metal-h f" style="--i:11" points={wav.join(' ')} />
+  <polygon class="o d" style="--i:12" pathLength="1" points={wav.join(' ')} fill="none" />
+  <circle cx={ex} cy={ey} r="3" fill="#152230" />
+  <g class="spin" style="--spin: 9s">
+    <circle cx={ex} cy={ey} r={eR + 8} fill="none" stroke="none" />
+    <path class="b" d={`M${ex + eR + 8},${ey} A${eR + 8},${eR + 8} 0 0,1 ${f1(ex + (eR + 8) * Math.cos(1.1))},${f1(ey + (eR + 8) * Math.sin(1.1))}`} marker-end="url(#ca-arr-data)" fill="none" />
+  </g>
+  <path class="coat f" style="--i:13" d={`M${ex},${ey - eR - amp + 1} L${ex - 9},${ey - eR - 30} L${ex + 9},${ey - eR - 30} Z`} stroke="#8a6420" stroke-width="1" stroke-linejoin="round" />
+
+  <!-- the vibration building up -->
+  <polyline class="d" style="--i:14" pathLength="1" points={g.join(' ')} fill="none" stroke="#c2413b" stroke-width="2" stroke-linejoin="round" />
+  <line class="h" x1="318" y1="54" x2="466" y2="54" />
+
+  <g class="lbl">
+    <text class="t-acc t-sm" x={xt - 96} y={cy - R - 16}>{T.feed}</text>
+    <text class="t-data t-sm" x={sx - 12} y="50" text-anchor="end">{T.kc}</text>
+    <line class="h" x1={xt + 60} y1={cy + 20} x2={xt + 96} y2={cy + 72} />
+    <text class="t-ink t-sm" x={xt + 64} y={cy + 86}>{T.marks}</text>
+    <text class="t-ink" x={ex} y="312" text-anchor="middle">{T.end}</text>
+    <text class="t-data t-sm" x={ex} y={ey + eR + 28} text-anchor="middle">{T.wavy[0]}</text>
+    <text class="t-data t-sm" x={ex} y={ey + eR + 42} text-anchor="middle">{T.wavy[1]}</text>
+    <text class="t-sm" x="318" y="86" fill="#b23a34">{T.grow}</text>
+  </g>
+</svg>

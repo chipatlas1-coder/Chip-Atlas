@@ -1,0 +1,112 @@
+---
+key: chuck-force
+locale: en
+slug: chuck-gripping-force-and-speed
+title: 'Chuck gripping force and spindle speed'
+description: 'Why a jaw chuck grips less as it turns faster: the centrifugal force of the jaws, how Röhm and Schunk calculate it, the safety factors Schunk takes from VDI 3106, the two-thirds limit, the speed marked on the chuck, what jaw mass and radius do, and why grease and a force gauge matter. With a calculator built on a Kitagawa chuck’s published figures.'
+section: 5
+subsection: workholding
+order: 1
+updated: 2026-10-30
+tools: [turning]
+glance:
+  - value: 'Fc = Σ m·r·ω²'
+    label: 'Centrifugal force of the jaws, with ω = π·n/30'
+  - value: '≥ 1.5'
+    label: 'Machining and clamping safety factors Sz and Ssp (Röhm, Schunk; Schunk cites VDI 3106)'
+  - value: '67 %'
+    label: 'Largest share of the static force the centrifugal force may take (Schunk, citing DIN EN 1550)'
+  - value: '> 50 %'
+    label: 'Gripping force an unsuitable lubricant can cost (Röhm)'
+sources:
+  - label: 'SCHUNK, ROTA 2B power lathe chuck, Assembly and Operating Manual, doc. 0889059, version 04.00, pp. 9, 11–16, 21–24, 34'
+    url: https://dev.stb.cloud.schunk.com/media/IM0019461.PDF
+  - label: 'SCHUNK, ROTA NC/NCF power chuck, Assembly and Operating Manual, doc. 0889043, version 01.00, 2025, pp. 17, 22–26, 36'
+    url: https://dev.stb.cloud.schunk.com/media/IM0018754.PDF
+  - label: 'SCHUNK, ROTA TB pneumatic power chuck, Assembly and Operating Manual, doc. 0889073, version 04.00, 2024, pp. 12–17, 29–33, 48–49'
+    url: https://dev.stb.cloud.schunk.com/media/IM0006589.PDF
+  - label: 'SCHUNK, ROTA NCR series, Montage- und Betriebsanleitung, pp. 24, 26 (read in a third-party copy, so no link is given)'
+  - label: 'RÖHM, Operating instructions, power chuck KFD-N, 01/02, section 9'
+    url: https://roehm.biz/fileadmin/products/media/de/DC0000350.PDF
+  - label: 'RÖHM, Operating instructions, power chuck KFD-AF'
+    url: https://roehm.biz/fileadmin/products/media/en/DC0000337.PDF
+  - label: 'RÖHM, Operating instructions, hand-operated wedge-bar chuck DURO, RN-914'
+    url: https://www.roehm.biz/fileadmin/products/media/en/RN_0914_DURO.pdf
+  - label: 'RÖHM, Safety guidelines for power-operated chucks (KFD-HF)'
+    url: https://www.roehm.biz/fileadmin/products/media/en/KFD_HF.pdf
+  - label: 'Kitagawa, B-208M series global standard chuck, product page (specification table)'
+    url: https://kitagawa.global/en/kitagawa-b-208m-series-global-standard-chuck
+  - label: 'SMW-AUTOBLOK, KNCS-NB-CL high-precision power chuck, catalogue pp. 146–147 (distributor-hosted copy)'
+    url: https://cdn.shopify.com/s/files/1/1671/7173/files/KNCS-NB-CL_EN_1.pdf
+  - label: 'Cutting Tool Engineering, “HFKS-2G Power Chuck” (SMW Autoblok), product item'
+    url: https://www.ctemag.com/node/35802
+  - label: 'E. Morisaki / Howa Kogyo, US 4 431 201 A, “Chuck with centrifugal compensation device”'
+    url: https://patents.google.com/patent/US4431201
+  - label: 'BERG Spanntechnik, “Drehzahlhinweise, Wartungsempfehlungen”, catalogue pp. 56–57'
+    url: https://backup.berg-spanntechnik.de/wAssets/docs/produkte/werkstueckspannung/drehzahlhinweise.pdf
+  - label: 'DIN Media, DIN EN 1550:2008-11, Machine-tools safety – Safety requirements for the design and construction of work holding chucks (product page)'
+    url: https://www.dinmedia.de/de/norm/din-en-1550/110569346
+  - label: 'VDI 3106:2004-04, Determination of permissible speed (rpm) of lathe chucks (jaw chucks) (VDI page and table of contents)'
+    url: https://vdi.de/en/home/vdi-standards/details/vdi-3106-determination-of-permissible-speed-rpm-of-lathe-chucks-jaw-chucks
+  - label: 'OpenStax, University Physics Volume 1, 6.6 Centripetal Force (LibreTexts)'
+    url: https://phys.libretexts.org/Bookshelves/University_Physics/University_Physics_(OpenStax)/Book%3A_University_Physics_I_-_Mechanics_Sound_Oscillations_and_Waves_(OpenStax)/06%3A_Applications_of_Newton's_Laws/6.06%3A_Centripetal_Force
+---
+import ChuckSpeed from '../../../components/mdx/ChuckSpeed.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+A jaw chuck is set to its gripping force at standstill, and it does not keep that force when it turns. The jaws are masses on a rotating body, so they pull outwards; Schunk writes that under rotation the jaw mass produces a centrifugal force that reduces or increases the initial clamping force, depending on whether the work is gripped from outside or from inside, and a Howa patent puts the outside case plainly: "centrifugal force arising from the rotation acts on the jaws and decreases their gripping force on the workpiece." Too fast, and the grip is gone. Schunk: "When the RPM limit is exceeded, the clamping force drops below the required minimum clamping force Fspmin."
+
+## Where the force goes
+
+A mass m turning at radius r with angular speed ω needs a force F = m·r·ω² to keep it on its circle (the OpenStax physics text gives Fc = m·r·ω² alongside m·v²/r). With the spindle speed n in min⁻¹, ω = 2π·n/60 = π·n/30 rad/s. Röhm and Schunk build the chuck version from the product of each jaw's mass and the radius of its centre of gravity, which Schunk calls the centrifugal moment: "The product mB ∙ rs is referred to as the centrifugal torque Mc." For a jaw made of a base jaw and a top jaw the two moments add, Mc = McGB + McAB, with the base-jaw value from the chuck's table and the top-jaw value McAB = mAB · rsAB (Röhm, Schunk). Röhm prints the centrifugal force as (mB · rs) times a speed term; with ω from above, summed over all jaws:
+
+$$
+F_c = \sum (m \cdot r_s) \cdot \left(\frac{\pi \cdot n}{30}\right)^2, \qquad F_{sp} = F_{sp0} \mp F_c
+$$
+
+Fsp0 is the gripping force at standstill and Fsp the force left while the chuck turns. The minus sign is for gripping from outside, the plus sign for gripping from inside: Röhm prints the second equation as Fsp = Fsp0 ± Fc, and Schunk's legend reads "(–) for gripping from the outside inwards" and "(+) for gripping from the inside outwards". Because the force grows with n², doubling the speed takes four times as much.
+
+<Figure caption="The chuck from the front and its gripping force against speed. The defaults are Kitagawa’s published figures for its B-208M chuck gripping from outside: 87 kN maximum static gripping force, a maximum speed of 5000 min⁻¹ and 32.9 kN of dynamic gripping force at that speed. If the whole loss is the jaws’ centrifugal force, Σ m·r = 54.1 kN ÷ (π · 5000 / 30)² ≈ 0.1973 kg·m, which is this page’s own calculation; with it the curve passes through Kitagawa’s 32.9 kN at 5000 min⁻¹. The dotted line is where the centrifugal force has taken two thirds of the static force; the dashed red line is the permissible speed for the force the cut needs (the formula is rearranged as described below), and the readout never goes above the speed marked on the chuck. The force the cut needs is an example input; the static-force slider stops at the chuck’s 87 kN.">
+  <ChuckSpeed locale="en" fsp0={87} mc={0.1973} n={4000} nScale={6000} nMarked={5000} fspz={10} />
+</Figure>
+
+Kitagawa's own numbers show how large the effect is: 32.9 kN left of 87 kN at the maximum speed is 38 %, so 62 % of the static force is gone by the time the chuck reaches its rated speed.
+
+## What the makers allow
+
+Röhm and Schunk work from the force the cut needs, Fspz, and two safety factors that Schunk gives "according to VDI 3106": the machining factor Sz ≥ 1.5 and the clamping factor Ssp ≥ 1.5; Röhm gives the same values. Röhm writes the steps as
+
+$$
+F_{sp} = F_{spz} \cdot S_z, \qquad F_{sp0} = S_{sp} \cdot (F_{sp} \pm F_c)
+$$
+
+Here the signs are the other way round: "(+) for gripping from the outside inwards" and "(–) for gripping from the inside outwards" (Schunk; Röhm's German text says the same, while its English text repeats the first legend). Gripping from outside, the static force has to cover the cut, its safety margin and what the jaws will lose at speed. Both makers also give a formula for the permissible speed at a given static force. Rearranged from these equations with the centrifugal force above, for gripping from outside it reads n = (30/π) · √((Fsp0/Ssp − Fspz·Sz) / Σ(m·rs)); the figure uses this form. The rearrangement is this page's and has not been checked against a maker's worked example, so take the chuck maker's own calculation for a real job.
+
+Two further limits apply whatever the calculation says.
+
+- **Two thirds.** Schunk: "the centrifugal force may be a maximum of 67% of the initial clamping force", which it attributes to DIN EN 1550. BERG Spanntechnik defines its recommended speed as the one at which the calculated centrifugal force, with the jaw type it lists, equals "zwei Drittel der größten Spannkraft im Stillstand" and attributes that to DIN 6386. The two cite different standards for the same fraction.
+- **The marked speed.** Röhm: "The max. speed and actuation force / pressure are engraved on the body and should not be exceeded", and that holds even when the calculated permissible speed is higher; Schunk: "the calculated permissible RPM may not exceed the maximum RPM inscribed on the lathe chuck!" If the machine can turn faster than the chuck is rated for, Schunk adds, "the speed must be limited for safety purposes!"
+
+The rated speed holds only for the jaws it was rated with. Schunk's recommended maximum speed applies at maximum operating force and with suitable hard standard stepped jaws, and SMW-Autoblok measured its static and dynamic gripping forces "using standard soft top jaws" on "newly maintained" chucks. For soft or special jaws Schunk asks for a permissible-speed calculation to VDI 3106, checked by a dynamic measurement.
+
+The standards behind this: DIN EN 1550:2008-11, the safety requirements for the design and construction of workholding chucks, which also covers the instruction manual and the marking of the chuck; and VDI 3106:2004-04, "Determination of permissible speed (rpm) of lathe chucks (jaw chucks)", whose sections cover the static and dynamic clamping forces, the standstill force needed for a given speed and the permissible speed for a given standstill force.
+
+## Jaws: light, low and not too far out
+
+Every term of Σ m·rs is a reason to keep the jaws small. Röhm: "The jaws should be as light and as low as possible"; Schunk says the same. SMW-Autoblok: "When using taller / heavier jaws and / or clamping on a bigger diameter reduce draw pull / rotating speed accordingly." Schunk limits how far top jaws may reach: their outer diameter must not exceed the chuck's by more than 10 %. Check the unit of the moments in the chuck's table before you add them up: Röhm writes them in mkg and Schunk in kgm, both kg·m, but one Schunk manual also converts with "kgm × 9.81 = Nm".
+
+Some chucks fight back. In a chuck with centrifugal compensation, a balance weight turns with each jaw and "the centrifugal force acting on each balance weight is applied to the back face of the corresponding master jaw" (Howa patent); Cutting Tool Engineering's product note on SMW-Autoblok's HFKS-2G says that "The integrated centrifugal force compensation enables significantly higher speeds".
+
+## Keep the force you set
+
+A chuck delivers its static force only when it is clean and greased. Röhm: "unsuitable lubricant may reduce the chucking force by more than 50 per cent." Schunk asks for lubrication when only 80 % of the maximum clamping force is reached. The intervals are the chuck's own: Röhm gives every 20 operating hours for the KFD-AF, Schunk every 24 for the ROTA 2B. After greasing, both have the jaws run through their end positions and the force checked again.
+
+Measure it rather than trust it. Röhm: "The most reliable method of measuring the clamping force is by means of a load cell"; its function check at 3–4 bar only shows that the clamping piston moves. Röhm asks for a check after about 40 operating hours, whatever the clamping frequency; Schunk recommends one before each new production run, in the same set-up as the job. Schunk also warns that "Due to settling behavior, the clamping force may decrease over time."
+
+<CheckList id="chuck-before-speed" locale="en" items={[
+  { icon: 'speed', title: 'Marked speed', check: 'The maximum speed engraved on the chuck body, and the machine’s own limit.', fix: 'Never exceed it, even if the calculation allows more (Röhm, Schunk); limit the machine speed if it can go faster (Schunk).', src: 'Röhm; Schunk' },
+  { icon: 'clamp', title: 'Jaws as rated', check: 'Which jaws the chuck’s rating assumes, and what is fitted.', fix: 'Light, low jaws (Röhm, Schunk); taller or heavier jaws, or a larger gripping diameter, mean less speed (SMW-Autoblok). For soft or special jaws, calculate the permissible speed (Schunk).', src: 'Röhm; Schunk; SMW-Autoblok' },
+  { icon: 'depth', title: 'Static force for this job', check: 'The force the cut needs, the safety factors and the centrifugal loss at the speed you want.', fix: 'Gripping from outside: Fsp0 = Ssp · (Fspz · Sz + Fc) with Sz and Ssp at least 1.5 (Röhm, Schunk), and no more than the maximum engraved on the chuck (Schunk).', src: 'Röhm; Schunk' },
+  { icon: 'coolant', title: 'Greased with the right grease', check: 'When the chuck was last lubricated, and with what.', fix: 'Grease at the interval in the chuck’s manual with the grease it names; the wrong one can cost more than half the force (Röhm). Then cycle the jaws to their end positions.', src: 'Röhm; Schunk' },
+  { icon: 'wear', title: 'Force measured', check: 'When the gripping force was last measured with a gauge.', fix: 'Measure with a load cell (Röhm) or a gripping-force tester (Schunk), in the set-up of the job, before series work.', src: 'Röhm; Schunk' },
+]} />

@@ -1,0 +1,121 @@
+---
+/* Property class 8.8 and its nut, class 8: an M10 hexagon head bolt (ISO 4014 proportions: s 16,
+   k 6.4, l 50, thread length 26, P 1.5) with the class and a maker's mark on the head, and an M10
+   nut (s 16, m 8.4) lying flat with its class 8. First number × 100 = nominal tensile strength; the
+   second is ten times the ratio of nominal yield to nominal tensile strength (ISO 898-1).
+   Orthographic view from the front, right and above; scale 4.6 px per mm. */
+import { ortho, prism, f1, path, add, mul, dot, unit, type V3, type P2 } from '../geom3d';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const dec = (s: string) => (tr ? s.replace('.', ',') : s);
+const id = (s: string) => `bp-${s}-${locale}`;
+
+const K = 4.6;
+const cam0 = ortho(38, 24, K, 0, 0);
+const hc0 = cam0.P([56.4, 0, 0]);
+const cam = ortho(38, 24, K, 404 - hc0[0], 238 - hc0[1]);
+const light = unit([-0.35, 0.75, 0.55]);
+const lerp = (a: number[], b: number[], t: number) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const hex = (c: number[]) => `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+const shade = (n: V3, lo = [0x2c, 0x32, 0x37], hi = [0xe6, 0xea, 0xed]) => hex(lerp(lo, hi, 0.18 + 0.82 * Math.max(0, dot(n, light))));
+
+/* ---- bolt: thread X 0…26, plain shank 26…50, head 50…56.4 */
+const d = 10, P = 1.5, h3 = 0.6134 * P, rM = d / 2, rm = rM - h3, b = 26, l = 50, k = 6.4, s = 16;
+const e = s / Math.cos(Math.PI / 6);
+// hexagon in the plane x = X, corners at angle 30° + 60°·i (flats top and bottom)
+const hexAt = (X: number, R: number, rot = Math.PI / 6): V3[] => Array.from({ length: 6 }, (_, i) => { const a = rot + (Math.PI / 3) * i; return [X, R * Math.cos(a), R * Math.sin(a)]; });
+const head = prism(cam, hexAt(l + k, e / 2), hexAt(l, e / 2));
+// shank and thread as cylinders; the silhouette of the thread carries the 60° profile
+const tS = Math.atan2(-cam.dv[1], cam.dv[2]);               // upper silhouette angle for an X-axis cylinder (t from +Y towards +Z)
+const C = (X: number, r: number, t: number) => cam.P([X, r * Math.cos(t), r * Math.sin(t)]);
+const arcX = (X: number, r: number, t0: number, t1: number, n = 36): P2[] => Array.from({ length: n + 1 }, (_, i) => C(X, r, t0 + ((t1 - t0) * i) / n));
+const shank = path([...arcX(l, rM, tS, tS - Math.PI), ...arcX(b, rM, tS + Math.PI, tS)]);
+// thread silhouette: zig-zag along the upper and lower silhouette lines, near half of the end
+const zig = (t: number, phase: number) => {
+  const q: P2[] = [];
+  for (let X = b; X >= 0.6; X -= P / 2) { const i = Math.round((b - X) / (P / 2)); const r = (i + phase) % 2 === 0 ? rM : rm; q.push(C(X, r, t)); }
+  return q;
+};
+const chamferEnd = 0.8;
+const threadBody = path([
+  C(b, rM, tS), ...zig(tS, 0).slice(1), C(0, rm, tS),
+  ...arcX(0, rm, tS, tS + Math.PI).slice(1),
+  ...zig(tS + Math.PI, 1).reverse(), C(b, rM, tS + Math.PI),
+]);
+// helix: crests on the seen half (t from tS to tS + π), one line per pitch, the root half a pitch on
+const helix = (r: number, off: number) => {
+  const segs: string[] = [];
+  for (let X0 = b - off; X0 > -P; X0 -= P) {
+    const q: P2[] = [];
+    for (let i = 0; i <= 24; i++) { const t = tS + (Math.PI * i) / 24, X = X0 - ((t - tS) / (2 * Math.PI)) * P; if (X < chamferEnd || X > b) continue; q.push(C(X, r, t)); }
+    if (q.length > 2) segs.push(path(q, false));
+  }
+  return segs.join(' ');
+};
+const crests = helix(rM, 0), roots = helix(rm + 0.15, P / 2);
+// head top: chamfer circle and the marking, written in the plane x = l + k (u towards −Z, v up)
+const xTop = l + k;
+const face = (u: number, v: number) => cam.P([xTop, v, -u]);
+const o = face(0, 0), eu = face(1, 0), ev = face(0, 1);
+const mHead = `matrix(${f1(eu[0] - o[0])} ${f1(eu[1] - o[1])} ${f1(-(ev[0] - o[0]))} ${f1(-(ev[1] - o[1]))} ${f1(o[0])} ${f1(o[1])})`;
+const chamferCircle = path(Array.from({ length: 48 }, (_, i) => { const a = (2 * Math.PI * i) / 48; return face(0.95 * (s / 2) * Math.cos(a), 0.95 * (s / 2) * Math.sin(a)); }));
+
+/* ---- nut lying flat, axis vertical, at the front left */
+const nutC: V3 = [6, -rM - 9, 34];
+const m = 8.4;
+const hexY = (Y: number, R: number): V3[] => Array.from({ length: 6 }, (_, i) => { const a = (Math.PI / 3) * i; return [nutC[0] + R * Math.cos(a), Y, nutC[2] + R * Math.sin(a)]; });
+const nut = prism(cam, hexY(nutC[1] + m, e / 2), hexY(nutC[1], e / 2));
+const nutTop = (u: number, v: number) => cam.P([nutC[0] + u, nutC[1] + m, nutC[2] - v]);
+// class mark on the flat that faces the viewer (normal +Z): u along +X, v up
+const flat = (u: number, v: number) => cam.P([nutC[0] + u, nutC[1] + m / 2 + v, nutC[2] + s / 2]);
+const no = flat(0, 0), nu = flat(1, 0), nv = flat(0, 1);
+const mNut = `matrix(${f1(nu[0] - no[0])} ${f1(nu[1] - no[1])} ${f1(-(nv[0] - no[0]))} ${f1(-(nv[1] - no[1]))} ${f1(no[0])} ${f1(no[1])})`;
+const nutLbl = (() => { const p = cam.P([nutC[0], nutC[1] + m, nutC[2] - e / 2]); return [p[0], p[1] - 12] as P2; })();
+const ringTop = (r: number) => path(Array.from({ length: 40 }, (_, i) => { const a = (2 * Math.PI * i) / 40; return nutTop(r * Math.cos(a), r * Math.sin(a)); }));
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id={id('shank')} gradientUnits="userSpaceOnUse" x1={f1(C(l / 2, rM, tS)[0])} y1={f1(C(l / 2, rM, tS)[1])} x2={f1(C(l / 2, rM, tS + Math.PI)[0])} y2={f1(C(l / 2, rM, tS + Math.PI)[1])}>
+      <stop offset="0" stop-color="#7e878f" /><stop offset="0.2" stop-color="#ecf0f3" /><stop offset="0.42" stop-color="#c1cad1" /><stop offset="0.8" stop-color="#838c94" /><stop offset="1" stop-color="#666d72" />
+    </linearGradient>
+  </defs>
+  <text class="t-big f" style="--i:0" x="24" y="52">8.8</text>
+  <text class="t-sm f" style="--i:1" x="26" y="74">ISO 898-1 · {tr ? 'somun' : 'nut'} ISO 898-2</text>
+
+  <!-- nut -->
+  <g class="f" style="--i:2">
+    {nut.map((fc) => <path d={fc.d} fill={fc.kind === 'side' ? shade(fc.n) : '#565e63'} stroke="#2c3033" stroke-width="0.6" stroke-linejoin="round" />)}
+    <path d={ringTop(0.95 * s / 2)} fill="none" stroke="#8d959d" stroke-width="0.7" />
+    <path d={ringTop(rM + 0.4)} fill="#f9fcff" stroke="#656e74" stroke-width="0.7" />
+    <path d={ringTop(rm + 0.6)} fill="none" stroke="#cdd5db" stroke-width="0.7" />
+    <text transform={mNut} x="0.2" y="1.9" text-anchor="middle" style="font-family: var(--font-sans); font-weight: 700; font-size: 5.2px; fill: #e0e8ed; stroke: none">8</text>
+    <text transform={mNut} x="0" y="1.7" text-anchor="middle" style="font-family: var(--font-sans); font-weight: 700; font-size: 5.2px; fill: #34393d; stroke: none">8</text>
+  </g>
+
+  <!-- bolt: thread, shank, head -->
+  <g class="f" style="--i:3">
+    <path d={threadBody} fill={`url(#${id('shank')})`} />
+    <path d={roots} fill="none" stroke="#cdd5db" stroke-width="1" stroke-opacity="0.8" />
+    <path d={crests} fill="none" stroke="#161718" stroke-width="0.9" stroke-opacity="0.75" />
+    <path d={shank} fill={`url(#${id('shank')})`} />
+  </g>
+  <path class="o d" style="--i:3" pathLength="1" d={`${threadBody} ${shank}`} />
+  <g class="f" style="--i:4">
+    {head.map((fc) => <path d={fc.d} fill={fc.kind === 'side' ? shade(fc.n) : '#474e54'} stroke="#1f2224" stroke-width="0.7" stroke-linejoin="round" />)}
+    <path d={chamferCircle} fill="#c3cad0" stroke="#777f86" stroke-width="0.6" />
+    <g transform={mHead} style="font-family: var(--font-sans); font-weight: 700; stroke: none">
+      <text x="0.3" y="2.6" text-anchor="middle" style="font-size: 6.4px; fill: #b1bac2; stroke: none">8.8</text>
+      <text x="0" y="2.3" text-anchor="middle" style="font-size: 6.4px; fill: #161718; stroke: none">8.8</text>
+      <text x="0" y="-3.4" text-anchor="middle" style="font-size: 2.6px; fill: #8d959d; stroke: none">CA</text>
+    </g>
+  </g>
+
+  <g class="lbl">
+    <text class="t-acc" x="292" y="62">8 × 100 = 800 MPa</text>
+    <text class="t-sm" x="292" y="80">R<tspan font-size="8" dy="3">m</tspan><tspan dy="-3">{tr ? ', anma' : ', nominal'}</tspan></text>
+    <text class="t-data" x="292" y="112">{dec('0.8')} × 800 = 640 MPa</text>
+    <text class="t-sm" x="292" y="130">R<tspan font-size="8" dy="3">p0.2</tspan><tspan dy="-3">{tr ? ', anma' : ', nominal'}</tspan></text>
+    <text class="t-sm" x={f1(nutLbl[0])} y={f1(nutLbl[1])} text-anchor="middle">{tr ? 'somun sınıfı 8' : 'nut class 8'}</text>
+  </g>
+</svg>

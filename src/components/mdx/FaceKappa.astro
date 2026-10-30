@@ -1,0 +1,148 @@
+---
+/**
+ * Entering angle in face milling, in a section through the cutter axis at the front tooth: the chip between this
+ * tooth's edge and the last one's (fz apart along the feed) is h = fz · sin κr thick and b = ap / sin κr wide;
+ * the force drawn square to the main edge (Kennametal: the cutting forces are perpendicular to the lead angle)
+ * with its radial and axial parts. Presets for the angles the makers discuss, each with what they say about it.
+ * Section exaggerated: fz is drawn far larger than to scale against ap.
+ */
+interface Props { locale: 'en' | 'tr'; kr?: number }
+const { locale, kr = 45 } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { kr: 'Yanaşma açısı κr', h: 'Talaş kalınlığı h = fz · sin κr', b: 'Talaş genişliği b = ap / sin κr', work: 'iş parçası', chip: 'talaş', feed: 'ilerleme', axial: 'eksenel', radial: 'radyal', F: 'F', ap: 'ap', fz: 'fz', axis: 'radyal: freze eksenine doğru, eksenel: iş miline doğru', none: 'Bu açı için okunan üretici kaynaklarında bir açıklama yok; 90°, 75°, 45° ya da 10–15° seçin.', notes: {
+      90: 'Sandvik Coromant: kuvvetlerin çoğu radyal; kısa takım boyları, ince cidarlı parçalar ve kararsız bağlamalar için. Dik bir omuz gerekiyorsa tek seçenek (Mitsubishi, Sandvik, Kennametal).',
+      75: 'Mitsubishi: ince parçalar gibi rijitliği düşük malzemelerin alın frezelemesi için önerilir (web sitesi bunu 75° lead açısı, kursu 15° köşe açısı diye anar).',
+      45: 'Sandvik Coromant: genel amaçlı ilk seçim; radyal ve eksenel kuvvetler dengeli; uzun sarkmalarda titreşimi azaltır. Kennametal: talaş 0,707 × fz; köşede daha az kırılma.',
+      15: 'Sandvik Coromant (10–15°): ince talaş, küçük kesme derinliklerinde çok yüksek ilerleme; kuvvetlerin çoğu eksenel; uzun takım boyları.',
+    } }
+  : { kr: 'Entering angle κr', h: 'Chip thickness h = fz · sin κr', b: 'Chip width b = ap / sin κr', work: 'workpiece', chip: 'chip', feed: 'feed', axial: 'axial', radial: 'radial', F: 'F', ap: 'ap', fz: 'fz', axis: 'radial: towards the cutter axis, axial: towards the spindle', none: 'No maker statement for this angle in the sources read; pick 90°, 75°, 45° or 10–15°.', notes: {
+      90: 'Sandvik Coromant: mostly radial cutting forces; for short tool assemblies, thin-walled components and unstable fixtures. The only choice where a square shoulder is needed (Mitsubishi, Sandvik, Kennametal).',
+      75: 'Mitsubishi: recommended for face milling of work material with low rigidity such as thin work (its website calls it lead angle 75°, its course a 15° corner angle).',
+      45: 'Sandvik Coromant: the general-purpose first choice; balanced radial and axial forces; reduces vibration on long overhangs. Kennametal: chip 0.707 × fz; less breakout at the workpiece corner.',
+      15: 'Sandvik Coromant (10–15°): thin chips, very high feed at small depths of cut; mostly axial forces; long tool assemblies.',
+    } };
+const presets = [90, 75, 45, 15];
+---
+<div class="fk" data-fk data-locale={locale} data-anim>
+  <svg viewBox="0 0 640 300" role="img" aria-label={T.kr} class="plot" data-svg></svg>
+  <div class="ctl">
+    <label class="field"><span>{T.kr} <output data-o="k">{kr}</output>°</span><input type="range" min="10" max="90" step="1" value={kr} data-i="k" /></label>
+    <div class="presets" role="group" aria-label={T.kr}>{presets.map((p) => <button type="button" data-p={p} aria-pressed={String(p === kr)}>{p === 15 ? '10–15' : p}°</button>)}</div>
+  </div>
+  <dl class="read">
+    <div><dt>{T.h}</dt><dd class="num" data-o="h">—</dd></div>
+    <div><dt>{T.b}</dt><dd class="num" data-o="b">—</dd></div>
+  </dl>
+  <p class="note" data-o="n"></p>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .fk { display: grid; gap: 0.75rem; }
+  .plot { width: 100%; height: auto; display: block; }
+  .ctl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.8rem 1rem; align-items: end; }
+  @media (max-width: 40rem) { .ctl { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .presets { display: flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .presets button { font: inherit; font-size: 0.85rem; padding: 0.4rem 0.75rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.2rem; }
+  .presets button + button { border-left: 1px solid var(--line-strong); }
+  .presets button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .read { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem 1rem; margin: 0; }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; font: 600 1.15rem var(--font-mono); color: #c94f0c; }
+  .note { margin: 0; font-size: 0.88rem; line-height: 1.5; color: var(--ink-2); border-left: 3px solid var(--color-temper-purple, #8b52c9); padding: 0.2rem 0 0.2rem 0.75rem; min-height: 3em; }
+  .fk :global(.wk) { fill: url(#ca-hatch); stroke: none; }
+  .fk :global(.edge) { fill: none; stroke: #364554; stroke-width: 1.6; }
+  .fk :global(.chip) { fill: #e3b23c; fill-opacity: 0.8; stroke: #b9822a; stroke-width: 1; }
+  .fk :global(.prev) { stroke: #9aa6b2; stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .fk :global(.ins) { fill: url(#ca-coat); fill-opacity: 0.28; stroke: #8a6420; stroke-width: 1.4; stroke-dasharray: 5 3; stroke-linejoin: round; }
+  .fk :global(.cut) { stroke: #8a6420; stroke-width: 3; stroke-linecap: round; }
+  .fk :global(.F) { stroke: #c2413b; stroke-width: 2.6; }
+  .fk :global(.Fc) { stroke: #c2413b; stroke-width: 1.4; stroke-dasharray: 5 3; opacity: 0.75; }
+  .fk :global(.bar) { fill: #cdd5dc; }
+  .fk :global(.bar.on) { fill: #e2601a; }
+  .fk :global(.t) { font: 12px var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+  .fk :global(.t.r) { fill: #b23a34; }
+  .fk :global(.t.a) { fill: #c94f0c; }
+  .fk :global(.t.s) { font-size: 11px; fill: var(--ink-3); }
+  .fk :global(.dim) { stroke: #1e5fc4; stroke-width: 1.1; }
+  .fk :global(.t.d) { fill: #1e5fc4; }
+</style>
+
+<script>
+  import { chipSection } from '../../lib/facemill';
+  document.querySelectorAll<HTMLElement>('[data-fk]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const kIn = q<HTMLInputElement>('[data-i="k"]');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const f1 = (v: number) => v.toFixed(1);
+    const btns = [...root.querySelectorAll<HTMLButtonElement>('[data-p]')];
+    const draw = (kr: number) => {
+      const r = (kr * Math.PI) / 180, s = Math.sin(r), c = Math.cos(r);
+      const AP = Math.min(120, 170 * s), Y1 = 190, Y0 = Y1 - AP, FZ = 46;   // drawing units; fz exaggerated; small κr cuts shallow
+      const xc = 196;                                                   // corner of this tooth on the machined surface
+      // the major edge runs from the corner up and outwards, i.e. forwards at the front tooth: (cos κr, −sin κr) on screen
+      const ex = c, ey = -s, L = AP / s;                               // edge length to the top surface
+      const top = [xc + ex * L, Y1 + ey * L];                           // where the edge meets the uncut surface
+      const pc = [xc - FZ, Y1], ptop = [top[0] - FZ, top[1]];           // previous tooth, fz behind
+      const chip = `M${f1(pc[0])},${f1(pc[1])} L${f1(xc)},${Y1} L${f1(top[0])},${f1(top[1])} L${f1(ptop[0])},${f1(ptop[1])} Z`;
+      const work = `M${f1(xc)},${Y1} L${f1(top[0])},${f1(top[1])} L420,${f1(Y0)} L420,272 L20,272 L20,${Y1} Z`;
+      // insert: a body behind the edge, its minor edge along the machined surface
+      const back = 70;
+      const ins = `M${f1(xc)},${Y1} L${f1(top[0] + ex * 26)},${f1(top[1] + ey * 26)} L${f1(top[0] + ex * 26 - back)},${f1(top[1] + ey * 26)} L${f1(xc - back - 10)},${Y1 - 4} Z`;
+      // force square to the edge, out of the material into the tool: n = (−sin κr, +cos κr) rotated … pointing up-left
+      const mx = (xc + top[0]) / 2 - FZ / 2, my = (Y1 + top[1]) / 2;
+      const nx = -s, ny = -c, F = 86;
+      const fx = mx + nx * F, fy = my + ny * F;
+      const ch = chipSection(kr, 1, 1);
+      // bar chart of h/fz for the presets
+      const bars = [90, 75, 45, 15, 10].map((k, i) => {
+        const v = Math.sin((k * Math.PI) / 180), x = 470 + i * 32, hgt = v * 150, on = Math.abs(k - kr) < 0.5;
+        return `<rect x="${x}" y="${f1(240 - hgt)}" width="20" height="${f1(hgt)}" rx="3" class="bar${on ? ' on' : ''}"/><text x="${x + 10}" y="258" class="t s" text-anchor="middle">${k}°</text><text x="${x + 10}" y="${f1(232 - hgt)}" class="t s" text-anchor="middle">${dec(v.toFixed(2))}</text>`;
+      }).join('');
+      const cur = 470 + 5 * 32;
+      const svg = `
+        <path d="${work}" class="wk"/>
+        <line x1="20" x2="420" y1="${Y1}" y2="${Y1}" class="edge"/>
+        <line x1="${f1(top[0])}" x2="420" y1="${f1(Y0)}" y2="${f1(Y0)}" class="edge"/>
+        <path d="${ins}" class="ins"/>
+        <path d="${chip}" class="chip"/>
+        <line x1="${f1(pc[0])}" y1="${f1(pc[1])}" x2="${f1(ptop[0])}" y2="${f1(ptop[1])}" class="prev"/>
+        <line x1="${xc}" y1="${Y1}" x2="${f1(top[0])}" y2="${f1(top[1])}" class="cut"/>
+        <line x1="${f1(mx)}" y1="${f1(my)}" x2="${f1(fx)}" y2="${f1(fy)}" class="F" marker-end="url(#ca-arr-acc)"/>
+        <line x1="${f1(mx)}" y1="${f1(my)}" x2="${f1(fx)}" y2="${f1(my)}" class="Fc"/>
+        <line x1="${f1(fx)}" y1="${f1(my)}" x2="${f1(fx)}" y2="${f1(fy)}" class="Fc"/>
+        <text x="${f1(Math.min(fx, mx) - 4)}" y="${f1(my + 16)}" class="t r" text-anchor="${fx < mx ? 'start' : 'end'}">${Math.abs(nx) > 0.15 ? T.radial : ''}</text>
+        <text x="${f1(fx - 6)}" y="${f1((my + fy) / 2)}" class="t r" text-anchor="end">${Math.abs(ny) > 0.15 ? T.axial : ''}</text>
+        <text x="${f1(fx + 6)}" y="${f1(fy + 4)}" class="t r">F</text>
+        <line x1="436" x2="436" y1="${f1(Y0)}" y2="${Y1}" class="dim" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)"/>
+        <text x="442" y="${f1((Y0 + Y1) / 2 + 4)}" class="t d">ap</text>
+        <line x1="${f1(pc[0])}" x2="${xc}" y1="${Y1 + 18}" y2="${Y1 + 18}" class="dim" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)"/>
+        <text x="${f1(xc - FZ / 2)}" y="${Y1 + 34}" class="t d" text-anchor="middle">fz</text>
+        <text x="${f1(xc + 14)}" y="${Y1 - 10}" class="t a">κr ${kr}°</text>
+        <line x1="40" x2="110" y1="288" y2="288" class="F" stroke="#e2601a" marker-end="url(#ca-arr-acc)"/>
+        <text x="118" y="292" class="t a">${T.feed}</text>
+        <text x="30" y="24" class="t s">${T.axis}</text>
+        <text x="458" y="40" class="t s">h / fz = sin κr</text>
+        ${bars}
+        <line x1="462" x2="${cur}" y1="240" y2="240" stroke="#5f6c79"/>`;
+      q('[data-svg]').innerHTML = svg;
+      q('[data-o="k"]').textContent = String(kr);
+      q('[data-o="h"]').textContent = `${dec(ch.h.toFixed(2))} × fz`;
+      q('[data-o="b"]').textContent = `${dec(ch.b.toFixed(2))} × ap`;
+      // a maker note only at the angles the makers discuss: 90°, 75°, 45° and the 10–15° high-feed band
+      const at = kr === 90 || kr === 75 || kr === 45 ? kr : kr >= 10 && kr <= 15 ? 15 : 0;
+      q('[data-o="n"]').textContent = at ? T.notes[at] : T.none;
+      btns.forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.p) === at)));
+    };
+    kIn.addEventListener('input', () => draw(Number(kIn.value)));
+    btns.forEach((b) => b.addEventListener('click', () => { kIn.value = b.dataset.p!; draw(Number(b.dataset.p)); }));
+    draw(Number(kIn.value));
+  });
+</script>

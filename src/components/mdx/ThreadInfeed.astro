@@ -1,0 +1,184 @@
+---
+/**
+ * Thread-turning infeed, pass by pass: pick the infeed method, the pitch (Mitsubishi's ISO 60° external
+ * depths per pass) and, for modified flank, the offset; the insert steps into the groove one pass at a time,
+ * each pass painting the material it removes, and the bars show how much of each pass the left and the right
+ * edge of the insert take. Runs once on entry; Play runs it again, the slider steps through it.
+ * Geometry and arithmetic in src/lib/threadturn.ts.
+ */
+import { MMC, METHODS, drawSection, drawSplit, passSplit, cumulative, type Method } from '../../lib/threadturn';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { radial: 'Radyal', flank: 'Yanaktan', modified: 'Değiştirilmiş yanak', alternating: 'Dönüşümlü yanak', method: 'İlerleme yöntemi', pitch: 'Adım P', offset: 'Yanak açısından sapma', step: 'Paso', of: '/', play: 'Oynat', pause: 'Duraklat', left: 'sol kenar', right: 'sağ kenar', mm2: 'mm²', pass: 'paso', passes: 'paso', infeed: 'ilerleme', dPass: 'Bu pasonun derinliği', dCum: 'Toplam derinlik', area: 'Kaldırılan kesit', split: 'Sol / sağ kenar', aria: 'Diş tornalamada ilerleme yöntemleri: kesici her pasoda dişe girer, her paso kaldırdığı malzemeyi boyar; çubuklar her pasonun ne kadarını sol ve sağ kenarın kestiğini gösterir' }
+  : { radial: 'Radial', flank: 'Flank', modified: 'Modified flank', alternating: 'Alternating flank', method: 'Infeed method', pitch: 'Pitch P', offset: 'Offset from the flank angle', step: 'Pass', of: 'of', play: 'Play', pause: 'Pause', left: 'left edge', right: 'right edge', mm2: 'mm²', pass: 'pass', passes: 'passes', infeed: 'infeed', dPass: 'Depth of this pass', dCum: 'Depth so far', area: 'Area removed', split: 'Left / right edge', aria: 'Infeed methods in thread turning: the insert enters the groove pass by pass, each pass painting the material it removes; bars show how much of each pass the left and right edges of the insert cut' };
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+const m0: Method = 'modified', pi0 = 4, off0 = 3;
+const row = MMC[pi0], n0 = row.passes.length;
+const sp = passSplit(m0, row.passes, off0);
+const S = [drawSection(m0, row.passes, off0, false, T, dec, n0, null), drawSection(m0, row.passes, off0, true, T, dec, n0, null)];
+const B = [drawSplit(sp, false, T, n0, dec), drawSplit(sp, true, T, n0, dec)];
+const cum = cumulative(row.passes);
+const pct = (v: number) => (tr ? `%${Math.round(v)}` : `${Math.round(v)} %`);
+const a0 = sp[n0 - 1];
+---
+<div class="ti" data-ti data-locale={locale} data-anim>
+  <svg class="defs" aria-hidden="true" width="0" height="0"><defs>
+    <marker id="tt-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1 L10,5 L0,9 z" fill="#e2601a" /></marker>
+    <linearGradient id="tt-ins" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#7d8994" /><stop offset="0.5" stop-color="#d9e0e6" /><stop offset="1" stop-color="#66727d" /></linearGradient>
+  </defs></svg>
+  <div class="controls">
+    <div class="field wide-f"><span>{T.method}</span>
+      <div class="seg" role="radiogroup" aria-label={T.method}>
+        {METHODS.map((m) => <button type="button" role="radio" aria-checked={m === m0 ? 'true' : 'false'} class:list={[{ on: m === m0 }]} data-m={m}>{T[m]}</button>)}
+      </div>
+    </div>
+    <label class="field"><span>{T.pitch}</span>
+      <select data-i="p">{MMC.map((r, i) => <option value={i} selected={i === pi0}>{dec(r.P.toFixed(r.P * 100 % 10 ? 2 : 1))} mm · {r.passes.length} {T.passes}</option>)}</select>
+    </label>
+    <label class="field" data-off><span>{T.offset} <output data-o="off">{dec(off0.toFixed(1))}</output>°</span><input type="range" min="0.5" max="5" step="0.5" value={off0} data-i="off" /></label>
+  </div>
+  <div class="views">
+    <svg viewBox={`0 0 ${S[0].W} ${S[0].H}`} class="wide" role="img" aria-label={T.aria} data-s="sw" set:html={S[0].svg} />
+    <svg viewBox={`0 0 ${B[0].W} ${B[0].H}`} class="wide" aria-hidden="true" data-s="bw" set:html={B[0].svg} />
+    <svg viewBox={`0 0 ${S[1].W} ${S[1].H}`} class="narrow" role="img" aria-label={T.aria} data-s="sn" set:html={S[1].svg} />
+    <svg viewBox={`0 0 ${B[1].W} ${B[1].H}`} class="narrow" aria-hidden="true" data-s="bn" set:html={B[1].svg} />
+  </div>
+  <div class="scrub">
+    <button type="button" class="play" data-play aria-label={T.play}><span data-o="pl">▶</span></button>
+    <label class="field"><span>{T.step} <output data-o="k">{n0}</output> {T.of} <output data-o="n">{n0}</output></span><input type="range" min="1" max={n0} step="1" value={n0} data-i="k" /></label>
+  </div>
+  <dl class="read">
+    <div class="big"><dt>{T.dPass}</dt><dd class="num" data-o="dp">{dec(row.passes[n0 - 1].toFixed(2))} mm</dd></div>
+    <div><dt>{T.dCum}</dt><dd class="num" data-o="dc">{dec(cum[n0 - 1].toFixed(2))} mm</dd></div>
+    <div><dt>{T.area}</dt><dd class="num" data-o="ar">{dec((a0.left + a0.right).toFixed(3))} mm²</dd></div>
+    <div><dt>{T.split}</dt><dd class="num" data-o="sp">{pct((100 * a0.left) / (a0.left + a0.right))} / {pct((100 * a0.right) / (a0.left + a0.right))}</dd></div>
+  </dl>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .ti { display: grid; gap: 0.8rem; position: relative; }
+  svg.defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .controls { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 0.7rem 1rem; align-items: end; }
+  @media (max-width: 52rem) { .controls { grid-template-columns: 1fr 1fr; } .controls .wide-f { grid-column: 1 / -1; } }
+  @media (max-width: 30rem) { .controls { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  [data-off].off { opacity: 0.35; pointer-events: none; }
+  select { width: 100%; font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--bg-sunk); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.35rem 0.5rem; min-height: 2.1rem; }
+  .seg { display: flex; border: 1px solid var(--line-strong); border-radius: 4px; overflow: hidden; }
+  .seg button { flex: 1; font: inherit; font-size: 0.8rem; color: var(--ink-2); background: var(--bg-sunk); border: 0; padding: 0.35rem 0.45rem; min-height: 2.1rem; cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button.on { background: var(--accent); color: #fbfdff; }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  @media (max-width: 30rem) { .seg { display: grid; grid-template-columns: 1fr 1fr; } .seg button:nth-child(3) { border-left: 0; } .seg button:nth-child(n + 3) { border-top: 1px solid var(--line-strong); } }
+  .views { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 0.5rem; }
+  .views svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .views .narrow { display: none; }
+  @media (max-width: 40rem) { .views { grid-template-columns: 1fr; } .views .wide { display: none; } .views .narrow { display: block; } }
+  .scrub { display: grid; grid-template-columns: auto 1fr; gap: 0.8rem; align-items: end; }
+  .play { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--bg-sunk); color: var(--accent); font-size: 0.9rem; cursor: pointer; }
+  .play:hover { border-color: var(--accent); }
+  .play:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .read { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+  @media (max-width: 40rem) { .read { grid-template-columns: 1fr 1fr; } }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; color: var(--ink); font-size: 0.95rem; }
+  .read .big dd { color: #c94f0c; font-size: 1.35rem; font-weight: 500; }
+  .ti :global(.tt-work) { fill: url(#ca-hatch); stroke: none; }
+  .ti :global(.tt-groove) { fill: #f7fbfe; }
+  .ti :global(.tt-pass) { fill-opacity: 0.88; stroke: #f7fbfe; stroke-width: 0.6; stroke-linejoin: round; }
+  .ti :global(.tt-final) { fill: none; stroke: #1e2123; stroke-width: 1; stroke-dasharray: 4 3; opacity: 0.7; }
+  .ti :global(.tt-crest) { stroke: #555d63; stroke-width: 1; }
+  .ti :global(.tt-tool) { fill: url(#tt-ins); fill-opacity: 0.85; stroke: #3b4650; stroke-width: 0.9; stroke-linejoin: round; }
+  .ti :global(.tt-tip) { fill: #e2601a; }
+  .ti :global(.tt-slide) { stroke: #d23c63; stroke-width: 3; stroke-linecap: round; opacity: 0.9; }
+  .ti :global(.tt-ref) { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; }
+  .ti :global(.tt-dir) { stroke: #e2601a; stroke-width: 2.2; }
+  .ti :global(.tt-grid) { stroke: var(--line); stroke-width: 1; }
+  .ti :global(.tt-bl) { fill: #2a78d6; }
+  .ti :global(.tt-br) { fill: #e2601a; }
+  .ti :global(.tt-ghost) { fill: none; stroke: var(--ink-3); stroke-width: 0.8; stroke-dasharray: 2 2; }
+  .ti :global(.tt-t) { font: 11px var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; }
+  .ti :global(.tt-t.s) { font-size: 10.5px; fill: var(--ink-3); }
+  .ti :global(.tt-t.d) { fill: #e2601a; }
+</style>
+
+<script>
+  import { MMC, drawSection, drawSplit, passSplit, cumulative, type Method } from '../../lib/threadturn';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-ti]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const pct = (v: number) => (tr ? `%${Math.round(v)}` : `${Math.round(v)} %`);
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const kIn = q<HTMLInputElement>('[data-i="k"]'), pIn = q<HTMLSelectElement>('[data-i="p"]'), oIn = q<HTMLInputElement>('[data-i="off"]');
+    let m: Method = 'modified', split = passSplit(m, MMC[4].passes, 3), timer = 0, playing = false;
+    const passes = () => MMC[Number(pIn.value)].passes;
+    const off = () => Number(oIn.value);
+    // shown: passes cut so far; tool: index of the pass the insert is on (null: none); back: 0 at depth … 1 out
+    const draw = (shown: number, tool: number | null, back = 0, fresh = 1) => {
+      const p = passes(), n = p.length, o = off();
+      q('[data-s="sw"]').innerHTML = drawSection(m, p, o, false, T, dec, shown, tool, back, fresh).svg;
+      q('[data-s="sn"]').innerHTML = drawSection(m, p, o, true, T, dec, shown, tool, back, fresh).svg;
+      q('[data-s="bw"]').innerHTML = drawSplit(split, false, T, shown, dec, fresh).svg;
+      q('[data-s="bn"]').innerHTML = drawSplit(split, true, T, shown, dec, fresh).svg;
+      const i = Math.max(0, Math.min(n - 1, (tool ?? shown - 1)));
+      const c = cumulative(p), a = split[i], tot = a.left + a.right;
+      q('[data-o="k"]').textContent = String(i + 1);
+      q('[data-o="n"]').textContent = String(n);
+      q('[data-o="dp"]').textContent = `${dec(p[i].toFixed(2))} mm`;
+      q('[data-o="dc"]').textContent = `${dec(c[i].toFixed(2))} mm`;
+      q('[data-o="ar"]').textContent = `${dec(tot.toFixed(3))} mm²`;
+      q('[data-o="sp"]').textContent = `${pct((100 * a.left) / tot)} / ${pct((100 * a.right) / tot)}`;
+    };
+    const stop = () => { playing = false; cancelAnimationFrame(timer); q('[data-o="pl"]').textContent = '▶'; q('[data-play]').setAttribute('aria-label', T.play); };
+    const still = () => { const k = Number(kIn.value); draw(k, k < passes().length ? k - 1 : null); };
+    const recompute = () => {
+      const p = passes();
+      split = passSplit(m, p, off());
+      kIn.max = String(p.length);
+      kIn.value = String(p.length);
+      root.querySelector('[data-off]')!.classList.toggle('off', m !== 'modified');
+    };
+    // one pass: in (0.45 s), cut (0.25 s), out (0.3 s)
+    const play = (from = 0) => {
+      stop(); playing = true;
+      q('[data-o="pl"]').textContent = '❚❚'; q('[data-play]').setAttribute('aria-label', T.pause);
+      const n = passes().length, IN = 450, CUT = 300, OUT = 300, P = IN + CUT + OUT, t0 = performance.now() - from * P;
+      const step = (now: number) => {
+        if (!playing) return;
+        const t = Math.max(0, now - t0), k = Math.floor(t / P), u = t - k * P;
+        if (k >= n) { kIn.value = String(n); draw(n, null); stop(); return; }
+        kIn.value = String(k + 1);
+        if (u < IN) { const e = 1 - u / IN; draw(k, k, e * e); }
+        else if (u < IN + CUT) { const e = (u - IN) / CUT; draw(k + 1, k, 0, 1 - (1 - e) ** 2); }
+        else { const e = (u - IN - CUT) / OUT; draw(k + 1, k, e * e); }
+        timer = requestAnimationFrame(step);
+      };
+      timer = requestAnimationFrame(step);
+    };
+    const segs = [...root.querySelectorAll<HTMLButtonElement>('.seg button')];
+    segs.forEach((b) => b.addEventListener('click', () => {
+      m = b.dataset.m as Method;
+      segs.forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', String(x === b)); });
+      recompute(); matchMedia('(prefers-reduced-motion: reduce)').matches ? still() : play();
+    }));
+    pIn.addEventListener('change', () => { recompute(); matchMedia('(prefers-reduced-motion: reduce)').matches ? still() : play(); });
+    oIn.addEventListener('input', () => { q('[data-o="off"]').textContent = dec(Number(oIn.value).toFixed(1)); stop(); recompute(); still(); });
+    kIn.addEventListener('input', () => { stop(); still(); });
+    q('[data-play]').addEventListener('click', () => {
+      if (playing) { stop(); return; }
+      const k = Number(kIn.value), n = passes().length;
+      play(k >= n ? 0 : k);
+    });
+    recompute();
+    if (document.documentElement.classList.contains('anim')) { draw(0, null); whenIn(root, () => play()); }
+    else still();
+  });
+</script>

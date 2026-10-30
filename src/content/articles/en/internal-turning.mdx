@@ -1,0 +1,161 @@
+---
+key: internal-turning
+locale: en
+slug: internal-turning
+title: 'Internal turning and the L/D of the boring bar'
+description: 'Why boring is harder than external turning, how a boring bar deflects (δ = F·L³/3EI) and why overhang counts three times and diameter four, the longest overhang for steel, heavy-metal, carbide and damped bars maker by maker, bar size and clamping length, centre height, insert geometry for low radial force, chip evacuation and the remedies for chatter.'
+section: 2
+subsection: turning
+order: 2
+updated: 2026-10-18
+tools: [turning]
+glance:
+  - value: '≈ 4 × D'
+    label: 'Longest overhang of a steel boring bar (Sandvik, ISCAR, Tungaloy, Kyocera)'
+  - value: 'L³ / D⁴'
+    label: 'How deflection grows with overhang and falls with bar diameter (δ = F·L³/3EI)'
+  - value: '10–14 × D'
+    label: 'Damped bars, depending on maker (Seco, Kyocera, ISCAR; Sandvik, Tungaloy, Ingersoll)'
+  - value: '≥ 4 × D'
+    label: 'Clamping length of the bar shank (ISCAR, Ingersoll)'
+sources:
+  - label: 'Sandvik Coromant Academy, Metal Cutting Technology Training Handbook, section A (general and internal turning); inch edition, no year in the copy consulted'
+  - label: 'Sandvik Coromant, catalogue pages A27–A31, “General turning – Internal machining: Boring bars and cutting heads”, dated 23 Nov 2005 (refers to the Main Catalogue 2006 for the full range; hosted by a distributor)'
+    url: https://docs.steinerelectric.com/Sandvik_5727092_Catalog_1.pdf
+  - label: 'ISCAR, ISCAR’s World 2/2017, pp. 33–34 (boring bars)'
+    url: https://iscar.com/Catalogs/flipview/iscars-world/Iscar%20Article%202_2017/files/basic-html/page33.html
+  - label: 'ISCAR, Reference Guide “Anti-Vibration” (WHISPERLINE), 09/2019'
+    url: https://www.iscar.com/Catalogs/Publication/english_1/WhisperLine_USER_GUIDE/USER_GUIDE_WhisperLine.pdf
+  - label: 'Mitsubishi Materials, e-learning “Advanced Turning”: “Selecting a boring bar”'
+    url: https://www.mmc-carbide.com/permanent/courses/75/selecting-a-boring-bar.html
+  - label: 'Mitsubishi Materials, e-learning “Advanced Turning”: “Vibrations and cutting resistance of boring bars”'
+    url: https://www.mmc-carbide.com/permanent/courses/75/vibrations-and-cutting-resistance-of-boring-bars.html
+  - label: 'Mitsubishi Materials, e-learning “Advanced Turning”: “Insert types for boring”'
+    url: https://www.mmc-carbide.com/permanent/courses/75/insert-types-for-boring.html
+  - label: 'Mitsubishi Materials, e-learning “Basic Turning”: “Tool overhang and L/D”'
+    url: https://www.mmc-carbide.com/permanent/courses/85/tool-overhand-and-ld.html
+  - label: 'Tungaloy, TurnLine BoreMeister, Report No. 517-US, April 2026'
+    url: https://tungaloy.com/wpdata/wp-content/uploads/517-u_BoreMeister.pdf
+  - label: 'Tungaloy, “BoreMeister – Expansion of PSC adapters & ø80 round shank bars featuring anti-vibration capability”, press release, December 2025'
+    url: https://tungaloy.com/press-release/expansion_boremeister_psc-adapters/
+  - label: 'Ingersoll Cutting Tools, “7xD, 10xD, 12xD, and 14xD Anti-Vibration Boring Bars…”, NEW-337-5, 06/2026'
+    url: https://ssl.ingersoll-imc.com/resources/pdf/new-337-5-t-absorber.pdf
+  - label: 'Seco Tools, “Seco Deepens Turning Capabilities with Steadyline Tooling Additions”, October 2018'
+    url: https://secotools.com/article/87443
+  - label: 'Kyocera Precision Tools, “KAV Boring Bar Series”'
+    url: https://www.kyoceraprecisiontools.com/kav/
+  - label: 'Kyocera Unimerco, “Dynamic Bar”'
+    url: https://www.kyocera-unimerco.com/es-es/tools/metal/turning/iso-turning/holding-tools/dynamic-bar
+  - label: 'Kyocera Precision Tools, “Ground Chipbreaker for Boring” (P chipbreaker), 12/18'
+    url: https://www.kyoceraprecisiontools.com/indexable/pdf/P_Chipbreaker_for_Boring.pdf
+  - label: 'Sumitomo Electric, General Catalog 2025–2026, pp. 288–289 (boring tools)'
+    url: https://online.flippingbook.com/view/410142785/288/
+  - label: 'Kennametal, “Boring Bar Deflection” engineering calculator'
+    url: https://stage65.kennametal.com/at/en/resources/engineering-calculators/turning-calculators/boring-bar-deflection.html
+  - label: '“Heavy metal boring bars” (Kennametal), Aerospace Manufacturing and Design, July/August 2008'
+    url: https://aerospacemanufacturinganddesign.com/article/heavy-metal-boring-bars
+  - label: 'E. Isakov, “Boring: Calculating deflection”, Cutting Tool Engineering, July 2019'
+    url: https://ctemag.com/articles/boring-calculating-deflection/
+  - label: 'BIG DAISHOWA, “Troubleshooting for Rough Boring”'
+    url: https://www.bigdaishowa.com/en/node/1494
+  - label: 'BIG DAISHOWA, “Reducing L:D Ratio Provides Improvements”'
+    url: https://www.bigdaishowa.com/node/1488
+---
+import BoringDeflection from '../../../components/mdx/BoringDeflection.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { ldLimits } from '../../../data/boring-charts';
+
+Internal turning, or boring, turns the inside of a hole with a bar that reaches into it. The bar holds the insert at the end of a cantilever, and that cantilever is the whole difficulty. Mitsubishi Materials says it plainly: "For boring, the deeper the hole to be machined is, the longer the boring bar needs to be", and compared with an external holder the overhang is much longer and prone to vibration. At the same time the hole limits the bar’s diameter, and the chips have to find their way out of the part. ISCAR puts the threshold low: "where L/D>3, chatter vibrations become apparent".
+
+**L/D** is the overhang divided by the bar diameter. Mitsubishi defines L as the length "by which a boring bar hangs out from the tool post to the actual cutting edge"; BIG DAISHOWA adds that the ratio belongs to the tool, calculated from the length of the bar, "not the workpiece bore diameter and depth".
+
+## Why the overhang counts three times
+
+A boring bar bends like a cantilever with a load at its tip. Kennametal’s calculator and Isakov in *Cutting Tool Engineering* use the same formula:
+
+$$
+\delta = \frac{F \cdot L^3}{3 \cdot E \cdot I}, \qquad I = \frac{\pi \cdot D^4}{64}
+$$
+
+with the load F, the overhang L, the modulus of elasticity E of the bar material and its moment of inertia I; for a bar with a coolant bore, I = π (D⁴ − Dᵢ⁴) / 64. The overhang enters cubed and the diameter to the fourth power: twice the overhang bends the bar eight times as much, twice the diameter sixteen times less. Isakov’s rules follow from it: "the overhang should be as short as possible", and "the bar diameter should be as large as possible to achieve the maximum moment of inertia."
+
+<Figure caption="A boring bar as a cantilever, live. Pick the bar material, its diameter, the overhang in bar diameters and the radial load at the tip: the bar bends by δ = F·L³/3EI (drawn magnified, the factor shown), and the chart on the right gives δ against L/D for all three materials on a log scale. The green band runs to the longest overhang Sandvik recommends for steel and carbide bars (for heavy metal, Kennametal’s 6:1). Moduli as Kennametal gives them for its own bars.">
+  <BoringDeflection locale="en" />
+</Figure>
+
+Only the modulus separates the materials, and Kennametal gives these values for its own bars:
+
+| Bar material | E (N/mm²), Kennametal | E, other sources |
+|---|---|---|
+| Steel | 206,843 | 206,000 (Isakov) |
+| Heavy metal (tungsten alloy) | 330,948 | – |
+| Carbide | 551,581 | 520,000–610,000 (Isakov); "three times" steel (ISCAR) |
+
+Hardness is not in the formula, Isakov notes, so a hardened steel shank bends just as much. Deflection, in Kennametal’s words, "can affect the surface finish or in extreme circumstances the part’s dimensional tolerances", and its calculator is "only intended for planning purposes".
+
+## The longest overhang, maker by maker
+
+The stiffer the bar, the further it may reach. Every maker states its own limit, and they do not quite agree.
+
+<Figure caption="Longest recommended overhang in bar diameters, as each maker states it. Dotted lines with a mark: “up to”. Mitsubishi gives no ceiling for steel bars, only that above L/D 4–5 they are prone to vibration, and recommends carbide above 5. Hover a band for the maker.">
+  <RangeChart locale="en" {...ldLimits("en")} min={0} max={16} ticks={[0, 2, 4, 6, 8, 10, 12, 14, 16]} unit="× D" axisLabel="Overhang" labelWidth={150} aria="Longest recommended boring-bar overhang by bar material and maker" />
+</Figure>
+
+| Bar | Maker | Longest overhang |
+|---|---|---|
+| Steel | Sandvik, ISCAR, Tungaloy | 4 × D |
+| Steel | Kyocera | about 4 |
+| Steel | Mitsubishi | prone to vibration above 4–5 |
+| Steel | Ingersoll | 3 × D; "Under very stable conditions the maximum overhang can approach 4xD" |
+| Heavy metal | Kennametal (trade press, 2008) | 4:1 to 6:1 |
+| Carbide | Sandvik | 6 × D |
+| Carbide | ISCAR | "more than 4xBD and up to 6xBD" |
+| Carbide | Kyocera | about 7 |
+| Carbide | Ingersoll | 5 × D on one page; "beyond 6xD" vibration even with carbide on the next |
+| Carbide | Mitsubishi | "for an L/D of over 5 carbide should be recommended" |
+| Damped | Sandvik | 7 (short), 10 (long), 14 (carbide-reinforced) |
+| Damped | ISCAR | 7–10 × D; 12 and 14 × D on request |
+| Damped | Seco, Kyocera | up to 10 × D |
+| Damped | Tungaloy, Ingersoll | up to 14 × D |
+
+So a steel bar stops at about four diameters, and Ingersoll is more cautious still. Carbide reaches about six, with makers between five and seven. Beyond that, damped bars: inside, as ISCAR describes its own, "a heavy mass that is supported by a rubber spring element containing oil"; Seco calls it a damping mass inside the bar. ISCAR’s damped blades come pre-calibrated for a 100 mm overhang; depending on the overhang and the clamping rigidity, they sometimes need fine-tuning. Sumitomo even sets a *minimum* overhang of 3.5 D for its damped steel bars.
+
+## Bar size and clamping
+
+**The largest bar that leaves room for the chips.** Mitsubishi: "choose a shank diameter as large as possible", but "if the shank diameter is too close to the bore diameter, chip control can be a problem." ISCAR and Ingersoll give a number: the bar’s minimum bore diameter (D<sub>min</sub>) should be 10 to 20 % smaller than the bore being machined, so that the chips can get out (and, ISCAR adds, for deflection). ISCAR’s example: for an 80 mm bore, a 60 mm bar rather than an 80 mm one.
+
+**Clamp at least four diameters.** ISCAR: "The minimum recommended length is 4 X bar diameter"; Ingersoll: "It’s strongly recommended that the length of the mounted shank be at least 4xD." ISCAR prefers holders that grip the shank all round with even force, ISCAR suggests a counterweight or mounting a heavy bar upside down, Ingersoll the upside-down mounting; both reduce the moment the bar’s own weight puts on the tool post.
+
+**Centre height.** "Precise center height positioning is another important factor to achieve the right dimensional tolerances", writes Tungaloy; its round BoreMeister shanks have no flats and are set with a centre-height device and a dial gauge, and Sandvik sells EasyFix sleeves for the same job. Mitsubishi adds that "Lowering the centre height slightly increases the rake angle and therefore can lead reduced vibrations."
+
+## The insert: keep the radial force down
+
+The force that bends the bar away from the wall matters most. Mitsubishi: of the three force components, "the back force has a far greater influence", and "A back force value of 0 is ideal". ISCAR: "The main way the insert can improve the machining stability is by minimizing the cutting forces." The makers agree on how:
+
+- **Entering angle near 90°.** "Stay as close to a 90-degree entering angle as possible" (Ingersoll); ISCAR and Mitsubishi say the same. The [turning operations](/processes/turning-operations/) page shows why: at 90° the passive force is smallest.
+- **Small nose radius.** "Larger corner radii create higher back forces" (Mitsubishi); ISCAR adds that the depth of cut should be larger than the nose radius.
+- **Positive and sharp.** Mitsubishi: "positive inserts are usually used for boring"; negative geometry "increases cutting resistance and can easily cause vibration." ISCAR asks for a positive rake and a small edge hone.
+- **No wipers.** Ingersoll: "Not recommended due to more radial engagement that can cause more tool pressure and vibration."
+
+Two exceptions from Mitsubishi: in very small bores the rake has to be negative to clear the wall, and large bores can take negative inserts for economy.
+
+## Speed, coolant and chips
+
+Mitsubishi: "it is important to take into consideration the L/D when setting cutting conditions and selecting the shank material"; above the steel bar’s limit, depth of cut and feed have to come down. Its boring-bar remedies include "Decrease the cutting speed." A damped bar turns this around: Ingersoll says it allows higher feeds and speeds, and ISCAR asks for constant spindle speed (G97) with its damped bars, because the speed strongly affects the vibration.
+
+Coolant through the bar helps carry the chips out (Ingersoll, Kyocera, Tungaloy). The chips should leave towards the opening: "Clogged chips often occur due to chip flow towards the inside of the workpiece", Kyocera writes of its boring chipbreaker. Ingersoll adds that "Long chips can cause vibrations", so the insert should break them.
+
+## When the bar chatters
+
+Mitsubishi’s remedies for a vibrating boring bar (it notes that their order is of no importance):
+
+1. "Limit the overhang"
+2. "Increase the shank diameter (reduce the L/D)"
+3. "Change the shank material (steel to heavy metal, heavy metal to carbide)"
+4. "Use a carbide shank"
+5. Lower the centre height slightly, for a larger rake angle
+6. "Decrease the cutting speed."
+7. "Change to an insert with a smaller corner radius."
+8. "Change to an insert with a sharper cutting edge, or a larger rake angle."
+
+BIG DAISHOWA’s table for boring heads lists the same: shorten the tool, a larger or carbide or heavy-metal bar, less speed, a smaller nose radius and 90° holders. In one of its examples, shortening a Ø16 mm bar from 10:1 to 6.5:1 raised the feed from about 20 to 200 mm/min. Past the limits above, the answer is a damped bar.

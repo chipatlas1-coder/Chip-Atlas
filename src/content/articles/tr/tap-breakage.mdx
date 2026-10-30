@@ -1,0 +1,102 @@
+---
+key: tap-breakage
+locale: tr
+slug: kilavuz-kirilmasi
+title: 'Kılavuz kırılması'
+description: 'Kılavuzlar neden kırılır, tezgâh başında kontrol sırasıyla: delik dibi, talaş, delik çapı, eksen ve tutucu, çevrim, derinlik, aşınma, soğutma sıvısı ve malzeme; kör deliğin ne kadar derin delineceği; diğer kılavuz hataları, nedenleri ve çözümleri; ezme kılavuzunun veya diş frezesinin ne zaman daha iyi olduğu.'
+section: 12
+subsection: tool-problems
+order: 1
+updated: 2026-10-17
+tools: [tapdrill]
+glance:
+  - value: '0,050 inç'
+    label: 'Kör delik, kılavuzun gideceği derinlikten en az bu kadar derin delinmeli (Haas)'
+  - value: '1,5 × d'
+    label: 'Ötesinde kırılma riskinin keskin biçimde arttığı diş derinliği (Haas)'
+  - value: '0,03 mm'
+    label: 'Üstünde bazı kılavuzların kırıldığı salgı (Haas)'
+  - value: '−%15'
+    label: 'Kesme hacmi, M8 × 1,25 kılavuz deliğini 6,8’den 6,9 mm’ye büyütünce (Yamawa)'
+sources:
+  - label: 'Haas Automation, kılavuz kırılması sorun giderme rehberi (son güncelleme 29 Mart 2023)'
+    url: https://www.haascnc.com/content/haascnc/en/service/troubleshooting-and-how-to/troubleshooting/tap-breakage-troubleshooting.html
+  - label: 'Haas Automation, G84 kılavuz çekme (AP-602, Nisan 2016)'
+    url: https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep25-tap-programming/Haas_G84_Tapping.pdf
+  - label: 'ISCAR, Threading Catalog 62, görüntüleyici s. 392: kılavuz sorun giderme'
+    url: https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page392.html
+  - label: 'ISCAR, Threading Catalog 62, basılı s. 378 (görüntüleyici s. 380): DIN 2197 kesme formları'
+    url: https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page380.html
+  - label: 'ISCAR, Tapping Tools kullanım rehberi (kılavuz çekmede soğutma sıvısı, s. 21)'
+    url: https://www.iscar.com/Catalogs/Publication/Catalogs_Mm/english_1/TAPPING_Catalog/TAPPING_CATALOG.pdf
+  - label: 'YG-1, senkron kılavuzlar katalog bölümü, sorun giderme s. 19 ve 21, Cutwel sitesinde'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/YG-1 Synchro Taps.pdf
+  - label: 'YG-1, Prime kılavuzlar YE-PT19 (sorun giderme), Cutwel sitesinde'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/YG-1 Prime Taps.pdf
+  - label: 'R. Zdanowski (Seco Tools), “Step-by-step guide: how to choose the right threading tap”, Modern Machine Shop, 1 Temmuz 2026 (sponsorlu içerik)'
+    url: https://www.mmsonline.com/articles/step-by-step-guide-how-to-choose-the-right-threading-tap
+  - label: 'Yamawa, AU+SP / AU+SL ürün sayfası, HH Tools sitesinde'
+    url: https://hhtools.nl/content/files/documentatie%20yamawa/au-series.pdf
+  - label: 'Sutton Tools, Technical Information uygulama rehberi (ihracat baskısı), “Notes on Tapping”, s. 417'
+    url: https://suttontools-2022.s3-ap-southeast-2.amazonaws.com/Brochure%20and%20Catalogue/Catalogues/Sutton%20Tools/499980054_ApplicationGuide_Export.pdf
+  - label: 'Tungaloy, “Troubled by frequent tap breakage? Try a thread mill!”'
+    url: https://tungaloy.com/?p=461427
+  - label: 'DC Swiss, ezme kılavuzu katalog sayfaları'
+    url: https://shop.arsam.es/en-ES/download/487350492
+  - label: 'Dormer Pramet, ezme kılavuzları broşürü (alıntı)'
+    url: https://pdf.directindustry.com/pdf/dormer-pramet/forming-taps/14461-588136.html
+  - label: 'Völkel, “Thread forming: chip-free, clean, reliable”, 3 Aralık 2025'
+    url: https://voelkel.com/en/blog/gewindeformen-spanlos-sauber-zuverlaessig
+---
+import CheckList from '../../../components/mdx/CheckList.astro';
+import BlindHoleDepth from '../../../components/mdx/BlindHoleDepth.astro';
+
+Tungaloy’a göre kılavuzlar yüksek yük altında kolay kırılır, ince çaplılar özellikle; kırılan kılavuzu parçadan çıkarmak da zordur ve parçaya zarar verebilir. Haas’ın sorun giderme rehberi ile ISCAR’ın ve YG-1’in tabloları aynı nedenleri tekrar tekrar sayar. Aşağıda bunlar tezgâh başında en çabuk kontrol edilecek sırayla verilmiştir; genel bilgi [kılavuz çekme](/tr/prosesler/kilavuz-cekme/) sayfasındadır.
+
+## Bu sırayla kontrol edin
+
+<CheckList id="tap-breakage" locale="tr" items={[
+  { icon: 'bottom', title: 'Kılavuz deliğin dibine çarpıyor', check: 'Delinen derinliği kılavuzun programlandığı derinlikle karşılaştırın; matkap ucu sayılmaz.', fix: 'Kör delikleri kılavuzun gideceği derinlikten en az 0,050 inç (1,3 mm) daha derin delin. ISCAR ayrıca eksenel boşluklu ve kaydırmalı kavramalı bir kılavuz tutucu önerir.', src: 'Haas; ISCAR; YG-1' },
+  { icon: 'chips', title: 'Talaş oluklarda veya delikte sıkışıyor', check: 'Kılavuz tipini deliğe göre kontrol edin: spiral uçlu kılavuz talaşı öne iter, yalnızca açık deliğe uygundur.', fix: 'Kör delikte helisel oluklu, açık delikte spiral uçlu kılavuz; malzeme izin veriyorsa hiç talaş çıkarmayan ezme kılavuzu.', src: 'Haas; YG-1; Seco; Tungaloy' },
+  { icon: 'hole', title: 'Delik çok küçük', check: 'Deliği ölçün; kılavuz matkabı ve 6H sınırlarıyla karşılaştırın.', fix: 'Doğru matkabı kullanın. Biraz büyük delik yükü azaltır: Yamawa, M8 × 1,25’te 6,8 mm’den 6,9 mm’ye geçince kesme hacminin %15 azaldığını bildirir; Haas’a göre %75’lik bir diş, tam dişin üçte biri kadar kesme kuvveti ister.', src: 'ISCAR; YG-1; Yamawa; Haas' },
+  { icon: 'align', title: 'Kılavuz ile delik aynı eksende değil veya kılavuz salgılı', check: 'Kılavuzun tutucudaki salgısını (TIR) ve iş milinin deliğe göre konumunu kontrol edin.', fix: 'Kılavuzu ön delikle aynı eksene getirin. Haas’a göre salgı 0,03 mm’yi (0,001 inç) aşarsa bazı kılavuzlar kırılır; YG-1 kompanzeli bir tutucu önerir.', src: 'ISCAR; Haas; YG-1' },
+  { icon: 'holder', title: 'Kılavuz tutucuda kayıyor', check: 'Tutucunun kılavuzu karesinden sürüp sürmediğine bakın.', fix: 'Kılavuzu, kılavuz için yapılmış pozitif tahrikli bir tutucuda tutun; örneğin kare tahrikli ER kılavuz pensleri.', src: 'Haas; Sutton' },
+  { icon: 'sync', title: 'İlerleme ile iş mili uyumsuz', check: 'Çevrimi (senkron çevrim yalnızca senkron opsiyonuyla; G84 sağ, G74 sol) ve ilerlemeyi kontrol edin: adım × devir.', fix: 'Doğru çevrim ve ilerleme; kompanzeli tutucuda tam adımın biraz altı (Sutton helisel oluklu kılavuzda %95, Haas %90).', src: 'Seco; Haas; Sutton' },
+  { icon: 'depth', title: 'Diş çok derin', check: 'Diş derinliğini çapla karşılaştırın.', fix: '1,5 × d civarında kalın: Haas’a göre risk bunun ötesinde keskin biçimde artar; bağlantı elemanı çapının 1,5 katından uzun diş teması dayanımı da artırmaz.', src: 'Haas' },
+  { icon: 'wear', title: 'Kılavuz körelmiş', check: 'Ağızdaki dişlerde aşınmaya bakın.', fix: 'Bileyin veya değiştirin.', src: 'ISCAR; YG-1' },
+  { icon: 'coolant', title: 'Yağlama zayıf', check: 'Soğutma sıvısının konsantrasyonunu refraktometreyle ölçün.', fix: 'Soğutma sıvısında daha fazla yağlayıcı: ISCAR, genel amaçlı soğutma sıvısının kılavuz çekme için çoğu zaman fazla zayıf olduğunu belirtir; oran artırılamıyorsa deliğe veya kılavuza konsantre emülsiyon veren ayrı bir ünite önerir. Sorunun soğutma sıvısından kaynaklanıp kaynaklanmadığını anlamak için Haas, bir dizi delikte soğutma sıvısı yerine kılavuza fırçayla kılavuz yağı veya macunu sürülmesini önerir.', src: 'Haas; ISCAR' },
+  { icon: 'hard', title: 'Sert malzeme veya küçük kılavuz', check: 'İş parçasının sertliğine ve kılavuzun boyutuna bakın.', fix: 'Daha düşük hız ve malzemeye uygun kılavuz; Tungaloy diş frezesini önerir. Küçük çaplar için Haas daha dayanıklı olan ezme kılavuzlarını önerir, ama yalnızca sünek malzemede: Völkel, çok sert veya gevrek malzemenin çatlağa ya da takım hasarına yol açtığını belirtir.', src: 'Tungaloy; YG-1; Haas; Völkel' },
+]} />
+
+## Kör delik ne kadar derin delinmeli
+
+En sık kırılma nedenlerinden birini önlemek için hesap yeter. Tam dişin L derinliğine ulaşması için kılavuzun ucu, yalnızca eksik diş kesen ağzının uzunluğu kadar daha derine inmelidir; delik bundan da derin olmalı, matkap ucu da altına bir koni ekler. Haas ayrıca, hesaba katılmazsa uç açısının deliği programlanan derinlikten sığ bıraktığını hatırlatır.
+
+<Figure caption="Kör deliğin derinlik zinciri: tam diş, ağız (formun üretici aralığının üst ucu), Haas’ın 0,050 inç boşluğu ve varsayılan 118° matkap ucu. Kılavuz matkapları DIN 336’ya göre; çizim ölçeklidir ve sığacak şekilde boyutlandırılır. Bir sonucun üzerine gelince zincirin o sonucu oluşturan kısmı öne çıkar.">
+  <BlindHoleDepth locale="tr" />
+</Figure>
+
+C formu bir kılavuzla (2–3 ağızlayan diş) 15 mm derinliğinde M10 × 1,5’lik bir diş için kılavuz 15 + 3 × 1,5 = 19,5 mm’ye, tam çaptaki delik en az 20,8 mm’ye, matkap ucu da 23,3 mm’ye iner. 3,5–5 ağızlayan dişli (YG-1’de 4–5) B formu bir kılavuz 3 mm’ye kadar daha fazlasını ister. Dişin altında az yer kalan kör deliklerde kısa C ve E formlarının kullanılmasının nedeni bu ek derinliktir; yine de ISCAR E formundan mümkünse kaçınılmasını önerir, Seco da daha uzun bir ağzın sığdığı yerde E kullanmayı takım ömrünü kısaltan yaygın bir hata sayar. B formu zaten açık delik kılavuzudur: spiral ucu talaşı öne iter (Haas).
+
+## Diğer kılavuz hataları
+
+ISCAR’ın ve YG-1’in tabloları her hatayı olağan nedenleriyle eşleştirir:
+
+| Hata | Olası nedenler | Çözümler |
+|---|---|---|
+| Ölçüden büyük diş | Malzemeye uygun olmayan kılavuz; eksen kaçıklığı; kılavuzun sıkışması; talaş sıkışması; sıvanma; eksenden kaçık bilenmiş kılavuz | Malzeme grubuna uygun kılavuz; eksen ayarı; daha iyi yağlama ve düzeltilmiş hız; helisel oluk veya spiral uç; eş merkezli bileme |
+| Ölçüden küçük diş | Kılavuz sınırları küçük (YG-1) | Büyütülmüş kılavuz; YG-1 ayrıca ağız ve kesme açısını düzeltir |
+| Girişte genişleme (çan ağzı) | Başlangıç baskısı az veya yanlış | Daha fazla başlangıç baskısı; eksenel boşluklu tutucu |
+| Sıyrılmış diş | Yanlış geometri; iş mili ile ilerleme uyumsuz | Malzemeye uygun kılavuz; ilerlemenin kontrolü, eksenel boşluklu tutucu |
+| Pürüzlü veya yırtık diş | Körelmiş veya kötü bilenmiş kılavuz; çok kısa ağız | Bileme veya değiştirme; daha uzun ağız (YG-1) |
+| Kılavuz dişlerinde kırılma | Zayıf yağlama; talaşın sıkışması; kılavuzun dibe çarpması; bilemeden sonra çok kısa ağız | Daha fazla ve daha iyi soğutma sıvısı; başka kılavuz veya hız; daha derin delik; bilemede ağız uzunluğunu koruma |
+| Hızlı aşınma | Düzensiz malzeme yapısı; yanlış hız; zayıf soğutma sıvısı; sertleşmiş ön delik yüzeyi | Hız ve soğutma ayarı; ön deliği özenle delme; kaplamalı veya vanadyumlu HSS kılavuz (YG-1) |
+| Sıvanma | Malzemenin kılavuza kaynaması | Diş boşaltmalı kılavuz, yüzey işlemi, uygun yağlayıcı, düşük hız, büyük delik (YG-1) |
+
+## Ezme kılavuzları farklı biçimde bozulur
+
+Ezme kılavuzu talaşla sıkışmaz, ama deliğe ve yağlamaya duyarlıdır. DC Swiss, çok küçük bir deliğin fazla büyük bir profil verdiğini ve daha çok tork istediğini, yağlayıcı beslemesi kesilirse soğuk kaynamanın takımın ömrünü hızla bitirdiğini belirterek uyarır. Dormer düzeltmeyi dişin kendisinden okur: malzeme diş girişinde yukarı itiliyorsa biraz daha büyük, profil dolmuyorsa biraz daha küçük bir matkap seçin. Völkel, ezmenin kesmeye göre yaklaşık %40–50 daha fazla tork istediğini, tezgâhta bu güç yedeğinin bulunması gerektiğini ekler.
+
+## Yöntemi ne zaman değiştirmeli
+
+Kılavuzlar kırılmaya devam ediyorsa Tungaloy diş frezesini önerir: kesintili, düşük ve dengeli bir kesme kuvvetiyle keser, kısa kırık talaş çıkarır ve kırılsa bile yalnızca parçalarının çıkarılması gerekir. Bedeli programlamadır, çünkü diş frezesi sabit bir kılavuz çekme çevrimi yerine helisel bir yol izler (Z ile G02/G03). Küçük dişler için Haas, kesme kılavuzlarından daha dayanıklı olan ezme kılavuzlarını önerir.

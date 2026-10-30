@@ -1,0 +1,100 @@
+---
+key: mql
+locale: en
+slug: minimum-quantity-lubrication
+title: 'Minimum quantity lubrication (MQL)'
+description: 'A few millilitres of oil an hour, carried as an aerosol to the cutting edge from outside or through the spindle and tool: how much oil, 1-channel and 2-channel systems, what the tool needs, which oils, where it works and where it does not, and the mist and fire points.'
+section: 8
+subsection: coolant
+order: 3
+updated: 2026-10-30
+tools: []
+glance:
+  - value: '5–50 ml/h'
+    label: 'Typical oil quantity (DGUV; MAPAL: no more than 50 ml/h); other sources go higher'
+  - value: '< 2 %'
+    label: 'Oil adhering to the chip below which DGUV counts the chips as dry'
+  - value: '≥ 150 °C'
+    label: 'Flash point of the MQL oil (DGUV), with evaporation loss ≤ 65 % at 250 °C'
+  - value: '≈ 0.1 s'
+    label: 'Response time of a 2-channel system (DGUV)'
+sources:
+  - label: 'DGUV, DGUV Information 209-025, Minimum quantity lubrication for machining operations (English edition of the DGUV MQL guide), November 2010'
+    url: https://publikationen.dguv.de/widgets/pdf/download/article/806
+  - label: 'DGUV, BGI/GUV-I 718 = DGUV Information 209-024, Minimalmengenschmierung in der spanenden Fertigung, 2006/2010 (Vorbemerkung)'
+    url: https://umwelt-online.de/recht/arbeitss/uvv/bgi/718a.htm
+  - label: 'DGUV Fachbereich Holz und Metall, FBHM-006, Emissionsarme Metallbearbeitung mit Minimalmengenschmierung, 13.08.2021'
+    url: https://publikationen.dguv.de/widgets/pdf/download/article/4328
+  - label: 'IFA / DGUV, KSS-Lexikon: Minimalmengenschmierung'
+    url: https://dguv.de/ifa/praxishilfen/kuehlschmierstoffe/lexikon/minimalmengenschmierung/index.jsp
+  - label: 'IFA / DGUV, KSS-Lexikon: Arbeitsplatzgrenzwerte'
+    url: https://dguv.de/ifa/praxishilfen/kuehlschmierstoffe/lexikon/arbeitsplatzgrenzwerte/index.jsp
+  - label: 'L. Schumski et al., “Minimum Quantity Lubrication (MQL) Supply through Internal Cooling Channels in Drilling Processes”, J. Manuf. Mater. Process. 8 (2024) 69'
+    url: https://www.mdpi.com/2504-4494/8/2/69/html
+  - label: 'SKF, LubriLean – Minimal Quantity Lubrication, brochure 1-5102-EN, 07/2014'
+    url: https://www.skf.com/mm/0901d19680126cc5
+  - label: 'MAPAL, “Minimum quantity lubrication with MAPAL: Green tools protect resources”, MAPAL News, 16 November 2022'
+    url: https://mapal.com/medias/sys_master/root/h3e/h0d/9101467713566/MAPAL_News_Minimum%20quantity%20lubrication.e/MAPAL-News-Minimum-quantity-lubrication.e.pdf
+  - label: 'FUCHS, PLANTO MIKRO 30 HD product page'
+    url: https://www.fuchs.com/de/en/product/product/148603-PLANTO-MIKRO-30-HD
+  - label: 'Oemeta, Minimum quantity lubricants (MICROTOL), E 355 08/22'
+    url: https://de.oemeta.com/fileadmin/redakteure/bilder/4_Informationen/Downloads/Broschueren-Flyer-EN/oemeta-minimum-quantity-lubricants.pdf
+  - label: 'BOHS, Guidance for Occupational Hygienists on the Assessment and Control of the Health Risks from Metalworking Fluid (MWF), v1.1, March 2025'
+    url: https://www.bohs.org/app/uploads/2025/03/Guidance-for-Occupational-Hygienists-on-the-Assessment-and-Control-of-the-Health-Risks-from-Metalworking-Fluid-1.1.pdf
+---
+import MqlFlow from '../../../components/mdx/MqlFlow.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Minimum quantity lubrication replaces the stream of fluid with "a flow of air containing finely dispersed droplets of oil, a so-called aerosol" (SKF). The DGUV guide describes the two ways in: the lubricant is "applied from outside as an aerosol using compressed air", or by "internal lubricant feed through the rotating machine tool spindle". BOHS notes that it "is sometimes referred to as near-dry machining."
+
+The quantity is what gives it its name. DGUV: it "uses only a few drops of lubrication (approx. 5 ml to 50 ml per hour) in machining", far less than conventional flood lubrication; MAPAL defines MQL as no more than 50 ml/h and puts the oil for one bore with a solid carbide drill at "just 0.002 ml". Not everyone stops at 50: the fire section of the same DGUV guide speaks of a maximum of 100 ml an hour, and Schumski and co-authors give "between 5 mL/h and 200 mL/h". So little oil leaves the work almost dry: "The extreme reduction in lubricant quantities results in nearly dry work pieces and chips." DGUV counts chips as dry when less than 2 % oil adheres to them. For the fluids MQL replaces, see [types of cutting fluid](/coolant-and-lubrication/cutting-fluid-types/).
+
+## Getting the oil to the edge
+
+Schumski and co-authors: "With external supply, the oil mist generated is transported into the contact zone via external nozzle systems." and "With internal supply, the oil mist is transported directly into the contact zone", which helps "where the chip formation zone is difficult to access, such as drilling." DGUV calls external feed especially suitable for simple standard processes such as sawing, drilling, milling and turning, and writes of internal feed in deep drilling: "This makes it possible to perform very deep hole drilling at very high cutting speeds reliably."
+
+Internal systems come in two kinds. DGUV: "In 1-channel systems the aerosol is generated in the tank, i.e. before entering the spindle."; in 2-channel systems oil and air go through the spindle separately and are mixed as they leave it, producing the aerosol directly in front of the tool. Schumski and co-authors describe it the same way, and SKF sells both. Response time matters at tool changes: "The response time of the 2-channel system is about 0.1 sec." (DGUV). DGUV gives no figure for 1-channel systems; its comparison table notes for them: "In by-pass operation, reaction time almost identical to 2-channel technology".
+
+<Figure caption="Three ways to the cut, drawn schematically: an external nozzle; internal feed with the aerosol made in a generator and carried through the spindle and tool (1-channel); and oil and air carried separately through the spindle and mixed as they leave it, directly in front of the tool (2-channel), after the DGUV guide. Below, the oil quantity over the DGUV range of 5–50 ml/h and what it comes to in 8 hours of cutting (this page’s arithmetic).">
+  <MqlFlow locale="en" />
+</Figure>
+
+The droplets are small, and the sources do not agree how small: Schumski and co-authors give "sizes in the order of &lt;20 µm" for their generator, SKF gives 0.5 µm for its own. Inside the tool most of them do not fly straight; Schumski and co-authors, citing earlier studies: "the majority of aerosol droplets (>90%) in the cooling channels collide with the channel walls", and "the larger droplets of the oil mist may settle as a wall film in the channels."
+
+The tool and the holder have to be built for it. DGUV: "A central aspect of trouble-free operation with internal feed is the geometric shape of the tool shaft.", and "The junction area between shaft and spindle must be perfectly sealed". MAPAL describes its MQL tools: compared with tools for wet machining, "The outlets are closer to the cutting point and have steeper outlet angles", and their "chip spaces in tools suitable for MQL are twisted, polished and made larger where necessary".
+
+## The oil
+
+DGUV writes that in industrial manufacturing "synthetic ester oils and fatty alcohols with favourable vaporisation behaviour" and a high flash point are used, and its German guide notes that only new, clean lubricants on an ester or fatty-alcohol base are used. It also gives guide values: a viscosity above 10 mm²/s at 40 °C, a flash point of at least 150 °C and an evaporation loss (Noack) of no more than 65 % at 250 °C, values its 2021 bulletin repeats. The 2010 guide adds that good results came "at a viscosity range of 15 to 50 mm2/s and in some cases up to 100 mm2/s at 40 °C"; the 2021 bulletin prefers high-viscosity products, because in its tests a low-viscosity oil (3 mm²/s) gave many times the emissions. DGUV lists natural oils among the lubricants unsuitable for MQL, calling them "very prone to oxidation. They tend to gum up machine elements.", and BOHS writes of vegetable-oil MQL fluids that "Unless chemically modified they readily undergo oxidation and hydrolysis reactions".
+
+| Maker, product | Base | Viscosity at 40 °C | Flash point |
+|---|---|---|---|
+| FUCHS PLANTO MIKRO 30 HD | ester | 30.5 mm²/s | 211 °C |
+| Oemeta MICROTOL FA 20 | fatty alcohol | 21 mm²/s | |
+| Oemeta MICROTOL EC 46 | synthetic ester | 46 mm²/s | |
+
+## Where it works and where it does not
+
+DGUV lists "Processing with geometrically defined cutting edges, such as milling, turning or drilling", and "When sawing metals, lubricant feed with minimum quantity lubrication is considered state-of-the-art in many sectors." On materials: "Machining cast materials with minimum quantity lubrication is particularly effective", steels up to 800 N/mm² tensile strength and aluminium with up to 1 % Si, "But even difficult-to-cut materials can be machined with minimum quantity lubrication if the process is optimally designed". In 2010 grinding was named as an exception: "Processes such as grinding are not yet economically feasible with minimum quantity lubrication." BOHS, an occupational-hygiene body, regards MQL as acceptable for milling machines but writes that it "is not suited to drilling and tapping", without giving a reason; DGUV and the other sources here describe drilling with internal feed.
+
+One limit is heat. Schumski and co-authors: "Several studies show that the thermal load is higher when MQL is used instead of flooding lubrication". DGUV adds that "Increased thermal distortion can cause dimensional inaccuracies as well as shape and alignment errors", and that the chips have to leave the machine quickly, for which "The basis for optimal chip disposal is workspace layout." MAPAL concedes that MQL increases the use of compressed air, but sees "potential for energy savings of up to 40 percent overall"; that is a maker’s figure.
+
+## What it saves
+
+The fluid circuit goes: the costs of flood lubrication for care, inspection, preparation and disposal are, in DGUV's words, "no longer an issue", "there are no costs for cleaning and drying the chips before their disposal", and the guide lists "Easy recycling of the nearly dry chips due to less oil soiling". DGUV's measurements also found the air cleaner: "The MQL extraction stream emissions in particular were less than half of the measured flood lubrication values." MAPAL, a tool maker, writes that MQL can "reduce consumption of fluids containing oil by up to 98 percent"; that is a maker's figure.
+
+## Mist, skin and fire
+
+Less oil is not no oil in the air. BOHS: "During machining, there is no visible fog or mist, but fine particles not visible to the naked eye", to be controlled by local exhaust ventilation with suitable filtration, and "High-efficiency filters are likely to be needed due to the size of the mist particles". DGUV: "There should be a slight negative pressure inside the machine encapsulation".
+
+The limits differ by country. In Germany the IFA gives an assessment benchmark of 10 mg/m³ (inhalable fraction, vapour and aerosol together) for non-water-miscible fluids with a flash point above 100 °C, and adds that no occupational limit based on health effects has been derived for metalworking fluids. BOHS writes that "no exposure limit was set in the UK" and that the historical HSE guidance value of 1.0 mg/m³ has been withdrawn. In DGUV's 2010 guide more than 95 % of the values measured on MQL machines were well below half of the former German air limit for metalworking fluids, given there as 10 mg/m³; its 2021 bulletin found no case in which the air limits were exceeded.
+
+In DGUV’s assessment the danger lies mainly in the deposits rather than in the spray, provided the oil has a high flash point and the quantities stay low. DGUV: at consumption of at most 100 ml an hour and with a lubricant of high flash point, explosive mixtures are normally not to be expected, and "Even the mist formation resulting from the spraying process itself does not form a hazardous explosive atmosphere." But "A cloggy and sticky mass of metallic dust and lubricant may often also be found in the filters.", and "Deposited flammable dust may cause hazardous explosive dust/air mixtures if stirred up." Hence its advice to use lubricants with a flash point of at least 150 °C and to clean machines regularly. For the skin, DGUV warns that "Ester oils and fatty alcohols can, however, have a degreasing and therefore drying effect over the long term."
+
+<CheckList id="mql-before" locale="en" items={[
+  { icon: 'coolant', title: 'Route', check: 'External nozzle or internal feed for the operation.', fix: 'Internal feed where the cut is hard to reach, as in drilling (Schumski et al.); external especially suited to simple standard processes (DGUV).', src: 'Schumski et al.; DGUV' },
+  { icon: 'holder', title: 'Tool and holder', check: 'Channels, outlets and the joint between shank and spindle.', fix: 'Sealed junction, tool shaft shaped for MQL (DGUV); outlets close to the edge, larger polished chip spaces (MAPAL).', src: 'DGUV; MAPAL' },
+  { icon: 'feed', title: 'Oil', check: 'Base, flash point, evaporation, viscosity.', fix: 'Synthetic ester or fatty alcohol; flash point ≥ 150 °C; Noack ≤ 65 % at 250 °C; > 10 mm²/s at 40 °C, higher viscosity for lower emissions (DGUV).', src: 'DGUV' },
+  { icon: 'hard', title: 'Heat', check: 'Dimensions of parts that run warm.', fix: 'Expect a higher thermal load than with flood (Schumski et al.) and thermal distortion (DGUV).', src: 'Schumski et al.; DGUV' },
+  { icon: 'chips', title: 'Extraction and cleaning', check: 'Enclosure, extraction and filters.', fix: 'Slight negative pressure in the enclosure (DGUV), LEV with suitable filtration (BOHS); clean deposits regularly (DGUV).', src: 'DGUV; BOHS' },
+]} />

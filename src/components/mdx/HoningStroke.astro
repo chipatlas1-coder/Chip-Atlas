@@ -1,0 +1,91 @@
+---
+/**
+ * Stone overrun and bore shape (article: Sunnen and Precision Surfacing recommend an overrun of
+ * about one third of the stone length at each end; too much overrun makes a bell mouth, too little
+ * leaves the ends tight or the bore barrel-shaped). Each panel shows the stone at both reversal
+ * points and the resulting bore shape, exaggerated, against the straight target.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const Ls = 72, y0 = 72, y1 = 216; // stone length; bore top and bottom
+const f = (v: number) => v.toFixed(1);
+const panels = [
+  { o: 0.1 * Ls, title: tr ? 'Az taşma' : 'Too little overrun', res: tr ? 'uçlar dar kalır, fıçı' : 'ends stay tight, barrel', shape: (t: number) => 9 * Math.sin(Math.PI * t), ok: false },
+  { o: Ls / 3, title: tr ? 'Taş boyunun yaklaşık ⅓’ü' : 'About ⅓ of the stone length', res: tr ? 'düz delik' : 'straight bore', shape: () => 0, ok: true },
+  { o: 0.62 * Ls, title: tr ? 'Fazla taşma' : 'Too much overrun', res: tr ? 'çan ağzı' : 'bell mouth', shape: (t: number) => 9 * (Math.max(0, 1 - t / 0.2) ** 2 + Math.max(0, (t - 0.8) / 0.2) ** 2), ok: false },
+];
+const wallPts = (side: -1 | 1, shape: (t: number) => number) => Array.from({ length: 41 }, (_, i) => { const t = i / 40; return `${f(100 + side * (40 + shape(t)))},${f(y0 + (y1 - y0) * t)}`; });
+const wall = (side: -1 | 1, shape: (t: number) => number) => 'M' + wallPts(side, shape).join(' L');
+// work material on both sides, bounded by the resulting bore wall
+const work = (shape: (t: number) => number) => `M24,${y0} L${wallPts(-1, shape).join(' L')} L24,${y1} Z M176,${y0} L${wallPts(1, shape).join(' L')} L176,${y1} Z`;
+---
+<ul class="hstroke">
+  {panels.map((p) => {
+    const top = y0 - p.o, bot = y1 + p.o;
+    return (
+      <li class:list={{ good: p.ok }}>
+        <svg viewBox="0 0 200 268" role="img" aria-label={`${p.title}: ${p.res}`}>
+          <path d={work(p.shape)} fill="url(#ca-hatch)" />
+          <line x1="24" x2="60" y1={y0} y2={y0} class="edge" /><line x1="140" x2="176" y1={y0} y2={y0} class="edge" />
+          <line x1="24" x2="60" y1={y1} y2={y1} class="edge" /><line x1="140" x2="176" y1={y1} y2={y1} class="edge" />
+          <line x1="60" x2="60" y1={y0} y2={y1} class="target" /><line x1="140" x2="140" y1={y0} y2={y1} class="target" />
+          <path d={wall(-1, p.shape)} class="err" /><path d={wall(1, p.shape)} class="err" />
+          {/* stones at the upper reversal (solid) and the lower reversal (dashed) */}
+          <rect x="62" y={top} width="8" height={Ls} rx="1.5" class="stone" />
+          <rect x="130" y={top} width="8" height={Ls} rx="1.5" class="stone" />
+          <rect x="62" y={bot - Ls} width="8" height={Ls} rx="1.5" class="ghost" />
+          <rect x="130" y={bot - Ls} width="8" height={Ls} rx="1.5" class="ghost" />
+          <line x1="70" x2="130" y1={top + 10} y2={top + 10} class="arm" />
+          <line x1="70" x2="130" y1={bot - 10} y2={bot - 10} class="arm ghostline" />
+          <line x1="100" x2="100" y1={top + 18} y2={bot - 18} class="strokeln" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+          {/* overrun at both ends */}
+          <line x1="178" x2="178" y1={top} y2={y0} class="dim" />
+          <line x1="172" x2="184" y1={top} y2={top} class="dimtick" /><line x1="172" x2="184" y1={y0} y2={y0} class="dimtick" />
+          <text x="186" y={(top + y0) / 2 + 4} class="o" text-anchor="start">o</text>
+          <line x1="178" x2="178" y1={y1} y2={bot} class="dim" />
+          <line x1="172" x2="184" y1={bot} y2={bot} class="dimtick" />
+          <text x="186" y={(bot + y1) / 2 + 4} class="o" text-anchor="start">o</text>
+          <line x1="15" x2="15" y1={top} y2={top + Ls} class="dimL" />
+          <line x1="11" x2="19" y1={top} y2={top} class="dimtick" /><line x1="11" x2="19" y1={top + Ls} y2={top + Ls} class="dimtick" />
+          <text x="9" y={top + Ls / 2 + 4} class="lab" text-anchor="end">L</text>
+        </svg>
+        <p class="tt">{p.title}</p>
+        <p class="rs"><i aria-hidden="true">→</i>{p.res}</p>
+      </li>
+    );
+  })}
+</ul>
+<p class="hkey"><span><i class="k-stone"></i>{tr ? 'taş, üst dönüş noktası' : 'stone at the upper reversal'}</span><span><i class="k-ghost"></i>{tr ? 'alt dönüş noktası' : 'lower reversal'}</span><span><i class="k-err"></i>{tr ? 'ortaya çıkan delik (abartılı)' : 'resulting bore (exaggerated)'}</span><span>o: {tr ? 'taşma' : 'overrun'} · L: {tr ? 'taş boyu' : 'stone length'}</span></p>
+
+<style>
+  .hstroke { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
+  .hstroke li { margin: 0; padding: 0.4rem 0.6rem 0.65rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  .hstroke li::before { content: none; }
+  .hstroke li.good { border-color: color-mix(in oklab, #1e6fd6 50%, var(--line)); }
+  svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .edge { stroke: #9fa8b0; }
+  .target { stroke: #1b1d1e; stroke-opacity: 0.6; stroke-width: 1.2; stroke-dasharray: 5 4; }
+  .err { fill: none; stroke: #e2601a; stroke-width: 2.2; }
+  .stone { fill: url(#ca-face); stroke: #1b1d1e; stroke-width: 1; }
+  .ghost { fill: none; stroke: #474e54; stroke-width: 1; stroke-dasharray: 3 3; }
+  .arm { stroke: #656e74; stroke-width: 3; }
+  .ghostline { stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .strokeln { stroke: #1e6fd6; stroke-width: 1.6; }
+  .dim, .dimL { stroke: #e2601a; stroke-width: 1.2; }
+  .dimL { stroke: #474e54; }
+  .dimtick { stroke: #474e54; stroke-width: 1; }
+  .o { font-family: var(--font-mono); font-size: 12px; fill: #e2601a; }
+  .lab { font-family: var(--font-mono); font-size: 12px; fill: var(--ink-2); }
+  @media (max-width: 40rem) { .o, .lab { font-size: 21px; } .hstroke { gap: 0.4rem; } .hstroke li { padding: 0.35rem 0.4rem 0.55rem; } }
+  .tt { margin: 0.2rem 0 0; font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+  .rs { margin: 0.1rem 0 0; font-size: 0.8rem; color: var(--color-spark-400); display: flex; gap: 0.35rem; }
+  .good .rs { color: var(--color-metro-400); }
+  .rs i { font-style: normal; }
+  .hkey { margin: 0.55rem 0 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; font-size: 0.76rem; color: var(--ink-3); max-width: none; }
+  .hkey span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .hkey i { display: inline-block; width: 18px; height: 8px; border-radius: 1.5px; }
+  .k-stone { background: #565e63; }
+  .k-ghost { border: 1px dashed #474e54; }
+  .k-err { height: 0 !important; border-top: 2.2px solid #e2601a; }
+</style>

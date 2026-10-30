@@ -1,0 +1,144 @@
+---
+/**
+ * Parting off, side section through the bar: the blade plunges, the groove deepens all round, the core shrinks.
+ * Near the centre the feed drops to the level a chosen maker gives, the feed stops just short of the centre and the
+ * part comes off. Below: feed against the remaining radius, with the current point. Readouts: radius, cutting speed at
+ * constant spindle speed (vc = π·D·n/1000, zero at the centre) and the feed now. The slow-down distance is an input:
+ * only the Sandvik interview gives one (2 mm).
+ */
+interface Props { locale: 'en' | 'tr'; d?: number; n?: number; f?: number }
+const { locale, d = 40, n = 1200, f = 0.12 } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { maker: 'Merkez yakınında ilerleme', mit: 'Mitsubishi: %50 azalt', sum: 'Sumitomo: yaklaşık %30–50’ye indir', sand: 'Sandvik (röportaj): %75’e varan oranda azalt', start: 'Yavaşlamanın başladığı uzaklık', r: 'Kalan yarıçap', vc: 'Kesme hızı (sabit devir)', fnow: 'İlerleme', play: 'Yeniden oynat', feed: 'ilerleme', radius: 'kalan yarıçap r (mm)', fpct: 'programlanan ilerlemenin yüzdesi', stop: 'merkezden önce dur', pip: 'merkezde kalan çıkıntı (pip)', aria: 'Parça kesme, çubuğun eksenden kesiti: bıçak dalar, kanal derinleşir, merkeze yaklaşınca ilerleme düşer ve parça ayrılır', mm: 'mm', mmin: 'm/dak', mmr: 'mm/dev', part: 'parça', bar: 'çubuk' }
+  : { maker: 'Feed near the centre', mit: 'Mitsubishi: reduce by 50 %', sum: 'Sumitomo: to about 30–50 %', sand: 'Sandvik (interview): by up to 75 %', start: 'Slow-down starts at', r: 'Remaining radius', vc: 'Cutting speed (constant n)', fnow: 'Feed', play: 'Replay', feed: 'feed', radius: 'remaining radius r (mm)', fpct: 'share of the programmed feed', stop: 'stop short of the centre', pip: 'pip (nib)', aria: 'Parting off, section through the bar: the blade plunges, the groove deepens, the feed drops near the centre and the part comes off', mm: 'mm', mmin: 'm/min', mmr: 'mm/rev', part: 'part', bar: 'bar' };
+const MAKERS = [
+  { k: 'mit', lo: 0.5, hi: 0.5 },
+  { k: 'sum', lo: 0.3, hi: 0.5 },
+  { k: 'sand', lo: 0.25, hi: 0.25 },
+];
+const cfg = { T, d, n, f, MAKERS };
+---
+<div class="pc" data-pc data-locale={locale} data-anim>
+  <svg class="sec" viewBox="0 0 640 300" role="img" aria-label={T.aria} data-sec></svg>
+  <div class="ctl">
+    <div class="field wide"><span>{T.maker}</span><div class="seg" data-g="m">{MAKERS.map((m, i) => <button type="button" data-v={i} aria-pressed={String(i === 2)}>{T[m.k as 'mit']}</button>)}</div></div>
+    <label class="field"><span>{T.start} <output data-o="s">2</output> {T.mm}</span><input type="range" min="0.5" max="6" step="0.5" value="2" data-i="s" /></label>
+    <button type="button" class="play" data-play>{T.play}</button>
+  </div>
+  <svg class="ch" viewBox="0 0 640 176" aria-hidden="true" data-ch></svg>
+  <dl class="read">
+    <div><dt>{T.r}</dt><dd class="num" data-o="r">—</dd></div>
+    <div><dt>{T.vc}</dt><dd class="num" data-o="v">—</dd></div>
+    <div><dt>{T.fnow}</dt><dd class="num" data-o="f">—</dd></div>
+  </dl>
+  <script type="application/json" data-cfg set:html={JSON.stringify(cfg)} />
+</div>
+
+<style>
+  .pc { display: grid; gap: 0.7rem; }
+  svg { width: 100%; height: auto; display: block; }
+  .ctl { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto; gap: 0.7rem 1rem; align-items: end; }
+  @media (max-width: 44rem) { .ctl { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1 1 10rem; font: inherit; font-size: 0.8rem; padding: 0.4rem 0.5rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.3rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .play { font: inherit; font-size: 0.85rem; min-height: 2.3rem; padding: 0.3rem 0.9rem; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg-raised); color: var(--accent); cursor: pointer; }
+  .read { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem 1rem; margin: 0; }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; font: 600 1.05rem var(--font-mono); color: var(--ink); }
+  .pc :global(.t) { font: 11px var(--font-mono); fill: var(--ink-3); }
+  .pc :global(.tk) { font: 600 11px var(--font-sans); fill: var(--ink-2); }
+  .pc :global(.gl) { stroke: #eef2f6; }
+  .pc :global(.ax) { stroke: #9aa6b2; }
+</style>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-pc]').forEach((root) => {
+    const cfg = JSON.parse((root.querySelector('[data-cfg]') as HTMLElement).textContent || '{}');
+    const T = cfg.T, tr = root.dataset.locale === 'tr';
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const sec = q<SVGSVGElement>('[data-sec]'), ch = q<SVGSVGElement>('[data-ch]'), sIn = q<HTMLInputElement>('[data-i="s"]');
+    const R = cfg.d / 2, STOP = 0.4;                           // the feed stops 0.4 mm short of the centre (drawing)
+    let maker = 2, r = R, done = false, raf = 0, drop = 0;
+    const dec = (v: number, k = 1) => (tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+    const share = (rr: number) => { const m = cfg.MAKERS[maker]; return rr > +sIn.value ? 1 : (m.lo + m.hi) / 2; };
+    const f1 = (v: number) => v.toFixed(1);
+    const drawSec = () => {
+      const K = 5.2, cx = 300, cy = 150, w = 3 * K;            // px per mm; blade 3 mm wide
+      const X = (z: number) => cx + z * K, Y = (y: number) => cy - y * K;
+      const xL = X(-34), xR = X(30), gx0 = X(0) - w / 2, gx1 = X(0) + w / 2;
+      const core = Math.max(0, r);
+      const off = drop;                                         // the part moves away after the cut
+      let s = `<defs><linearGradient id="pc-m-${root.dataset.locale}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef2f6"/><stop offset="0.5" stop-color="#b8c2cc"/><stop offset="1" stop-color="#7d8995"/></linearGradient></defs>`;
+      // bar (left of the groove, held in the chuck) and part (right of the groove)
+      s += `<rect x="${f1(xL)}" y="${f1(Y(R))}" width="${f1(gx0 - xL)}" height="${f1(2 * R * K)}" fill="url(#pc-m-${root.dataset.locale})" stroke="#364554" stroke-width="1.4"/>`;
+      s += `<g transform="translate(${f1(off * 2.2)} ${f1(off * 6)}) rotate(${f1(off * 4)} ${f1(gx1)} ${f1(cy)})"><rect x="${f1(gx1)}" y="${f1(Y(R))}" width="${f1(xR - gx1)}" height="${f1(2 * R * K)}" fill="url(#pc-m-${root.dataset.locale})" stroke="#364554" stroke-width="1.4"/>`;
+      if (!done) s += `<rect x="${f1(gx0)}" y="${f1(Y(core))}" width="${f1(w)}" height="${f1(2 * core * K)}" fill="url(#pc-m-${root.dataset.locale})"/>`;
+      s += `</g>`;
+      if (!done) s += `<line x1="${f1(gx0)}" x2="${f1(gx0)}" y1="${f1(Y(R))}" y2="${f1(Y(-R))}" stroke="#364554" stroke-width="0.8" stroke-dasharray="3 3"/>`;
+      // centre line
+      s += `<line x1="${f1(xL - 14)}" x2="${f1(xR + 14)}" y1="${cy}" y2="${cy}" stroke="#5f6c79" stroke-dasharray="10 3 2 3"/>`;
+      // blade from above, tip at the core radius
+      const tipY = Y(Math.max(core, 0));
+      s += `<path d="M${f1(gx0)},${f1(tipY)} L${f1(gx1)},${f1(tipY)} L${f1(gx1 + 2)},${f1(tipY - 20)} L${f1(gx1 + 2)},14 L${f1(gx0 - 2)},14 L${f1(gx0 - 2)},${f1(tipY - 20)} Z" fill="url(#ca-carbide)" stroke="#5f6c79" stroke-width="1.2"/>`;
+      s += `<path d="M${f1(gx0)},${f1(tipY)} L${f1(gx1)},${f1(tipY)} L${f1(gx1 + 1)},${f1(tipY - 8)} L${f1(gx0 - 1)},${f1(tipY - 8)} Z" fill="url(#ca-coat)" stroke="#8a6420" stroke-width="0.8"/>`;
+      // feed arrow, coloured by the feed share
+      const sh = share(r);
+      if (!done) s += `<line x1="${f1(gx1 + 18)}" x2="${f1(gx1 + 18)}" y1="${f1(tipY - 60)}" y2="${f1(tipY - 60 + 16 + 26 * sh)}" stroke="${sh < 1 ? '#c2413b' : '#e2601a'}" stroke-width="3" marker-end="url(#ca-arr-acc)"/>`;
+      if (!done) s += `<text x="${f1(gx1 + 26)}" y="${f1(tipY - 46)}" class="tk" fill="#c94f0c">${T.feed} ${Math.round(sh * 100)}${tr ? '' : ' %'}${tr ? '' : ''}</text>`.replace(`${T.feed} ${Math.round(sh * 100)}`, tr ? `${T.feed} %${Math.round(sh * 100)}` : `${T.feed} ${Math.round(sh * 100)}`);
+      s += `<text x="${f1(xL + 6)}" y="${f1(Y(R) - 8)}" class="t">${T.bar}</text><text x="${f1(xR - 6)}" y="${f1(Y(R) - 8)}" class="t" text-anchor="end">${T.part}</text>`;
+      sec.innerHTML = s;
+    };
+    const drawChart = () => {
+      const L = 50, Rr = 620, Tp = 30, B = 136, rMax = Math.min(R, 8);
+      const X = (rr: number) => Rr - (rr / rMax) * (Rr - L), Y = (u: number) => B - u * (B - Tp);
+      let s = '';
+      for (let i = 0; i <= 4; i++) { const u = i / 4; s += `<line x1="${L}" x2="${Rr}" y1="${f1(Y(u))}" y2="${f1(Y(u))}" class="gl"/><text x="${L - 6}" y="${f1(Y(u) + 4)}" class="t" text-anchor="end">${tr ? `%${u * 100}` : `${u * 100} %`}</text>`; }
+      for (let k = 0; k <= rMax; k += 2) s += `<text x="${f1(X(k))}" y="${B + 15}" class="t" text-anchor="middle">${k}</text>`;
+      s += `<line x1="${L}" x2="${Rr}" y1="${B}" y2="${B}" class="ax"/><text x="${Rr}" y="${B + 32}" class="tk" text-anchor="end">${T.radius} ←</text><text x="${L}" y="${Tp - 14}" class="tk">${T.fpct}</text>`;
+      const m = cfg.MAKERS[maker], st = +sIn.value;
+      if (m.lo !== m.hi) s += `<rect x="${f1(X(st))}" y="${f1(Y(m.hi))}" width="${f1(X(STOP) - X(st))}" height="${f1(Y(m.lo) - Y(m.hi))}" fill="#e2601a" fill-opacity="0.18"/>`;
+      const mid = (m.lo + m.hi) / 2;
+      s += `<polyline points="${f1(X(rMax))},${f1(Y(1))} ${f1(X(st))},${f1(Y(1))} ${f1(X(st))},${f1(Y(mid))} ${f1(X(STOP))},${f1(Y(mid))} ${f1(X(STOP))},${f1(Y(0))}" fill="none" stroke="#e2601a" stroke-width="3" stroke-linejoin="round"/>`;
+      s += `<line x1="${f1(X(STOP))}" x2="${f1(X(STOP))}" y1="${Tp}" y2="${B}" stroke="#c2413b" stroke-dasharray="4 3"/><text x="${f1(X(STOP) - 4)}" y="${Tp - 14}" class="tk" text-anchor="end" fill="#b23a34">${T.stop}</text>`;
+      if (r <= rMax) s += `<circle cx="${f1(X(Math.max(r, STOP)))}" cy="${f1(Y(done ? 0 : share(r)))}" r="6" fill="#1e5fc4" stroke="#fff" stroke-width="2"/>`;
+      ch.innerHTML = s;
+    };
+    const readouts = () => {
+      const rr = Math.max(0, r);
+      q('[data-o="r"]').textContent = `${dec(rr, 2)} ${T.mm}`;
+      q('[data-o="v"]').textContent = `${dec((Math.PI * 2 * rr * cfg.n) / 1000, 1)} ${T.mmin}`;
+      q('[data-o="f"]').textContent = done ? `0 ${T.mmr}` : `${dec(cfg.f * share(rr), 3)} ${T.mmr}`;
+      q('[data-o="s"]').textContent = dec(+sIn.value, 1);
+    };
+    const all = () => { drawSec(); drawChart(); readouts(); };
+    const run = () => {
+      cancelAnimationFrame(raf); r = R; done = false; drop = 0;
+      let last = performance.now();
+      const step = (now: number) => {
+        const dt = Math.min(0.05, (now - last) / 1000); last = now;
+        if (!done) {
+          // radial speed: fast far out, follows the feed share near the centre (time-lapse)
+          const v = (r > 8 ? 9 : 3) * share(r);
+          r -= v * dt;
+          if (r <= STOP) { r = STOP; done = true; }
+        } else drop = Math.min(1, drop + dt * 1.2);
+        all();
+        if (!done || drop < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+    root.querySelectorAll<HTMLButtonElement>('[data-g="m"] button').forEach((b, _, all2) => b.addEventListener('click', () => { maker = +b.dataset.v!; all2.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); all(); }));
+    sIn.addEventListener('input', all);
+    q('[data-play]').addEventListener('click', run);
+    r = 1.2; all();
+    whenIn(root, run);
+  });
+</script>

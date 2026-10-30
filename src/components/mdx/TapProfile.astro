@@ -1,0 +1,90 @@
+---
+/**
+ * ISO 68-1 basic profile, to scale, for a given d and P (static). Wide layout: three pitches;
+ * narrow layout: two. The 60° is drawn at the bolt tooth's sharp apex, H/8 above the crest flat,
+ * with the flanks extended to it. Values from threadData (d, d2, D1 = d − 5H/4).
+ */
+import { threadData, designation } from '../../data/metric-threads.js';
+interface Props { locale: 'en' | 'tr'; d: number; P: number }
+const { locale, d, P } = Astro.props;
+const tr = locale === 'tr';
+const t = threadData(d, P)!;
+const f3 = (v: number) => (tr ? v.toFixed(3).replace('.', ',') : v.toFixed(3));
+const n = (v: number) => (tr ? String(v).replace('.', ',') : String(v));
+const id = `tp-${locale}-${String(d).replace('.', '_')}`;
+
+function layout(narrow: boolean) {
+  const VW = narrow ? 360 : 640, span = narrow ? 2 : 3;
+  const x0 = narrow ? 66 : 96, Wd = narrow ? 198 : 420;
+  const s = Wd / (span * P);
+  const yTop = narrow ? 84 : 92, yBot = yTop + 0.625 * t.H * s;
+  const X = (u: number) => x0 + u * s;
+  const pts: [number, number][] = [];
+  for (let k = 0; k < span; k++) {
+    const u = k * P;
+    pts.push([X(u), yTop], [X(u + P / 8), yTop], [X(u + P / 8 + 0.3125 * P), yBot], [X(u + P / 8 + 0.3125 * P + P / 4), yBot]);
+  }
+  pts.push([X(span * P), yTop]);
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('');
+  const yPitch = yTop + 0.375 * t.H * s;
+  // apex of the bolt tooth whose crest is centred at u = P + P/16
+  const ax = X(P + P / 16), ay = yTop - (t.H / 8) * s, r = narrow ? 22 : 28;
+  const arc = `M${(ax - r * 0.5).toFixed(1)} ${(ay + r * 0.866).toFixed(1)} A${r} ${r} 0 0 0 ${(ax + r * 0.5).toFixed(1)} ${(ay + r * 0.866).toFixed(1)}`;
+  const ext = [[X(P), yTop], [X(P + P / 8), yTop]] as const;
+  const VH = yBot + (narrow ? 64 : 66);
+  return { VW, VH, span, x0, s, yTop, yBot, X, line, yPitch, ax, ay, r, arc, ext, narrow };
+}
+const geo = [layout(false), layout(true)];
+---
+<div class="tpw">
+  {geo.map((g) => {
+    const lines = [
+      { y: g.yTop, label: `d = ${f3(t.d)}`, c: 'var(--ink-2)' },
+      { y: g.yPitch, label: `d2 = ${f3(t.d2)}`, c: 'var(--data)' },
+      { y: g.yBot, label: `D1 = ${f3(t.D1)}`, c: 'var(--color-spark-400)' },
+    ];
+    const xe = g.X(g.span * P), yd = g.yTop - (g.narrow ? 46 : 50), xh = g.X(0) - 18;
+    return (
+      <svg viewBox={`0 0 ${g.VW} ${g.VH}`} role="img" aria-label={tr ? 'ISO temel diş profili, ölçekli' : 'ISO basic thread profile, to scale'} class:list={['tp', g.narrow ? 'narrow' : 'wide']}>
+        <defs><pattern id={`${id}-${g.narrow ? 'n' : 'w'}`} width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--accent)" stroke-width="1.3" stroke-opacity="0.5" /></pattern></defs>
+        <path d={`${g.line} L${xe} ${g.yTop - 62} L${g.X(0)} ${g.yTop - 62} Z`} fill={`url(#${id}-${g.narrow ? 'n' : 'w'})`} />
+        <path d={`${g.line} L${xe} ${g.yBot + 46} L${g.X(0)} ${g.yBot + 46} Z`} fill="color-mix(in oklab, var(--data) 22%, transparent)" />
+        <path d={g.line} fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" />
+        {lines.map((l) => (
+          <g>
+            <line x1={g.X(0) - 8} y1={l.y} x2={xe + 8} y2={l.y} stroke={l.c} stroke-dasharray="5 4" />
+            <text x={xe + 13} y={l.y + 4.5} class="t" fill={l.c}>{l.label}</text>
+          </g>
+        ))}
+        {/* 60° at the sharp apex of the basic triangle */}
+        {g.ext.map(([x, y]) => <line x1={x} y1={y} x2={g.ax} y2={g.ay} class="ext" />)}
+        <path d={g.arc} class="arc" />
+        <text x={g.ax} y={g.ay + g.r + 15} class="t" fill="var(--color-spark-400)" text-anchor="middle">60°</text>
+        {/* pitch */}
+        <line x1={g.X(P / 16)} y1={yd} x2={g.X(P + P / 16)} y2={yd} stroke="var(--ink-2)" />
+        <line x1={g.X(P / 16)} y1={yd - 6} x2={g.X(P / 16)} y2={yd + 6} stroke="var(--ink-2)" />
+        <line x1={g.X(P + P / 16)} y1={yd - 6} x2={g.X(P + P / 16)} y2={yd + 6} stroke="var(--ink-2)" />
+        <text x={g.X(P / 2 + P / 16)} y={yd - 8} class="t" fill="var(--ink-2)" text-anchor="middle">P = {n(P)}</text>
+        {/* basic depth */}
+        <line x1={xh} y1={g.yTop} x2={xh} y2={g.yBot} stroke="var(--ink-3)" />
+        <line x1={xh - 5} y1={g.yTop} x2={xh + 5} y2={g.yTop} stroke="var(--ink-3)" />
+        <line x1={xh - 5} y1={g.yBot} x2={xh + 5} y2={g.yBot} stroke="var(--ink-3)" />
+        <text x={xh - 7} y={(g.yTop + g.yBot) / 2 + 4.5} class="t" fill="var(--ink-3)" text-anchor="end">5H/8</text>
+        <text x={xe - 6} y={g.yTop - 44} class="t lbl" fill="var(--color-spark-400)" text-anchor="end">{tr ? 'somun' : 'nut'}</text>
+        <text x={g.X(0) + 6} y={g.yBot + 36} class="t lbl" fill="var(--color-metro-400)">{tr ? 'cıvata' : 'bolt'}</text>
+        <text x={xe} y={g.yBot + (g.narrow ? 60 : 62)} class="t" fill="var(--ink-3)" text-anchor="end">{designation(d, P, '×', tr ? ',' : '.')} · {tr ? 'ölçekli' : 'to scale'}</text>
+      </svg>
+    );
+  })}
+</div>
+
+<style>
+  .tp { width: 100%; height: auto; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } }
+  .tp :global(.t) { font-family: var(--font-mono); font-size: 14px; }
+  .narrow :global(.t) { font-size: 13px; }
+  .tp :global(.lbl) { paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; }
+  .tp :global(.ext) { stroke: var(--color-spark-400); stroke-dasharray: 3 3; stroke-width: 1; }
+  .tp :global(.arc) { fill: none; stroke: var(--color-spark-400); stroke-width: 1.4; }
+</style>

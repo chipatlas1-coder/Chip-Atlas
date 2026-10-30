@@ -1,0 +1,112 @@
+---
+/**
+ * Bore errors and what honing does with them (article list): honing corrects size, roundness
+ * including waviness, taper, barrel and bell-mouth shapes and straightness; a floating tool does
+ * not correct the position or the axis of the bore. Errors are drawn exaggerated (orange) against
+ * the target bore (dashed).
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const OK = tr ? 'düzeltir' : 'corrected';
+const NO = tr ? 'yüzer takımla düzeltmez' : 'not with a floating tool';
+const f = (v: number) => v.toFixed(1);
+// longitudinal section: bore axis vertical, y from 22 to 142; wall radius r(t), centre c(t).
+// The target bore (dashed) encloses the bore as found, since honing only removes material;
+// the tinted band between them is the stock honing has to take off.
+const long = (r: (t: number) => number, c: (t: number) => number = () => 100) => {
+  const N = 48, L: [number, number][] = [], R: [number, number][] = [];
+  for (let i = 0; i <= N; i++) { const t = i / N, y = 22 + 120 * t; L.push([c(t) - r(t), y]); R.push([c(t) + r(t), y]); }
+  const xl = Math.min(...L.map((p) => p[0])) - 2, xr = Math.max(...R.map((p) => p[0])) + 2;
+  const P = (a: [number, number][]) => a.map(([x, y]) => `${f(x)},${f(y)}`).join(' L');
+  return {
+    hole: `M${P(L)} L${P([...R].reverse())} Z`, left: `M${P(L)}`, right: `M${P(R)}`, xl, xr,
+    stock: `M${f(xl)},22 L${P(L)} L${f(xl)},142 Z M${f(xr)},22 L${P(R)} L${f(xr)},142 Z`,
+    target: `M${f(xl)},22 L${f(xl)},142 L${f(xr)},142 L${f(xr)},22 Z`,
+  };
+};
+const ring = (cx: number, cy: number, r: (a: number) => number) => {
+  const N = 120, P: string[] = [];
+  let rmax = 0;
+  for (let i = 0; i < N; i++) { const a = (i / N) * 2 * Math.PI; rmax = Math.max(rmax, r(a)); P.push(`${f(cx + r(a) * Math.cos(a))},${f(cy + r(a) * Math.sin(a))}`); }
+  const d = `M${P.join(' L')} Z`, R = rmax + 2;
+  const circ = `M${f(cx + R)},${cy} A${R},${R} 0 1,0 ${f(cx - R)},${cy} A${R},${R} 0 1,0 ${f(cx + R)},${cy} Z`;
+  return { d, R, circ, stock: `${circ} ${d}` };
+};
+const cards = [
+  { name: tr ? 'Koniklik' : 'Taper', ok: true, kind: 'long', g: long((t) => 27 + 12 * t) },
+  { name: tr ? 'Fıçı' : 'Barrel', ok: true, kind: 'long', g: long((t) => 28 + 10 * Math.sin(Math.PI * t)) },
+  { name: tr ? 'Çan ağzı' : 'Bell mouth', ok: true, kind: 'long', g: long((t) => 28 + 10 * (Math.max(0, 1 - t / 0.2) ** 2 + Math.max(0, (t - 0.8) / 0.2) ** 2)) },
+  { name: tr ? 'Doğrusallık' : 'Straightness', ok: true, kind: 'long', g: long(() => 28, (t) => 94 + 12 * Math.sin(Math.PI * t)) },
+  { name: tr ? 'Ovallik' : 'Out-of-round', ok: true, kind: 'ring', q: ring(100, 82, (a) => 1 / Math.sqrt((Math.cos(a) / 38) ** 2 + (Math.sin(a) / 28) ** 2)) },
+  { name: tr ? 'Dalgalılık' : 'Waviness (lobing)', ok: true, kind: 'ring', q: ring(100, 82, (a) => 32 + 4.5 * Math.cos(3 * a)) },
+  { name: tr ? 'Konum ve eksen' : 'Position and axis', ok: false, kind: 'pos' },
+];
+const blockL = 'M34,22 L166,22 L166,142 L34,142 Z';
+const blockR = 'M30,16 L170,16 L170,148 L30,148 Z';
+---
+<ul class="hforms" aria-label={tr ? 'Delik hataları ve honlama' : 'Bore errors and honing'}>
+  {cards.map((c) => (
+    <li class:list={{ no: !c.ok }}>
+      <svg viewBox="0 0 200 164" role="img" aria-label={`${c.name}: ${c.ok ? OK : NO}`}>
+        {c.kind === 'long' && <>
+          <path d={`${blockL} ${c.g!.hole}`} fill-rule="evenodd" fill="url(#ca-hatch)" />
+          <path d={c.g!.stock} class="stock" />
+          <path d={c.g!.target} class="target" />
+          <path d={c.g!.left} class="err" /><path d={c.g!.right} class="err" />
+          <line x1={(c.g!.xl + c.g!.xr) / 2} x2={(c.g!.xl + c.g!.xr) / 2} y1="14" y2="150" class="axis" />
+          <line x1="34" x2="166" y1="22" y2="22" class="edge" /><line x1="34" x2="166" y1="142" y2="142" class="edge" />
+        </>}
+        {c.kind === 'ring' && <>
+          <path d={`${blockR} ${c.q!.d}`} fill-rule="evenodd" fill="url(#ca-hatch)" />
+          <path d={c.q!.stock} fill-rule="evenodd" class="stock" />
+          <path d={c.q!.circ} class="target" />
+          <path d={c.q!.d} class="err" />
+          <line x1="92" x2="108" y1="82" y2="82" class="axis" /><line x1="100" x2="100" y1="74" y2="90" class="axis" />
+        </>}
+        {c.kind === 'pos' && <>
+          <path d={`${blockR} M147,78 A32,32 0 1,0 83,78 A32,32 0 1,0 147,78 Z`} fill-rule="evenodd" fill="url(#ca-hatch)" />
+          <circle cx="100" cy="86" r="32" class="target" />
+          <circle cx="115" cy="78" r="32" class="err" />
+          <line x1="92" x2="108" y1="86" y2="86" class="axis" /><line x1="100" x2="100" y1="78" y2="94" class="axis" />
+          <line x1="115" y1="78" x2="102" y2="85" class="shift" marker-end="url(#ca-arr-acc)" />
+          <circle cx="115" cy="78" r="2.4" fill="#e2601a" />
+        </>}
+      </svg>
+      <p class="nm">{c.name}</p>
+      <p class="st"><i aria-hidden="true">{c.ok ? '✓' : '✕'}</i>{c.ok ? OK : NO}</p>
+    </li>
+  ))}
+  <li class="key" aria-hidden="true">
+    <p><span class="k-err"></span>{tr ? 'hatalı delik (abartılı)' : 'bore as found (exaggerated)'}</p>
+    <p><span class="k-tgt"></span>{tr ? 'hedef delik' : 'target bore'}</p>
+    <p><span class="k-stk"></span>{tr ? 'honlamayla alınacak malzeme' : 'stock removed by honing'}</p>
+    <p class="fine">{tr ? 'Sunnen: rijit çok taşlı takımlar delik konumunu düzeltebilir.' : 'Sunnen: rigid multi-stone tools can correct hole location.'}</p>
+  </li>
+</ul>
+
+<style>
+  .hforms { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; }
+  @media (max-width: 44rem) { .hforms { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .hforms li { margin: 0; padding: 0.5rem 0.6rem 0.6rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; display: grid; gap: 0.15rem; align-content: start; }
+  .hforms li::before { content: none; }
+  .hforms li.no { border-color: color-mix(in oklab, #e2601a 45%, var(--line)); }
+  svg { width: 100%; height: auto; display: block; }
+  .stock { fill: color-mix(in oklab, #e2601a 20%, #fbfdff); }
+  .target { fill: none; stroke: #1b1d1e; stroke-opacity: 0.75; stroke-width: 1.3; stroke-dasharray: 5 4; }
+  .err { fill: none; stroke: #e2601a; stroke-width: 2.2; stroke-linejoin: round; }
+  .axis { stroke: #656e74; stroke-width: 0.9; stroke-dasharray: 10 3 2 3; }
+  .edge { stroke: #9fa8b0; stroke-width: 1; }
+  .shift { stroke: #e2601a; stroke-width: 1.5; }
+  .nm { margin: 0; font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+  .st { margin: 0; font-size: 0.76rem; color: var(--color-metro-400); display: flex; gap: 0.35rem; align-items: baseline; }
+  .no .st { color: var(--color-spark-400); }
+  .st i { font-style: normal; font-weight: 700; }
+  .key { background: transparent !important; border-style: dashed !important; align-content: center !important; gap: 0.45rem !important; }
+  .key p { margin: 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: var(--ink-2); }
+  .key .fine { color: var(--ink-3); font-size: 0.74rem; line-height: 1.35; }
+  .k-err, .k-tgt, .k-stk { width: 22px; height: 0; display: inline-block; flex: none; }
+  .k-err { border-top: 2.2px solid #e2601a; }
+  .k-stk { height: 10px !important; background: color-mix(in oklab, #e2601a 20%, #fbfdff); border: 1px solid color-mix(in oklab, #e2601a 30%, transparent); }
+  .k-tgt { border-top: 1.4px dashed #1b1d1e; }
+</style>

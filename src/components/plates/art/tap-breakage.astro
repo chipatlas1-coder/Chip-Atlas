@@ -1,0 +1,133 @@
+---
+/* Tap breakage: a spiral-flute tap broken in a blind hole, in section. The stub with the chamfer is
+   stuck in the thread it cut, chips packed under it and in the flute; the upper part, lifted clear,
+   shows the matching fracture; the turning arrow is the torque that broke it. Schematic proportions
+   (an M10-like tap, pitch drawn coarse so the thread reads). */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { chips: 'sıkışmış talaş', frac: 'kırık yüzey', hole: 'kör delik', torque: 'tork', stub: 'delikte kalan parça' }
+  : { chips: 'packed chips', frac: 'fracture', hole: 'blind hole', torque: 'torque', stub: 'stub left in the hole' };
+const f = (n: number) => n.toFixed(1);
+const ax = 318, R = 30, r = 23, p = 12;                 // axis, major and minor radius, pitch (plate units)
+const top = 128, yBreak = 186, lift = 16, yTip = 246, cham = 2.5 * p, rD = 24.5, yHole = 266;
+const tipCone = rD * 0.6;
+// thread silhouette radius on one side at height y (phase 0 left, 0.5 right); chamfer at the tip
+const prof = (y: number, ph: number) => {
+  const u = ((((y - 40) / p + ph) % 1) + 1) % 1;
+  const c = 1 / 16, fl = (1 - 1 / 8 - 1 / 4) / 2;
+  let v = u < c || u > 1 - c ? R : u < c + fl ? R - ((u - c) / fl) * (R - r) : u < c + fl + 1 / 4 ? r : r + ((u - c - fl - 1 / 4) / fl) * (R - r);
+  if (y > yTip - cham) v = Math.min(v, R - ((R - (r - 1.5)) * (y - (yTip - cham))) / cham);
+  return v;
+};
+const side = (s: number, y0: number, y1: number, dy = 0) => {
+  const q: string[] = [];
+  for (let y = y0; y <= y1 + 1e-6; y += 0.5) q.push(`${f(ax + s * prof(y, s < 0 ? 0 : 0.5))},${f(y + dy)}`);
+  return q;
+};
+// jagged fracture across the tap, a little lower on the right
+const fr = [[-1, 0], [-0.7, -4], [-0.45, 3], [-0.2, -2], [0.05, 5], [0.3, -1], [0.55, 6], [0.8, 2], [1, 7]];
+const fracture = (dy: number, w: number) => fr.map(([u, v]) => `${f(ax + u * w)},${f(yBreak + v + dy)}`);
+const wL = prof(yBreak, 0), wR = prof(yBreak + 7, 0.5);
+// lower piece (stub): fracture → right side down to the tip → left side up
+const stubR = side(1, yBreak + 7, yTip), stubL = side(-1, yBreak, yTip).reverse();
+const stub = `M${fracture(0, (wL + wR) / 2).join(' L')} L${stubR.join(' L')} L${f(ax + r - 2)},${yTip + 1.5} L${f(ax - r + 2)},${yTip + 1.5} L${stubL.join(' L')} Z`;
+// upper piece, lifted: shank above the plate, thread down to the fracture
+const upR = side(1, 52, yBreak + 7, -lift), upL = side(-1, 52, yBreak, -lift).reverse();
+const upper = `M${f(ax - 19)},-4 L${f(ax - 19)},${44 - lift} L${f(ax - r)},${52 - lift} L${upL.reverse().join(' L')} L${[...fracture(-lift, (wL + wR) / 2)].join(' L')} L${upR.reverse().join(' L')} L${f(ax + r)},${52 - lift} L${f(ax + 19)},${44 - lift} L${f(ax + 19)},-4 Z`;
+// the work in section: hole wall follows the thread the tap cut (down to the chamfer), then the drill
+const wall = (s: number) => {
+  const q: string[] = [];
+  for (let y = top; y <= yTip + 1e-6; y += 0.5) q.push(`${f(ax + s * Math.max(rD, prof(y, s < 0 ? 0 : 0.5) + 0.8))},${f(y)}`);
+  q.push(`${f(ax + s * rD)},${yHole}`);
+  return q;
+};
+const work = `M168,${top} L${wall(-1).join(' L')} L${ax},${f(yHole + tipCone)} L${wall(1).reverse().join(' L')} L452,${top} L452,304 L168,304 Z`;
+// thread lines on the visible face (crests light): right-hand, rising to the right
+const lines = (y0: number, y1: number, dy: number) => {
+  const out: string[] = [];
+  for (let yL = 40; yL < y1; yL += p) {
+    if (yL < y0) continue;
+    const q: string[] = [];
+    for (let a = -180; a <= 0; a += 15) q.push(`${f(ax + R * Math.cos((a * Math.PI) / 180))},${f(yL - ((a + 180) / 360) * p + dy)}`);
+    out.push(`M${q.join(' L')}`);
+  }
+  return out.join(' ');
+};
+// a right-hand flute band crossing the visible face (rises to the right)
+const flute = (y0: number, dy: number) => `M${f(ax - R)},${f(y0 + 22 + dy)} C${f(ax - 12)},${f(y0 + 12 + dy)} ${f(ax + 8)},${f(y0 - 6 + dy)} ${f(ax + R)},${f(y0 - 30 + dy)} L${f(ax + R)},${f(y0 - 10 + dy)} C${f(ax + 8)},${f(y0 + 14 + dy)} ${f(ax - 12)},${f(y0 + 32 + dy)} ${f(ax - R)},${f(y0 + 42 + dy)} Z`;
+const chip = 'M-6,1.5 C-4.5,-5 4,-7.5 7,-2 C9,2 5.5,7 0.5,6 C3.5,5 5,2 3.6,-0.6 C2,-3.2 -2.8,-2.6 -6,1.5 Z';
+// packed in the bottom of the hole, filling the bore and the drill point at random angles
+const chips = [[-15, 252, 15, 0.8], [-3, 251, 128, 0.85], [11, 253, 260, 0.8], [19, 258, 330, 0.6], [-19, 259, 200, 0.62], [-8, 259, 75, 0.9], [6, 261, 300, 0.85], [-13, 266, 160, 0.7], [14, 266, 40, 0.7], [0, 268, 220, 0.8], [-6, 274, 340, 0.6], [6, 275, 110, 0.55]];
+// and two caught in the flute of the stub
+const fluteChips = [[-9, 229, 50, 0.55], [7, 219, 205, 0.5]];
+// torque arrow round the shank
+const ty = 22, rx = 34, ry = 9;
+// cutting turns the tap clockwise seen from above, so its front moves left: the arrow runs along the
+// near (lower) half of the ring from right to left; the far half is dashed behind the shank
+const at = (a: number) => `${f(ax + rx * Math.cos(a))},${f(ty + ry * Math.sin(a))}`;
+const arc = `M${at(0.12)} A${rx},${ry} 0 0 1 ${at(Math.PI - 0.32)}`;
+const back = `M${at(Math.PI + 0.05)} A${rx},${ry} 0 0 1 ${at(-0.05)}`;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <clipPath id={`tb-up-${locale}`}><path d={upper} /></clipPath>
+    <clipPath id={`tb-stub-${locale}`}><path d={stub} /></clipPath>
+    <linearGradient id={`tb-sh-${locale}`} gradientUnits="userSpaceOnUse" x1={ax - R} x2={ax + R} y1="0" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity="0.5" /><stop offset="0.25" stop-color="#000" stop-opacity="0" /><stop offset="0.7" stop-color="#000" stop-opacity="0" /><stop offset="1" stop-color="#000" stop-opacity="0.55" />
+    </linearGradient>
+    <linearGradient id={`tb-fade-${locale}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0" /><stop offset="0.25" stop-color="#fff" /></linearGradient>
+    <mask id={`tb-m-${locale}`} maskUnits="userSpaceOnUse" x="0" y="-4" width="480" height="330"><rect x="0" y="-4" width="480" height="80" fill={`url(#tb-fade-${locale})`} /><rect x="0" y="75" width="480" height="260" fill="#fff" /></mask>
+  </defs>
+
+  <path class="f" style="--i:0" d={work} fill="url(#ca-hatch)" />
+  <path class="o d" style="--i:0" pathLength="1" d={work} />
+  <line class="c f" style="--i:1" x1={ax} x2={ax} y1="0" y2="312" />
+
+  <!-- packed chips under the stub -->
+  <g class="f" style="--i:4">{chips.map(([dx, y, rot, s]) => <path d={chip} fill="url(#ca-chip)" stroke="#b06a2a" stroke-width="0.4" transform={`translate(${ax + dx} ${y}) rotate(${rot}) scale(${s})`} />)}</g>
+
+  <!-- the stub, stuck in the thread -->
+  <g class="f" style="--i:2">
+    <path d={stub} fill="url(#ca-metal-h)" />
+    <g clip-path={`url(#tb-stub-${locale})`}>
+      <path d={lines(yBreak, yTip - cham, 0)} fill="none" stroke="#fff" stroke-opacity="0.4" stroke-width="0.9" />
+      <path d={flute(214, 0)} fill="#f4f9fe" opacity="0.9" />
+      <rect x={ax - R} y="0" width={2 * R} height="320" fill={`url(#tb-sh-${locale})`} />
+      {fluteChips.map(([dx, y, rot, k]) => <path d={chip} fill="url(#ca-chip)" stroke="#b06a2a" stroke-width="0.4" transform={`translate(${ax + dx} ${y}) rotate(${rot}) scale(${k})`} />)}
+    </g>
+  </g>
+  <path class="o d" style="--i:3" pathLength="1" d={stub} />
+  <path class="f" style="--i:5" d={`M${fracture(0, (wL + wR) / 2).join(' L')}`} fill="none" stroke="#e2601a" stroke-width="1.6" stroke-linejoin="round" />
+
+  <!-- the upper part, lifted clear -->
+  <g mask={`url(#tb-m-${locale})`}>
+    <g class="f" style="--i:3">
+      <path d={upper} fill="url(#ca-metal-h)" />
+      <g clip-path={`url(#tb-up-${locale})`}>
+        <path d={lines(60, yBreak, -lift)} fill="none" stroke="#fff" stroke-opacity="0.4" stroke-width="0.9" />
+        <path d={flute(150, -lift)} fill="#f4f9fe" opacity="0.9" />
+        <path d={flute(84, -lift)} fill="#f4f9fe" opacity="0.9" />
+        <rect x={ax - R} y="0" width={2 * R} height="320" fill={`url(#tb-sh-${locale})`} />
+      </g>
+    </g>
+    <path class="o d" style="--i:4" pathLength="1" d={upper} />
+  </g>
+  <path class="f" style="--i:6" d={`M${fracture(-lift, (wL + wR) / 2).join(' L')}`} fill="none" stroke="#e2601a" stroke-width="1.6" stroke-linejoin="round" />
+
+  <!-- torque -->
+  <path class="f" style="--i:6" d={back} fill="none" stroke="#e2601a" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.6" />
+  <path class="a d" style="--i:6" pathLength="1" d={arc} marker-end="url(#ca-arr-acc)" />
+
+  <g class="lbl">
+    <text class="t-acc" x={ax + 46} y="28">{T.torque}</text>
+    <text class="t-sm" x="150" y={yBreak - lift - 2} text-anchor="end">{T.frac}</text>
+    <line class="h" x1="154" y1={yBreak - lift - 6} x2={ax - R + 4} y2={yBreak - lift - 2} />
+    <text class="t-sm" x="150" y={yBreak + 30} text-anchor="end">{T.stub}</text>
+    <line class="h" x1="154" y1={yBreak + 26} x2={ax - R + 6} y2={yBreak + 30} />
+    <text class="t-acc t-sm" x="150" y="262" text-anchor="end">{T.chips}</text>
+    <line class="h" x1="154" y1="258" x2={ax - 16} y2="258" stroke="#e2601a" />
+    <text class="t-sm" x="466" y="296" text-anchor="end">{T.hole}</text>
+  </g>
+</svg>

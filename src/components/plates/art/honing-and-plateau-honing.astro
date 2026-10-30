@@ -1,0 +1,97 @@
+---
+/* Left: the bore in half-section with an expanding honing tool. Stones sit in holders in slots of
+   the tool body; an inner cone (hidden lines) pushes them outward against the wall while the tool
+   rotates and strokes. Right: the bore wall unrolled. Scratches run in two families at ±α/2 to the
+   circumferential direction (α = 50° here, tan α/2 = va/vc); a few deep grooves stand for the
+   valleys a plateau-honed surface keeps for oil. */
+import { prng } from '../../../lib/profile.js';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const half = (25 * Math.PI) / 180;
+const box = { x0: 268, y0: 34, x1: 464, y1: 270 };
+const clip = (px: number, py: number, m: number) => {
+  const c: number[][] = [];
+  for (const x of [box.x0, box.x1]) { const y = py + m * (x - px); if (y >= box.y0 - 1e-6 && y <= box.y1 + 1e-6) c.push([x, y]); }
+  for (const y of [box.y0, box.y1]) { const x = px + (y - py) / m; if (x > box.x0 && x < box.x1) c.push([x, y]); }
+  return c.length >= 2 ? c.slice(0, 2) : null;
+};
+const rnd = prng(29);
+type Seg = { a: number[]; b: number[]; w: number; o: number };
+const fine: Seg[] = [];
+for (const m of [Math.tan(half), -Math.tan(half)]) {
+  for (let k = 0; k < 64; k++) {
+    const off = -260 + rnd() * 520;
+    const c = clip(366, 152 + off, m);
+    if (c) fine.push({ a: c[0], b: c[1], w: 0.5 + rnd() * 0.9, o: 0.18 + rnd() * 0.45 });
+  }
+}
+const deep: Seg[] = [];
+for (const [m, offs] of [[Math.tan(half), [-150, -40, 70, 175]], [-Math.tan(half), [-110, 10, 120]]] as [number, number[]][]) {
+  for (const off of offs) { const c = clip(366, 152 + off, m); if (c) deep.push({ a: c[0], b: c[1], w: 2.2, o: 1 }); }
+}
+// bore and tool (left)
+const wl = 70, wr = 214, yTop = 22, yBot = 296;
+const body = { x0: 88, x1: 196, y0: 104, y1: 232 };
+const stoneL = { x: wl + 1, w: 15 }, stoneR = { x: wr - 16, w: 15 };
+const sy0 = 112, sy1 = 224;
+const grains = Array.from({ length: 70 }, () => [rnd(), rnd()]);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id={`hn-body-${locale}`} x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7e878f" /><stop offset="0.25" stop-color="#e3e8ec" /><stop offset="0.5" stop-color="#bfc7ce" /><stop offset="1" stop-color="#6e757c" />
+    </linearGradient>
+  </defs>
+  <!-- tube wall in section -->
+  <rect class="hatch f" style="--i:0" x="28" y={yTop} width={wl - 28} height={yBot - yTop} />
+  <rect class="hatch f" style="--i:0" x={wr} y={yTop} width={256 - wr} height={yBot - yTop} />
+  <path class="o2 d" style="--i:1" pathLength="1" d={`M${wl},${yTop} L${wl},${yBot} M${wr},${yTop} L${wr},${yBot}`} />
+  <line class="c f" style="--i:2" x1={(wl + wr) / 2} y1="6" x2={(wl + wr) / 2} y2="312" />
+  <g class="stroke-y">
+    <!-- shank and drive -->
+    <rect class="f" style="--i:2" x="130" y="-30" width="24" height={body.y0 + 30} fill={`url(#hn-body-${locale})`} />
+    <!-- body with stone slots -->
+    <rect class="f" style="--i:3" x={body.x0} y={body.y0} width={body.x1 - body.x0} height={body.y1 - body.y0} rx="5" fill={`url(#hn-body-${locale})`} />
+    <!-- inner expansion cone and feed rod, hidden lines -->
+    <path class="dash f" style="--i:5" d={`M136,${body.y0} L136,150 L120,214 L164,214 L148,150 L148,${body.y0}`} />
+    <!-- stone holders and stones -->
+    <rect class="f" style="--i:4" x={stoneL.x + stoneL.w} y={sy0 - 4} width="4" height={sy1 - sy0 + 8} fill="#e2e8ed" />
+    <rect class="f" style="--i:4" x={stoneR.x - 4} y={sy0 - 4} width="4" height={sy1 - sy0 + 8} fill="#e2e8ed" />
+    <rect class="f" style="--i:4" x={stoneL.x} y={sy0} width={stoneL.w} height={sy1 - sy0} rx="1.5" fill="#8c7a55" />
+    <rect class="f" style="--i:4" x={stoneR.x} y={sy0} width={stoneR.w} height={sy1 - sy0} rx="1.5" fill="#8c7a55" />
+    <g class="f" style="--i:5" fill="#d8c08a" fill-opacity="0.9">
+      {grains.map(([a, b], i) => <circle cx={(i % 2 ? stoneR.x : stoneL.x) + 2 + a * (stoneL.w - 4)} cy={sy0 + 3 + b * (sy1 - sy0 - 6)} r="0.9" />)}
+    </g>
+    <rect class="o d" style="--i:5" pathLength="1" x={body.x0} y={body.y0} width={body.x1 - body.x0} height={body.y1 - body.y0} rx="5" />
+    <path class="o f" style="--i:5" d={`M${stoneL.x},${sy0} h${stoneL.w} v${sy1 - sy0} h-${stoneL.w} Z M${stoneR.x},${sy0} h${stoneR.w} v${sy1 - sy0} h-${stoneR.w} Z`} />
+    <g class="lbl">
+      <line class="a" x1="118" y1="168" x2="96" y2="168" marker-end="url(#ca-arr-acc)" stroke-width="1.8" />
+      <line class="a" x1="166" y1="168" x2="188" y2="168" marker-end="url(#ca-arr-acc)" stroke-width="1.8" />
+    </g>
+  </g>
+  <!-- unrolled wall -->
+  <rect class="f" style="--i:1" x={box.x0} y={box.y0} width={box.x1 - box.x0} height={box.y1 - box.y0} fill="#e0e7eb" />
+  <g class="f" style="--i:3">
+    {fine.map((l) => <line x1={l.a[0]} y1={l.a[1]} x2={l.b[0]} y2={l.b[1]} stroke="#202426" stroke-opacity={l.o} stroke-width={l.w} />)}
+  </g>
+  <g class="f" style="--i:4">
+    {deep.map((l) => <line x1={l.a[0]} y1={l.a[1]} x2={l.b[0]} y2={l.b[1]} stroke="#fbfdff" stroke-width={l.w} />)}
+    {deep.map((l) => <line x1={l.a[0]} y1={l.a[1] + 1.4} x2={l.b[0]} y2={l.b[1] + 1.4} stroke="#2c3033" stroke-opacity="0.35" stroke-width="0.6" />)}
+  </g>
+  <rect class="o d" style="--i:2" pathLength="1" x={box.x0} y={box.y0} width={box.x1 - box.x0} height={box.y1 - box.y0} />
+  <g class="lbl">
+    <line x1="300" y1="152" x2="446" y2="152" stroke="#2a78d6" stroke-dasharray="4 4" />
+    <path d={`M${366 + 60},152 A60,60 0 0,0 ${(366 + 60 * Math.cos(half)).toFixed(1)},${(152 - 60 * Math.sin(half)).toFixed(1)}`} fill="none" stroke="#2a78d6" stroke-width="1.4" />
+    <path d={`M${(366 + 76 * Math.cos(half)).toFixed(1)},${(152 - 76 * Math.sin(half)).toFixed(1)} A76,76 0 0,1 ${(366 + 76 * Math.cos(half)).toFixed(1)},${(152 + 76 * Math.sin(half)).toFixed(1)}`} fill="none" stroke="#e2601a" stroke-width="1.4" />
+    <text class="t-data" x="432" y="144">α/2</text>
+    <text class="it t-acc" x="446" y="176">α</text>
+    <text class="t-sm" x={box.x0} y="290">{tr ? 'açılmış delik cidarı' : 'bore wall, unrolled'}</text>
+    <text class="t-sm" x={box.x0} y="308">tan(α/2) = v<tspan font-size="8" dy="3">a</tspan><tspan dy="-3"> / v</tspan><tspan font-size="8" dy="3">c</tspan></text>
+    <path d="M118,14 A24,7 0 1,0 166,14" fill="none" stroke="#474e54" stroke-width="1.2" marker-end="url(#ca-arr)" />
+    <line x1="244" y1="112" x2="244" y2="226" stroke="#474e54" stroke-width="1.2" marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <text class="t-sm" x="226" y="242">{tr ? 'strok' : 'stroke'}</text>
+    <text class="t-sm" x="34" y="312">{tr ? 'honlama taşı' : 'honing stone'}</text>
+    <line class="h" x1="62" y1="304" x2="76" y2="226" />
+  </g>
+</svg>

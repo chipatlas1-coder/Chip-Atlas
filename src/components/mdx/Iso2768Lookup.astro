@@ -1,0 +1,103 @@
+---
+/** Interactive ISO 2768-1 general tolerance lookup: linear sizes, radii/chamfers, angles. */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? { kind: 'Ölçü türü', lin: 'Doğrusal ölçü', rad: 'Dış radyüs / pah yüksekliği', ang: 'Açı (kısa kenar uzunluğu)', size: 'Anma ölçüsü (mm)', sizeAng: 'Kısa kenar (mm)', cls: 'Tolerans sınıfı', dev: 'İzin verilen sapma', lim: 'Sınırlar', range: 'Tablo aralığı', none: 'Bu sınıf ve aralık için genel tolerans yok; değeri ölçünün yanına yazın.', out: 'Tablo dışında.', names: { f: 'f ince', m: 'm orta', c: 'c kaba', v: 'v çok kaba' } }
+  : { kind: 'Dimension type', lin: 'Linear size', rad: 'External radius / chamfer height', ang: 'Angle (length of shorter side)', size: 'Nominal size (mm)', sizeAng: 'Shorter side (mm)', cls: 'Tolerance class', dev: 'Permissible deviation', lim: 'Limits', range: 'Table range', none: 'No general tolerance for this class and range; state the value next to the dimension.', out: 'Outside the table.', names: { f: 'f fine', m: 'm medium', c: 'c coarse', v: 'v very coarse' } };
+const uid = `iso2768-${locale}`;
+---
+<div class="lk" data-iso2768 data-locale={locale} data-l={JSON.stringify(L)}>
+  <div class="row">
+    <fieldset><legend class="hint">{L.kind}</legend>
+      <label><input type="radio" name={`${uid}-k`} value="lin" checked data-k /> {L.lin}</label>
+      <label><input type="radio" name={`${uid}-k`} value="rad" data-k /> {L.rad}</label>
+      <label><input type="radio" name={`${uid}-k`} value="ang" data-k /> {L.ang}</label>
+    </fieldset>
+  </div>
+  <div class="row two">
+    <label class="field"><span data-sizelabel>{L.size}</span>
+      <input id={`${uid}-s`} type="number" min="0.5" step="any" value="25" data-s inputmode="decimal" /></label>
+    <fieldset><legend class="hint">{L.cls}</legend>
+      <div class="cls">
+        {(['f', 'm', 'c', 'v'] as const).map((c) => (
+          <label><input type="radio" name={`${uid}-c`} value={c} checked={c === 'm'} data-c /> <span>{L.names[c]}</span></label>
+        ))}
+      </div>
+    </fieldset>
+  </div>
+  <dl class="read">
+    <div><dt>{L.dev}</dt><dd class="num big" data-o="dev">—</dd></div>
+    <div><dt>{L.lim}</dt><dd class="num" data-o="lim">—</dd></div>
+    <div><dt>{L.range}</dt><dd class="num" data-o="range">—</dd></div>
+  </dl>
+  <p class="msg" data-o="msg" hidden></p>
+</div>
+
+<style>
+  .lk { display: grid; gap: 1rem; }
+  fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem; font-size: 0.9rem; }
+  fieldset legend { padding: 0; margin-bottom: 0.35rem; width: 100%; }
+  fieldset label { display: inline-flex; gap: 0.4rem; align-items: center; }
+  input[type='radio'] { accent-color: var(--accent); }
+  .row.two { display: grid; grid-template-columns: 12rem 1fr; gap: 1.25rem; align-items: start; }
+  @media (max-width: 40rem) { .row.two { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.35rem; font-size: 0.85rem; }
+  .cls { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+  .read { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+  @media (max-width: 40rem) { .read { grid-template-columns: 1fr 1fr; } }
+  .read dt { font-size: 0.78rem; color: var(--ink-3); }
+  .read dd { margin: 0; color: var(--data); font-size: 1.05rem; }
+  .read dd.big { font-size: 1.5rem; color: var(--accent); }
+  .msg { margin: 0; font-size: 0.88rem; color: var(--ink-2); }
+</style>
+
+<script>
+  import { linearDeviation, radiusDeviation, angularDeviation, formatAngle, LINEAR, RADII, ANGULAR } from '../../data/iso2768.js';
+  document.querySelectorAll<HTMLElement>('[data-iso2768]').forEach((root) => {
+    const L = JSON.parse(root.dataset.l!);
+    const tr = root.dataset.locale === 'tr';
+    const dec = (v: number | string) => (tr ? String(v).replace('.', ',') : String(v));
+    const s = root.querySelector('[data-s]') as HTMLInputElement;
+    const kinds = Array.from(root.querySelectorAll<HTMLInputElement>('[data-k]'));
+    const classes = Array.from(root.querySelectorAll<HTMLInputElement>('[data-c]'));
+    const o = (k: string) => root.querySelector(`[data-o="${k}"]`) as HTMLElement;
+    const sizeLabel = root.querySelector('[data-sizelabel]') as HTMLElement;
+
+    function rangeOf(table: { from: number; to: number }[], v: number, minIncl: number) {
+      return table.find((r, i) => (i === 0 ? v >= minIncl : v > r.from) && v <= r.to);
+    }
+    const fmtRange = (r: { from: number; to: number }, first: boolean) =>
+      r.to === Infinity ? `> ${dec(r.from)}` : `${first ? '' : '> '}${dec(r.from)} … ${dec(r.to)}`;
+    const round = (v: number) => Math.round(v * 1e6) / 1e6;
+
+    function render() {
+      const kind = kinds.find((k) => k.checked)!.value;
+      const cls = classes.find((c) => c.checked)!.value;
+      const v = Number(String(s.value).replace(',', '.'));
+      sizeLabel.textContent = kind === 'ang' ? L.sizeAng : L.size;
+      const msg = o('msg');
+      msg.hidden = true;
+      ['dev', 'lim', 'range'].forEach((k) => (o(k).textContent = '—'));
+      if (!(v > 0)) return;
+      const table = kind === 'lin' ? LINEAR : kind === 'rad' ? RADII : ANGULAR;
+      const min = kind === 'ang' ? 0 : 0.5;
+      const r = rangeOf(table, v, min);
+      if (!r) { msg.textContent = L.out; msg.hidden = false; return; }
+      o('range').textContent = fmtRange(r, table.indexOf(r) === 0) + (kind === 'ang' ? ' mm' : ' mm');
+      const d = kind === 'lin' ? linearDeviation(v, cls) : kind === 'rad' ? radiusDeviation(v, cls) : angularDeviation(v, cls);
+      if (d == null) { msg.textContent = L.none; msg.hidden = false; return; }
+      if (kind === 'ang') {
+        o('dev').textContent = '± ' + formatAngle(d);
+        o('lim').textContent = '—';
+      } else {
+        o('dev').textContent = '± ' + dec(d) + ' mm';
+        o('lim').textContent = `${dec(round(v - d))} … ${dec(round(v + d))} mm`;
+      }
+    }
+    [s, ...kinds, ...classes].forEach((el) => el.addEventListener('input', render));
+    kinds.forEach((k) => k.addEventListener('change', render));
+    render();
+  });
+</script>

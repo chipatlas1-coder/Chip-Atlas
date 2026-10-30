@@ -1,0 +1,30 @@
+---
+/* Reading a vernier: main scale and a 0.05 mm vernier (20 divisions over 19 mm), set at MEB's example 10.45 mm; the
+   ninth vernier line coincides with the 19 mm line (10.45 + 9 × 0.95 = 19). Drawn to the arithmetic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const v = 10.45, K = 16, X0 = 40, MY = 168;
+const mx = (m: number) => X0 + (m - 4) * K;
+const fmt = (n: number) => (tr ? n.toFixed(2).replace('.', ',') : n.toFixed(2));
+const read = tr ? `10 + 9 × 0,05 = ${fmt(v)} mm` : `10 + 9 × 0.05 = ${fmt(v)} mm`;
+const T = tr ? { main: 'ana cetvel (1 = 10 mm)', vern: 'verniyer' } : { main: 'main scale (1 = 10 mm)', vern: 'vernier' };
+const mains = Array.from({ length: 27 }, (_, i) => i + 4).filter((m) => mx(m) <= 470);
+const verns = Array.from({ length: 21 }, (_, k) => k);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <rect class="metal-h f" style="--i:0" x="16" y={MY - 74} width="448" height="74" rx="4" />
+  <rect class="f" style="--i:1" x={mx(v) - 8} y={MY} width={19 * K + 16} height="58" rx="4" fill="#eef3fb" stroke="#9fb6d8" />
+  <g class="f" style="--i:2">
+    {mains.map((m) => <line x1={mx(m)} y1={MY} x2={mx(m)} y2={MY - (m % 10 === 0 ? 30 : m % 5 === 0 ? 22 : 14)} stroke={m === 19 ? '#e2601a' : '#364554'} stroke-width={m === 19 ? 3 : 1.4} />)}
+    {verns.map((k) => <line x1={mx(v + k * 0.95)} y1={MY} x2={mx(v + k * 0.95)} y2={MY + (k % 2 === 0 ? 22 : 13)} stroke={k === 9 ? '#e2601a' : '#1e5fc4'} stroke-width={k === 9 ? 3 : 1.4} />)}
+  </g>
+  <line class="o2 f" style="--i:2" x1="16" y1={MY} x2="464" y2={MY} />
+  <g class="lbl">
+    {mains.filter((m) => m % 10 === 0).map((m) => <text class="t-ink" x={mx(m)} y={MY - 38} text-anchor="middle">{m / 10}</text>)}
+    {verns.filter((k) => k % 4 === 0).map((k) => <text class="t-data t-sm" x={mx(v + k * 0.95)} y={MY + 36} text-anchor="middle">{k / 2}</text>)}
+    <text class="t-sm" x="24" y={MY - 58}>{T.main}</text>
+    <text class="t-data t-sm" x={mx(v) - 4} y={MY + 52}>{T.vern}</text>
+    <text class="t-acc t-mid" x="240" y="290" text-anchor="middle">{read}</text>
+  </g>
+</svg>

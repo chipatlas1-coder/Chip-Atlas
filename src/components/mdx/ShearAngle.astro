@@ -1,0 +1,160 @@
+---
+/**
+ * Orthogonal cutting, drawn to scale from the shear-angle models.
+ * Merchant: φ = 45° + α/2 − β/2. Lee–Shaffer: φ = 45° + α − β. β = atan μ.
+ * Chip thickness hc = h · cos(φ − α) / sin φ; shear strain γ = cot φ + tan(φ − α).
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? { rake: 'Talaş açısı α', mu: 'Sürtünme katsayısı μ', model: 'Model', phi: 'Kayma açısı φ', beta: 'Sürtünme açısı β', r: 'Talaş kalınlık oranı r = h/hc', hc: 'Talaş kalınlığı hc (h = 1)', gamma: 'Kayma birim şekil değişimi γ', invalid: 'Bu α ve μ için Lee–Shaffer kayma açısı tanımsız (φ ≤ 0).', aria: 'Dik kesmede talaş oluşumu, ölçekli' }
+  : { rake: 'Rake angle α', mu: 'Friction coefficient μ', model: 'Model', phi: 'Shear angle φ', beta: 'Friction angle β', r: 'Chip thickness ratio r = h/hc', hc: 'Chip thickness hc (h = 1)', gamma: 'Shear strain γ', invalid: 'For this α and μ the Lee–Shaffer shear angle is undefined (φ ≤ 0).', aria: 'Chip formation in orthogonal cutting, to scale' };
+---
+<div class="shear" data-shear data-locale={locale}>
+  <svg viewBox="0 0 640 330" role="img" aria-label={L.aria} data-svg></svg>
+  <div class="controls">
+    <label class="field"><span>{L.rake} <output class="num" data-o="a">10</output>°</span>
+      <input id={`shear-a-${locale}`} type="range" min="-10" max="30" step="1" value="10" data-i="a" /></label>
+    <label class="field"><span>{L.mu} <output class="num" data-o="mu">{tr ? '0,60' : '0.60'}</output></span>
+      <input id={`shear-mu-${locale}`} type="range" min="0.1" max="1.5" step="0.05" value="0.6" data-i="mu" /></label>
+    <fieldset class="model"><legend class="hint">{L.model}</legend>
+      <label><input type="radio" name={`shear-model-${locale}`} value="m" checked data-m /> Merchant</label>
+      <label><input type="radio" name={`shear-model-${locale}`} value="ls" data-m /> Lee–Shaffer</label>
+    </fieldset>
+  </div>
+  <dl class="read">
+    <div><dt>{L.phi}</dt><dd class="num" data-o="phi">—</dd></div>
+    <div><dt>{L.beta}</dt><dd class="num" data-o="beta">—</dd></div>
+    <div><dt>{L.r}</dt><dd class="num" data-o="r">—</dd></div>
+    <div><dt>{L.hc}</dt><dd class="num" data-o="hc">—</dd></div>
+    <div><dt>{L.gamma}</dt><dd class="num" data-o="g">—</dd></div>
+  </dl>
+  <p class="warn" data-invalid hidden>{L.invalid}</p>
+</div>
+
+<style>
+  .shear { display: grid; gap: 0.75rem; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end; }
+  @media (max-width: 40rem) { .controls { grid-template-columns: 1fr; } }
+  .controls .field > span { display: flex; gap: 0.35rem; align-items: baseline; font-size: 0.85rem; }
+  .controls output { color: var(--data); }
+  .model { border: 0; padding: 0; display: flex; gap: 1rem; font-size: 0.9rem; }
+  .model legend { padding: 0; margin-bottom: 0.3rem; }
+  .model label { display: inline-flex; gap: 0.35rem; align-items: center; }
+  .model input { accent-color: var(--accent); }
+  .read { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; }
+  @media (max-width: 48rem) { .read { grid-template-columns: repeat(2, 1fr); } }
+  .read dt { font-size: 0.78rem; color: var(--ink-3); line-height: 1.3; }
+  .read dd { color: var(--data); font-size: 1.15rem; }
+</style>
+
+<script>
+  const DEG = Math.PI / 180;
+  document.querySelectorAll<HTMLElement>('[data-shear]').forEach((root) => {
+    const locale = root.dataset.locale || 'en';
+    const svg = root.querySelector('[data-svg]') as SVGSVGElement;
+    const ia = root.querySelector('[data-i="a"]') as HTMLInputElement;
+    const imu = root.querySelector('[data-i="mu"]') as HTMLInputElement;
+    const models = Array.from(root.querySelectorAll<HTMLInputElement>('[data-m]'));
+    const out = (k: string) => root.querySelector(`[data-o="${k}"]`) as HTMLElement;
+    const inv = root.querySelector('[data-invalid]') as HTMLElement;
+    const dec = (v: string) => (locale === 'tr' ? v.replace('.', ',') : v);
+
+    function render() {
+      const a = Number(ia.value), mu = Number(imu.value);
+      const beta = Math.atan(mu) / DEG;
+      const model = models.find((m) => m.checked)?.value ?? 'm';
+      const phi = model === 'm' ? 45 + a / 2 - beta / 2 : 45 + a - beta;
+      out('a').textContent = String(a);
+      out('mu').textContent = dec(mu.toFixed(2));
+      out('beta').textContent = dec(beta.toFixed(1)) + '°';
+      const ok = phi > 0.5 && phi < 89.5;
+      inv.hidden = ok;
+      if (!ok) { ['phi', 'r', 'hc', 'g'].forEach((k) => (out(k).textContent = '—')); svg.innerHTML = ''; return; }
+      const p = phi * DEG, ar = a * DEG;
+      const r = Math.sin(p) / Math.cos(p - ar);
+      const g = 1 / Math.tan(p) + Math.tan(p - ar);
+      out('phi').textContent = dec(phi.toFixed(1)) + '°';
+      out('r').textContent = dec(r.toFixed(3));
+      out('hc').textContent = dec((1 / r).toFixed(2));
+      out('g').textContent = dec(g.toFixed(2));
+      draw(ar, p, r);
+    }
+
+    let last: [number, number, number] | null = null;
+    function draw(ar: number, p: number, r: number) {
+      last = [ar, p, r];
+      const W = 640, h = 44, ys = 236, xt = 420;
+      // phones: drop the empty stretch of uncut work on the left and size the text from the rendered scale
+      const narrow = svg.clientWidth > 0 && svg.clientWidth < 520;
+      const x0 = narrow ? 190 : 0, y0 = 0;
+      svg.setAttribute('viewBox', `${x0} ${y0} ${W - x0} ${330 - y0}`);
+      const scale = (svg.clientWidth || W) / (W - x0);
+      const fs = Math.max(13, Math.min(24, 12.5 / scale));
+      const font = `font-family="IBM Plex Mono, monospace" font-size="${fs.toFixed(1)}"`;
+      const halo = 'style="paint-order:stroke;stroke:#fbfdff;stroke-width:3px"';
+      const tr = locale === 'tr';
+      const hc = h / r;
+      const S = [xt - h / Math.tan(p), ys - h];
+      const up = [Math.sin(ar), -Math.cos(ar)];
+      const Lr = 190;
+      const T2 = [xt + up[0] * Lr, ys + up[1] * Lr];
+      const S2 = [S[0] + up[0] * Lr, S[1] + up[1] * Lr];
+      const parts: string[] = [];
+      // Workpiece with uncut layer to the left
+      parts.push(`<path d="M0 ${ys - h} H${S[0]} L${xt} ${ys} H${W} V330 H0 Z" fill="#e7edf2"/>`);
+      for (let gy = ys + 22; gy < 330; gy += 22) parts.push(`<line x1="0" y1="${gy}" x2="${W}" y2="${gy}" stroke="#9fa8b0" stroke-opacity="0.6"/>`);
+      parts.push(`<path d="M0 ${ys - h} H${S[0]} L${xt} ${ys} H${W}" fill="none" stroke="#2c3033" stroke-width="1.8"/>`);
+      parts.push(`<line x1="0" y1="${ys}" x2="${xt}" y2="${ys}" stroke="#656e74" stroke-dasharray="4 4"/>`);
+      // Chip
+      parts.push(`<path d="M${xt} ${ys} L${S[0]} ${S[1]} L${S2[0]} ${S2[1]} L${T2[0]} ${T2[1]} Z" fill="url(#ca-chip)"/>`);
+      // shear bands in the chip, parallel to the shear plane
+      for (let k = 30; k < Lr - 10; k += 30) parts.push(`<line x1="${S[0] + up[0] * k}" y1="${S[1] + up[1] * k}" x2="${xt + up[0] * k}" y2="${ys + up[1] * k}" stroke="#1b1d1e" stroke-opacity="0.35"/>`);
+      parts.push(`<path d="M${xt} ${ys} L${S[0]} ${S[1]} L${S2[0]} ${S2[1]} L${T2[0]} ${T2[1]} Z" fill="none" stroke="#1b1d1e" stroke-width="1.4" stroke-linejoin="round"/>`);
+      // Tool: rake face, top, back, clearance face (7°)
+      const c = 7 * DEG;
+      const flank = [xt + 200 * Math.cos(c), ys - 200 * Math.sin(c)];
+      parts.push(`<path d="M${xt} ${ys} L${T2[0]} ${T2[1]} L${W} ${T2[1]} L${W} ${flank[1]} L${flank[0]} ${flank[1]} Z" fill="url(#ca-carbide)" stroke="#1b1d1e" stroke-width="1.8" stroke-linejoin="round"/>`);
+      // Shear plane
+      parts.push(`<line x1="${xt}" y1="${ys}" x2="${S[0]}" y2="${S[1]}" stroke="#e2601a" stroke-opacity="0.35" stroke-width="12" stroke-linecap="round"/>`);
+      parts.push(`<line x1="${xt}" y1="${ys}" x2="${S[0]}" y2="${S[1]}" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round"/>`);
+      // φ arc at the tool tip, from the cutting direction (−x) to the shear plane
+      const R = 46;
+      parts.push(`<path d="M${xt - R} ${ys} A${R} ${R} 0 0 1 ${xt - R * Math.cos(p)} ${ys - R * Math.sin(p)}" fill="none" stroke="var(--color-spark-400)" stroke-width="1.2"/>`);
+      parts.push(`<text x="${xt - R - 6}" y="${ys - 6}" ${font} text-anchor="end" fill="var(--color-spark-400)" ${halo}>φ</text>`);
+      // α: vertical reference and rake face
+      parts.push(`<line x1="${xt}" y1="${ys}" x2="${xt}" y2="${ys - 120}" stroke="var(--ink-3)" stroke-dasharray="4 4"/>`);
+      const Ra = 90;
+      const end = [xt + up[0] * Ra, ys + up[1] * Ra];
+      parts.push(`<path d="M${xt} ${ys - Ra} A${Ra} ${Ra} 0 0 ${ar >= 0 ? 1 : 0} ${end[0]} ${end[1]}" fill="none" stroke="var(--ink-2)"/>`);
+      parts.push(`<text x="${xt + (ar >= 0 ? 10 : -10)}" y="${ys - Ra - 8}" ${font} text-anchor="${ar >= 0 ? 'start' : 'end'}" fill="var(--ink-2)" ${halo}>α</text>`);
+      // h and hc dimensions
+      const xh = x0 + 26;
+      parts.push(`<line x1="${xh}" y1="${ys - h}" x2="${xh}" y2="${ys}" stroke="var(--ink-2)"/>`);
+      parts.push(`<line x1="${xh - 6}" y1="${ys - h}" x2="${xh + 6}" y2="${ys - h}" stroke="var(--ink-2)"/><line x1="${xh - 6}" y1="${ys}" x2="${xh + 6}" y2="${ys}" stroke="var(--ink-2)"/>`);
+      parts.push(`<text x="${xh + 10}" y="${ys - h / 2 + fs * 0.35}" ${font} fill="var(--ink-2)" ${halo}>h</text>`);
+      const n = [-Math.cos(ar), -Math.sin(ar)]; // unit normal from rake face toward chip outer face
+      const m0 = [xt + up[0] * 150, ys + up[1] * 150];
+      const m1 = [m0[0] + n[0] * hc, m0[1] + n[1] * hc];
+      parts.push(`<line x1="${m0[0]}" y1="${m0[1]}" x2="${m1[0]}" y2="${m1[1]}" stroke="#1b1d1e" stroke-width="1.5"/>`);
+      parts.push(`<text x="${m1[0] - 6}" y="${m1[1] - 6}" ${font} text-anchor="end" fill="#1b1d1e" ${halo}>hc</text>`);
+      // direct labels
+      parts.push(`<text x="${(S[0] + xt) / 2 - 14}" y="${ys + fs + 10}" ${font} text-anchor="end" fill="var(--accent)" ${halo}>${tr ? 'kayma düzlemi' : 'shear plane'}</text>`);
+      parts.push(`<line x1="${(S[0] + xt) / 2 - 10}" y1="${ys + fs + 4}" x2="${(S[0] + xt) / 2}" y2="${(S[1] + ys) / 2 + 3}" stroke="var(--accent)" stroke-width="1"/>`);
+      const cm = [(S[0] + S2[0]) / 2, (S[1] + S2[1]) / 2];
+      parts.push(`<text x="${cm[0] - 10}" y="${cm[1]}" ${font} text-anchor="end" fill="#b3680a" ${halo}>${tr ? 'talaş' : 'chip'}</text>`);
+      parts.push(`<text x="${W - 14}" y="${T2[1] + fs + 12}" ${font} text-anchor="end" fill="#1b1d1e" ${halo}>${tr ? 'takım' : 'tool'}</text>`);
+      // Relative motion: the work moves toward the edge (equivalently the tool moves left)
+      const yv = ys + 58;
+      parts.push(`<line x1="${xh}" y1="${yv}" x2="${xh + 90}" y2="${yv}" stroke="var(--accent)" stroke-width="1.5"/><path d="M${xh + 90} ${yv} l-10 -5 v10 z" fill="var(--accent)"/>`);
+      parts.push(`<text x="${xh + 100}" y="${yv + fs * 0.35}" ${font} fill="var(--accent)" ${halo}>vc${narrow ? '' : tr ? ' (iş parçası, takıma göre)' : ' (work relative to tool)'}</text>`);
+      svg.innerHTML = parts.join('');
+    }
+    new ResizeObserver(() => { if (last) draw(...last); }).observe(svg);
+
+    [ia, imu].forEach((el) => el.addEventListener('input', render));
+    models.forEach((m) => m.addEventListener('change', render));
+    render();
+  });
+</script>

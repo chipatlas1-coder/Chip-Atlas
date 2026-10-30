@@ -1,0 +1,68 @@
+---
+/* Thread milling an internal thread. Left, the plan: the cutter turning on its own axis while its centre
+   orbits (G03, climb milling for a right-hand thread from the bottom up) inside the bore; the thread root
+   it cuts. Right, the section: the multi-tooth cutter against the wall, rising one pitch per orbit. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { plan: 'üstten', sec: 'kesit', orbit: 'yörünge (G03)', root: 'diş dibi', cutter: 'diş frezesi', rise: 'her turda 1 P yukarı' }
+  : { plan: 'plan', sec: 'section', orbit: 'orbit (G03)', root: 'thread root', cutter: 'thread mill', rise: '1 P up per orbit' };
+const f1 = (v: number) => v.toFixed(1);
+const cx = 140, cy = 168, rBore = 86, rRoot = 96, rc = 40, rOrb = rRoot - rc;
+const ang = (-35 * Math.PI) / 180, kx = cx + rOrb * Math.cos(ang), ky = cy + rOrb * Math.sin(ang);
+// cutter in plan: four teeth
+const teeth: string[] = [];
+for (let i = 0; i < 4; i++) {
+  const a0 = (i * Math.PI) / 2;
+  const P = (a: number, r: number) => `${f1(kx + r * Math.cos(a0 + a))},${f1(ky + r * Math.sin(a0 + a))}`;
+  teeth.push(`M${P(0, 12)} L${P(0, rc)} A${rc},${rc} 0 0,1 ${P(0.9, rc)} L${P(1.05, rc - 9)} L${P(Math.PI / 2, 12)}`);
+}
+// section: wall with an internal thread (teeth pointing left), cutter teeth engaging
+const p = 22, xw = 408, depth = 14, y0 = 60, y1 = 282;
+const wall: string[] = [];
+for (let y = y0; y < y1 - p; y += p) wall.push(`${xw},${y}`, `${xw - depth},${y + p * 0.35}`, `${xw - depth},${y + p * 0.5}`, `${xw},${y + p * 0.85}`);
+// the cutting head: body edge 2 units inside the thread crest, each tooth filling a groove of the wall
+// (groove centres at y + 0.925 p, half-width 0.475 p at the body, 0.125 p at the tip); teeth on both sides
+const ax = 354, hb = xw - depth - 2 - ax, ht = depth - 2, yh0 = 132, yh1 = 248;
+const yc = [3, 4, 5, 6, 7].map((k) => y0 + k * p + 0.925 * p);
+const side = (dir: number) => yc.flatMap((c) => [
+  `${f1(ax + dir * hb)},${f1(c - 0.475 * p)}`, `${f1(ax + dir * (hb + ht))},${f1(c - 0.125 * p)}`,
+  `${f1(ax + dir * (hb + ht))},${f1(c + 0.125 * p)}`, `${f1(ax + dir * hb)},${f1(c + 0.475 * p)}`,
+]);
+const right = side(1), left = side(-1).reverse();
+const head = `M${ax - hb},${yh0} L${ax + hb},${yh0} L${right.join(' L')} L${ax + hb},${yh1} L${ax - hb},${yh1} L${left.join(' L')} Z`;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <!-- plan -->
+  <rect class="hatch f" style="--i:0" x="24" y="52" width="232" height="232" rx="6" />
+  <circle class="sunk f" style="--i:1" cx={cx} cy={cy} r={rRoot} />
+  <circle class="o2 d" style="--i:2" pathLength="1" cx={cx} cy={cy} r={rBore} />
+  <circle class="b d" style="--i:3" pathLength="1" cx={cx} cy={cy} r={rRoot} stroke-dasharray="5 4" />
+  <circle class="a f" style="--i:4" cx={cx} cy={cy} r={rOrb} stroke-dasharray="6 5" />
+  <path class="a d" style="--i:5" pathLength="1" d={`M${f1(cx + rOrb * Math.cos(1.2))},${f1(cy + rOrb * Math.sin(1.2))} A${rOrb},${rOrb} 0 0,0 ${f1(cx + rOrb * Math.cos(0.3))},${f1(cy + rOrb * Math.sin(0.3))}`} marker-end="url(#ca-arr-acc)" />
+  <g class="spin" style="--spin: 2.4s">
+    <circle class="metal" cx={f1(kx)} cy={f1(ky)} r={rc} />
+    {teeth.map((d) => <path d={d} class="o" />)}
+    <circle cx={f1(kx)} cy={f1(ky)} r="10" fill="#fff" stroke="#5f6c79" />
+  </g>
+  <circle cx={cx} cy={cy} r="2.5" fill="#152230" />
+
+  <!-- section -->
+  <path class="hatch f" style="--i:6" d={`M${xw},${y0} L${wall.join(' L')} L${xw},${y1} L462,${y1} L462,${y0} Z`} />
+  <path class="o2 d" style="--i:7" pathLength="1" d={`M${xw},${y0} L${wall.join(' L')} L${xw},${y1}`} />
+  <rect class="metal-h f" style="--i:8" x={ax - 22} y="20" width="44" height={yh0 - 18} rx="3" />
+  <path class="metal-h f" style="--i:9" d={head} />
+  <path class="o d" style="--i:10" pathLength="1" d={head} />
+  <line class="c f" style="--i:11" x1={ax} y1="10" x2={ax} y2="300" />
+  <line class="a d" style="--i:12" pathLength="1" x1="282" y1="236" x2="282" y2="150" marker-end="url(#ca-arr-acc)" />
+
+  <g class="lbl">
+    <text class="t-ink" x="24" y="40">{T.plan}</text>
+    <text class="t-ink" x="320" y="40" text-anchor="end">{T.sec}</text>
+    <text class="t-acc t-sm" x={cx} y={cy + 26} text-anchor="middle">{T.orbit}</text>
+    <text class="t-data t-sm" x="36" y="300">{T.root}</text>
+    <text class="t-ink t-sm" x={f1(kx + 24)} y={f1(ky - 46)}>{T.cutter}</text>
+    <text class="t-acc t-sm" x="282" y="304" text-anchor="middle">{T.rise}</text>
+  </g>
+</svg>

@@ -1,0 +1,196 @@
+---
+/* 7075: composition limits (the article's table, EN 573-3) and the typical part: a pocketed rib
+   machined from thick plate. Dimetric view (7° / 42°, depth at half scale), cut through the front
+   row of pockets so the thin webs and the floor show in section (hatched); the dashed box is the
+   plate the rib was cut from, and an end mill finishes the last pocket. Schematic, not to scale. */
+import Elements from '../Elements.astro';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const d = (s: string) => (tr ? s.replaceAll('.', ',') : s);
+const items = [
+  { el: 'Zn', z: 30, v: d('5.1–6.1') },
+  { el: 'Mg', z: 12, v: d('2.1–2.9') },
+  { el: 'Cu', z: 29, v: d('1.2–2.0') },
+  { el: 'Cr', z: 24, v: d('0.18–0.28') },
+];
+
+/* ---- projection: X along the rib (7° down to the right), Y into the page (42°, half scale), Z up */
+const r7 = (7 * Math.PI) / 180, r42 = (42 * Math.PI) / 180;
+const ax = Math.cos(r7), ay = Math.sin(r7), bx = 0.5 * Math.cos(r42), by = -0.5 * Math.sin(r42);
+const O = { x: 82.5, y: 268.5 };
+const P = (X: number, Y: number, Z: number) => [O.x + X * ax + Y * bx, O.y + X * ay + Y * by - Z];
+const pt = (X: number, Y: number, Z: number) => P(X, Y, Z).map((v) => v.toFixed(1)).join(',');
+const poly = (...q: [number, number, number][]) => `M${q.map((p) => pt(...p)).join(' L')} Z`;
+
+/* ---- the rib: 4 × 2 pockets from the top, floor left at the bottom */
+const L = 280, D = 100, T = 34, rim = 9, web = 6.5, depth = 24, Tf = T - depth, cols = 4;
+const pw = (L - 2 * rim - (cols - 1) * web) / cols;         // pocket length along X
+const pd = (D - 2 * rim - web) / 2;                          // pocket width along Y
+const yc = rim + 0.35 * pd;                                  // section plane through the front row
+const yb = rim + pd;                                         // back wall of the front row
+const y2 = yb + web, y3 = y2 + pd;                           // back row
+const px = Array.from({ length: cols }, (_, k) => rim + k * (pw + web));
+const webs = [[0, rim], ...px.slice(1).map((x) => [x - web, x]), [L - rim, L]];
+
+const backRow = px.map((x0) => ({
+  floor: poly([x0, y2, Tf], [x0 + pw, y2, Tf], [x0 + pw, y3, Tf], [x0, y3, Tf]),
+  back: poly([x0, y3, T], [x0 + pw, y3, T], [x0 + pw, y3, Tf], [x0, y3, Tf]),
+  left: poly([x0, y2, T], [x0, y3, T], [x0, y3, Tf], [x0, y2, Tf]),
+}));
+const topBack = poly([0, yb, T], [L, yb, T], [L, D, T], [0, D, T]) + ' ' + px.map((x0) => poly([x0, y2, T], [x0 + pw, y2, T], [x0 + pw, y3, T], [x0, y3, T])).join(' ');
+const bays = px.map((x0) => ({
+  floor: poly([x0, yc, Tf], [x0 + pw, yc, Tf], [x0 + pw, yb, Tf], [x0, yb, Tf]),
+  back: poly([x0, yb, T], [x0 + pw, yb, T], [x0 + pw, yb, Tf], [x0, yb, Tf]),
+  left: poly([x0, yc, T], [x0, yb, T], [x0, yb, Tf], [x0, yc, Tf]),
+}));
+const topFront = webs.map(([a, b]) => poly([a, yc, T], [b, yc, T], [b, yb, T], [a, yb, T])).join(' ');
+const endFace = poly([L, yc, 0], [L, D, 0], [L, D, T], [L, yc, T]);
+// section at y = yc: floor slab plus the cut webs (a comb)
+const comb = (() => {
+  const q: [number, number, number][] = [[0, yc, 0], [L, yc, 0], [L, yc, T], [L - rim, yc, T], [L - rim, yc, Tf]];
+  for (let k = cols - 1; k >= 1; k--) q.push([px[k], yc, Tf], [px[k], yc, T], [px[k] - web, yc, T], [px[k] - web, yc, Tf]);
+  q.push([rim, yc, Tf], [rim, yc, T], [0, yc, T]);
+  return poly(...q);
+})();
+// visible outline of the cut part, drawn by the plotter
+const outline = [
+  `M${pt(0, yc, 0)} L${pt(L, yc, 0)} L${pt(L, D, 0)} L${pt(L, D, T)} L${pt(0, D, T)} L${pt(0, yc, T)} Z`,
+  `M${pt(L, yc, T)} L${pt(L, D, T)} M${pt(L, yc, 0)} L${pt(L, yc, T)}`,
+].join(' ');
+const edges = [
+  ...px.map((x0) => `M${pt(x0, yc, T)} L${pt(x0, yb, T)} L${pt(x0 + pw, yb, T)} L${pt(x0 + pw, yc, T)}`),
+  ...px.map((x0) => `M${pt(x0, y2, T)} L${pt(x0 + pw, y2, T)} L${pt(x0 + pw, y3, T)} L${pt(x0, y3, T)} Z`),
+  ...px.map((x0) => `M${pt(x0, yb, T)} L${pt(x0, yb, Tf)} L${pt(x0 + pw, yb, Tf)}`),
+].join(' ');
+
+/* ---- the stock plate (dashed): what the rib was machined from */
+const S = { x0: -10, x1: L + 10, y0: -6, y1: D + 6, z1: T + 10 };
+const sv = (i: number) => [[S.x0, S.y0], [S.x1, S.y0], [S.x1, S.y1], [S.x0, S.y1]][i];
+const stockSeen = [
+  `M${pt(S.x0, S.y0, 0)} L${pt(S.x1, S.y0, 0)} L${pt(S.x1, S.y1, 0)}`,
+  `M${pt(S.x0, S.y0, S.z1)} L${pt(S.x1, S.y0, S.z1)} L${pt(S.x1, S.y1, S.z1)} L${pt(S.x0, S.y1, S.z1)} Z`,
+  [0, 1, 2].map((i) => `M${pt(sv(i)[0], sv(i)[1], 0)} L${pt(sv(i)[0], sv(i)[1], S.z1)}`).join(' '),
+].join(' ');
+const stockHidden = `M${pt(S.x1, S.y1, 0)} L${pt(S.x0, S.y1, 0)} L${pt(S.x0, S.y0, 0)} M${pt(S.x0, S.y1, 0)} L${pt(S.x0, S.y1, S.z1)}`;
+
+/* ---- end mill in the last front pocket, finishing its back wall */
+const tool = { X: px[cols - 1] + pw - 24, Y: yb - 11.5, r: 11, z0: Tf + 0.6, z1: 100, flute: 44 };
+const ell = (z: number, t: number) => P(tool.X + tool.r * Math.cos(t), tool.Y + tool.r * Math.sin(t), z);
+// silhouette tangents of the circle under this projection
+const tS = Math.atan2(bx, ax);                                // right silhouette at tS, left at tS + π
+const front = (z: number, from: number, to: number, n = 28) => Array.from({ length: n + 1 }, (_, i) => ell(z, from + ((to - from) * i) / n));
+// the front half of a circle runs from the right tangent (tS) round the near side to the left tangent
+const nearHalf = (z: number) => front(z, tS, tS - Math.PI);
+const f2 = (p: number[]) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+const sil = (z: number) => [ell(z, tS), ell(z, tS + Math.PI)];
+const [rT, lT] = sil(T), [rTop, lTop] = sil(tool.z1), [rBot, lBot] = sil(tool.z0);
+// part of the tool above the top face, bounded below by the near half of the circle at z = T
+const toolUp = `M${f2(lT)} L${f2(lTop)} L${f2(rTop)} L${f2(rT)} L${nearHalf(T).map(f2).join(' L')} Z`;
+// part below the top face, down to the tip
+const toolDown = `M${f2(lBot)} L${f2(lT)} L${nearHalf(T).reverse().map(f2).join(' L')} L${f2(rBot)} L${nearHalf(tool.z0).map(f2).join(' L')} Z`;
+// helical flute edges on the visible half (right-hand helix), from the tip up to the flute length
+const helix = (phase: number) => {
+  const q: string[] = [];
+  const lead = 62;                                            // axial lead of one turn
+  for (let z = tool.z0; z <= tool.z0 + tool.flute; z += 1) {
+    const t = phase + ((z - tool.z0) / lead) * 2 * Math.PI;
+    const tt = ((t - (tS - Math.PI)) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);   // 0…2π from the left tangent
+    if (tt > Math.PI) { if (q.length && !q[q.length - 1].endsWith('|')) q.push('|'); continue; }
+    q.push(f2(ell(z, t)));
+  }
+  return q.join(' ').split('|').map((s) => s.trim()).filter((s) => s.includes(' ')).map((s) => 'M' + s.split(' ').join(' L')).join(' ');
+};
+const flutes = [0, 1, 2, 3].map((k) => helix(tS - Math.PI + 0.35 + (k * Math.PI) / 2)).join(' ');
+const fluteTop = tool.z0 + tool.flute;
+// rotation arrow round the shank (seen half of a slightly larger circle)
+const rot = (() => {
+  const rr = tool.r + 6, z = 74, n = 24, a0 = tS - 0.35, a1 = tS - Math.PI + 0.5;
+  const q = Array.from({ length: n + 1 }, (_, i) => { const t = a0 + ((a1 - a0) * i) / n; return P(tool.X + rr * Math.cos(t), tool.Y + rr * Math.sin(t), z); });
+  return `M${q.map(f2).join(' L')}`;
+})();
+// a few chips leaving the cut
+const chipAt = (X: number, Y: number, Z: number, s: number, rot: number) => {
+  const [x, y] = P(X, Y, Z);
+  return `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot}) scale(${s})`;
+};
+const chip = 'M0,0 C3,-6 10,-6 11,0 C12,5 6,8 3,5 C6,5 8,2 7,0 C5,-3 2,-2 0,0 Z';
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id="p7075-top" x1="0" y1="0" x2="1" y2="0.25">
+      <stop offset="0" stop-color="#b8c1c8" /><stop offset="0.35" stop-color="#e3e8ec" /><stop offset="0.7" stop-color="#c7cfd6" /><stop offset="1" stop-color="#a9b3ba" />
+    </linearGradient>
+    <linearGradient id="p7075-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a0a9b1" /><stop offset="1" stop-color="#727980" />
+    </linearGradient>
+    <linearGradient id="p7075-side" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#bec6cc" /><stop offset="1" stop-color="#889299" />
+    </linearGradient>
+    <linearGradient id="p7075-floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#656d73" /><stop offset="1" stop-color="#858f97" />
+    </linearGradient>
+    <linearGradient id="p7075-tool" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7a848c" /><stop offset="0.3" stop-color="#ecf0f3" /><stop offset="0.55" stop-color="#c0c8cf" /><stop offset="1" stop-color="#6e757c" />
+    </linearGradient>
+    <linearGradient id="p7075-fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0" /><stop offset="0.45" stop-color="#fff" stop-opacity="1" />
+    </linearGradient>
+    <pattern id="p7075-sec" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="5" height="5" fill="#565e63" /><line x1="0" y1="0" x2="0" y2="5" stroke="#b1bac2" stroke-width="1.2" />
+    </pattern>
+    <mask id="p7075-shank" maskUnits="userSpaceOnUse" x="0" y="150" width="480" height="170">
+      <rect x="0" y={P(tool.X, tool.Y, tool.z1)[1] - 2} width="480" height="140" fill="url(#p7075-fade)" />
+    </mask>
+  </defs>
+
+  <text class="t-big f" style="--i:0" x="24" y="52">7075</text>
+  <text class="t-sm f" style="--i:1" x="26" y="74">EN AW-7075, EN 573-3 {tr ? '(kütlece %)' : '(% by mass)'}</text>
+  <Elements items={items} x={24} y={90} />
+
+  <!-- stock plate the rib came from -->
+  <path class="f" style="--i:6" d={stockHidden} fill="none" stroke="#a5aeb6" stroke-width="0.9" stroke-dasharray="2 4" />
+  <path class="dash d" style="--i:6" pathLength="1" d={stockSeen} />
+
+  <!-- back row of pockets, seen through their openings -->
+  <g class="f" style="--i:7">
+    {backRow.map((p) => <g><path d={p.floor} fill="#dfe6ec" /><path d={p.left} fill="url(#p7075-side)" /><path d={p.back} fill="url(#p7075-wall)" /></g>)}
+    <path d={topBack} fill="url(#p7075-top)" fill-rule="evenodd" />
+    {bays.map((p) => <g><path d={p.floor} fill="url(#p7075-floor)" /><path d={p.back} fill="url(#p7075-wall)" /><path d={p.left} fill="url(#p7075-side)" /></g>)}
+  </g>
+
+  <!-- end mill, lower part (behind the webs in front of it) -->
+  <g class="f" style="--i:9">
+    <path d={toolDown} fill="url(#p7075-tool)" />
+    <path d={flutes} fill="none" stroke="#e0e8ed" stroke-width="2.2" stroke-linecap="round" />
+  </g>
+
+  <g class="f" style="--i:7">
+    <path d={topFront} fill="url(#p7075-top)" />
+    <path d={endFace} fill="url(#p7075-side)" />
+    <path d={comb} fill="url(#p7075-sec)" />
+  </g>
+  <path class="d" style="--i:7" pathLength="1" d={edges} fill="none" stroke="#2c3033" stroke-opacity="0.75" stroke-width="0.8" stroke-linejoin="round" />
+  <path class="o d" style="--i:6" pathLength="1" d={outline} />
+  <path class="d" style="--i:8" pathLength="1" d={comb} fill="none" stroke="#1b1d1e" stroke-width="1.1" stroke-linejoin="round" />
+
+  <!-- end mill, upper part and shank (fades out upward) -->
+  <g class="f" style="--i:9">
+    <path d={toolUp} fill="url(#p7075-tool)" mask="url(#p7075-shank)" />
+    <path d={flutes} fill="none" stroke="#e0e8ed" stroke-width="2.2" stroke-linecap="round" clip-path="url(#p7075-upclip)" />
+    <path d={`M${f2(lT)} ${nearHalf(T).map((p) => 'L' + f2(p)).join(' ')}`} fill="none" stroke="#1b1d1e" stroke-opacity="0.35" stroke-width="0.8" />
+    <path d={`M${nearHalf(fluteTop).map(f2).join(' L')}`} fill="none" stroke="#e0e8ed" stroke-width="1.2" />
+  </g>
+  <clipPath id="p7075-upclip"><path d={toolUp} /></clipPath>
+  <path class="a f" style="--i:10" d={rot} marker-end="url(#ca-arr-acc)" />
+  <g class="f" style="--i:10">
+    <path d={chip} transform={chipAt(tool.X - 24, tool.Y + 4, T + 4, 1.5, -25)} class="chip" />
+    <path d={chip} transform={chipAt(tool.X - 40, tool.Y - 2, T + 16, 1.3, 20)} class="chip" />
+    <path d={chip} transform={chipAt(tool.X - 30, tool.Y - 6, T + 30, 1.1, 70)} class="chip" />
+  </g>
+
+  <g class="lbl">
+    <text class="t-sm" x={P(S.x0, S.y1, S.z1)[0] + 6} y={P(S.x0, S.y1, S.z1)[1] - 6}>{tr ? 'ham levha' : 'stock plate'}</text>
+    <text class="t-acc t-sm" x="456" y="314" text-anchor="end">{tr ? 'levhadan işlenmiş cepli kaburga, kesit' : 'pocketed rib machined from plate, in section'}</text>
+  </g>
+</svg>

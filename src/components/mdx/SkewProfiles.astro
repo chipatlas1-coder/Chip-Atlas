@@ -1,0 +1,87 @@
+---
+/**
+ * Three synthetic roughness profiles scaled to the same Ra but with negative, near-zero and
+ * positive skewness, each with its amplitude distribution (height histogram) on the right.
+ * Rsk and Rku are calculated from the profiles drawn (src/lib/profile.js).
+ */
+import { randomProfile, ra, moments } from '../../lib/profile.js';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const N = 720;
+const base = randomProfile(N, 70, 9, 1);   // seed chosen so the middle profile is near Gaussian (Rsk ≈ 0, Rku ≈ 3)
+const centre = (z: number[]) => { const m = z.reduce((a, b) => a + b, 0) / z.length; return z.map((v) => v - m); };
+const k = 1.1;
+const shapes = [
+  centre(base.map((v) => -Math.exp(k * v))),
+  centre(base),
+  centre(base.map((v) => Math.exp(k * v))),
+].map((z) => { const r = ra(z); return z.map((v) => v / r); }); // same Ra = 1 for all
+const stats = shapes.map((z) => ({ Ra: ra(z), ...moments(z) }));
+const zMax = Math.max(...shapes.flat()), zMin = Math.min(...shapes.flat());
+const W = 600, H = 116, px0 = 4, px1 = 476, hx0 = 494, hx1 = 596, pad = 8;
+const X = (i: number) => px0 + (i / (N - 1)) * (px1 - px0);
+const Y = (v: number) => pad + ((zMax - v) / (zMax - zMin)) * (H - 2 * pad);
+const BINS = 30, bw = (zMax - zMin) / BINS;
+const hist = shapes.map((z) => { const c = new Array(BINS).fill(0); z.forEach((v) => c[Math.min(BINS - 1, Math.floor((v - zMin) / bw))]++); return c; });
+const hmax = Math.max(...hist.flat());
+const dec = (v: number, d = 2) => { const s = v.toFixed(d).replace('-', '−'); return tr ? s.replace('.', ',') : s; };
+const T = tr
+  ? [
+      { h: 'Rsk < 0', p: 'Düz bir üst yüzeyi derin vadiler keser.' },
+      { h: 'Rsk ≈ 0', p: 'Yükseklikler ortalama çizginin iki yanına simetrik dağılır.' },
+      { h: 'Rsk > 0', p: 'Tek tük tepeler yüzeyin üstüne çıkar.' },
+    ]
+  : [
+      { h: 'Rsk < 0', p: 'Deep valleys interrupt a flat top surface.' },
+      { h: 'Rsk ≈ 0', p: 'Heights spread evenly on both sides of the mean line.' },
+      { h: 'Rsk > 0', p: 'Isolated peaks stand above the surface.' },
+    ];
+const L = tr ? { dist: 'yükseklik dağılımı', mean: 'ortalama çizgi' } : { dist: 'height distribution', mean: 'mean line' };
+---
+<div class="skew">
+  {shapes.map((z, i) => (
+    <div class="row">
+      <div class="txt">
+        <p class="h">{T[i].h}</p>
+        <p class="p">{T[i].p}</p>
+        <p class="v"><span>Ra {dec(stats[i].Ra)}</span> · <span>Rsk {dec(stats[i].Rsk)}</span> · <span>Rku {dec(stats[i].Rku, 1)}</span></p>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${T[i].h}: ${T[i].p} Rsk ${dec(stats[i].Rsk)}, Rku ${dec(stats[i].Rku, 1)}`}>
+        <defs><linearGradient id={`sk-g-${locale}-${i}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e6fd6" stop-opacity="0.22" /><stop offset="1" stop-color="#1e6fd6" stop-opacity="0" /></linearGradient></defs>
+        <line x1={px0} x2={hx1} y1={Y(0)} y2={Y(0)} class="mean" />
+        <path d={`M${X(0)},${Y(z[0]).toFixed(1)} ` + z.map((v, j) => `L${X(j).toFixed(1)},${Y(v).toFixed(1)}`).join(' ') + ` L${px1},${H} L${px0},${H} Z`} fill={`url(#sk-g-${locale}-${i})`} />
+        <line x1={px0} x2={px1} y1={Y(1)} y2={Y(1)} class="ra" /><line x1={px0} x2={px1} y1={Y(-1)} y2={Y(-1)} class="ra" />
+        <path d={z.map((v, j) => `${j ? 'L' : 'M'}${X(j).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')} class="line" />
+        <line x1={hx0 - 8} x2={hx0 - 8} y1={pad} y2={H - pad} class="sep" />
+        {hist[i].map((c, b) => c > 0 && (
+          <rect x={hx0} y={Y(zMin + (b + 1) * bw)} width={(c / hmax) * (hx1 - hx0)} height={Math.max(1, Y(zMin + b * bw) - Y(zMin + (b + 1) * bw) - 0.6)} class="bar" />
+        ))}
+      </svg>
+    </div>
+  ))}
+  <p class="key"><span><i class="k-band"></i>±Ra</span><span><i class="k-mean"></i>{L.mean}</span><span><i class="k-bar"></i>{L.dist}</span></p>
+</div>
+
+<style>
+  .skew { display: grid; gap: 0.5rem; }
+  .row { display: grid; grid-template-columns: 12.5rem minmax(0, 1fr); gap: 1rem; align-items: center; padding: 0.55rem 0.8rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  @media (max-width: 40rem) { .row { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; } }
+  .txt p { margin: 0; max-width: none; }
+  .h { font-family: var(--font-mono); font-size: 0.95rem; color: var(--ink); }
+  .p { font-size: 0.82rem; color: var(--ink-2); line-height: 1.35; margin-top: 0.15rem !important; }
+  .v { font-family: var(--font-mono); font-size: 0.74rem; color: var(--color-metro-400); margin-top: 0.35rem !important; }
+  svg { width: 100%; height: auto; display: block; }
+  .ra { stroke: #2a78d6; stroke-opacity: 0.55; stroke-dasharray: 2 3; }
+  .mean { stroke: var(--ink-3); stroke-dasharray: 3 3; }
+  .v span { white-space: nowrap; }
+  .line { fill: none; stroke: var(--data); stroke-width: 1.3; stroke-linejoin: round; }
+  .sep { stroke: var(--line); }
+  .bar { fill: color-mix(in oklab, var(--color-spark-400) 75%, transparent); }
+  .key { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin: 0.1rem 0 0; font-size: 0.78rem; color: var(--ink-3); max-width: none; }
+  .key span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .key i { display: inline-block; width: 14px; height: 10px; border-radius: 2px; }
+  .k-band { height: 0 !important; border-top: 1.5px dotted #2a78d6; }
+  .k-mean { height: 0 !important; border-top: 1.5px dashed var(--ink-3); }
+  .k-bar { background: color-mix(in oklab, var(--color-spark-400) 75%, transparent); }
+</style>

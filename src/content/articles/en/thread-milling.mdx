@@ -1,0 +1,202 @@
+---
+key: thread-milling
+locale: en
+slug: thread-milling
+title: 'Thread milling'
+description: 'Cutting a thread with a milling cutter on a helical path: one pitch per orbit, multi-tooth and single-profile cutters, why it is chosen over tapping, climb milling and the G02/G03 and Z directions, tangential entry and cutter compensation, the feed correction between edge and tool centre, cutter size limits, radial passes, cutting data and the usual faults.'
+section: 2
+subsection: hole-making
+order: 12
+updated: 2026-10-18
+tools: [milling, tapdrill]
+glance:
+  - value: '1 P / 360°'
+    label: 'Z travel per orbit of the tool (ISCAR, Vargus, Haas)'
+  - value: 'G03, Z+'
+    label: 'Right-hand internal thread, climb milling, spindle M03 (Haas, ISCAR, Allied, Vargus)'
+  - value: '(D − d) / D'
+    label: 'Tool-centre feed against edge feed, internal thread (Harvey Tool, Allied)'
+  - value: '≤ 70 %'
+    label: 'Cutter Ø against the major Ø, internal thread (ISCAR)'
+sources:
+  - label: 'ISCAR, Threading Handbook, ch. 3 “Thread Milling”, pp. 154–155, 159, 161, 174, 192, 195, 221, 229–230 (flip view)'
+    url: https://iscar.com/Catalogs/flipview/reference-user-guides/Threading_Handbook/files/basic-html/page155.html
+  - label: 'ISCAR, Milling Catalog 38 (2021), thread milling pp. 119–126 (flip view)'
+    url: https://iscar.com/Catalogs/flipview/flipview2022/english-1/MILLING-CATALOG-38_2021-p319-548/files/basic-html/page121.html
+  - label: 'ISCAR, Threading Catalog 62 ver. 3 (2023), user guide “Thread Milling”, pp. 282–285 (flip view)'
+    url: https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page284.html
+  - label: 'Vargus, Thread Milling Handbook (Vardex TM), metric'
+    url: https://edeco.se/pub/media/wysiwyg/images/laddahem/vargus/Hand_Book_mm_2.pdf
+  - label: 'Vargus, Solid Carbide Thread Milling Tools “TM Solid”, metric, ed. 08, 03/2020'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/Vargus-MultiFlute-Thread-Mills.pdf
+  - label: 'Allied Machine & Engineering, “Thread Milling: A Quick Reference Pocket Guide” (TMPG), August 2024'
+    url: https://www.alliedmachine.com/Support/Literature/pdfFiles/Technical-Guides/TMPG.pdf
+  - label: 'Haas Automation, mill G-code reference “G02 CW / G03 CCW Circular Interpolation Motion” (thread milling programs O60023–O60025)'
+    url: https://www.haascnc.com/service/codes-settings.type=gcode.machine=mill.value=G03.html
+  - label: 'Harvey Tool, “Single Form Thread Milling Guide – Speeds & Feeds”, series 8227xx (hosted by Productivity Inc.)'
+    url: https://ecomm.productivity.com/customer/docs/skudocs/HAT2_Speeds_Feeds_822715.pdf
+  - label: 'Kennametal, “Thread Mills” catalogue section (via DirectIndustry)'
+    url: https://pdf.directindustry.com/pdf/kennametal/thread-mills/7354-266819.html
+  - label: 'EMUGE-FRANKEN, “Solid Carbide Thrillers BGF-Z4” (via DirectIndustry)'
+    url: https://pdf.directindustry.com/pdf/emuge-franken/emuge-solid-carbide-thrillers-bgf-z4/5603-615013.html
+  - label: 'EMUGE-FRANKEN, “Tooling Solutions for Large and Deep Threads” (via DirectIndustry)'
+    url: https://pdf.directindustry.com/pdf/emuge-franken/emuge-tooling-solutions-large-deep-threads/5603-615001.html
+  - label: 'FRAISA, “Carbide Drills I Thread Cutting Tools 2026”, pp. 340–345 (EN flipbook)'
+    url: https://www.fraisa.com/assets/media/blaetterkatalog/2026/bt/en/344/
+  - label: 'WNT (CERATIZIT group), Turkish catalogue, ch. 7 “Diş açma frezeleri”'
+    url: https://cdn.plansee-group.com/is/content/plansee/gd_kp_kt-hk-01-24-00024-kp-zgf-gws_str_asc_pim
+  - label: 'M. Vural (İTÜ), “Talaş Kaldırma Yöntemleri ve Tezgahlar”, lecture slides (Turkish)'
+    url: https://ntmyo.gaziantep.edu.tr/files/dosyalar/ch22-talasli-imalat-yontemleri.pdf
+---
+import ThreadMillPath from '../../../components/mdx/ThreadMillPath.astro';
+import ThreadMillFeed from '../../../components/mdx/ThreadMillFeed.astro';
+
+A thread mill, in Allied Machine’s words, "can be thought of as an end mill with the profile of the thread on the side", and it "has a smaller diameter than the thread size being produced". The machine moves it in a circle around the thread’s axis and, at the same time, along that axis: a helical interpolation. ISCAR puts the rule in one line: "The cutter movement along the thread length while completing one round around the part is equal to the pitch of requested thread."
+
+That one rule decides everything else. The thread’s pitch and hand come from the path, not from the tool, so the same cutter can cut many diameters, right- and left-hand, inside and outside. The price is that the machine must be able to interpolate helically; Vargus: "To perform a Thread Milling operation, a helical interpolation movement is required."
+
+## The path, block by block
+
+<Figure caption="Haas’s example O60023: a 1.5-8 UNC internal thread cut with a Ø0.5 in multi-tooth thread mill, spindle clockwise. Left, the plan: the tool centre (orange) feeds in on a quarter arc, makes one orbit and leaves on a quarter arc; the thread root (blue) appears as the orbit passes. Right, the section: the tool rises one pitch per orbit and 1/8 pitch on each arc, and the thread appears on each wall as the tool reaches it. The program blocks light up as they run; coordinates in inches.">
+  <ThreadMillPath
+    locale="en"
+    t={{
+      plan: 'Plan',
+      section: 'Section',
+      play: 'Play',
+      pause: 'Pause',
+      excerpt: 'Cutting blocks of O60023 as Haas prints them (excerpt). Haas’s next block, G40 G01 X0 Y1, would carry the tool outward through the wall if taken literally (an X0 Y0 was evidently meant); the figure returns the tool to the centre before it retracts, as in ISCAR’s sequence.',
+      aria: 'Helical interpolation of an internal thread, in plan and section, with the program blocks of Haas example O60023',
+      lines: ['spindle clockwise, 1000 rpm', 'feed to the starting depth: −0.5 minus 1/8 of the pitch', 'cutter compensation on', 'quarter arc into the thread, ramping up 1/8 pitch', 'one full orbit: Z up one pitch, the whole thread', 'quarter arc out of the thread, up 1/8 pitch', 'compensation off, retract'],
+      phase: { down: 'Feed to depth', line: 'Compensation on', arcin: 'Arc in', full: 'Full orbit: the thread', arcout: 'Arc out', back: 'Back to the centre', up: 'Retract', hold: 'Done' },
+    }}
+  />
+</Figure>
+
+ISCAR describes the recommended sequence as rapid approach, an arc into the material, one full orbit of 360°, an arc out and a rapid return. Haas’s program follows the same pattern. The tool goes down to 1/8 of a pitch below the start of the thread (Z−0.5156 for a thread starting at Z−0.5), the quarter arc ramps it up that 1/8 pitch, the full orbit lifts it by one pitch (0.125 in, 8 threads per inch) and the arc out adds another 1/8.
+
+**Multi-tooth or single-profile.** A multi-tooth cutter carries several thread teeth; in Vargus’s words "every tooth creates one pitch", and the thread is finished "by one pass only", in one orbit. A single-profile cutter has one tooth and needs one orbit per pitch of thread length: Haas’s single-point example O60025 repeats its 360° block five times with `L5`. ISCAR says the thread is done in 1 to 1.3 turns of the tool around the work, the extra 0.3 turn for the plunge to depth and the overlap.
+
+## Why mill a thread instead of tapping it
+
+The makers list the same advantages:
+
+| Advantage | Sources |
+|---|---|
+| One tool for many diameters of the same pitch | ISCAR; Allied: "A 1/4-20 thread mill can produce a 1/2-20 or even a 7/8-20 thread" |
+| One tool for right- and left-hand threads | Allied: "Thread mills are not left-hand or right-hand specific"; WNT; Vargus |
+| One tool for internal and external threads | ISCAR, Allied |
+| Full thread close to the bottom of a blind hole | WNT; Vargus: "Blind holes without a thread relief groove can be machined" |
+| Size set by the offset; wear compensated | Allied: "excellent control of the thread’s major diameter", "wear can be compensated"; WNT |
+| Lower torque and power | Vargus, Allied, Kennametal, WNT |
+| A broken tool does not ruin the part | Allied: "a new thread mill can reenter into the hole" |
+
+Allied explains the low force: "Thread mills only cut a portion of the circumference at a time." For large parts, Kennametal says thread milling "requires considerably less horsepower compared to other threading methods", and EMUGE offers thread mills "for threads from 24 mm to infinity". Vargus adds two cases where a tap struggles: soft materials, "where taps normally tear the material", and bores with no upper size limit. For tap breakage itself, see [tap breakage](/troubleshooting/tap-breakage/).
+
+The limits are the machine and the program. The machine needs helical interpolation: WNT’s precondition is a CNC milling machine or machining centre with that function. The tangential entry takes slightly more programming than a straight one (Vargus). And Vargus notes that its insert tools, which cut only once per revolution, are "sensitive to vibrations". Haas warns that internal threads below 3/8 in "may not be possible or practical". ISCAR lists “short machining time” among the advantages, but none of the sources we read compares cycle times with tapping.
+
+## Tools
+
+ISCAR sorts thread mills into solid tools, tools with indexable inserts and tools with exchangeable heads, built as end mills with a shank or as shell mills with a bore. Its solid carbide MTEC cutters run from 2.2 to 20 mm cutting diameter, the MTECZ with internal coolant from 7.6 to 16 mm, and the MTECS has "a short 3-tooth cutting zone" on a relieved neck, down to M1.4 × 0.3, whose "very short profile exerts a low force which minimizes tool bending." WNT’s Turkish catalogue lists single-row thread mills, thread mills with a countersinking chamfer, and drill thread mills that make the hole and the thread with one tool; EMUGE’s Thriller drills the core hole, countersinks and mills the thread in one work sequence ("in einem Arbeitsablauf"), with no tool change.
+
+## Climb milling and the direction of the path
+
+The sources agree that climb milling is the normal choice. ISCAR: "Climb milling in most cases is the preferred way for machining threads." Vargus: it "is now generally recommended". Haas: "Always climb cut the cutter." Kennametal gives the reasons: "lower cutting forces, better chip development, higher thread surface quality". Allied adds that with climb milling the chips leave the cutter faster, while conventional milling lets them be recut. The general case is on [climb and conventional milling](/processes/climb-vs-conventional-milling/).
+
+ISCAR names the exceptions: "If the machine does not counteract backlash, then conventional milling is recommended", and conventional milling is also preferable for cast iron and hardened materials. Two documents go further and are worth knowing about: FRAISA’s 2026 catalogue recommends "up-cut milling" (German edition: "Gegenlauf") for its thread mills, and Vargus’s TM Solid catalogue says "Conventional milling with multiple passes is required" for its multi-pass method, unlike Vargus’s handbook.
+
+With the spindle turning clockwise (M03), climb milling fixes the direction of the orbit, and the direction of Z then fixes the hand of the thread:
+
+| Thread | Orbit | Z | Sources |
+|---|---|---|---|
+| Right-hand, internal | G03 (counter-clockwise) | Up, from the bottom | Haas, ISCAR, Allied, Vargus |
+| Right-hand, external | G02 (clockwise) | Down | Haas |
+
+Haas: "Use a G03 to cut I.D. threads or a G02 to cut O.D. threads", and "An I.D. right hand thread will move up in the Z-Axis by the amount of one thread pitch." By the same geometry (our derivation; the sources show only right-hand examples), a left-hand thread keeps the orbit and reverses Z. ISCAR says the combination of movements depends on whether a left- or right-hand thread is wanted, and Vargus that its tools cut either hand "depending only on the tool path which is programmed."
+
+## Programming
+
+**Enter on an arc.** "Tangential entering by arc (recommended)", writes ISCAR, "because the cutter gradually enters the material and the load on the tool increases gradually." Vargus calls it "The best method!!!" and warns that a straight radial entry may leave "a small vertical mark" at the entry and exit; Harvey Tool asks for an arcing path "to avoid shock loading". ISCAR keeps a straight tangential entry for external threads only.
+
+**Ramp Z on the arc.** Allied makes the arc-on radius (major Ø − tool Ø) / 4 and raises Z by pitch / 8 on it; Haas’s program does the same ("Ramps up by 1/8th of the pitch"), and so does ISCAR’s template.
+
+**Compensation for wear only.** The program describes the path of the tool centre, at a radius of (major Ø − tool Ø) / 2 for an internal thread; ISCAR’s example: an M48 × 2 thread with a Ø29 cutter gives 9.5 mm. ISCAR: "This method of programming needs no tool radius compensation value other than an offset for wear." Allied: "No diameter value should be stored in the machine’s controller for the thread mill." Compensation is switched on (G41) before the arc in and off after the arc out.
+
+**Taper threads.** For pipe threads the path must open up as it climbs. Allied: "Even though the thread mill is tapered, the thread mill must move out in X and Y as it moves up in Z." Vargus programs parallel threads incrementally and conical threads in absolute coordinates.
+
+## Feed: the edge against the centre
+
+The feed per tooth is meant at the cutting edge, but the program runs the tool centre. Inside a hole the centre travels on a smaller circle than the edge, so its feed must be smaller; outside, larger. The edge feed is
+
+$$
+v_f = f_z \cdot z \cdot n
+$$
+
+(Allied, Vargus, FRAISA), and the feed to program for the centre is, for an internal thread,
+
+$$
+v_{fm} = v_f \cdot \frac{D - d}{D}
+$$
+
+with the thread’s major diameter D and the cutter diameter d (Harvey Tool, Allied). For an external thread Harvey Tool uses (D + d) / D. WNT’s Turkish catalogue makes the same warning: watch whether the contour feed vf or the feed of the centre vfm is meant.
+
+<Figure caption="Feed at the cutting edge (orange) against the feed of the tool centre (blue), drawn to scale. With the defaults, an M20 internal thread and a Ø12 cutter, the centre runs at 8/20 of the edge feed. The three cutter limits are checked on the right: Ø12 is within ISCAR’s 70 % of the major diameter (14 mm) and, just, Vargus’s 70 % of the minor diameter (12.1 mm), but over FRAISA’s 2/3 of the nut’s core diameter (11.5 mm). Speed and feed start from the first-test values Vargus gives for its insert tools, 100 m/min and 0.05 mm per edge.">
+  <ThreadMillFeed locale="en" />
+</Figure>
+
+Vargus’s TM Solid catalogue lowers the feed on entry: "set the Feed f [mm/tooth] to 70% lower than the threading Feed".
+
+## Cutter size
+
+A thread mill’s teeth are rings, with no helix, so the profile it cuts is slightly distorted, and the distortion grows with the pitch and with the cutter’s diameter (ISCAR). Hence a limit on the cutter’s size for internal threads:
+
+| Source | Limit for internal threads |
+|---|---|
+| ISCAR | "in most cases" up to 70 % of the thread’s major diameter; its example "20*0.7=14" |
+| Vargus | Below 70 % of the minor diameter, for its standard inserts; above it, "the standard inserts will not give the correct profile" |
+| FRAISA | not more than 2/3 of the nut’s core (minor) diameter |
+
+For an M20 thread ISCAR’s rule gives 14 mm, Vargus’s about 12.1 mm and FRAISA’s about 11.5 mm (70 % and 2/3 of the basic minor diameter, 17.29 mm). For external threads, ISCAR allows more than 70 %, and Vargus says the distortion "is neglected" for ISO, UN and Whitworth threads. Within the limit, ISCAR notes the trade-off: a larger cutter is stiffer and more productive, a smaller one cuts a more accurate profile.
+
+## Radial passes
+
+In tough materials or with large pitches the thread is cut in more than one radial pass, each to a larger share of the depth:
+
+| Source | Passes and depth per pass |
+|---|---|
+| Allied | 2 passes: 75 %, 100 %. 3 passes: 60 %, 80 %, 100 %. 4 passes: 60 %, 80 %, 90 %, 100 %; the count by pitch and machinability |
+| Kennametal | Difficult materials: 60 % of the depth, then the remaining 40 % |
+| Harvey Tool | 2, 3 or 4 passes by machinability, counted from the thread size of the tool, "not the machined part" |
+
+A pass at unchanged offset helps when the thread fails the gauge because of tool deflection: Vargus’s remedy is to "execute a ‘zero’ cut", and ISCAR’s troubleshooting table lists "Use ZERO compensation".
+
+## Cutting data
+
+Thread-milling data are tool-specific, and few makers’ tables could be read cleanly. Allied’s metric table for its solid carbide AccuThread T3 thread mills:
+
+| Work material | Hardness (HB) | vc (m/min) | Chip load per tooth (mm) by cutter Ø |
+|---|---|---|---|
+| Low-carbon steel | 85–125 | 115 | 0.020 (Ø1.40–3.17) to 0.090 (Ø12.71–19.05) |
+| Low-carbon steel | 125–175 | 85 | as above |
+| Low-carbon steel | 175–225 | 70 | as above |
+| Low-carbon steel | 225–275 | 60 | as above |
+| Stainless steel | 185–275 | 70 | 0.020 to 0.065 |
+| Stainless steel | 275–350 | 60 | as above |
+| Wrought aluminium | 30 | 150 | 0.025 to 0.120 |
+| Wrought aluminium | 180 | 135 | as above |
+
+ISCAR gives 0.05 to 0.15 mm per tooth for its indexable inserts in grade IC908, and its solid carbide tables reduce the feed by 40 % for cutters with a long cutting flute. Allied runs its T3 thread mills left-hand cutting (M04) and from the top down, to keep climb milling, so the direction table above does not apply to them as it stands. Kennametal’s catalogue gives 300 to 700 SFM (91 to 213 m/min) for its indexable thread-mill inserts in carbon steels below 187 HB. Vargus starts tests with its insert tools at 100 m/min and 0.05 mm per edge.
+
+## Faults
+
+| Problem | Cause, where the source names it | Remedy | Sources |
+|---|---|---|---|
+| Thread out of tolerance (gauge) | Tool deflection (Vargus) | Reduce the feed, add a radial pass or a zero pass, reduce the overhang, replace a worn tool | Vargus, ISCAR, Allied |
+| Chatter | Feed too high, profile too deep, thread too long (Vargus) | Reduce the feed, cut in two passes or in sections, reduce the overhang, use the preferred holder | Vargus, Allied, ISCAR |
+| Tool fails at once | – | Check the tool choice (smaller cutter), reduce the feed, enter on an arc | Allied |
+| Chipped edges | Vibration (Vargus) | Reduce the feed, add a radial pass, reduce the overhang | Allied, Vargus |
+| Flank wear | High cutting speed, thin chips, too little coolant (Kennametal) | Lower the speed, raise the feed with fewer radial passes, check the coolant pressure | Kennametal, ISCAR, Allied |
+
+Vargus notes that chatter is easy to recognise: the noise "is extremely loud".
+
+For the tapped alternative, see [tapping](/processes/tapping/); for the threads themselves, [ISO metric screw threads](/drawings-and-tolerances/iso-metric-threads/).

@@ -1,0 +1,124 @@
+---
+/**
+ * Radial runout of a milling cutter. Left: the cutter seen along its axis, turning about the spindle axis with its own
+ * axis offset (exaggerated in the drawing), and a dial indicator on the edge whose needle swings by the TIR. Right: the
+ * chip load of each tooth in the simple geometric model of src/lib/runout.ts, against the feed per tooth.
+ */
+interface Props { locale: 'en' | 'tr'; tir?: number; fz?: number; z?: number }
+const { locale, tir = 0.02, fz = 0.05, z = 4 } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { tir: 'Frezenin gövdesindeki T.I.R. (2 × kaçıklık)', fz: 'Diş başına ilerleme fz', z: 'Diş sayısı', load: 'Dişin aldığı talaş', of: 'fz’nin', most: 'En çok yüklenen diş', none: 'Hiç kesmeyen diş', ex: 'eksen kaçıklığı abartılı çizildi', ax: 'iş mili ekseni', aria: 'Salgılı bir frezenin eksenden görünüşü ve dişlerin aldığı talaş', um: 'µm', mm: 'mm', pc: '%' }
+  : { tir: 'T.I.R. of the cutter body (2 × offset)', fz: 'Feed per tooth fz', z: 'Teeth', load: 'Chip load per tooth', of: 'of fz', most: 'Most loaded tooth', none: 'Teeth that do not cut', ex: 'axis offset exaggerated', ax: 'spindle axis', aria: 'A milling cutter with runout seen along its axis, and the chip load each tooth takes', um: 'µm', mm: 'mm', pc: '%' };
+const num = (v: number, d = 2) => (tr ? v.toFixed(d).replace('.', ',') : v.toFixed(d));
+---
+<div class="ro" data-ro data-locale={locale} data-anim>
+  <div class="top">
+    <svg class="face" viewBox="0 0 300 280" role="img" aria-label={T.aria} data-face></svg>
+    <svg class="bars" viewBox="0 0 340 280" role="img" data-bars></svg>
+  </div>
+  <div class="ctl">
+    <label class="field"><span>{T.tir} <output data-o="t">{Math.round(tir * 1000)} {T.um}</output></span><input type="range" min="0" max="0.06" step="0.001" value={tir} data-i="t" /></label>
+    <label class="field"><span>{T.fz} <output data-o="f">{num(fz)} {T.mm}</output></span><input type="range" min="0.01" max="0.12" step="0.005" value={fz} data-i="f" /></label>
+    <div class="field"><span>{T.z}</span><div class="seg" data-g="z">{[2, 3, 4, 6].map((n) => <button type="button" data-v={n} aria-pressed={String(n === z)}>{n}</button>)}</div></div>
+  </div>
+  <dl class="read">
+    <div><dt>{T.most}</dt><dd class="num" data-o="m">—</dd></div>
+    <div><dt>{T.none}</dt><dd class="num" data-o="n">—</dd></div>
+  </dl>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .ro { display: grid; gap: 0.9rem; }
+  .top { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 1rem; align-items: center; }
+  @media (max-width: 40rem) { .top { grid-template-columns: 1fr; } .face { max-width: 18rem; margin: 0 auto; } }
+  .face, .bars { width: 100%; height: auto; display: block; }
+  .ctl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.8fr); gap: 0.7rem 1.2rem; align-items: end; }
+  @media (max-width: 40rem) { .ctl { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .seg { display: flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1; font: inherit; font-size: 0.85rem; padding: 0.35rem 0.4rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.2rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .read { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem 1rem; margin: 0; }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; font: 600 1.05rem var(--font-mono); color: var(--ink); white-space: nowrap; }
+  .ro :global(.tx) { font: 11px var(--font-mono); fill: #364554; }
+  .ro :global(.tl) { font: 600 12px var(--font-sans); fill: #364554; }
+  .ro :global(.gl) { stroke: #e3e8ee; stroke-width: 1; }
+</style>
+
+<script>
+  import { chipLoads } from '../../lib/runout';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-ro]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const I = (k: string) => q<HTMLInputElement>(`[data-i="${k}"]`);
+    const face = q<SVGSVGElement>('[data-face]'), bars = q<SVGSVGElement>('[data-bars]');
+    const dec = (v: number, d = 2) => (tr ? v.toFixed(d).replace('.', ',') : v.toFixed(d));
+    const pc = (v: number) => (tr ? `%${dec(v, 0)}` : `${dec(v, 0)} %`);
+    const COL = ['#e2601a', '#1e5fc4', '#13998a', '#8b52c9', '#c2413b', '#e3b23c'];
+    let z = Number(q<HTMLButtonElement>('[data-g="z"] [aria-pressed="true"]').dataset.v), ang = 0, last = 0, h: number[] = [];
+    const cx = 140, cy = 140, R = 92;
+    const drawFace = () => {
+      const tir = +I('t').value;
+      const e = Math.min(16, tir * 400);                      // drawing: 1 µm ≈ 0.4 px, capped
+      const ox = cx + e * Math.cos(ang), oy = cy + e * Math.sin(ang);
+      let teeth = '';
+      for (let i = 0; i < z; i++) {
+        const a = ang + (2 * Math.PI * i) / z;
+        const tx = ox + R * Math.cos(a), ty = oy + R * Math.sin(a);
+        const t2x = ox + (R - 26) * Math.cos(a + 0.32), t2y = oy + (R - 26) * Math.sin(a + 0.32);
+        teeth += `<path d="M${ox.toFixed(1)},${oy.toFixed(1)} L${t2x.toFixed(1)},${t2y.toFixed(1)} L${tx.toFixed(1)},${ty.toFixed(1)}" fill="none" stroke="${COL[i]}" stroke-width="3" stroke-linejoin="round"/><circle cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="5" fill="${COL[i]}"/>`;
+      }
+      // dial on the right: needle follows the edge's radius toward +x
+      const reach = ox + R - (cx + R);                         // −e…+e
+      const needle = (reach / 16) * 0.9;
+      face.innerHTML = `
+        <circle cx="${cx}" cy="${cy}" r="${R + 18}" fill="none" stroke="#c3ccd5" stroke-dasharray="4 5"/>
+        <circle cx="${ox.toFixed(1)}" cy="${oy.toFixed(1)}" r="${R}" fill="url(#ca-metal)" stroke="#364554" stroke-width="1.6"/>
+        ${teeth}
+        <circle cx="${ox.toFixed(1)}" cy="${oy.toFixed(1)}" r="4" fill="#364554"/>
+        <line x1="${cx - 8}" x2="${cx + 8}" y1="${cy}" y2="${cy}" stroke="#c2413b" stroke-width="1.5"/><line x1="${cx}" x2="${cx}" y1="${cy - 8}" y2="${cy + 8}" stroke="#c2413b" stroke-width="1.5"/>
+        <rect x="${cx + R + 4}" y="${cy - 3}" width="${(282 - (cx + R + 4) - 4).toFixed(0)}" height="6" fill="#9aa6b2"/>
+        <circle cx="265" cy="${cy - 52}" r="26" fill="#fff" stroke="#364554" stroke-width="1.5"/>
+        <line x1="265" y1="${cy - 52}" x2="${(265 + 22 * Math.sin(needle)).toFixed(1)}" y2="${(cy - 52 - 22 * Math.cos(needle)).toFixed(1)}" stroke="#c2413b" stroke-width="2"/>
+        <line x1="265" y1="${cy - 26}" x2="265" y2="${cy - 3}" stroke="#9aa6b2" stroke-width="3"/>
+        <text x="${cx}" y="262" class="tx" text-anchor="middle"><tspan style="fill:#b23a34">+</tspan> ${T.ax}</text><text x="${cx}" y="276" class="tx" text-anchor="middle">${T.ex}</text>`;
+    };
+    const X0 = 46, W = 280, Y0 = 20, H = 200;
+    const drawBars = () => {
+      const fz = +I('f').value, tir = +I('t').value;
+      h = chipLoads(z, fz, tir);
+      const top = Math.max(2, Math.ceil(Math.max(...h) / fz));
+      const Yv = (v: number) => Y0 + H - (v / (top * fz)) * H;
+      let g = '';
+      for (let k = 0; k <= top; k++) g += `<line x1="${X0}" x2="${X0 + W}" y1="${Yv(k * fz)}" y2="${Yv(k * fz)}" class="gl"/><text x="${X0 - 6}" y="${Yv(k * fz) + 4}" class="tx" text-anchor="end">${k}·fz</text>`;
+      const bw = W / z;
+      let b = '';
+      h.forEach((v, i) => {
+        const x = X0 + i * bw + bw * 0.18, w = bw * 0.64;
+        b += `<rect x="${x.toFixed(1)}" y="${Yv(v).toFixed(1)}" width="${w.toFixed(1)}" height="${(Yv(0) - Yv(v)).toFixed(1)}" rx="3" fill="${COL[i]}"/>`;
+        b += `<text x="${(x + w / 2).toFixed(1)}" y="${(Yv(v) - 6).toFixed(1)}" class="tx" text-anchor="middle">${pc((v / fz) * 100)}</text>`;
+        b += `<text x="${(x + w / 2).toFixed(1)}" y="${Y0 + H + 16}" class="tx" text-anchor="middle">${i + 1}</text>`;
+      });
+      bars.innerHTML = `${g}<line x1="${X0}" x2="${X0 + W}" y1="${Yv(fz)}" y2="${Yv(fz)}" stroke="#364554" stroke-dasharray="5 4"/>${b}<text x="${X0 + W / 2}" y="${Y0 + H + 36}" class="tl" text-anchor="middle">${T.load}</text>`;
+      q('[data-o="t"]').textContent = `${Math.round(tir * 1000)} ${T.um}`;
+      q('[data-o="f"]').textContent = `${dec(fz, 3)} ${T.mm}`;
+      const mx = Math.max(...h);
+      q('[data-o="m"]').textContent = `${dec(mx, 3)} ${T.mm} · ${dec(mx / fz, 2)} × fz`;
+      q('[data-o="n"]').textContent = `${h.filter((v) => v < 1e-9).length} / ${z}`;
+    };
+    root.querySelectorAll<HTMLButtonElement>('[data-g="z"] button').forEach((b, _, all) => b.addEventListener('click', () => { z = Number(b.dataset.v); all.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); drawBars(); drawFace(); }));
+    ['t', 'f'].forEach((k) => I(k).addEventListener('input', () => { drawBars(); drawFace(); }));
+    drawBars(); drawFace();
+    const frame = (now: number) => { ang += Math.min(0.05, (now - last) / 1000) * 1.6; last = now; drawFace(); requestAnimationFrame(frame); };
+    whenIn(root, () => { last = performance.now(); requestAnimationFrame(frame); });
+  });
+</script>

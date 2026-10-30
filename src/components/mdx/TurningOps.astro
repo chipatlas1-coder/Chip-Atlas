@@ -1,0 +1,189 @@
+---
+/**
+ * Turning operations on one part, schematic. A bar in a three-jaw chuck, drawn in half section
+ * (upper half in view, lower half cut so the bore and the drilled hole show), with the tool for
+ * each operation at its feature and its feed direction. Tools that work at different times are
+ * drawn together. Picking an operation highlights its tool and feed; on entering the view the
+ * tools come in one after another, each moving along its feed.
+ * Names and feed texts come from the article through `ops`; the geometry is fixed here.
+ */
+interface Op { k: string; name: string; feed: string }
+interface Props { locale: 'en' | 'tr'; ops: Op[]; aria: string; all: string }
+const { locale, ops, aria, all } = Astro.props;
+const tr = locale === 'tr';
+const L = tr ? { chuck: 'ayna', section: 'kesit', view: 'görünüş' } : { chuck: 'chuck', section: 'section', view: 'view' };
+
+const ay = 152;                                             // axis
+const R0 = 50, R1 = 41, R2 = 33, rb = 21, rd = 8;           // stock, turned, end radii; bore, drill
+const X = { chuck: 46, cut: 124, cutW: 7, sh: 162, p0: 282, p1: 340, g0: 368, g1: 381, th1: 450, ch: 7, end: 458, bore: 400, drill: 344 };
+const thP = 8.6, thH = 5;
+const prof = (x: number) => R1 - (R1 - R2) * (1 - Math.cos((((x - X.p0) / (X.p1 - X.p0)) * Math.PI) / 2));
+const top: [number, number][] = [];
+const C = 7;                                                // chamfer on the shoulder corner
+top.push([X.chuck + 4, ay - R0], [X.cut, ay - R0], [X.cut, ay - R0 + 28], [X.cut + X.cutW, ay - R0 + 28], [X.cut + X.cutW, ay - R0], [X.sh - C, ay - R0], [X.sh, ay - R0 + C], [X.sh, ay - R1], [X.p0, ay - R1]);
+for (let i = 1; i <= 16; i++) { const x = X.p0 + ((X.p1 - X.p0) * i) / 16; top.push([x, ay - prof(x)]); }
+top.push([X.g0, ay - R2], [X.g0, ay - R2 + 7], [X.g1, ay - R2 + 7], [X.g1, ay - R2]);
+// 60° V-grooves (30° flanks) with flat crests, so the 60° threading tool sits in a root
+const thW = thH * Math.tan(Math.PI / 6);
+for (let x = X.g1; x < X.th1 - thP / 2; x += thP) top.push([x + 1.4, ay - R2], [x + 1.4 + thW, ay - R2 + thH], [x + 1.4 + 2 * thW, ay - R2]);
+top.push([X.th1, ay - R2], [X.end - X.ch, ay - R2], [X.end, ay - R2 + X.ch], [X.end, ay]);
+const pts = (a: [number, number][]) => a.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' L');
+const upper = `M${pts(top)} L${X.chuck + 4},${ay} Z`;
+const mirror = top.map(([x, y]) => [x, 2 * ay - y] as [number, number]);
+const tipX = X.drill, tipL = rd / Math.tan((59 * Math.PI) / 180);   // 118° point: a cone of half-angle 59°
+const lower = `M${X.chuck + 4},${ay} L${tipX},${ay} L${tipX + tipL},${ay + rd} L${X.bore},${ay + rd} L${X.bore},${ay + rb} L${X.end},${ay + rb} L${pts([...mirror].reverse())} Z`;
+const f = (n: number) => n.toFixed(1);
+// tool anchors (cutting point) and the feed direction of each (unit vector, screen)
+const T = {
+  long: { x: 236, y: ay - R1, dx: -1, dy: 0 },
+  prof: { x: X.p0 + 30, y: ay - prof(X.p0 + 30), dx: 0.9, dy: 0.44 },
+  groove: { x: (X.g0 + X.g1) / 2, y: ay - R2 + 7, dx: 0, dy: 1 },
+  part: { x: X.cut + X.cutW / 2, y: ay - R0 + 28, dx: 0, dy: 1 },
+  thread: { x: 419.7, y: ay - R2 + thH, dx: -1, dy: 0 },
+  chamfer: { x: X.sh - C / 2, y: ay - R0 + C / 2, dx: -0.71, dy: 0.71 },
+  face: { x: X.end, y: ay - 16, dx: 0, dy: 1 },
+  bore: { x: 418, y: ay + rb, dx: -1, dy: 0 },
+  drill: { x: X.drill, y: ay, dx: -1, dy: 0 },
+} as const;
+type K = keyof typeof T;
+const num: Record<K, [number, number]> = { part: [112, 30], chamfer: [214, 52], long: [300, 50], prof: [318, 84], groove: [374, 44], thread: [430, 44], face: [548, 90], drill: [636, 130], bore: [636, 200] };
+---
+<div class="tops" data-tops data-anim>
+  <div class="pan" tabindex="0" aria-label={aria}>
+  <svg viewBox="0 0 660 262" role="img" aria-label={aria}>
+    <defs>
+      <clipPath id={`tops-drill-${locale}`}><path d={`M0,${ay} H660 V262 H0 Z M${X.end},0 H660 V${ay} H${X.end} Z`} /></clipPath>
+    </defs>
+    <!-- chuck, jaws, spindle rotation -->
+    <rect x="10" y="34" width="38" height="236" rx="6" class="chuck" />
+    <rect x={X.chuck} y={ay - R0 - 28} width="32" height="28" rx="2" class="jaw" />
+    <rect x={X.chuck} y={ay + R0} width="32" height="28" rx="2" class="jaw" />
+    <path d={`M96,${ay - R0 - 16} C82,${ay - R0 - 30} 70,${ay - R0 - 30} 60,${ay - R0 - 34}`} class="rot" marker-end="url(#ca-arr-acc)" />
+    <text x="56" y={ay + R0 + 44} class="t">{L.chuck}</text>
+    <!-- part -->
+    <path d={upper} fill="url(#ca-metal)" class="edge" />
+    <path d={lower} class="sec" />
+    <line x1="30" x2="650" y1={ay} y2={ay} class="axis" />
+    <text x={X.sh + 8} y={ay - 8} class="t lt">{L.view}</text>
+    <text x={X.sh + 8} y={ay + 18} class="t">{L.section}</text>
+    <!-- tools -->
+    {ops.map((op, i) => {
+      const t = T[op.k as K];
+      if (!t) return null;
+      return (
+        <g class="op" data-op={op.k} style={`--i:${i}; --dx:${(-t.dx * 16).toFixed(1)}px; --dy:${(-t.dy * 16).toFixed(1)}px`}>
+          <g class="tool">
+            {op.k === 'long' && <path d={`M${f(t.x)},${f(t.y)} l10,-24 h44 v-26 h-50 Z`} class="ins" />}
+            {op.k === 'prof' && <path d={`M${f(t.x)},${f(t.y)} l-9,-22 l9,-11 l9,11 Z`} class="ins" />}
+            {op.k === 'groove' && <path d={`M${f(X.g0 + 1)},${f(t.y)} h${f(X.g1 - X.g0 - 2)} v-54 h-${f(X.g1 - X.g0 - 2)} Z`} class="ins" />}
+            {op.k === 'part' && <path d={`M${f(X.cut + 0.6)},${f(t.y)} h${f(X.cutW - 1.2)} v-80 h-${f(X.cutW - 1.2)} Z`} class="ins" />}
+            {op.k === 'thread' && <path d={`M${f(t.x)},${f(t.y)} l-5,-8.6 v-34 h10 v34 Z`} class="ins" />}
+            {op.k === 'chamfer' && <path d={`M${f(t.x + 2)},${f(t.y - 2)} l20,-20 l13,13 l-20,20 Z`} class="ins" />}
+            {op.k === 'face' && <path d={`M${f(t.x)},${f(t.y)} l16,-12 h50 v-12 h-66 Z`} class="ins" />}
+            {op.k === 'bore' && <path d={`M${f(t.x)},${f(t.y - 0.6)} l9,-9 h220 v9 Z`} class="ins bar" />}
+            {op.k === 'drill' && <g clip-path={`url(#tops-drill-${locale})`}>
+              <path d={`M${f(X.drill)},${ay} L${f(X.drill + tipL)},${ay - rd} H660 V${ay + rd} H${f(X.drill + tipL)} Z`} class="ins drill" />
+              <path d={Array.from({ length: 11 }, (_, k) => `M${f(X.drill + 14 + k * 24)},${ay - rd} l10,${rd * 2}`).join(' ')} class="flute" />
+            </g>}
+          </g>
+          {op.k === 'long' && <line x1={t.x + 58} x2={t.x - 34} y1={t.y - 38} y2={t.y - 38} class="mv" marker-end="url(#ca-arr-data)" />}
+          {op.k === 'prof' && <path d={`M${f(X.p0 - 8)},${f(ay - R1 - 10)} C${f(X.p0 + 18)},${f(ay - R1 - 10)} ${f(X.p1 - 16)},${f(ay - R2 - 20)} ${f(X.p1 + 14)},${f(ay - R2 - 10)}`} class="mv" marker-end="url(#ca-arr-data)" />}
+          {op.k === 'groove' && <line x1={X.g1 + 9} x2={X.g1 + 9} y1={t.y - 50} y2={t.y - 8} class="mv" marker-end="url(#ca-arr-data)" />}
+          {op.k === 'part' && <g><line x1={X.cut - 9} x2={X.cut - 9} y1={t.y - 70} y2={t.y - 4} class="mv" marker-end="url(#ca-arr-data)" /><line x1={t.x} x2={t.x} y1={t.y} y2={ay} class="path" /></g>}
+          {op.k === 'thread' && <line x1={t.x + 30} x2={t.x - 22} y1={t.y - 48} y2={t.y - 48} class="mv" marker-end="url(#ca-arr-data)" />}
+          {op.k === 'chamfer' && <line x1={t.x + 46} x2={t.x + 18} y1={t.y - 46} y2={t.y - 18} class="mv" marker-end="url(#ca-arr-data)" />}
+          {op.k === 'face' && <line x1={t.x + 76} x2={t.x + 76} y1={t.y - 34} y2={t.y + 4} class="mv" marker-end="url(#ca-arr-data)" />}
+          {op.k === 'bore' && <line x1={t.x + 150} x2={t.x + 60} y1={ay + rb + 14} y2={ay + rb + 14} class="mv" marker-end="url(#ca-arr-data)" />}
+          {op.k === 'drill' && <line x1="600" x2="556" y1={ay - rd - 12} y2={ay - rd - 12} class="mv" marker-end="url(#ca-arr-data)" />}
+          <g class="num"><circle cx={num[op.k as K][0]} cy={num[op.k as K][1]} r="10" /><text x={num[op.k as K][0]} y={num[op.k as K][1] + 4} text-anchor="middle">{i + 1}</text></g>
+        </g>
+      );
+    })}
+  </svg>
+  </div>
+  <ol class="list">
+    <li><button type="button" data-pick="" aria-pressed="true">{all}</button></li>
+    {ops.map((op, i) => <li><button type="button" data-pick={op.k} aria-pressed="false"><span class="n">{i + 1}</span><span class="nm">{op.name}</span><span class="fd">{op.feed}</span></button></li>)}
+  </ol>
+</div>
+
+<style>
+  .tops { display: grid; gap: 0.7rem; }
+  svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  /* on a phone the drawing keeps a legible scale and pans sideways */
+  .pan { border-radius: 4px; }
+  .pan:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .chuck { fill: url(#ca-metal-h); stroke: #656e74; }
+  .jaw { fill: #b1bac2; stroke: #474e54; }
+  .rot { fill: none; stroke: #e2601a; stroke-width: 1.8; }
+  .edge { stroke: #1b1d1e; stroke-width: 1.2; stroke-linejoin: round; }
+  .sec { fill: url(#ca-hatch); stroke: #1b1d1e; stroke-width: 1.2; stroke-linejoin: round; }
+  .axis { stroke: #474e54; stroke-width: 1; stroke-dasharray: 14 4 3 4; }
+  .ins { fill: #e0e8ed; stroke: #1b1d1e; stroke-width: 1.1; stroke-linejoin: round; }
+  .ins.bar { fill: url(#ca-metal-h); stroke: #474e54; }
+  .ins.drill { fill: url(#ca-metal); stroke: #474e54; }
+  .flute { stroke: #cdd5db; stroke-width: 2; }
+  .mv { stroke: #1e6fd6; stroke-width: 1.8; fill: none; }
+  .path { stroke: #1e6fd6; stroke-width: 1; stroke-dasharray: 3 3; }
+  .num circle { fill: #f7fbfe; stroke: var(--color-spark-400); stroke-width: 1.3; }
+  .num text { font: 600 11px var(--font-mono); fill: var(--color-spark-400); }
+  .t { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; }
+  .t.lt { fill: #f3f8fd; stroke: none; }
+  .op { transition: opacity 0.25s; }
+  .tops[data-pick]:not([data-pick='']) .op:not(.on) { opacity: 0.16; }
+  .op.on .ins { stroke: #e2601a; stroke-width: 1.5; }
+  .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
+  .list li { margin: 0; }
+  .list li::before { content: none; }
+  .list button { width: 100%; height: 100%; display: grid; grid-template-columns: 1.4rem 1fr; align-content: start; gap: 0.1rem 0.5rem; text-align: left; padding: 0.45rem 0.6rem; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--ink-2); font-size: 0.86rem; transition: border-color 0.15s, background-color 0.15s; }
+  .list button:hover { border-color: var(--ink-3); }
+  .list button[aria-pressed='true'] { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 10%, transparent); color: var(--ink); }
+  .list li:first-child button { grid-template-columns: 1fr; align-content: center; font-weight: 600; }
+  .list .n { grid-row: span 2; width: 1.3rem; height: 1.3rem; border: 1.3px solid var(--color-spark-400); border-radius: 50%; color: var(--color-spark-400); font: 600 0.7rem/1.15rem var(--font-mono); text-align: center; }
+  .list .nm { font-weight: 600; color: var(--ink); line-height: 1.3; }
+  .list .fd { font-size: 0.78rem; color: var(--ink-3); line-height: 1.3; }
+
+  @media (max-width: 40rem) {
+    .pan { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; padding-bottom: 0.3rem; }
+    .pan svg { width: 600px; max-width: none; }
+    .list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .list li:first-child { grid-column: 1 / -1; }
+    .list button { padding: 0.4rem 0.5rem; font-size: 0.8rem; gap: 0.1rem 0.4rem; grid-template-columns: 1.25rem 1fr; }
+    .list .fd { font-size: 0.72rem; }
+  }
+
+  /* entry: the tools arrive one after another, each sliding in along its feed */
+  @keyframes tops-in { from { opacity: 0; transform: translate(var(--dx), var(--dy)); } }
+  :global(html.anim) .tops[data-anim]:not([data-in]) .op { opacity: 0; }
+  :global(html.anim) .tops[data-anim][data-in] .op .tool { animation: tops-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(0.25s + var(--i) * 0.32s); }
+  :global(html.anim) .tops[data-anim][data-in] .op .mv { stroke-dasharray: 1; animation: ca-draw 0.5s ease-out backwards; animation-delay: calc(0.6s + var(--i) * 0.32s); }
+  :global(html.anim) .tops[data-anim][data-in] .op .num { animation: ca-fade 0.4s backwards; animation-delay: calc(0.45s + var(--i) * 0.32s); }
+  :global(html.anim) .tops[data-anim][data-in] .op { animation: ca-fade 0.3s backwards; animation-delay: calc(0.2s + var(--i) * 0.32s); }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tops]').forEach((root) => {
+    const btns = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-pick]'));
+    root.querySelectorAll<SVGGeometryElement>('.mv').forEach((p) => p.setAttribute('pathLength', '1'));
+    const pan = root.querySelector<HTMLElement>('.pan');
+    const svg = root.querySelector<SVGSVGElement>('svg');
+    const set = (k: string) => {
+      root.dataset.pick = k;
+      btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pick === k)));
+      let picked: SVGGElement | null = null;
+      root.querySelectorAll<SVGGElement>('.op').forEach((g) => { const on = g.dataset.op === k; g.classList.toggle('on', on); if (on) picked = g; });
+      // on a phone the drawing pans: bring the picked tool into the middle, and the drawing into view
+      if (!pan || !svg || pan.scrollWidth <= pan.clientWidth + 1) return;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const behavior: ScrollBehavior = reduce ? 'auto' : 'smooth';
+      if (picked) {
+        const bb = (picked as SVGGElement).getBBox();
+        const scale = svg.clientWidth / 660;
+        pan.scrollTo({ left: (bb.x + bb.width / 2) * scale - pan.clientWidth / 2, behavior });
+      } else pan.scrollTo({ left: 0, behavior });
+      const r = pan.getBoundingClientRect();
+      if (r.bottom < 60 || r.top > innerHeight - 60) pan.scrollIntoView({ block: 'nearest', behavior });
+    };
+    btns.forEach((b) => b.addEventListener('click', () => set(b.dataset.pick || '')));
+  });
+</script>

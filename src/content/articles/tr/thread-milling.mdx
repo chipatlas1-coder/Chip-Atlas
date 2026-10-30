@@ -1,0 +1,202 @@
+---
+key: thread-milling
+locale: tr
+slug: dis-frezeleme
+title: 'Diş frezeleme'
+description: 'Dişi helisel bir yolda dönen bir frezeyle açmak: her turda bir adım, çok dişli ve tek profilli frezeler, kılavuza göre neden seçildiği, aynı yönlü frezeleme ile G02/G03 ve Z yönleri, teğet giriş ve takım yarıçap telafisi, kesici kenar ile takım merkezi arasındaki ilerleme düzeltmesi, freze çapı sınırları, radyal pasolar, kesme verileri ve sık görülen hatalar.'
+section: 2
+subsection: hole-making
+order: 12
+updated: 2026-10-18
+tools: [milling, tapdrill]
+glance:
+  - value: '1 P / 360°'
+    label: 'Takımın her turunda Z ilerlemesi (ISCAR, Vargus, Haas)'
+  - value: 'G03, Z+'
+    label: 'Sağ iç diş, aynı yönlü frezeleme, iş mili M03 (Haas, ISCAR, Allied, Vargus)'
+  - value: '(D − d) / D'
+    label: 'İç dişte takım merkezi ilerlemesinin kenar ilerlemesine oranı (Harvey Tool, Allied)'
+  - value: '≤ %70'
+    label: 'İç dişte freze çapının diş dış çapına oranı (ISCAR)'
+sources:
+  - label: 'ISCAR, Threading Handbook, böl. 3 “Thread Milling”, s. 154–155, 159, 161, 174, 192, 195, 221, 229–230 (flip görünüm)'
+    url: https://iscar.com/Catalogs/flipview/reference-user-guides/Threading_Handbook/files/basic-html/page155.html
+  - label: 'ISCAR, Milling Catalog 38 (2021), diş frezeleme s. 119–126 (flip görünüm)'
+    url: https://iscar.com/Catalogs/flipview/flipview2022/english-1/MILLING-CATALOG-38_2021-p319-548/files/basic-html/page121.html
+  - label: 'ISCAR, Threading Catalog 62 ver. 3 (2023), kullanım kılavuzu “Thread Milling”, s. 282–285 (flip görünüm)'
+    url: https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page284.html
+  - label: 'Vargus, Thread Milling Handbook (Vardex TM), metrik'
+    url: https://edeco.se/pub/media/wysiwyg/images/laddahem/vargus/Hand_Book_mm_2.pdf
+  - label: 'Vargus, Solid Carbide Thread Milling Tools “TM Solid”, metrik, 8. baskı, 03/2020'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/Vargus-MultiFlute-Thread-Mills.pdf
+  - label: 'Allied Machine & Engineering, “Thread Milling: A Quick Reference Pocket Guide” (TMPG), Ağustos 2024'
+    url: https://www.alliedmachine.com/Support/Literature/pdfFiles/Technical-Guides/TMPG.pdf
+  - label: 'Haas Automation, freze G kodu başvurusu “G02 CW / G03 CCW Circular Interpolation Motion” (diş frezeleme programları O60023–O60025)'
+    url: https://www.haascnc.com/service/codes-settings.type=gcode.machine=mill.value=G03.html
+  - label: 'Harvey Tool, “Single Form Thread Milling Guide – Speeds & Feeds”, 8227xx serisi (Productivity Inc. sitesinde)'
+    url: https://ecomm.productivity.com/customer/docs/skudocs/HAT2_Speeds_Feeds_822715.pdf
+  - label: 'Kennametal, “Thread Mills” katalog bölümü (DirectIndustry üzerinden)'
+    url: https://pdf.directindustry.com/pdf/kennametal/thread-mills/7354-266819.html
+  - label: 'EMUGE-FRANKEN, “Solid Carbide Thrillers BGF-Z4” (DirectIndustry üzerinden)'
+    url: https://pdf.directindustry.com/pdf/emuge-franken/emuge-solid-carbide-thrillers-bgf-z4/5603-615013.html
+  - label: 'EMUGE-FRANKEN, “Tooling Solutions for Large and Deep Threads” (DirectIndustry üzerinden)'
+    url: https://pdf.directindustry.com/pdf/emuge-franken/emuge-tooling-solutions-large-deep-threads/5603-615001.html
+  - label: 'FRAISA, “Carbide Drills I Thread Cutting Tools 2026”, s. 340–345 (İngilizce katalog)'
+    url: https://www.fraisa.com/assets/media/blaetterkatalog/2026/bt/en/344/
+  - label: 'WNT (CERATIZIT grubu), Türkçe katalog, böl. 7 “Diş açma frezeleri”'
+    url: https://cdn.plansee-group.com/is/content/plansee/gd_kp_kt-hk-01-24-00024-kp-zgf-gws_str_asc_pim
+  - label: 'M. Vural (İTÜ), “Talaş Kaldırma Yöntemleri ve Tezgahlar”, ders sunumu'
+    url: https://ntmyo.gaziantep.edu.tr/files/dosyalar/ch22-talasli-imalat-yontemleri.pdf
+---
+import ThreadMillPath from '../../../components/mdx/ThreadMillPath.astro';
+import ThreadMillFeed from '../../../components/mdx/ThreadMillFeed.astro';
+
+Allied Machine’in deyişiyle diş frezesi, yan yüzünde diş profili olan bir parmak freze gibi düşünülebilir ve çapı açtığı dişten küçüktür. Tezgâh onu dişin ekseni çevresinde bir daire üzerinde ve aynı anda bu eksen boyunca hareket ettirir: helisel enterpolasyon (WNT’nin Türkçe kataloğundaki yazımıyla). ISCAR kuralı tek cümlede veriyor: takım parça çevresinde bir tur atarken diş boyunca yaptığı hareket bir adıma eşittir.
+
+Geri kalan her şeyi bu kural belirler. Dişin adımı ve yönü takımdan değil yoldan gelir; bu yüzden aynı freze pek çok çapı, sağ ve sol dişi, içte ve dışta açabilir. Bedeli, tezgâhın helisel enterpolasyon yapabilmesidir; Vargus: diş frezeleme için helisel enterpolasyon hareketi gerekir.
+
+## Yol, satır satır
+
+<Figure caption="Haas’ın O60023 örneği: Ø0,5 inç çok dişli bir diş frezesiyle açılan 1.5-8 UNC iç diş, iş mili saat yönünde. Solda plan: takım merkezi (turuncu) çeyrek bir yayla girer, bir tur atar ve çeyrek bir yayla çıkar; tur ilerledikçe diş dibi (mavi) belirir. Sağda kesit: takım her turda bir adım, her yayda 1/8 adım yükselir; diş, takım her duvara vardığında o duvarda belirir. Program satırları çalıştıkça yanar; koordinatlar inç.">
+  <ThreadMillPath
+    locale="tr"
+    t={{
+      plan: 'Plan',
+      section: 'Kesit',
+      play: 'Oynat',
+      pause: 'Duraklat',
+      excerpt: 'O60023’ün kesme satırları, Haas’ın bastığı gibi (alıntı). Haas’ın sonraki satırı G40 G01 X0 Y1, harfiyen uygulanırsa takımı duvara doğru dışarı sürer (X0 Y0 kastedildiği açık); şekil takımı geri çekmeden önce merkeze döndürür, ISCAR’ın sırasındaki gibi.',
+      aria: 'Bir iç dişin helisel enterpolasyonu, planda ve kesitte, Haas O60023 örneğinin program satırlarıyla',
+      lines: ['iş mili saat yönünde, 1000 dev/dak', 'başlangıç derinliğine iniş: −0,5 eksi 1/8 adım', 'takım yarıçap telafisi açık', 'dişe çeyrek yayla giriş, 1/8 adım yükselerek', 'tam bir tur: Z bir adım yukarı, dişin tamamı', 'dişten çeyrek yayla çıkış, 1/8 adım yukarı', 'telafi kapalı, geri çekilme'],
+      phase: { down: 'Derinliğe iniş', line: 'Telafi açık', arcin: 'Giriş yayı', full: 'Tam tur: diş', arcout: 'Çıkış yayı', back: 'Merkeze dönüş', up: 'Geri çekilme', hold: 'Bitti' },
+    }}
+  />
+</Figure>
+
+ISCAR önerilen sırayı şöyle anlatıyor: hızlı yaklaşma, malzemeye bir yayla giriş, 360°’lik tam bir tur, yayla çıkış ve hızlı geri dönüş. Haas’ın programı da aynı düzeni izler. Takım dişin başlangıcının 1/8 adım altına iner (Z−0,5’te başlayan bir diş için Z−0,5156), çeyrek yay onu bu 1/8 adım yükseltir, tam tur bir adım kaldırır (0,125 inç, inçte 8 diş) ve çıkış yayı 1/8 daha ekler.
+
+**Çok dişli ya da tek profilli.** Çok dişli bir frezede birkaç diş sırası vardır; Vargus’un deyişiyle her diş bir adım oluşturur ve diş tek bir pasoda, bir turda biter. Tek profilli bir frezenin tek dişi vardır ve diş boyundaki her adım için bir tur gerekir: Haas’ın tek uçlu örneği O60025, 360°’lik satırını `L5` ile beş kez tekrarlar. ISCAR’a göre diş, takımın parça çevresinde 1–1,3 turuyla biter; fazladan 0,3 tur, tam derinliğe dalma ve bindirme içindir.
+
+## Dişi kılavuzla değil frezeyle açmak neden
+
+Üreticiler aynı avantajları sayıyor:
+
+| Avantaj | Kaynaklar |
+|---|---|
+| Aynı adımda pek çok çap için tek takım | ISCAR; Allied: 1/4-20 bir diş frezesi 1/2-20, hatta 7/8-20 diş açabilir |
+| Sağ ve sol diş için tek takım | Allied: diş frezeleri sağa ya da sola özgü değildir; WNT: "Sağ ve sol dişler için tek bir takım"; Vargus |
+| İç ve dış diş için tek takım | ISCAR, Allied |
+| Kör deliğin dibine yakın tam diş | WNT: "Deliğin tabanına kadar diş işleme mümkün"; Vargus: diş çıkış kanalı olmayan kör delikler de işlenebilir |
+| Ölçü ofsetle ayarlanır, aşınma telafi edilir | Allied; WNT: "Tek bir takımla farklı toleranslar elde edilebilir" |
+| Daha düşük tork ve güç | Vargus, Allied, Kennametal; WNT: "Diş açma ve ovalamadan daha düşük tork" |
+| Kırılan takım parçayı bozmaz | Allied: yeni bir diş frezesi deliğe yeniden girebilir |
+
+Allied düşük kuvveti şöyle açıklıyor: diş frezesi bir anda çevrenin yalnızca bir kısmını keser. Büyük parçalarda Kennametal, diş frezelemenin öteki diş açma yöntemlerine göre çok daha az güç istediğini söylüyor; EMUGE 24 mm’den sonsuza kadar dişler için diş frezeleri sunuyor. Vargus kılavuzun zorlandığı iki durum daha ekliyor: kılavuzun malzemeyi yırttığı yumuşak malzemeler ve üst çap sınırı olmayan delikler. Kılavuz kırılmasının kendisi için [kılavuz kırılması](/tr/problem-cozme/kilavuz-kirilmasi/) sayfasına bakın.
+
+Sınırlar tezgâh ve programdır. Tezgâhın helisel enterpolasyon yapması gerekir; WNT’nin ön koşulu: "Helisel enterpolasyon işlevine sahip CNC kontrollü freze makinesi veya işleme merkezi". Teğet giriş, düz bir girişten biraz daha karmaşık programlama ister (Vargus). Vargus da devir başına yalnızca bir kez kesen kendi uçlu takımlarının titreşime duyarlı olduğunu belirtiyor. Haas, 3/8 inçten küçük iç dişlerin mümkün ya da pratik olmayabileceği uyarısını yapıyor. ISCAR avantajlar arasında kısa işleme süresini sayıyor, ama okuduğumuz kaynakların hiçbiri çevrim süresini kılavuz çekmeyle karşılaştırmıyor.
+
+## Takımlar
+
+ISCAR diş frezelerini tam karbür takımlar, değiştirilebilir uçlu takımlar ve değiştirilebilir başlıklı takımlar olarak ayırıyor; bunlar saplı parmak freze ya da delikli kabuk freze biçiminde yapılıyor. Tam karbür MTEC frezeleri 2,2–20 mm kesme çapında, iç soğutmalı MTECZ 7,6–16 mm’de; MTECS ise boşaltılmış bir boyun üzerinde kısa, üç dişli bir kesme bölgesine sahip, M1,4 × 0,3’e kadar iniyor ve çok kısa profili takımın eğilmesini en aza indiren düşük bir kuvvet uyguluyor. WNT’nin Türkçe kataloğu "Tek sıralı şaft diş frezesi"ni, havşalı diş açma frezelerini ve deliği de dişi de tek takımla açan "Karbür delme ve diş açma frezesi"ni sayıyor; EMUGE’nin Thriller’ı göbek deliğini deliyor, havşayı açıyor ve dişi takım değiştirmeden aynı iş akışında frezeliyor.
+
+## Aynı yönlü frezeleme ve yolun yönü
+
+Kaynaklar normal seçimin aynı yönlü frezeleme olduğunda birleşiyor. ISCAR: diş işlemede çoğu durumda tercih edilen yol aynı yönlü frezelemedir. Vargus: bugün genel olarak önerilen budur. Haas: "Always climb cut the cutter" (her zaman aynı yönlü kesin). Kennametal nedenlerini veriyor: daha düşük kesme kuvvetleri, daha iyi talaş oluşumu, daha yüksek diş yüzey kalitesi. Allied, aynı yönlü frezelemede talaşın frezeden daha hızlı uzaklaştığını, zıt yönlüde ise yeniden kesilebildiğini ekliyor. Genel durum [aynı yönlü ve zıt yönlü frezeleme](/tr/prosesler/ayni-ve-zit-yonlu-frezeleme/) sayfasında. WNT kataloğu "eş yönlü" der; İTÜ ders notu aynı yönlü frezeleme için "tırmanma frezelemesi" adını da veriyor.
+
+ISCAR istisnaları söylüyor: tezgâh boşluğu karşılamıyorsa zıt yönlü frezeleme önerilir; dökme demir ve sertleştirilmiş malzemelerde de zıt yönlü frezeleme tercih edilir. Bilinmesi gereken iki belge daha ileri gidiyor: FRAISA’nın 2026 kataloğu diş frezeleri için zıt yönlü ("up-cut", Almanca baskıda "Gegenlauf") frezeleme öneriyor; Vargus’un TM Solid kataloğu da çok pasolu yöntemi için zıt yönlü frezelemenin gerekli olduğunu yazıyor, Vargus’un el kitabından farklı olarak.
+
+İş mili saat yönünde döndüğünde (M03), aynı yönlü frezeleme turun yönünü belirler, Z’nin yönü de dişin yönünü:
+
+| Diş | Tur | Z | Kaynaklar |
+|---|---|---|---|
+| Sağ, iç | G03 (saat yönünün tersi) | Yukarı, dipten | Haas, ISCAR, Allied, Vargus |
+| Sağ, dış | G02 (saat yönü) | Aşağı | Haas |
+
+Haas: iç dişler için G03, dış dişler için G02 kullanılır; sağ iç diş, Z ekseninde bir diş adımı kadar yukarı çıkar. Aynı geometriyle (bizim çıkarımımız; kaynaklar yalnızca sağ diş örnekleri veriyor) sol diş turu korur, Z’yi tersine çevirir. ISCAR hareketlerin birleşiminin sol ya da sağ diş istenmesine bağlı olduğunu, Vargus da takımlarının iki yönü de yalnızca programlanan takım yoluna bağlı olarak açtığını söylüyor.
+
+## Programlama
+
+**Yayla gir.** ISCAR teğet yay girişini öneriyor, çünkü freze malzemeye kademeli girer ve takımdaki yük kademeli artar. Vargus buna en iyi yöntem diyor ve düz radyal girişin giriş ve çıkış noktasında küçük dikey bir iz bırakabileceğini belirtiyor; Harvey Tool darbe yükünden kaçınmak için yay biçiminde bir yol istiyor. ISCAR düz teğet girişi yalnızca dış dişlere ayırıyor.
+
+**Yayda Z’yi yükselt.** Allied giriş yayının yarıçapını (diş dış çapı − takım çapı) / 4 alıyor ve bu yayda Z’yi adım / 8 kadar yükseltiyor; Haas’ın programı da aynısını yapar (yorum satırında: 1/8 adım yükselir), ISCAR’ın şablonu da.
+
+**Telafi yalnızca aşınma için.** Program takım merkezinin yolunu tanımlar; iç dişte yarıçap (diş dış çapı − takım çapı) / 2’dir. ISCAR’ın örneği: Ø29 frezeyle M48 × 2 diş, 9,5 mm. ISCAR: bu programlama yöntemi aşınma ofseti dışında takım yarıçap telafisi değeri gerektirmez. Allied: diş frezesi için kontrol ünitesine çap değeri girilmemelidir. Telafi (G41) giriş yayından önce açılır, çıkış yayından sonra kapanır.
+
+**Konik dişler.** Boru dişlerinde yol yükseldikçe açılmalıdır. Allied: diş frezesi konik olsa bile Z’de yükselirken X ve Y’de dışa doğru hareket etmelidir. Vargus paralel dişleri artımsal, konik dişleri mutlak koordinatlarla programlıyor.
+
+## İlerleme: kenar ve merkez
+
+Diş başına ilerleme kesici kenar için verilir, ama program takım merkezini yürütür. Delik içinde merkez kenardan daha küçük bir daire çizer, bu yüzden ilerlemesi daha küçük olmalıdır; dışta ise daha büyük. Kenar ilerlemesi
+
+$$
+v_f = f_z \cdot z \cdot n
+$$
+
+(Allied, Vargus, FRAISA); merkez için programlanacak ilerleme, iç dişte,
+
+$$
+v_{fm} = v_f \cdot \frac{D - d}{D}
+$$
+
+Burada D dişin dış çapı, d freze çapıdır (Harvey Tool, Allied). Dış diş için Harvey Tool (D + d) / D kullanıyor. WNT’nin Türkçe kataloğu da aynı uyarıyı yapıyor: "kontur ilerlemesi vf’nin mi yoksa merkezi eksenel ilerlemenin vfm mi kullanıldığına dikkat etmek önemlidir."
+
+<Figure caption="Kesici kenardaki ilerleme (turuncu) ile takım merkezinin ilerlemesi (mavi), ölçekli. Varsayılan değerlerde, M20 iç diş ve Ø12 freze, merkez, kenar ilerlemesinin 0,4 katıyla (8/20) yürür. Üç freze sınırı sağda kontrol ediliyor: Ø12, ISCAR’ın dış çapın %70’i sınırının (14 mm) ve kıl payı Vargus’un göbek çapının %70’i sınırının (12,1 mm) içinde, ama FRAISA’nın somun göbek çapının ⅔’si sınırının (11,5 mm) üstünde. Hız ve ilerleme, Vargus’un uçlu takımları için verdiği ilk deneme değerleriyle başlar: 100 m/dak ve ağız başına 0,05 mm.">
+  <ThreadMillFeed locale="tr" />
+</Figure>
+
+Vargus’un TM Solid kataloğu girişte ilerlemeyi düşürüyor: girişte ağız başına ilerleme diş açma ilerlemesinden %70 düşük ayarlanmalı.
+
+## Freze çapı
+
+Diş frezesinin dişleri helissiz halkalardır; bu yüzden açtığı profil biraz bozulur ve bozulma adımla ve freze çapıyla büyür (ISCAR). İç dişte freze çapına bu yüzden sınır konur:
+
+| Kaynak | İç diş için sınır |
+|---|---|
+| ISCAR | Çoğu durumda dişin dış çapının %70’ine kadar; örneği "20*0.7=14" |
+| Vargus | Standart uçları için diş dibi (göbek) çapının %70’inin altı; bunun üstünde standart uçlar doğru profili vermez |
+| FRAISA | Somun göbek (diş dibi) çapının ⅔’sini aşmamalı |
+
+M20 diş için ISCAR’ın kuralı 14 mm, Vargus’unki yaklaşık 12,1 mm, FRAISA’nınki yaklaşık 11,5 mm veriyor (temel göbek çapı 17,29 mm’nin %70’i ve ⅔’si). Dış dişte ISCAR %70’in üstüne izin veriyor; Vargus ise ISO, UN ve Whitworth dişlerde bozulmanın ihmal edildiğini söylüyor. Sınırın içinde ISCAR dengeyi belirtiyor: büyük freze daha rijit ve verimli, küçük freze daha doğru profil açar.
+
+## Radyal pasolar
+
+Zor malzemelerde ya da büyük adımlarda diş birden fazla radyal pasoda, her seferinde derinliğin daha büyük bir payına kadar açılır:
+
+| Kaynak | Paso sayısı ve paso başına derinlik |
+|---|---|
+| Allied | 2 paso: %75, %100. 3 paso: %60, %80, %100. 4 paso: %60, %80, %90, %100; sayı adıma ve işlenebilirliğe göre |
+| Kennametal | Zor malzemeler: derinliğin %60’ı, sonra kalan %40 |
+| Harvey Tool | İşlenebilirliğe göre 2, 3 ya da 4 paso; işlenen parçanın değil takımın diş ölçüsüne göre sayılır |
+
+Diş, takımın eğilmesi yüzünden mastardan geçmiyorsa ofseti değiştirmeden bir paso daha atmak işe yarar: Vargus’un çaresi bir "sıfır" kesme; ISCAR’ın hata tablosunda da "sıfır telafi" var.
+
+## Kesme verileri
+
+Diş frezeleme verileri takıma özgüdür ve temiz okunabilen üretici tablosu az. Allied’ın tam karbür AccuThread T3 diş frezeleri için metrik tablosu:
+
+| İş malzemesi | Sertlik (HB) | vc (m/dak) | Freze çapına göre diş başına talaş yükü (mm) |
+|---|---|---|---|
+| Düşük karbonlu çelik | 85–125 | 115 | 0,020 (Ø1,40–3,17) ile 0,090 (Ø12,71–19,05) arası |
+| Düşük karbonlu çelik | 125–175 | 85 | aynı |
+| Düşük karbonlu çelik | 175–225 | 70 | aynı |
+| Düşük karbonlu çelik | 225–275 | 60 | aynı |
+| Paslanmaz çelik | 185–275 | 70 | 0,020 ile 0,065 arası |
+| Paslanmaz çelik | 275–350 | 60 | aynı |
+| Dövme alüminyum | 30 | 150 | 0,025 ile 0,120 arası |
+| Dövme alüminyum | 180 | 135 | aynı |
+
+ISCAR IC908 kaliteli değiştirilebilir uçları için diş başına 0,05–0,15 mm veriyor; tam karbür tablolarında uzun kesme boylu frezeler için ilerlemeyi %40 düşürüyor. Allied T3 diş frezelerini aynı yönlü frezelemeyi korumak için sola kesen (M04) olarak ve yukarıdan aşağı çalıştırıyor; bu yüzden yukarıdaki yön tablosu bu takımlara olduğu gibi uymaz. Kennametal’in kataloğu değiştirilebilir diş frezeleme uçları için, 187 HB altındaki karbon çeliklerinde 300–700 SFM (91–213 m/dak) veriyor. Vargus uçlu takımlarıyla denemelere 100 m/dak ve ağız başına 0,05 mm ile başlıyor.
+
+## Hatalar
+
+| Sorun | Neden (kaynak belirttiyse) | Çare | Kaynaklar |
+|---|---|---|---|
+| Diş toleransta değil (mastar) | Takımın eğilmesi (Vargus) | İlerlemeyi düşürmek, bir radyal paso ya da sıfır paso eklemek, sarkmayı azaltmak, aşınmış takımı değiştirmek | Vargus, ISCAR, Allied |
+| Titreşim | İlerleme yüksek, profil derin, diş uzun (Vargus) | İlerlemeyi düşürmek, iki pasoda ya da bölümler halinde kesmek, sarkmayı azaltmak, önerilen tutucuyu kullanmak | Vargus, Allied, ISCAR |
+| Takım hemen kırılıyor | – | Takım seçimini kontrol etmek (daha küçük freze), ilerlemeyi düşürmek, yayla girmek | Allied |
+| Kenarlarda kırılma | Titreşim (Vargus) | İlerlemeyi düşürmek, bir radyal paso eklemek, sarkmayı azaltmak | Allied, Vargus |
+| Serbest yüzey aşınması | Yüksek kesme hızı, ince talaş, yetersiz soğutma (Kennametal) | Hızı düşürmek, daha az radyal pasoyla ilerlemeyi artırmak, soğutma basıncını kontrol etmek | Kennametal, ISCAR, Allied |
+
+Vargus titreşimin kolayca anlaşıldığını söylüyor: ses son derece yüksektir.
+
+Kılavuzla açılan seçenek için [kılavuz çekme](/tr/prosesler/kilavuz-cekme/), dişlerin kendisi için [ISO metrik vida dişleri](/tr/teknik-resim-ve-toleranslar/iso-metrik-vida-disleri/) sayfasına bakın.

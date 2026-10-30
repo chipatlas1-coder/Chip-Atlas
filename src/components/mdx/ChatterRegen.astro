@@ -1,0 +1,135 @@
+---
+/**
+ * Regenerative chatter, the mechanism: the surface unrolled, the tool on a spring riding the wave it cuts now
+ * (inner) through the wave the previous pass left (outer). The chip between them is as thick as the gap, so
+ * its thickness swings by ± 2A·|sin(ε/2)| — nothing when the waves are in phase, most when they are opposite.
+ * The phase slider moves the outer wave; the trace underneath is the chip thickness at the edge.
+ * Model and drawing in src/lib/chatter.ts and chatter-draw.ts. Schematic: A and h_m are drawing units.
+ */
+import { drawRegen } from '../../lib/chatter-draw';
+interface Props { locale: 'en' | 'tr'; eps?: number }
+const { locale, eps = 90 } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { prev: 'önceki paso (dış dalga)', now: 'bu paso (iç dalga)', chip: 'talaş', h: 'h', trace: 'kesme kenarındaki talaş kalınlığı h', mean: 'ortalama', eps: 'ε', spring: 'takım = yay + kütle', uncut: 'kalkacak katman', phase: 'İki dalga arasındaki faz ε', swing: 'Talaş kalınlığının salınımı', play: 'Oynat', pause: 'Duraklat', inPhase: 'aynı fazda: talaş sabit', opposite: 'zıt fazda: en büyük salınım', of: 'A’nın', aria: 'Talaş kalınlığı rejenerasyonu: takım bir yay üzerinde titreşirken önceki pasonun bıraktığı dalgalı yüzeyi keser; iki dalga arasındaki faz farkı talaş kalınlığını değiştirir' }
+  : { prev: 'previous pass (outer wave)', now: 'this pass (inner wave)', chip: 'chip', h: 'h', trace: 'chip thickness h at the edge', mean: 'mean', eps: 'ε', spring: 'tool = spring + mass', uncut: 'layer to come off', phase: 'Phase ε between the two waves', swing: 'Swing of the chip thickness', play: 'Play', pause: 'Pause', inPhase: 'in phase: constant chip', opposite: 'opposite: largest swing', of: '× A', aria: 'Regenerative chatter: the tool vibrates on a spring while it cuts the wavy surface the previous pass left; the phase between the two waves makes the chip thickness vary' };
+const S = [drawRegen(eps, 0.62, T, false), drawRegen(eps, 0.62, T, true)];
+const fmt = (v: number) => (tr ? v.toFixed(2).replace('.', ',') : v.toFixed(2));
+const swingText = (sw: number, A: number) => (tr ? `± ${fmt(sw / A)} × A` : `± ${fmt(sw / A)} × A`);
+---
+<div class="cr" data-cr data-locale={locale} data-anim>
+  <svg class="defs" aria-hidden="true" width="0" height="0"><defs>
+    <marker id="cr-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,1 L10,5 L0,9 z" fill="#152230" /></marker>
+    <marker id="cr-ae" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1 L10,5 L0,9 z" fill="#8b52c9" /></marker>
+    <linearGradient id="cr-tool" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#e9c46a" /><stop offset="1" stop-color="#b9822a" /></linearGradient>
+    <linearGradient id="cr-chipg" x1="0" x2="1" y1="1" y2="0"><stop offset="0" stop-color="#e3b23c" /><stop offset="0.55" stop-color="#c96f2e" /><stop offset="1" stop-color="#8b52c9" /></linearGradient>
+  </defs></svg>
+  <div class="views">
+    <svg viewBox={`0 0 ${S[0].W} ${S[0].H}`} class="wide" role="img" aria-label={T.aria} data-s="w" set:html={S[0].svg} />
+    <svg viewBox={`0 0 ${S[1].W} ${S[1].H}`} class="narrow" role="img" aria-label={T.aria} data-s="n" set:html={S[1].svg} />
+  </div>
+  <ul class="legend" aria-hidden="true">
+    <li><i class="sw p"></i>{T.prev}</li>
+    <li><i class="sw n"></i>{T.now}</li>
+    <li><i class="sw l"></i>{T.uncut}</li>
+    <li><i class="sw t"></i>{T.trace}</li>
+  </ul>
+  <div class="row">
+    <button type="button" class="play" data-play aria-label={T.pause}><span data-o="pl">❚❚</span></button>
+    <label class="field"><span>{T.phase} <output data-o="e">{eps}</output>°</span>
+      <input type="range" min="0" max="360" step="5" value={eps} data-i="e" />
+    </label>
+    <div class="read"><span>{T.swing}</span><strong class="num" data-o="sw">{swingText(S[0].sw, 13)}</strong><em data-o="note"></em></div>
+  </div>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .cr { display: grid; gap: 0.75rem; position: relative; }
+  svg.defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .views svg { width: 100%; height: auto; display: block; }
+  .views .narrow { display: none; }
+  @media (max-width: 40rem) { .views .wide { display: none; } .views .narrow { display: block; } }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem; margin: 0; padding: 0; list-style: none; font-size: 0.8rem; color: var(--ink-2); }
+  .legend li { display: flex; align-items: center; gap: 0.4rem; margin: 0; }
+  .legend .sw { display: inline-block; width: 1.4rem; height: 0; border-top: 3px solid; border-radius: 2px; }
+  .legend .sw.p { border-color: #2a6fd6; }
+  .legend .sw.n { border-color: #c94f0c; }
+  .legend .sw.l { height: 0.7rem; border: 0; background: #f6d9c8; }
+  .legend .sw.t { border-color: #8b52c9; }
+  .row { display: grid; grid-template-columns: auto minmax(0, 1.4fr) minmax(0, 1fr); gap: 0.9rem; align-items: end; }
+  @media (max-width: 40rem) { .row { grid-template-columns: auto 1fr; } .row .read { grid-column: 1 / -1; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: #8b52c9; font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: #8b52c9; }
+  .play { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--bg-raised); color: var(--accent); font-size: 0.85rem; cursor: pointer; }
+  .play:hover { border-color: var(--accent); }
+  .play:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .read { display: grid; gap: 0.1rem; }
+  .read span { font-size: 0.75rem; color: var(--ink-3); }
+  .read strong { font-family: var(--font-mono); font-size: 1.3rem; font-weight: 600; color: #c94f0c; }
+  .read em { font-style: normal; font-size: 0.8rem; color: var(--ink-3); min-height: 1.1em; }
+  .cr :global(.cr-panel) { fill: #f7f9fc; stroke: var(--line); }
+  .cr :global(.cr-mean) { stroke: #9aa6b2; stroke-dasharray: 3 3; }
+  .cr :global(.cr-band) { stroke: #e2601a; stroke-opacity: 0.45; stroke-dasharray: 6 4; }
+  .cr :global(.cr-trace) { fill: none; stroke: #8b52c9; stroke-width: 2.2; stroke-linejoin: round; }
+  .cr :global(.cr-dot) { fill: #8b52c9; stroke: #fff; stroke-width: 1.5; }
+  .cr :global(.cr-work) { fill: url(#ca-hatch); stroke: none; }
+  .cr :global(.cr-layer) { fill: #f6d9c8; fill-opacity: 0.85; }
+  .cr :global(.cr-ghost) { fill: none; stroke: #2a6fd6; stroke-width: 1.2; stroke-dasharray: 4 4; opacity: 0.45; }
+  .cr :global(.cr-future) { fill: none; stroke: #e2601a; stroke-width: 1.2; stroke-dasharray: 4 4; opacity: 0.7; }
+  .cr :global(.cr-now) { fill: none; stroke: #c94f0c; stroke-width: 2.6; stroke-linejoin: round; }
+  .cr :global(.cr-prev) { fill: none; stroke: #2a6fd6; stroke-width: 2.6; stroke-linejoin: round; }
+  .cr :global(.cr-hold) { stroke: #364554; stroke-width: 3; }
+  .cr :global(.cr-spring) { fill: none; stroke: #364554; stroke-width: 1.6; stroke-linejoin: round; }
+  .cr :global(.cr-tool) { fill: url(#cr-tool); stroke: #8a6420; stroke-width: 1.2; stroke-linejoin: round; }
+  .cr :global(.cr-chip) { fill: url(#cr-chipg); stroke: #8a4b1a; stroke-width: 0.8; stroke-linejoin: round; }
+  .cr :global(.cr-h) { stroke: #152230; stroke-width: 1.2; }
+  .cr :global(.cr-tick) { stroke: #c94f0c; stroke-width: 1; stroke-dasharray: 2 2; }
+  .cr :global(.cr-tick.p) { stroke: #2a6fd6; }
+  .cr :global(.cr-eps) { stroke: #8b52c9; stroke-width: 1.8; }
+  .cr :global(.cr-t) { font: 12px var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: #fff; stroke-width: 3.5px; stroke-linejoin: round; }
+  .cr :global(.cr-t.s) { font-size: 11px; fill: var(--ink-3); }
+  .cr :global(.cr-t.p) { fill: #1e5fc4; }
+  .cr :global(.cr-t.n) { fill: #c94f0c; }
+  .cr :global(.cr-t.h) { fill: #152230; font-weight: 600; }
+  .cr :global(.cr-t.e) { fill: #8b52c9; font-weight: 600; font-size: 13px; }
+</style>
+
+<script>
+  import { drawRegen } from '../../lib/chatter-draw';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-cr]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const eIn = q<HTMLInputElement>('[data-i="e"]');
+    const fmt = (v: number) => (tr ? v.toFixed(2).replace('.', ',') : v.toFixed(2));
+    let u = 0.62, playing = false, raf = 0, last = 0, visible = false;
+    const draw = () => {
+      const e = Number(eIn.value);
+      const w = drawRegen(e, u, T, false), n = drawRegen(e, u, T, true);
+      q('[data-s="w"]').innerHTML = w.svg;
+      q('[data-s="n"]').innerHTML = n.svg;
+      q('[data-o="e"]').textContent = String(e);
+      q('[data-o="sw"]').textContent = `± ${fmt(w.sw / 13)} × A`;
+      q('[data-o="note"]').textContent = e % 360 === 0 ? T.inPhase : e === 180 ? T.opposite : '';
+    };
+    const setBtn = () => { q('[data-o="pl"]').textContent = playing ? '❚❚' : '▶'; q('[data-play]').setAttribute('aria-label', playing ? T.pause : T.play); };
+    const loop = (now: number) => {
+      if (!playing) return;
+      const dt = last ? Math.min(50, now - last) : 16; last = now;
+      if (visible) { u += dt / 5200; if (u > 1) u = 0; draw(); }
+      raf = requestAnimationFrame(loop);
+    };
+    const start = () => { if (playing) return; playing = true; last = 0; setBtn(); raf = requestAnimationFrame(loop); };
+    const stop = () => { playing = false; cancelAnimationFrame(raf); setBtn(); };
+    new IntersectionObserver((es) => { visible = es.some((x) => x.isIntersecting); }).observe(root);
+    eIn.addEventListener('input', draw);
+    q('[data-play]').addEventListener('click', () => (playing ? stop() : start()));
+    draw();
+    if (document.documentElement.classList.contains('anim')) { u = 0; draw(); whenIn(root, start); }
+    else { playing = false; setBtn(); }
+  });
+</script>

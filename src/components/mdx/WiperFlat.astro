@@ -1,0 +1,122 @@
+---
+/**
+ * Wiper insert in face milling, the surface along the feed (heights schematic, magnified): the standard teeth
+ * leave a mark every fz; one wiper, set a little lower, passes once per revolution and leaves a flat of its
+ * width bs every fn. Feed per revolution below bs: the flats overlap and the wiper finishes the whole surface;
+ * above it, strips of the standard teeth's marks remain between the flats. bs = 1.4 mm is Mitsubishi's standard
+ * wiper flat (.055 in); six teeth.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { fn: 'Devir başına ilerleme fn', bs: 'Silici düzlüğün genişliği bs', ok: 'fn < bs: düzlükler üst üste biniyor; silici bütün yüzeyi bitiriyor', no: 'fn > bs: düzlüklerin arasında silinmemiş şeritler kalıyor', wiper: 'silici geçişi', marks: 'standart dişlerin izleri', feed: 'ilerleme', unit: 'mm/dev', z: 'z = 6 diş, fz = fn / 6', aria: 'Alın frezelemede silici uç: ilerleme yönünde yüzey profili; devir başına ilerleme silici düzlükten küçükse düzlükler üst üste biner' }
+  : { fn: 'Feed per revolution fn', bs: 'Wiper flat width bs', ok: 'fn < bs: the flats overlap; the wiper finishes the whole surface', no: 'fn > bs: unwiped strips remain between the flats', wiper: 'wiper pass', marks: 'marks of the standard teeth', feed: 'feed', unit: 'mm/rev', z: 'z = 6 teeth, fz = fn / 6', aria: 'Wiper insert in face milling: the surface profile along the feed; when the feed per revolution is shorter than the wiper flat, the flats overlap' };
+const bs = 1.4;
+---
+<div class="wf" data-wf data-locale={locale} data-anim>
+  <svg viewBox="0 0 640 220" role="img" aria-label={T.aria} class="plot" data-svg></svg>
+  <div class="ctl">
+    <label class="field"><span>{T.fn} <output data-o="fn">1,0</output> {T.unit}</span><input type="range" min="0.3" max="3" step="0.05" value="1.0" data-i="fn" /></label>
+    <div class="wbs"><span>{T.bs}</span><strong class="num">{tr ? '1,4' : '1.4'} mm</strong><em>{T.z}</em></div>
+  </div>
+  <p class="state" data-o="st"></p>
+  <script type="application/json" data-cfg set:html={JSON.stringify({ T, bs })} />
+</div>
+
+<style>
+  .wf { display: grid; gap: 0.75rem; }
+  .plot { width: 100%; height: auto; display: block; }
+  .ctl { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 0.8rem 1.2rem; align-items: end; }
+  @media (max-width: 40rem) { .ctl { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; }
+  .field > span { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .wbs { display: grid; gap: 0.1rem; }
+  .wbs span { font-size: 0.75rem; color: var(--ink-3); }
+  .wbs strong { font: 600 1.1rem var(--font-mono); color: #0f7a6e; }
+  .wbs em { font-style: normal; font-size: 0.75rem; color: var(--ink-3); }
+  .state { margin: 0; font-weight: 600; font-size: 0.95rem; }
+  .wf[data-ok] .state { color: #0f7a6e; }
+  .wf:not([data-ok]) .state { color: #b23a34; }
+  .wf :global(.wk) { fill: url(#ca-hatch); stroke: none; }
+  .wf :global(.surf) { fill: none; stroke: #364554; stroke-width: 1.6; stroke-linejoin: round; }
+  .wf :global(.flat) { stroke: #13998a; stroke-width: 4; stroke-linecap: butt; }
+  .wf :global(.gap) { fill: #c2413b; fill-opacity: 0.14; }
+  .wf :global(.tick) { stroke: #13998a; stroke-width: 1; }
+  .wf :global(.t) { font: 12px var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+  .wf :global(.t.w) { fill: #0f7a6e; }
+  .wf :global(.t.r) { fill: #b23a34; }
+  .wf :global(.dim) { stroke: #1e5fc4; stroke-width: 1.1; }
+  .wf :global(.t.d) { fill: #1e5fc4; }
+</style>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-wf]').forEach((root) => {
+    const { T, bs } = JSON.parse((root.querySelector('[data-cfg]') as HTMLElement).textContent || '{}');
+    const tr = root.dataset.locale === 'tr';
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const fIn = q<HTMLInputElement>('[data-i="fn"]');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const f1 = (v: number) => v.toFixed(1);
+    const draw = () => {
+      const fn = Number(fIn.value), fz = fn / 6;
+      const X0 = 24, X1 = 616, L = 9, k = (X1 - X0) / L;            // 9 mm of surface
+      const yS = 118, sc = 9, wipe = 5;                               // scallop bottom, scallop height, wiper below it
+      // standard teeth: arcs between marks every fz; the wiper's flats every fn, bs long, wipe px lower
+      const flats: [number, number][] = [];
+      for (let x = -bs; x < L + fn; x += fn) flats.push([x, x + bs]);
+      const inFlat = (x: number) => flats.some(([a, b]) => x >= a && x <= b);
+      const pts: string[] = [];
+      for (let i = 0; i <= 900; i++) {
+        const x = (L * i) / 900;
+        let y: number;
+        if (inFlat(x)) y = yS + wipe;
+        else { const u = ((x % fz) + fz) % fz / fz; y = yS - sc * (1 - (2 * u - 1) ** 2) * Math.min(1, fz / 0.12); }
+        pts.push(`${f1(X0 + x * k)},${f1(y)}`);
+      }
+      const gaps: string[] = [];
+      for (let j = 0; j < flats.length - 1; j++) {
+        const a = Math.max(0, flats[j][1]), b = Math.min(L, flats[j + 1][0]);
+        if (b > a) gaps.push(`<rect x="${f1(X0 + a * k)}" y="${yS - sc - 6}" width="${f1((b - a) * k)}" height="${sc + 6 + wipe}" class="gap"/>`);
+      }
+      const visFlats = flats.filter(([a, b]) => b > 0 && a < L).map(([a, b]) => `<line x1="${f1(X0 + Math.max(0, a) * k)}" x2="${f1(X0 + Math.min(L, b) * k)}" y1="${yS + wipe}" y2="${yS + wipe}" class="flat"/>`).join('');
+      const f0 = flats.find(([a]) => a >= 0.5) || flats[1];
+      const ticks = flats.filter(([a]) => a >= 0 && a <= L).map(([a], j) => `<line x1="${f1(X0 + a * k)}" x2="${f1(X0 + a * k)}" y1="${yS + wipe - 8 - (j % 2) * 6}" y2="${yS + wipe + 2}" class="tick"/>`).join('');
+      const svg = `
+        <path d="M${X0},${yS + 60} L${pts.join(' L')} L${X1},${yS + 60} Z" class="wk"/>
+        ${gaps.join('')}
+        <polyline points="${pts.join(' ')}" class="surf"/>
+        ${visFlats}
+        ${ticks}
+        <line x1="${f1(X0 + f0[0] * k)}" x2="${f1(X0 + (f0[0] + fn) * k)}" y1="${yS + 34}" y2="${yS + 34}" class="dim" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)"/>
+        <text x="${f1(X0 + (f0[0] + fn / 2) * k)}" y="${yS + 50}" class="t d" text-anchor="middle">fn</text>
+        <line x1="${f1(X0 + f0[0] * k)}" x2="${f1(X0 + (f0[0] + bs) * k)}" y1="${yS + 18}" y2="${yS + 18}" class="dim" style="stroke:#13998a" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)"/>
+        <text x="${f1(X0 + (f0[0] + bs) * k + 6)}" y="${yS + 22}" class="t w">bs</text>
+        <text x="${X0}" y="30" class="t w">— ${T.wiper}</text>
+        <text x="${X0 + 170}" y="30" class="t">⌒ ${T.marks}</text>
+        <line x1="${X1 - 120}" x2="${X1 - 40}" y1="200" y2="200" stroke="#e2601a" stroke-width="2" marker-end="url(#ca-arr-acc)"/>
+        <text x="${X1 - 34}" y="204" class="t r">${T.feed}</text>`;
+      q('[data-svg]').innerHTML = svg;
+      q('[data-o="fn"]').textContent = dec(fn.toFixed(2));
+      const ok = fn < bs;
+      root.toggleAttribute('data-ok', ok);
+      q('[data-o="st"]').textContent = ok ? T.ok : T.no;
+    };
+    let raf = 0;
+    fIn.addEventListener('input', () => { cancelAnimationFrame(raf); draw(); });
+    draw();
+    // once on entry: sweep the feed past the wiper width and back
+    whenIn(root, () => {
+      const t0 = performance.now(), ms = 3600;
+      const step = (now: number) => {
+        const u = Math.min(1, (now - t0) / ms), v = 1 + 1.2 * Math.sin(Math.PI * u);
+        fIn.value = v.toFixed(2); draw();
+        if (u < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    });
+  });
+</script>

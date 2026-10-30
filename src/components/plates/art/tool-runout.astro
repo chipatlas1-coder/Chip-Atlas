@@ -1,0 +1,35 @@
+---
+/* Tool runout. A holder with an end mill whose axis is tilted/offset from the spindle axis (exaggerated), a dial
+   indicator on the edge near the tip, and the swept envelope of the edge. Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr ? { sp: 'iş mili ekseni', tl: 'takım ekseni', tir: 'T.I.R.' } : { sp: 'spindle axis', tl: 'tool axis', tir: 'T.I.R.' };
+const x0 = 200;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <rect class="metal f" style="--i:0" x={x0 - 52} y="18" width="104" height="54" rx="6" />
+  <path class="metal-h f" style="--i:1" d={`M${x0 - 40},72 L${x0 + 40},72 L${x0 + 26},128 L${x0 - 26},128 Z`} />
+  <!-- swept envelope of the edge -->
+  <path class="soft-acc f" style="--i:2" d={`M${x0 - 30},128 L${x0 + 30},128 L${x0 + 38},286 L${x0 - 38},286 Z`} />
+  <!-- tool, tilted slightly -->
+  <g transform={`rotate(-2.4 ${x0} 128)`} class="f" style="--i:3">
+    <rect class="carbide" x={x0 - 24} y="126" width="48" height="160" rx="4" stroke="#5f6c79" stroke-width="1.2" />
+    <path d={`M${x0 - 22},150 L${x0 + 22},176 M${x0 - 22},184 L${x0 + 22},210 M${x0 - 22},218 L${x0 + 22},244 M${x0 - 22},252 L${x0 + 22},278`} stroke="#5f6c79" stroke-width="2.2" />
+  </g>
+  <line class="c f" style="--i:4" x1={x0} y1="10" x2={x0} y2="306" stroke="#c2413b" />
+  <line class="dash f" style="--i:4" x1={x0} y1="128" x2={x0 + 7.3} y2="302" stroke="#1e5fc4" stroke-width="1.4" />
+  <!-- dial indicator -->
+  <circle class="f" style="--i:5" cx="352" cy="214" r="34" fill="#fff" stroke="#364554" stroke-width="2" />
+  <g class="f" style="--i:5">
+    {Array.from({ length: 12 }, (_, k) => k * 30).map((a) => <line x1={352 + 28 * Math.cos((a * Math.PI) / 180)} y1={214 + 28 * Math.sin((a * Math.PI) / 180)} x2={352 + 32 * Math.cos((a * Math.PI) / 180)} y2={214 + 32 * Math.sin((a * Math.PI) / 180)} stroke="#364554" stroke-width="1.2" />)}
+  </g>
+  <line class="stroke-y" x1="352" y1="214" x2="370" y2="196" stroke="#c2413b" stroke-width="2.4" style="transform-origin: 352px 214px; animation: none" />
+  <line class="f" style="--i:6" x1="318" y1="262" x2={x0 + 42} y2="262" stroke="#9aa6b2" stroke-width="5" stroke-linecap="round" />
+  <line class="f" style="--i:6" x1="318" y1="262" x2="336" y2="244" stroke="#9aa6b2" stroke-width="5" stroke-linecap="round" />
+  <g class="lbl">
+    <text class="t-sm" x={x0 - 8} y="304" text-anchor="end" style="fill:#b23a34">{T.sp}</text>
+    <text class="t-data t-sm" x={x0 + 14} y="304">{T.tl}</text>
+    <text class="t-acc t-sm" x="352" y="170" text-anchor="middle">{T.tir}</text>
+  </g>
+</svg>

@@ -1,0 +1,170 @@
+---
+key: surface-roughness-parameters
+locale: en
+slug: surface-roughness-parameters
+title: 'Surface roughness parameters — Ra, Rz, Rt and beyond'
+description: 'What Ra, Rq, Rz, Rt, Rsk, Rku, RSm and Rmr actually measure, how to choose the cut-off, what changed when ISO 21920 replaced ISO 4287 and 4288, and the Ra each machining process typically reaches.'
+section: 10
+subsection: surface-roughness
+order: 1
+updated: 2026-10-11
+tools: [roughness]
+glance:
+  - value: '5'
+    label: 'Sampling lengths in the default evaluation length (ISO 4288)'
+  - value: '0.8'
+    unit: 'mm'
+    label: 'Cut-off λc for Ra over 0.1 to 2 µm'
+  - value: '16 %'
+    label: 'Share of values that may exceed a limit under the 16 % rule'
+  - value: '2021'
+    label: 'ISO 21920 replaced ISO 1302, ISO 4287 and ISO 4288'
+sources:
+  - label: 'R. K. Leach, The measurement of surface texture using stylus instruments, NPL Good Practice Guide No. 37, 2nd ed., 2014'
+    url: https://eprintspublications.npl.co.uk/2041/1/mgpg37.pdf
+  - label: 'Taylor Hobson, Exploring Surface Texture, 7th ed., 2011'
+    url: https://www.southampton.ac.uk/~assets/doc/Engineering/exploring%20surface%20texture.pdf
+  - label: 'Carl Zeiss, Surface finish guide, 2011'
+    url: https://metrology.me.wisc.edu/wp-content/uploads/sites/225/2023/12/SFG.pdf
+  - label: 'Mitutoyo, Quick guide to surface roughness measurement, Bulletin 2229, 2016'
+    url: https://www.mitutoyo.com/webfoo/wp-content/uploads/1984_Surf_Roughness_PG.pdf
+  - label: 'Mahr, MarSurf parameter guide, roughness depth (Rz, Rmax and older definitions)'
+    url: https://parameter.mahr.com/html/english/MarSurf/roughnessdepth.html
+  - label: 'Evident (Olympus), surface roughness parameters'
+    url: https://evidentscientific.com/de/applications/metrology/surface-roughness-measurement-portal/parameters
+  - label: 'ISO 21920-2:2021, catalogue page (published 2021-12-20)'
+    url: https://www.iso.org/standard/72226.html
+  - label: 'ISO 21920-3:2021, catalogue page'
+    url: https://www.iso.org/standard/72228.html
+  - label: 'BS EN ISO 21920-2:2022 preview (forewords; what the standard replaces)'
+    url: https://webstore.ansi.org/preview-pages/BSI/preview_30458657.pdf
+  - label: 'ISO 4287:1997, catalogue page (withdrawn 2021-12-20)'
+    url: https://www.iso.org/standard/10132.html
+  - label: 'ISO 4288:1996, catalogue page (withdrawn 2021-12-20)'
+    url: https://www.iso.org/standard/2096.html
+  - label: 'Mahr, "Improved standards for surface texture", 2022'
+    url: https://www.mahr.com/ja/news-events/article-view/improved-standards-for-surface-texture
+  - label: 'Polytec, "Roughness evaluation according to ISO 21920", guideline, 2023'
+    url: https://www.polytec.com/_Resources/Persistent/b/0/4/c/b04cc13c305052cbde9f8e699f631252b4e4014f/OM_GL_TOP_Roughness-evaluation-ISO-21920_E_52165.pdf
+  - label: 'Carl Zeiss, Poster Rauheit (ISO 21920), 2026'
+    url: https://asset-downloads.zeiss.com/catalogs/download/iqs2/76929089-4f9d-4830-82c5-fd067ecc9077/Poster_Roughness_2026_DE_011_678557_1.pdf
+  - label: 'Hoffmann / Perschmann, Oberflächenkenngrößen (Mahr content), 2022'
+    url: https://www.perschmann.de/_Resources/Persistent/c/1/7/5/c1752cfe94f0cd28c408a508401d8ae59a418843/messtechnik-oberflaechenkenngroessen-perschmann.pdf
+  - label: 'Autodesk Inventor 2020 Help, "Press Fit Surface Quality" (Ra by process chart)'
+    url: https://help.autodesk.com/cloudhelp/2020/ENU/Inventor-Help/files/GUID-AB89A817-38AB-4DC0-8594-54847FB0034B.htm
+  - label: 'Sunnen, honing catalogue section 12, technical data, 2019 (conversion factors for single-grit honed surfaces)'
+    url: https://www.sunnen.com/cdn/shop/files/sunnen_honing_catalog_section_12_technical_data.pdf
+---
+import ProfileRaRz from '../../../components/mdx/ProfileRaRz.astro';
+
+import RaProcess from '../../../components/mdx/RaProcess.astro';
+import SkewProfiles from '../../../components/mdx/SkewProfiles.astro';
+import Iso21920Map from '../../../components/mdx/Iso21920Map.astro';
+
+"Ra 1.6" is the most common surface specification on a machining drawing, and one of the most misunderstood. A single number cannot describe a surface; each parameter answers one specific question about the profile. Knowing which question it answers is what makes the number useful.
+
+## The profile and the mean line
+
+A stylus instrument traces the surface along a line and records the heights. After the form is removed, a filter with the **cut-off wavelength λc** separates the short-wavelength **roughness** from the longer-wavelength waviness. All R-parameters are calculated from this roughness profile, measured from its **mean line**.
+
+Under ISO 4287 and ISO 4288 the profile is evaluated over **sampling lengths** lr equal to λc; ISO 4288 sets the default **evaluation length** at five sampling lengths.
+
+<Figure caption="A synthetic roughness profile over five sampling lengths. The band shows ±Ra around the mean line; each section shows its peak-to-valley height Rzi. All values are calculated from the profile drawn.">
+  <ProfileRaRz locale="en" />
+</Figure>
+
+## Height parameters
+
+**Ra**, the arithmetic mean deviation, is the mean of the absolute heights Z(x) from the mean line:
+
+$$
+Ra = \frac{1}{l}\int_0^{l} |Z(x)|\,dx
+$$
+
+**Rq** is the root mean square of the same heights. It weights large deviations more strongly than Ra.
+
+**Rp** and **Rv** are the height of the highest peak and the depth of the deepest valley within a sampling length.
+
+**Rz**, the maximum height of the profile, is Rp + Rv within one sampling length. The value reported is the mean of the five values Rz<sub>i</sub> over the five sampling lengths; the largest of them is **Rz1max**.
+
+$$
+Rz = \frac{1}{5}\sum_{i=1}^{5} Rz_i \qquad Rz_i = Rp_i + Rv_i
+$$
+
+**Rt**, the total height of the profile, is the highest peak plus the deepest valley over the whole evaluation length. It is therefore always at least as large as Rz.
+
+Ra and Rq average everything, so a single scratch or burr barely changes them. Rz responds more to individual peaks and valleys, and Rt is set by the single worst feature. There is no fixed conversion between Ra and Rz: the ratio depends on the shape of the profile. Sunnen, for example, gives Rz ≈ 7.6 · Ra for surfaces honed with a single grit, and states that its factors do not apply to composite-grit finishes.
+
+<Note kind="warn" title="Rz has meant three different things">
+- In ISO 4287:1984, Rz was the **ten-point height**: the mean of the five highest peaks plus the mean of the five deepest valleys. It was deleted as an ISO parameter in 1997; it survives as RzJIS.
+- The 1997 ISO Rz is the **maximum height** defined above, which was called Ry before.
+- **Rmax** in DIN 4768, VDA and ASME B46.1 means the largest single Rz<sub>i</sub>, the same as Rz1max; in older Japanese standards it meant the total height.
+
+When a drawing or report gives "Rz" without a standard, ask which one.
+</Note>
+
+## Shape, spacing and material ratio
+
+- **Rsk** (skewness) is the mean of Z³ divided by Rq³. It is negative when deep valleys interrupt a flat top surface, and positive when isolated peaks stand above it. Two surfaces with the same Ra can have opposite Rsk.
+- **Rku** (kurtosis) is the mean of Z⁴ divided by Rq⁴. It equals 3 for a Gaussian profile; higher values mean sharper peaks or valleys.
+- **RSm** is the mean width of the profile elements, the spacing of the texture along the surface. In turning it reflects the feed.
+- **Rmr(c)**, the material ratio, is the share of the evaluation length in which the profile is cut by a line at height c, in percent. Its curve over all heights, the Abbott–Firestone curve, is the basis of the [Rk parameters](/metrology/rk-parameters/).
+
+<Figure caption="Three synthetic profiles scaled to the same Ra. Only the shape differs, and Rsk and Rku, calculated from the profiles drawn, tell them apart. The bars on the right are the height distribution of each profile.">
+  <SkewProfiles locale="en" />
+</Figure>
+
+## Choosing the cut-off (ISO 4288)
+
+The cut-off λc must suit the roughness being measured. ISO 4288:1996 selected it from the expected value of the parameter:
+
+| Ra (µm) | Rz, Rz1max (µm) | RSm (mm), periodic profiles | λc = lr (mm) | Evaluation length ln (mm) |
+|---|---|---|---|---|
+| over 0.006 to 0.02 | over 0.025 to 0.1 | over 0.013 to 0.04 | 0.08 | 0.4 |
+| over 0.02 to 0.1 | over 0.1 to 0.5 | over 0.04 to 0.13 | 0.25 | 1.25 |
+| over 0.1 to 2 | over 0.5 to 10 | over 0.13 to 0.4 | 0.8 | 4 |
+| over 2 to 10 | over 10 to 50 | over 0.4 to 1.3 | 2.5 | 12.5 |
+| over 10 to 80 | over 50 to 200 | over 1.3 to 4 | 8 | 40 |
+
+ISO 3274 pairs each cut-off with a short-wave filter λs and a maximum stylus tip radius: 2.5 µm and 2 µm for λc up to 0.8 mm, 8 µm and 5 µm for 2.5 mm, and 25 µm and 10 µm for 8 mm.
+
+Under ISO 4288 a specification such as Ra 1.6 was met when no more than 16 % of the measured values exceeded it (the 16 % rule). "Ra max 1.6" required every value to stay within it.
+
+## What changed with ISO 21920
+
+ISO 21920-1, -2 and -3, published on 20 December 2021, replaced ISO 1302 (drawing indication), ISO 4287 (parameters) and ISO 4288 (measurement rules); ISO 21920-2 also replaced ISO 13565-2 and -3.
+
+<Figure caption="Three parts of ISO 21920 in place of five earlier standards.">
+  <Iso21920Map locale="en" />
+</Figure>
+
+The main changes:
+
+| Topic | ISO 4287, 4288, 13565-2 | ISO 21920 |
+|---|---|---|
+| Sampling length | lr | section length l<sub>sc</sub>, number of sections n<sub>sc</sub> (default 5) |
+| Filters | λc, λs | nesting indices N<sub>ic</sub>, N<sub>is</sub> |
+| Ra, Rq, Rsk, Rku | averaged over sampling lengths | calculated once over the evaluation length l<sub>e</sub> |
+| Rz | mean of five Rz<sub>i</sub> | still the mean over the sections |
+| Largest single peak-to-valley height | Rz1max (Rmax in DIN, VDA) | Rzx |
+| Material ratios of the core | Mr1, Mr2 (ISO 13565-2) | Rmrk1, Rmrk2 |
+| Default acceptance rule | 16 % rule | max rule; the 16 % rule applies only when stated |
+| Choice of cut-off | from the measured or expected value | from the tolerance value on the drawing, in setting classes Sc1 to Sc5 |
+
+The Ra bands for choosing the cut-off stayed the same. The Rz bands moved: an upper limit of Rz up to 0.16, 0.8, 16 or 80 µm now selects N<sub>ic</sub> = 0.08, 0.25, 0.8 or 2.5 mm, and above 80 µm, 8 mm.
+
+<Note kind="key" title="Practical consequence">
+The same part measured with the same instrument can pass under ISO 4288 and fail under ISO 21920, because the default rule changed from 16 % to max. Drawings should state which standard applies.
+</Note>
+
+## Typical Ra by process
+
+<Figure caption="Ra ranges commonly reached by machining processes. Transcribed from the chart published in Autodesk Inventor help; higher or lower values can be obtained under special conditions.">
+  <RaProcess locale="en" />
+</Figure>
+
+<Note kind="note" title="How reliable is this chart?">
+The version we could check does not name its origin, and its cells mark approximate bands rather than limits. Use it to judge whether a requirement is natural for a process, not as a guarantee.
+</Note>
+
+In turning, the feed and the nose radius set the geometric part of the roughness. The [theoretical roughness calculator](/tools/theoretical-roughness/) shows how far that sets the limit.

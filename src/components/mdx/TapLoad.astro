@@ -1,0 +1,145 @@
+---
+/**
+ * Tapping torque and spindle power calculator with a chart of torque against thread size (log
+ * scale) for the chosen material. Formulas and data in src/lib/tapload.ts. The stems rise on entry;
+ * a new material glides the stems to their new heights; pointing at a column picks that size.
+ */
+import { SIZES, MATS, compute, drawTapLoad, fmt, range, type State } from '../../lib/tapload';
+interface Props { locale: 'en' | 'tr'; size?: number; mat?: number; vc?: number }
+const { locale, size = 5, mat = 0, vc = 10 } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { axis: 'tork Md, N·m (log ölçek)', form: 'ezme', sel: 'seçili', thread: 'Diş', mat: 'Malzeme', proc: 'Kılavuz', cut: 'Kesme', former: 'Ezme', vcL: 'Kesme hızı vc', n: 'Devir n', vf: 'İlerleme vf = P · n', md: 'Tork Md', pc: 'Kesme gücü Pc', rpm: 'dev/dak', mmin: 'm/dak', mmmin: 'mm/dak', kcL: 'kc', aria: 'Kılavuz çekmede tork: diş büyüklüğüne göre, logaritmik ölçekte; seçili diş turuncu', formNote: 'ezme: kesme torku × 1,4–1,5' }
+  : { axis: 'torque Md, N·m (log scale)', form: 'forming', sel: 'selected', thread: 'Thread', mat: 'Material', proc: 'Tap', cut: 'Cutting', former: 'Forming', vcL: 'Cutting speed vc', n: 'Spindle speed n', vf: 'Feed vf = P · n', md: 'Torque Md', pc: 'Cutting power Pc', rpm: 'rpm', mmin: 'm/min', mmmin: 'mm/min', kcL: 'kc', aria: 'Tapping torque against thread size on a log scale; the chosen thread in orange', formNote: 'forming: cutting torque × 1.4–1.5' };
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+const st: State = { size, mat, form: false, vc };
+const G = [drawTapLoad(st, T, false, dec), drawTapLoad(st, T, true, dec)];
+const o = compute(st);
+const nf = (v: number) => (tr ? Math.round(v).toLocaleString('tr-TR') : Math.round(v).toLocaleString('en-US'));
+const kcTxt = (v: number) => (tr ? v.toLocaleString('tr-TR') : String(v));
+---
+<div class="tapload" data-tapload data-locale={locale} data-anim>
+  <div class="controls">
+    <label class="field f-t"><span>{T.thread}</span>
+      <select data-i="size">{SIZES.map((s, i) => <option value={i} selected={i === size}>{s.name} × {dec(String(s.P))}</option>)}</select></label>
+    <label class="field wide-f"><span>{T.mat} <output class="num" data-o="kc">kc {kcTxt(MATS[mat].kc)} N/mm²</output></span>
+      <select data-i="mat">{MATS.map((m, i) => <option value={i} selected={i === mat}>{tr ? m.tr : m.en} (Rm {m.rm})</option>)}</select></label>
+    <fieldset class="seg"><legend>{T.proc}</legend>
+      <label><input type="radio" name={`tl-proc-${locale}`} value="cut" checked data-i="cut" /><span>{T.cut}</span></label>
+      <label><input type="radio" name={`tl-proc-${locale}`} value="form" data-i="form" /><span>{T.former}</span></label>
+    </fieldset>
+    <label class="field vc-f"><span>{T.vcL} <span class="nw"><output class="num" data-o="vc">{vc}</output> {T.mmin}</span></span>
+      <input type="range" min="2" max="60" step="1" value={vc} data-i="vc" /></label>
+  </div>
+  <svg viewBox={`0 0 ${G[0].W} ${G[0].H}`} class="wide" role="img" aria-label={T.aria} data-svg="w" set:html={G[0].svg} />
+  <svg viewBox={`0 0 ${G[1].W} ${G[1].H}`} class="narrow" role="img" aria-label={T.aria} data-svg="n" set:html={G[1].svg} />
+  <dl class="read">
+    <div><dt>{T.n}</dt><dd class="num" data-o="n">{nf(o.n)} {T.rpm}</dd></div>
+    <div><dt>{T.vf}</dt><dd class="num" data-o="vf">{nf(o.vf)} {T.mmmin}</dd></div>
+    <div><dt>{T.md}</dt><dd class="num" data-o="md">{range(o.md, dec)} N·m</dd></div>
+    <div><dt>{T.pc}</dt><dd class="num" data-o="pc">{range(o.pc, dec)} kW</dd></div>
+  </dl>
+  <p class="eq"><span>Md = kc · P² · d / 8000</span><span>Pc = Md · n / 9549</span><span data-o="note" hidden>{T.formNote}</span></p>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .tapload { display: grid; gap: 0.8rem; }
+  .tapload > svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .narrow { display: none !important; }
+  @media (max-width: 40rem) { .wide { display: none !important; } .narrow { display: block !important; } }
+  /* two rows: thread and material, then the tap type and the speed (the material names are long) */
+  .controls { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 't m' 's v'; gap: 0.8rem 1.1rem; align-items: end; }
+  .f-t { grid-area: t; } .wide-f { grid-area: m; } .seg { grid-area: s; } .vc-f { grid-area: v; }
+  @media (max-width: 34rem) { .controls { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 't s' 'm m' 'v v'; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span, .seg legend { display: flex; gap: 0.35rem; align-items: baseline; font-size: 0.85rem; flex-wrap: wrap; color: var(--ink-2); }
+  .field output { color: var(--data); }
+  .nw { white-space: nowrap; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  select { width: 100%; min-width: 0; min-height: 2.1rem; font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--bg-sunk); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.35rem 0.5rem; text-overflow: ellipsis; }
+  select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .seg { border: 0; margin: 0; padding: 0; display: grid; grid-template-columns: auto auto; gap: 0.3rem 0; align-content: end; }
+  .seg legend { grid-column: 1 / -1; padding: 0; margin-bottom: 0.3rem; }
+  .seg label { position: relative; }
+  .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .seg span { display: block; font-size: 0.82rem; padding: 0.36rem 0.8rem; border: 1px solid var(--line-strong); color: var(--ink-2); }
+  .seg label:first-of-type span { border-radius: 999px 0 0 999px; }
+  .seg label:last-of-type span { border-radius: 0 999px 999px 0; border-left: 0; }
+  .seg input:checked + span { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--ink); border-color: var(--accent); }
+  .seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .read { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+  @media (max-width: 48rem) { .read { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .read dt { font-size: 0.78rem; color: var(--ink-3); line-height: 1.3; }
+  .read dd { color: var(--data); font-size: 1.1rem; margin: 0; }
+  .read div:nth-child(3) dd { color: var(--color-spark-400); }
+  .eq { margin: 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font: 0.78rem var(--font-mono); color: var(--ink-3); }
+
+  .tapload :global(.tl-grid) { stroke: var(--line); stroke-width: 0.8; }
+  .tapload :global(.tl-grid.minor) { stroke-dasharray: 2 4; stroke-opacity: 0.7; }
+  .tapload :global(.tl-tick) { font-family: var(--font-mono); font-size: 10.5px; fill: var(--ink-3); }
+  .tapload :global(.tl-tick.ax) { font-size: 10px; letter-spacing: 0.04em; }
+  .tapload :global(.tl-curve) { fill: none; stroke: #1e6fd6; stroke-width: 1; stroke-opacity: 0.45; stroke-dasharray: 3 3; }
+  .tapload :global(.tl-hit) { fill: transparent; cursor: pointer; }
+  .tapload :global(.tl-stem) { stroke: #1e6fd6; stroke-width: 2.4; stroke-linecap: round; }
+  .tapload :global(.tl-stem.dash) { stroke-width: 1.2; stroke-dasharray: 2 3; stroke-linecap: butt; }
+  .tapload :global(.tl-form) { stroke: #2a78d6; stroke-width: 7; stroke-linecap: round; stroke-opacity: 0.55; }
+  .tapload :global(.tl-dot) { fill: #1e6fd6; stroke: #f7fbfe; stroke-width: 2; }
+  .tapload :global(.tl-col.on .tl-stem) { stroke: #e2601a; }
+  .tapload :global(.tl-col.on .tl-dot) { fill: #e2601a; }
+  .tapload :global(.tl-col.on .tl-form) { stroke: #e2601a; }
+  .tapload :global(.tl-col.on .tl-tick.sz) { fill: #e2601a; font-weight: 500; }
+  .tapload :global(.tl-col:hover .tl-stem) { stroke-width: 3.2; }
+  .tapload :global(.tl-val) { font-family: var(--font-mono); font-size: 12px; fill: #e2601a; paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; stroke-linejoin: round; }
+  .tapload .narrow :global(.tl-tick) { font-size: 11px; }
+  .tapload .narrow :global(.tl-tick.sz) { font-size: 10px; }
+</style>
+
+<script>
+  import { SIZES, compute, drawTapLoad, range, MATS } from '../../lib/tapload';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-tapload]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const nf = (v: number) => Math.round(v).toLocaleString(tr ? 'tr-TR' : 'en-US');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const svgs = [q<SVGSVGElement>('[data-svg="w"]'), q<SVGSVGElement>('[data-svg="n"]')];
+    const state = () => ({ size: Number(q<HTMLSelectElement>('[data-i="size"]').value), mat: Number(q<HTMLSelectElement>('[data-i="mat"]').value), form: q<HTMLInputElement>('[data-i="form"]').checked, vc: Number(q<HTMLInputElement>('[data-i="vc"]').value) });
+    let kcShown = MATS[state().mat].kc, raf = 0;
+    function render(grow = 1, kcFrom?: number, mix = 1) {
+      const st = state();
+      svgs.forEach((svg, i) => { svg.innerHTML = drawTapLoad(st, T, i === 1, dec, grow, kcFrom, mix).svg; });
+      const o = compute(st);
+      q('[data-o="vc"]').textContent = String(st.vc);
+      q('[data-o="kc"]').textContent = `kc ${tr ? MATS[st.mat].kc.toLocaleString('tr-TR') : MATS[st.mat].kc} N/mm²`;
+      q('[data-o="n"]').textContent = `${nf(o.n)} ${T.rpm}`;
+      q('[data-o="vf"]').textContent = `${nf(o.vf)} ${T.mmmin}`;
+      q('[data-o="md"]').textContent = `${range(o.md, dec)} N·m`;
+      q('[data-o="pc"]').textContent = `${range(o.pc, dec)} kW`;
+      (q('[data-o="note"]') as HTMLElement).hidden = !st.form;
+    }
+    const anim = (dur: number, frame: (k: number) => void) => {
+      if (raf) cancelAnimationFrame(raf);
+      if (!document.documentElement.classList.contains('anim')) { frame(1); return; }
+      const t0 = performance.now();
+      const step = (t: number) => { const k = Math.min(1, (t - t0) / dur); frame(1 - (1 - k) ** 3); raf = k < 1 ? requestAnimationFrame(step) : 0; };
+      raf = requestAnimationFrame(step);
+    };
+    q('[data-i="mat"]').addEventListener('change', () => {
+      const from = kcShown, to = MATS[state().mat].kc;
+      kcShown = to;
+      anim(450, (k) => render(1, from, k));
+    });
+    ['size', 'vc', 'cut', 'form'].forEach((k) => q(`[data-i="${k}"]`).addEventListener(k === 'vc' ? 'input' : 'change', () => render()));
+    svgs.forEach((svg) => svg.addEventListener('click', (e) => {
+      const col = (e.target as Element).closest('[data-size]');
+      if (!col) return;
+      q<HTMLSelectElement>('[data-i="size"]').value = (col as HTMLElement).dataset.size as string;
+      render();
+    }));
+    // the stems rise from the floor once on entry
+    if (document.documentElement.classList.contains('anim')) render(0);
+    whenIn(root, () => anim(800, (k) => render(k)));
+  });
+</script>

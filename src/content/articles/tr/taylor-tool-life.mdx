@@ -1,0 +1,147 @@
+---
+key: taylor-tool-life
+locale: tr
+slug: taylor-takim-omru
+title: 'Taylor takım ömrü denklemi'
+description: 'V · Tⁿ = C: üssün ve sabitin anlamı, iki deneyden nasıl bulundukları, HSS, karbür ve seramik için tipik değerler, en yüksek üretimi ya da en düşük maliyeti veren takım ömrü.'
+section: 1
+subsection: tool-life
+order: 1
+updated: 2026-10-11
+tools: []
+glance:
+  - value: '1907'
+    label: 'Taylor''ın "On the Art of Cutting Metals" çalışması yayımlandı'
+  - value: '0,228'
+    label: 'İki deneyli örnekten n'
+  - value: '40 → 26'
+    unit: 'dk'
+    label: 'Hız %10 artınca takım ömrü, aynı örnek'
+  - value: '0,25'
+    label: 'Sinterlenmiş karbür için tipik n (Groover)'
+sources:
+  - label: 'F. W. Taylor, "On the Art of Cutting Metals", ASME, New York, 1907 (Aralık 1906 konuşması; ayrıca Transactions of the ASME, cilt 28) — HathiTrust kaydı'
+    url: https://catalog.hathitrust.org/Record/006563337
+  - label: 'King Saud Üniversitesi, ders 2 bölüm 2, "Tool wear and tool life" (Taylor denklemi, genişletilmiş biçim, optimum takım ömrü)'
+    url: https://faculty.ksu.edu.sa/sites/default/files/lecture-02-part-2-tool_wear_and_tool_life.pdf
+  - label: 'King Saud Üniversitesi, Kalpakjian & Schmid, Manufacturing Engineering and Technology''e göre "Machining economics" slaytları'
+    url: https://faculty.ksu.edu.sa/sites/default/files/5_-_b_-_machining_economics_ams_apr04_16_0.pdf
+  - label: 'Padova Üniversitesi, Kalpakjian & Schmid''e göre takım ömrü dersi (tipik n değerleri)'
+    url: https://stem.elearning.unipd.it/mod/resource/view.php?id=314998
+  - label: 'ACS College of Engineering, Metal cutting modül 3 (tipik n değerleri)'
+    url: https://www.acsce.edu.in/acsce/wp-content/uploads/2020/04/Metal-Cutting-Forming-Module-3.pdf
+  - label: 'Gaziantep Üniversitesi, takım aşınması ve takım ömrü ders notları'
+    url: https://akbis.gantep.edu.tr/yonetim/upload/files/26786-8194.pdf
+  - label: 'M. P. Groover, Fundamentals of Modern Manufacturing, temsilî n ve C değerleri (bölüm 22 çözüm setinde yeniden verildiği hâliyle)'
+    url: https://pdfcoffee.com/ch22-pdf-free.html
+  - label: 'University of Tennessee MTRC, iş mili hızı ve takım ömrü makalesi (Taylor denklemi, n değerleri)'
+    url: https://mtrc.utk.edu/wp-content/uploads/sites/45/2019/09/spindle_speed_tool_life.pdf
+  - label: 'Open Exam Prep, talaşlı imalat ekonomisi (en düşük maliyet takım ömrü, yüksek verim aralığı)'
+    url: https://open-exam-prep.com/study-guides/in-cil-mt/paper-2-materials-manufacturing/economics-of-machining
+---
+import TaylorChart from '../../../components/mdx/TaylorChart.astro';
+import LineChart from '../../../components/mdx/LineChart.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { taylorExample, nSources, carbideLine } from '../../../data/figures';
+
+Frederick W. Taylor, yıllar süren kesme deneylerinin sonuçlarını Aralık 1906'da Amerikan Makine Mühendisleri Derneği'ne (ASME) sundu; sonuçlar 1907'de "On the Art of Cutting Metals" adıyla yayımlandı. Temel bulgusu bugün hâlâ kesme hızlarını belirler: kesme hızı arttıkça takım ömrü dik ve öngörülebilir biçimde düşer.
+
+## Denklem
+
+$$
+V \cdot T^{\,n} = C
+$$
+
+- **V**, m/min cinsinden kesme hızıdır.
+- **T**, seçilen aşınma kriterine ulaşılana kadar geçen, dakika cinsinden takım ömrüdür (örneğin VB = 0,3 mm; bkz. [takım aşınması](/tr/temeller/takim-asinmasi/)).
+- **n**, esas olarak takım malzemesine bağlı bir üstür.
+- **C**, tam bir dakikalık takım ömrü veren kesme hızıdır. Takıma, iş malzemesine, ilerlemeye, kesme derinliğine ve aşınma kriterine bağlıdır.
+
+Logaritma alınınca log V = log C − n · log T elde edilir: log–log eksenlerde eğimi −n olan bir doğru. Küçük n yatık bir doğru demektir: hızdaki küçük bir artış takım ömründen çok şey götürür. Büyük n, takımın hıza daha iyi dayandığı anlamına gelir.
+
+<Figure caption="Log–log eksenlerde Taylor doğruları. Gri doğrular Groover'ın verdiği, f = 0,25 mm/dev ve d = 2,5 mm'de çelik tornalama için temsilî değerleri kullanır: HSS n = 0,125, C = 70 m/min; karbür n = 0,25, C = 500 m/min; seramik n = 0,6, C = 3000 m/min. Kendi doğrunuzu çizmek için n, C ve bir hız girin.">
+  <TaylorChart locale="tr" />
+</Figure>
+
+## İki deneyden n ve C'yi bulmak
+
+Aynı aşınma kriterine kadar, farklı hızlarda yapılan iki deney doğruyu tanımlar.
+
+$$
+n = \frac{\ln(V_1/V_2)}{\ln(T_2/T_1)} \qquad C = V_1 \cdot T_1^{\,n}
+$$
+
+**Örnek.** V₁ = 250 m/min'de takım T₁ = 15 dakikada VB = 0,3 mm'ye ulaşıyor. V₂ = 200 m/min'de T₂ = 40 dakika dayanıyor.
+
+- n = ln(250/200) / ln(40/15) = 0,2231 / 0,9808 ≈ 0,228
+- C = 250 · 15<sup>0,228</sup> ≈ 463 m/min
+
+Kontrol: 463 / 40<sup>0,228</sup> ≈ 200 m/min. ✓
+
+Bu değerlerle hızı %10 artırıp 200'den 220 m/min'e çıkarmak, takım ömrünü 40 dakikadan yaklaşık 26 dakikaya indirir: T = (C/V)<sup>1/n</sup>.
+
+<Figure caption="Örnekteki iki deney log–log eksenlerde: aralarından geçen doğru Taylor doğrusudur, eğimi −n = −0,228. Hızı 200'den 220 m/min'e çıkarmak ömrü 40 dakikadan yaklaşık 26 dakikaya indirir.">
+  <LineChart locale="tr" series={taylorExample().series.map((s) => ({ ...s, name: 'V · Tⁿ = C' }))} marks={[{ x: 15, y: 250, label: 'deney 1' }, { x: 40, y: 200, label: 'deney 2' }, { x: 26.1, y: 220, label: '+%10 hız' }]} xMin={1} xMax={100} yMin={100} yMax={600} xLog yLog xTicks={[1, 2, 5, 10, 20, 50, 100]} yTicks={[100, 200, 300, 400, 600]} xLabel="takım ömrü T (dk)" yLabel="kesme hızı V (m/min)" xDec={1} yDec={0} aria="İki deneyden Taylor doğrusu" />
+</Figure>
+
+<Note kind="warn" title="Denenmiş aralığın içinde kalın">
+Doğru, yalnızca dayandığı deneylere uydurulmuş bir eğridir. Bu hız aralığının dışında ya da farklı bir ilerleme, kesme derinliği, iş malzemesi partisi veya aşınma kriteriyle aynı n ve C geçerli olmaz. Karar önemliyse ikiden fazla nokta kullanın.
+</Note>
+
+## Tipik n değerleri
+
+| Takım malzemesi | Kalpakjian & Schmid | ACSCE modülü | Groover (çelik tornalama) |
+|---|---|---|---|
+| Yüksek hız çeliği | 0,08–0,2 | 0,1–0,18 | 0,125 (C = 70 m/min) |
+| Döküm kobalt alaşımları | 0,1–0,15 | — | — |
+| Karbürler | 0,2–0,5 (tüm karbürler) | 0,2–0,25 kaplamasız; 0,3 TiC/TiN kaplamalı; 0,4 Al₂O₃ kaplamalı | 0,25, sinterlenmiş karbür (C = 500 m/min) |
+| Seramikler | 0,5–0,7 | 0,4–0,7 | 0,6 (C = 3000 m/min) |
+
+Kaynaklar HSS ve seramikler için uyuşur. Karbürler için Kalpakjian tüm kaliteleri kapsayan tek bir geniş aralık verir; ACSCE modülü bunu kaplamaya göre ayırır ve kaplamalı değerler bulabildiğimiz tek kaynaktan gelir. Groover'ın C değerleri f = 0,25 mm/dev ve d = 2,5 mm'de çelik tornalama için geçerlidir.
+
+<Figure caption="Tablodaki n değerleri kaynağa göre: çubuklar aralıkları, noktalar tek değerleri gösterir. Değeri okumak için üzerine gelin.">
+  <RangeChart locale="tr" rows={nSources('tr').rows} legend={nSources('tr').legend} min={0} max={0.8} ticks={[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]} unit="" axisLabel="n" aria="Takım malzemesine göre Taylor üsteli n" labelWidth={180} />
+</Figure>
+
+## Genişletilmiş denklem
+
+İlerleme ve kesme derinliği de takım ömrünü etkiler. Genişletilmiş biçim bunları kendi üsleriyle ekler:
+
+$$
+V \cdot T^{\,n} \cdot f^{\,x} \cdot d^{\,y} = C
+$$
+
+x ve y deneyle bulunur; farklı ders kitapları harfleri f ve d'ye ters sırayla atar. n ve C'de olduğu gibi bu üsler de yalnızca ölçüldükleri takım, iş malzemesi ve koşul aralığı için geçerlidir.
+
+## Hangi takım ömrü hedeflenmeli
+
+Daha hızlı kesmek metali daha çabuk kaldırır, ama daha fazla kenar ve kenar değiştirmeye daha fazla zaman harcar. Taylor denkleminden iki klasik optimum çıkar.
+
+**En yüksek üretim hızı** (parça başına en kısa süre); T<sub>c</sub> bir kenarı değiştirme süresidir:
+
+$$
+T_{\max\,\text{üretim}} = \left(\frac{1}{n}-1\right) T_c
+$$
+
+**Parça başına en düşük maliyet**; C<sub>t</sub> bir kesici kenarın maliyeti, C<sub>m</sub> tezgâh ve operatörün dakika maliyetidir:
+
+$$
+T_{\min\,\text{maliyet}} = \left(\frac{1}{n}-1\right)\left(T_c + \frac{C_t}{C_m}\right)
+$$
+
+Her iki durumda karşılık gelen hız V = C / T<sup>n</sup>'dir.
+
+**Örnek.** n = 0,25 ve C = 500 m/min olan karbür. Bir kenarı değiştirmek T<sub>c</sub> = 2 dakika sürüyor, bir kenar C<sub>t</sub> = 3 para birimi, tezgâh ve operatör C<sub>m</sub> = dakikada 1 birim tutuyor.
+
+- T<sub>max üretim</sub> = (1/0,25 − 1) · 2 = 6 dakika → V = 500 / 6<sup>0,25</sup> ≈ 319 m/min
+- T<sub>min maliyet</sub> = 3 · (2 + 3/1) = 15 dakika → V = 500 / 15<sup>0,25</sup> ≈ 254 m/min
+
+<Figure caption="Örneğin karbür doğrusu (n = 0,25, C = 500 m/min) ve iki optimum: en yüksek üretim 6 dakikada 319 m/min, en düşük maliyet 15 dakikada 254 m/min. İkisinin arasındaki bant yüksek verim aralığıdır.">
+  <LineChart locale="tr" series={carbideLine('tr')} bands={[{ x0: 6, x1: 15, label: 'yüksek verim aralığı' }]} marks={[{ x: 6, y: 319, label: 'en yüksek üretim' }, { x: 15, y: 254, label: 'en düşük maliyet' }]} xMin={1} xMax={100} yMin={100} yMax={600} xLog yLog xTicks={[1, 2, 5, 10, 20, 50, 100]} yTicks={[100, 200, 300, 400, 600]} xLabel="takım ömrü T (dk)" yLabel="kesme hızı V (m/min)" xDec={1} yDec={0} aria="Karbür Taylor doğrusu ve iki optimum" />
+</Figure>
+
+En düşük maliyeti veren kesme hızı, her zaman en yüksek üretimi veren kesme hızından düşüktür. İkisi arasındaki banda çoğu zaman yüksek verim aralığı denir: alt sınırdan yavaş çalışmak tezgâh zamanını, üst sınırdan hızlı çalışmak ise çıktı kazandırmadan takımı israf eder.
+
+<Note kind="key" title="Formüllerin dışarıda bıraktıkları">
+İki optimum da hızla yalnızca takım ömrünün değiştiğini varsayar. Gerçekte çoğu zaman önce başka sınırlar devreye girer: iş mili gücü, talaş kontrolü, yüzey kalitesi ya da bir palete veya vardiyaya bağlı takım değiştirme aralığı. Optimum hızı bir başlangıç noktası olarak kullanın ve bu sınırlarla karşılaştırın.
+</Note>

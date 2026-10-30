@@ -1,0 +1,75 @@
+---
+/* Same cut, two rotations. The work feeds to the left; uncut stock on the right.
+   Chip thickness h = fz·sin φ (φ from the finished surface) is thick at the top of the arc
+   in both cases: climb (cutter clockwise) enters thick and leaves thin, conventional the reverse. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const R = 64, ae = 34;
+// Cutter outline: N teeth, each with a radial rake face, a clearance land that falls 6 units
+// behind the tip, and a rounded gullet. `dir` = +1 for clockwise rotation (screen), −1 for counter-clockwise.
+const N = 10, Rg = R - 15;
+const cutter = (cx: number, cy: number, dir: number) => {
+  const pts: string[] = [];
+  const pitch = (2 * Math.PI) / N, land = (22 * Math.PI) / 180, rad = (a: number, r: number) => `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
+  for (let k = 0; k < N; k++) {
+    const th = k * pitch;
+    // clearance land: from th − land (radius R − 6) up to the tip at th (radius R)
+    for (let i = 0; i <= 6; i++) { const t = i / 6; pts.push(rad(dir * (th - land + land * t), R - 6 + 6 * t * t)); }
+    // rake face: straight down to the gullet
+    pts.push(rad(dir * (th + 0.02), Rg));
+    // gullet: rounded bottom rising to the next land
+    const g = pitch - land;
+    for (let i = 1; i <= 8; i++) { const t = i / 8; pts.push(rad(dir * (th + 0.02 + (g - 0.02) * t), Rg + (R - 6 - Rg) * t * t)); }
+  }
+  return 'M' + pts.join(' L') + ' Z';
+};
+const cells = [
+  { x: 0, cw: true, name: tr ? 'Aynı yönlü' : 'Climb', note: tr ? 'kalından inceye' : 'thick → thin' },
+  { x: 240, cw: false, name: tr ? 'Zıt yönlü' : 'Conventional', note: tr ? 'inceden kalına' : 'thin → thick' },
+];
+// cutter centre in each cell, bottom of cutter = finished surface
+const cx = 120, cy = 150, yFin = cy + R, yTop = yFin - ae;
+const phiE = Math.acos(1 - (2 * ae) / (2 * R));
+// engaged arc on the right side of the cutter: from the finished surface (φ=0, bottom) up to the stock top
+const arcPt = (phi: number, r: number) => [cx + r * Math.sin(phi), cy + r * Math.cos(phi)];
+const chip = (() => {
+  const outer: string[] = [], inner: string[] = [];
+  for (let k = 0; k <= 30; k++) {
+    const phi = (phiE * k) / 30;
+    const [x1, y1] = arcPt(phi, R);
+    const [x2, y2] = arcPt(phi, R + 20 * Math.sin(phi) + 0.5);
+    inner.push(`${x1.toFixed(1)},${y1.toFixed(1)}`); outer.push(`${x2.toFixed(1)},${y2.toFixed(1)}`);
+  }
+  return `M${inner.join(' L')} L${outer.reverse().join(' L')} Z`;
+})();
+const [ex, ey] = arcPt(phiE, R);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <radialGradient id={`cl-disc-${locale}`} cx="0.38" cy="0.32" r="0.8">
+      <stop offset="0" stop-color="#ecf0f3" /><stop offset="0.45" stop-color="#c0c8cf" /><stop offset="1" stop-color="#7c868d" />
+    </radialGradient>
+  </defs>
+  <line class="h f" style="--i:0" x1="240" y1="14" x2="240" y2="306" stroke-opacity="0.45" />
+  {cells.map((c, k) => (
+    <g transform={`translate(${c.x} 0)`}>
+      <path class="hatch f" style={`--i:${k}`} d={`M8,${yFin} L${cx},${yFin} A${R},${R} 0 0,0 ${ex},${ey} L232,${yTop} L232,292 L8,292 Z`} />
+      <path class="o d" style={`--i:${k + 1}`} pathLength="1" d={`M8,${yFin} L${cx},${yFin} A${R},${R} 0 0,0 ${ex},${ey} L232,${yTop}`} />
+      <path class="chip f" style={`--i:${k + 3}`} d={chip} fill-opacity="0.95" />
+      <g class={c.cw ? 'spin' : 'spin-ccw'} style="--spin: 9s">
+        <path class="f" style={`--i:${k + 1}`} d={cutter(cx, cy, c.cw ? 1 : -1)} fill={`url(#cl-disc-${locale})`} />
+        <path class="o2 d" style={`--i:${k + 2}`} pathLength="1" d={cutter(cx, cy, c.cw ? 1 : -1)} stroke-width="1.6" />
+        <circle cx={cx} cy={cy} r={Rg - 14} fill="none" stroke="#a5aeb6" stroke-width="1" />
+        <circle cx={cx} cy={cy} r="11" fill="#f9fbfe" stroke="#656e74" />
+        <rect x={cx - 3} y={cy - 15} width="6" height="5" fill="#f9fbfe" />
+      </g>
+      <path class="a f" style={`--i:${k + 4}`} d={c.cw ? `M${cx - 30},${cy - R - 14} A${R + 14},${R + 14} 0 0,1 ${cx + 30},${cy - R - 14}` : `M${cx + 30},${cy - R - 14} A${R + 14},${R + 14} 0 0,0 ${cx - 30},${cy - R - 14}`} marker-end="url(#ca-arr-acc)" />
+      <line class="b f" style={`--i:${k + 5}`} x1="200" y1="270" x2="132" y2="270" marker-end="url(#ca-arr-data)" />
+      <text class="t-ink lbl" x="14" y="28">{c.name}</text>
+      <text class="t-acc t-sm lbl" x="16" y="246">{c.note}</text>
+      <path class="lbl" d={c.cw ? `M${ex + 26},${ey + 8} Q${cx + R + 30},${cy + 34} ${cx + 30},${yFin + 12}` : `M${cx + 30},${yFin + 12} Q${cx + R + 30},${cy + 34} ${ex + 26},${ey + 8}`} fill="none" stroke="#1b1d1e" stroke-width="1.2" marker-end="url(#ca-arr-ink)" />
+    </g>
+  ))}
+  <text class="t-data t-sm lbl" x="16" y="288">{tr ? 'iş parçası ilerlemesi' : 'work feed'}</text>
+</svg>

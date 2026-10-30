@@ -1,0 +1,361 @@
+---
+/**
+ * ISO 5608 tool holder code decoder: type a holder designation (PCLNR 2525 M12, SVJBR 2020 K16 …)
+ * and read every position, with a plan view of the holder at work and an end view of its shank.
+ * Tables and parser: src/data/iso5608.js; drawing: src/lib/holder.ts.
+ */
+import ToolShell from '../ToolShell.astro';
+import { href, routes, type Locale } from '../../i18n';
+import { clamping, clampingNonIso, styles, stylesNonIso, styleNotes, hands, lengths, qualified, shapes, clearances, sourcesFor, parseHolderCode } from '../../data/iso5608.js';
+import { drawHolder, type HolderText } from '../../lib/holder';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const dec = (s: string | number) => (tr ? String(s).replace('.', ',') : String(s));
+
+const copy = tr
+  ? {
+      title: 'ISO 5608 tutucu kodu çözücü',
+      description: 'PCLNR 2525 M12 gibi bir ISO 5608 tornalama tutucusu (kater) kodunu yaz; sıkma tipi, uç şekli, tutucu tipi ve yanaşma açısı κr, boşluk açısı, yön, sap ölçüleri, boy ve uç ölçüsü, tutucunun iş başındaki çizimiyle birlikte okunur.',
+      lead: 'Kodu yaz, dokuz hanenin her birini ve tutucuyu iş başında, ucun yanaşma açısıyla çizilmiş olarak gör. 2, 4 ve 9. haneler ISO 1832 ile aynıdır: tutucu, şekli, boşluk açısı ve ölçüsü kendi koduyla aynı olan ucu taşır.',
+      inputLabel: 'ISO 5608 tutucu kodu',
+      placeholder: 'ör. PCLNR 2525 M12',
+      examples: 'Örnekler',
+      invalid: 'Kod okunamadı. Dokuz zorunlu hane şöyle olmalı: 5 harf + 2 rakam (sap yüksekliği h1) + 2 rakam (sap genişliği b) + 1 harf (boy l1) + 2 rakam (uç ölçüsü). Kartuşta: 5 harf + 2 rakam (kesme kenarı yüksekliği) + C ve tip harfi + boy harfi ya da kısa çizgi (kataloglar çoğu zaman yazmaz) + 2 rakam.',
+      L: { clamp: 'Sıkma tipi', shape: 'Uç şekli', style: 'Tutucu tipi', clear: 'Uç boşluk açısı', hand: 'Yön', h: 'Sap yüksekliği h1', b: 'Sap genişliği b', l1: 'Tutucu boyu l1', size: 'Uç ölçüsü', qual: 'Özel tolerans', suffix: 'Üretici eki', cart: 'Kartuş', cartH: 'Kesme kenarı yüksekliği h1', cartT: 'Kartuş tipi', insert: 'Uyan uç (ISO 1832)', minor: 'Yardımcı kesme kenarı açısı κr′', kr: 'yanaşma açısı', straight: 'düz sap', offset: 'kaçık sap', unclear: 'sap tipi kaynaklarda farklı', side: 'yandan kesme', end: 'uçtan kesme', both: 'yandan ve uçtan kesme', part: 'ölçüler', nonIso: 'ISO dışı', unknown: 'tanımsız', special: 'özel boy, ayrıca belirtilir', noLength: 'bu kodda boy harfi yok (ISO 5608:1995: Tablo 6’daki harf ya da l1 tabloda yoksa kısa çizgi)', dash: 'kısa çizgi: l1 Tablo 6’da yok', round: 'yuvarlak uç (R) ile de kullanılır', roundKr: 'yuvarlak uçta κr kesme derinliğine bağlıdır', sizeRule: 'ondalıklar atılır (ISO 5608:1995); yuvarlak uçta çap', edge: 'kesme kenarı', single: 'tek kaynak', neg: 'negatif uç', pos: 'pozitif uç', hole: 'delikli uç', noHole: 'deliksiz uç', insertLink: 'uç kodu çözücüde aç' },
+      S: { clamp: 'sıkma', shape: 'şekil', style: 'tip', clear: 'boşluk', hand: 'yön', h: 'h1', b: 'b', l1: 'l1', size: 'ölçü', cartH: 'h1', cart: 'kartuş', qual: 'tol.', suffix: 'ek', hint: 'Bir haneye ya da satıra gelince ikisi birlikte vurgulanır; “Uyan uç” 2, 4 ve 9. haneleri gösterir.' },
+      draw: { plan: 'üst görünüş', end: 'sap kesiti', feed: 'f', work: 'iş parçası', broken: 'sap kırık çizildi', nodraw: 'Bu kod için çizim yok', mm: 'mm', centred: 'ortalanmış uç (κr = 90° − εr/2)', table: 'tablo, {s} tipi: {k}°' },
+      anatomy: 'Kodun anatomisi',
+      anatomyCols: ['Hane', 'Anlamı', 'PCLNR 2525 M12'],
+      positions: [
+        ['1', 'Ucun sıkma tipi', 'P = delikten levye ile sıkma'],
+        ['2', 'Uç şekli (ISO 1832)', 'C = 80° eşkenar dörtgen'],
+        ['3', 'Tutucu tipi: yanaşma açısı κr, sap, kesme yönü', 'L = 95°, kaçık sap, yandan ve uçtan kesme'],
+        ['4', 'Uç boşluk açısı αn (ISO 1832)', 'N = 0° (negatif uç)'],
+        ['5', 'Yön', 'R = sağ'],
+        ['6', 'Sap yüksekliği h1, mm', '25'],
+        ['7', 'Sap genişliği b, mm', '25'],
+        ['8', 'Tutucu boyu l1 (harf)', 'M = 150 mm'],
+        ['9', 'Uç ölçüsü: kesme kenarı uzunluğu (ISO 1832)', '12 → CN·· 12··, ör. CNMG 120408'],
+        ['10', 'Özel tolerans (isteğe bağlı)', '—'],
+      ],
+      clampTitle: '1. hane: sıkma tipi',
+      clampCols: ['Kod', 'ISO 5608', 'Uç', 'Kataloglarda'],
+      styleTitle: '3. hane: tutucu tipi',
+      styleCols: ['Kod', 'κr', 'Sap', 'Kesme', 'ISO 5610', 'Not'],
+      lengthTitle: '8. hane: tutucu boyu l1',
+      lengthCols: ['Harf', 'l1 (mm)'],
+      qualTitle: '10. hane: kalibre tutucular (isteğe bağlı)',
+      nonIsoTitle: 'Kataloglarda görülen ISO dışı harfler',
+      clearNote: 'Uç şekli (2. hane), boşluk açısı (4. hane) ve uç ölçüsü (9. hane) ISO 1832 kodlarıdır; tabloları uç kodu çözücüdedir.',
+      notes: [
+        'ISO 5608 hane sırasını sabitler: ilk dokuz hane her kodda bulunur, 10. hane gerektiğinde eklenir. Tire ile ayrılmış en çok üç karakterlik bir üretici eki gelebilir; bu ek 10. hane harflerini kullanmamalıdır.',
+        'Kataloglar kodu farklı aralıklarla basar (PCLNR 2525M 12, DCLNR 2020-K12, C T G N R 32 25 M 16 Q); boşluklar ve sap ölçüsüyle boy harfi arasındaki kısa çizgi anlam taşımaz. Üretici ekinden önceki ya da kartuşta boy harfinin yerindeki kısa çizgi ise anlam taşır. Bazı üreticiler 9. haneden sonra ISO dışı bilgi ekler: uç kalınlığı (Mitsubishi, Sumitomo), sıkma tipi (Korloy) ya da isteğe bağlı pabuç (YG-1).',
+        'İnç kataloglarındaki ANSI kodu ayrı bir sistemdir: açıyı lead açısı ψ olarak verir (κr = 90° − ψ), sapı inç kesirleriyle yazar, H ve P gibi harflere başka anlamlar verir ve ISO 5608’in tutucu tipi olarak tanımlamadığı Q’yu kullanır. İki sistemi karıştırmayın.',
+        'ISO 5608 yönleri yalnızca adlandırır: R sağ, L sol, N iki yönlü (“either hand”). ISO 5610 sağ tutucuyu çizer ve sol tutucunun aynı parçanın yanal ters çevrilmişi olduğunu söyler. McMaster-Carr’a göre sağ tutucular sağdan sola, aynaya doğru ilerler; Sherline’a göre sağ takımın kesici ağzı soldadır. Çizim de buna uyar: talaş yüzeyi üstte ve sap operatöre doğru bakarken uç başın solundadır; yandan kesen tipler sola (aynaya doğru), uçtan kesen tipler sap boyunca iş parçası eksenine doğru ilerler.',
+      ],
+      reviewNote: 'C, M ve P tutucu tipleri ile Q, F, B kalibre harfleri tek kaynağa (ISO 5608:1995’in IS 14863:2000 olarak aynen kabul edilen metni) dayanır; 2012 baskısının metni okunamadı. Mustafa Mert Kayhan’ın son onayını bekliyor.',
+    }
+  : {
+      title: 'ISO 5608 tool holder code decoder',
+      description: 'Type an ISO 5608 turning tool holder designation such as PCLNR 2525 M12 and read every position: clamping, insert shape, holder style and entering angle κr, clearance, hand, shank size, length and insert size, with a drawing of the holder at work.',
+      lead: 'Type the code, read each of the nine positions and see the holder drawn at work, its insert at the entering angle of the style. Positions 2, 4 and 9 are the same as in ISO 1832: the holder carries the insert that shares its shape, clearance and size.',
+      inputLabel: 'ISO 5608 holder code',
+      placeholder: 'e.g. PCLNR 2525 M12',
+      examples: 'Examples',
+      invalid: 'Code not readable. The nine mandatory positions must be: 5 letters + 2 digits (shank height h1) + 2 digits (shank width b) + 1 letter (length l1) + 2 digits (insert size). For a cartridge: 5 letters + 2 digits (cutting edge height) + C and a type letter + a length letter or a dash (catalogues often leave it out) + 2 digits.',
+      L: { clamp: 'Clamping', shape: 'Insert shape', style: 'Holder style', clear: 'Insert clearance', hand: 'Hand', h: 'Shank height h1', b: 'Shank width b', l1: 'Holder length l1', size: 'Insert size', qual: 'Special tolerance', suffix: 'Maker’s suffix', cart: 'Cartridge', cartH: 'Cutting edge height h1', cartT: 'Cartridge type', insert: 'Matching insert (ISO 1832)', minor: 'Minor edge angle κr′', kr: 'entering angle', straight: 'straight shank', offset: 'offset shank', unclear: 'shank type differs between sources', side: 'side cutting', end: 'end cutting', both: 'side and end cutting', part: 'dimensions', nonIso: 'non-ISO', unknown: 'not defined', special: 'special length, to be specified', noLength: 'no length letter in this code (ISO 5608:1995: a Table 6 letter, or a dash when l1 is not in Table 6)', dash: 'dash: l1 not in Table 6', round: 'also for round inserts (R)', roundKr: 'with a round insert κr depends on the depth of cut', sizeRule: 'decimals dropped (ISO 5608:1995); round inserts: diameter', edge: 'cutting edge', single: 'one source', neg: 'negative insert', pos: 'positive insert', hole: 'insert with hole', noHole: 'insert without hole', insertLink: 'open in the insert decoder' },
+      S: { clamp: 'clamp', shape: 'shape', style: 'style', clear: 'clear.', hand: 'hand', h: 'h1', b: 'b', l1: 'l1', size: 'size', cartH: 'h1', cart: 'cart.', qual: 'tol.', suffix: 'maker', hint: 'Point at a position or a line to see both; “Matching insert” lights up positions 2, 4 and 9.' },
+      draw: { plan: 'plan view', end: 'shank section', feed: 'f', work: 'workpiece', broken: 'shank drawn broken', nodraw: 'No drawing for this code', mm: 'mm', centred: 'centred insert (κr = 90° − εr/2)', table: 'table, style {s}: {k}°' },
+      anatomy: 'Anatomy of the code',
+      anatomyCols: ['Position', 'Meaning', 'PCLNR 2525 M12'],
+      positions: [
+        ['1', 'Method of holding the insert', 'P = hole clamping (lever lock)'],
+        ['2', 'Insert shape (ISO 1832)', 'C = 80° rhombic'],
+        ['3', 'Holder style: entering angle κr, shank, cutting direction', 'L = 95°, offset shank, side and end cutting'],
+        ['4', 'Insert normal clearance αn (ISO 1832)', 'N = 0° (negative insert)'],
+        ['5', 'Hand', 'R = right-hand'],
+        ['6', 'Shank height h1, mm', '25'],
+        ['7', 'Shank width b, mm', '25'],
+        ['8', 'Holder length l1 (letter)', 'M = 150 mm'],
+        ['9', 'Insert size: cutting edge length (ISO 1832)', '12 → CN·· 12··, e.g. CNMG 120408'],
+        ['10', 'Special tolerance (optional)', '—'],
+      ],
+      clampTitle: 'Position 1: clamping',
+      clampCols: ['Code', 'ISO 5608', 'Insert', 'In catalogues'],
+      styleTitle: 'Position 3: holder style',
+      styleCols: ['Code', 'κr', 'Shank', 'Cutting', 'ISO 5610', 'Note'],
+      lengthTitle: 'Position 8: holder length l1',
+      lengthCols: ['Letter', 'l1 (mm)'],
+      qualTitle: 'Position 10: qualified holders (optional)',
+      nonIsoTitle: 'Non-ISO letters seen in catalogues',
+      clearNote: 'Insert shape (position 2), clearance (position 4) and insert size (position 9) are ISO 1832 codes; their tables are in the insert decoder.',
+      notes: [
+        'ISO 5608 fixes the order of the positions: the first nine appear in every code, position 10 only when needed. A maker’s supplementary code of up to three characters may follow after a dash; it must not use the position-10 letters.',
+        'Catalogues print the code with different spacing (PCLNR 2525M 12, DCLNR 2020-K12, C T G N R 32 25 M 16 Q); spaces, and a dash between the shank size and the length letter, carry no meaning. A dash before a maker’s suffix, or in place of the length letter on a cartridge, does. Some makers add non-ISO information after position 9: insert thickness (Mitsubishi, Sumitomo), clamping type (Korloy) or an optional clamp (YG-1).',
+        'The ANSI code in inch catalogues is a different system: it gives the lead angle ψ (κr = 90° − ψ), writes shanks in fractions of an inch, gives letters such as H and P other meanings and uses Q, which ISO 5608 does not define as a style. Do not mix the two.',
+        'ISO 5608 names the hands only: R right hand, L left hand, N either hand. ISO 5610 draws right-hand holders and says the left-hand holder is the same part laterally reversed. McMaster-Carr says right-hand holders move from right to left towards the chuck, and Sherline that a right-hand tool has its cutting edge on the left. The drawing follows this: with the rake face up and the shank pointing to the operator, the insert is at the left of the head; side-cutting styles feed to the left (towards the chuck), end-cutting styles along the shank towards the workpiece axis.',
+      ],
+      reviewNote: 'Styles C, M and P and the qualified-tool letters Q, F and B rest on one source (the ISO 5608:1995 text as adopted word for word in IS 14863:2000); the text of the 2012 edition could not be read. Awaiting final sign-off by Mustafa Mert Kayhan.',
+    };
+
+const examples = ['PCLNR 2525 M12', 'SVJBR 2020 K16', 'DCLNR 2020 K12', 'MWLNR 2525 M08', 'PTGNR 2525 M16', 'SDJCR 1010 E07', 'SVVBN 2525 M16', 'PSSNR 2525 M12', 'SRDCN 2525 M10', 'PTFNR 10CA11'];
+const initial = 'PCLNR 2525 M12';
+const p0 = parseHolderCode(initial)!;
+const svg0 = drawHolder(p0, (styles as any)[p0.style] ?? null, (shapes as any)[p0.shape] ?? null, copy.draw as HolderText, (s) => dec(s));
+const svg0n = drawHolder(p0, (styles as any)[p0.style] ?? null, (shapes as any)[p0.shape] ?? null, copy.draw as HolderText, (s) => dec(s), true);
+const noteFor = (k?: string) => (k ? (styleNotes as any)[k][locale] : '');
+const cutName = (c: string) => (copy.L as any)[c];
+const shankName = (s: string) => (s === 'unclear' ? copy.L.unclear : (copy.L as any)[s]);
+const text = { L: copy.L, draw: copy.draw, S: copy.S };
+---
+<ToolShell locale={locale} route="holder" title={copy.title} description={copy.description} lead={copy.lead} sectionN={4} sources={sourcesFor(locale)} review>
+  <div class="tool-grid-2" data-holder data-locale={locale} data-insert={href(routes.decoder[locale])}>
+    <div class="panel inputs">
+      <label class="field">
+        <span>{copy.inputLabel}</span>
+        <input type="text" data-code autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder={copy.placeholder} value={initial} />
+      </label>
+      <div>
+        <p class="hint" style="margin-bottom:0.4rem">{copy.examples}</p>
+        <div class="chips">
+          {examples.map((ex) => <button type="button" class="chip" data-example={ex} aria-pressed={String(ex === initial)}>{ex}</button>)}
+        </div>
+      </div>
+      <p class="warn" data-error hidden>{copy.invalid}</p>
+      <dl class="decoded" data-results></dl>
+    </div>
+    <div class="figure hd-fig">
+      <svg data-drawing="w" class="wide" viewBox="0 0 640 410" role="img" aria-label={tr ? 'Tutucunun iş başında üst görünüşü ve sap kesiti' : 'Plan view of the holder at work and section of its shank'} set:html={svg0} />
+      <svg data-drawing="n" class="narrow" viewBox="0 0 440 604" role="img" aria-label={tr ? 'Tutucunun iş başında üst görünüşü ve sap kesiti' : 'Plan view of the holder at work and section of its shank'} set:html={svg0n} />
+      <div class="strip" data-strip data-anim aria-hidden="true"></div>
+      <p class="hint strip-hint">{copy.S.hint}</p>
+    </div>
+    <script type="application/json" data-text set:html={JSON.stringify(text)} />
+  </div>
+
+  <section class="block-tables">
+    <h2 class="h2">{copy.anatomy}</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr>{copy.anatomyCols.map((c) => <th>{c}</th>)}</tr></thead>
+        <tbody>{copy.positions.map(([pos, meaning, ex]) => <tr><td class="num">{pos}</td><td>{meaning}</td><td>{ex}</td></tr>)}</tbody>
+      </table>
+    </div>
+
+    <h2 class="h2">{copy.clampTitle}</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr>{copy.clampCols.map((c) => <th>{c}</th>)}</tr></thead>
+        <tbody>{Object.entries(clamping).map(([k, v]) => <tr><td class="num">{k}</td><td>{v[locale]}</td><td>{v.hole ? copy.L.hole : copy.L.noHole}</td><td>{v.aka[locale]}</td></tr>)}</tbody>
+      </table>
+    </div>
+
+    <h2 class="h2">{copy.styleTitle}</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr>{copy.styleCols.map((c) => <th>{c}</th>)}</tr></thead>
+        <tbody>
+          {Object.entries(styles).map(([k, v]) => (
+            <tr>
+              <td class="num">{k}</td><td class="num">{dec(v.kr)}°</td><td>{shankName(v.shank)}</td><td>{cutName(v.cut)}</td>
+              <td class="num">{v.part ? `5610-${v.part}` : '—'}</td>
+              <td>{[v.single ? copy.L.single : '', (v as any).round ? copy.L.round : '', noteFor(v.note)].filter(Boolean).join('; ')}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint">{copy.clearNote} <a class="inline" href={href(routes.decoder[locale])}>{copy.L.insertLink}</a></p>
+
+    <h2 class="h2">{copy.lengthTitle}</h2>
+    <div class="lengths">
+      {Object.entries(lengths).map(([k, v]) => <div class="len"><b>{k}</b><span>{v == null ? copy.L.special : v}</span></div>)}
+    </div>
+
+    <h2 class="h2">{copy.qualTitle}</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <tbody>{Object.entries(qualified).map(([k, v]) => <tr><td class="num">{k}</td><td>{v[locale]}</td></tr>)}</tbody>
+      </table>
+    </div>
+
+    <h2 class="h2">{copy.nonIsoTitle}</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <tbody>
+          {Object.entries(clampingNonIso).map(([k, v]) => <tr><td class="num">1 · {k}</td><td>{v[locale]}</td></tr>)}
+          {Object.entries(stylesNonIso).map(([k, v]) => <tr><td class="num">3 · {k}</td><td>{v[locale]}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint"><span class="mark mark-review">{tr ? 'İncelemede' : 'Under review'}</span> {copy.reviewNote}</p>
+  </section>
+
+  <Fragment slot="notes">
+    {copy.notes.map((n) => <p>{n}</p>)}
+  </Fragment>
+</ToolShell>
+
+<style>
+  .decoded { display: grid; grid-template-columns: auto 1fr; gap: 0.45rem 1rem; font-size: 0.95rem; }
+  .decoded :global(dt) { color: var(--ink-3); white-space: nowrap; }
+  .decoded :global(dd) { color: var(--ink); margin: 0; }
+  .decoded :global(.num) { color: var(--data); }
+  .decoded :global(.unknown) { color: var(--color-spark-200); }
+  .decoded :global(.flag) { display: inline-block; margin-left: 0.4rem; font: 500 0.68rem var(--font-mono); color: var(--color-spark-300); border: 1px solid color-mix(in oklab, var(--color-spark-400) 55%, transparent); border-radius: 3px; padding: 0 0.3rem; vertical-align: 1px; }
+  .decoded :global(.sub) { display: block; font-size: 0.8rem; color: var(--ink-3); line-height: 1.35; margin-top: 0.1rem; }
+  .decoded :global(a) { color: var(--data); text-decoration: underline; text-underline-offset: 2px; }
+  @media (max-width: 40rem) {
+    .decoded { grid-template-columns: 1fr; gap: 0; }
+    .decoded :global(dt) { font-size: 0.78rem; margin-top: 0.7rem; white-space: normal; }
+    .decoded :global(dt:first-child) { margin-top: 0; }
+  }
+  .hd-fig svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  /* the code laid out position by position; a tile and its line in the list light up together */
+  .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(2.9rem, 1fr)); gap: 0.3rem; margin-top: 0.7rem; }
+  .strip :global(.tile) { display: grid; justify-items: center; gap: 0.12rem; padding: 0.4rem 0.2rem 0.45rem; border: 1px solid var(--line); border-radius: 5px; background: var(--bg-sunk); transition: border-color 140ms, background-color 140ms, transform 140ms; cursor: default; }
+  .strip :global(.tile .pn) { font: 500 0.62rem var(--font-mono); color: var(--ink-3); }
+  .strip :global(.tile b) { font: 600 1.15rem/1.1 var(--font-mono); color: var(--ink); }
+  .strip :global(.tile.d b) { color: #2a78d6; }
+  .strip :global(.tile.u b) { color: var(--color-spark-200); }
+  .strip :global(.tile .pl) { font: 0.66rem var(--font-mono); color: var(--ink-3); white-space: nowrap; }
+  .strip :global(.tile.hl) { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 14%, var(--bg-sunk)); transform: translateY(-1px); }
+  .decoded :global(dt), .decoded :global(dd) { border-radius: 3px; transition: background-color 140ms; }
+  .decoded :global(dt.hl), .decoded :global(dd.hl) { background: color-mix(in oklab, var(--accent) 11%, transparent); box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--accent) 11%, transparent); }
+  .strip-hint { margin: 0.45rem 0 0; font-size: 0.78rem; }
+  @media (max-width: 40rem) { .strip { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+  :global(html.anim) .strip[data-anim]:not(.go) :global(.tile) { opacity: 0; }
+  :global(html.anim) .strip.go :global(.tile) { animation: ca-rise 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(var(--k) * 40ms); }
+  .hd-fig .narrow { display: none; }
+  @media (max-width: 40rem) { .hd-fig .wide { display: none; } .hd-fig .narrow { display: block; } }
+  .block-tables { margin-top: 3rem; display: grid; gap: 1rem; }
+  .block-tables .h2 { margin-top: 1.5rem; }
+  .block-tables td.num { white-space: nowrap; }
+  .lengths { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: 0.35rem; }
+  .len { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.35rem 0.6rem; border: 1px solid var(--line); border-radius: 4px; font: 0.85rem var(--font-mono); }
+  .len b { color: var(--accent); }
+  .len span { color: var(--data); text-align: right; }
+  .len:last-child span { color: var(--ink-3); font-size: 0.72rem; font-family: var(--font-sans); }
+
+  .hd-fig :global(.hd-code) { font: 600 15px var(--font-mono); fill: var(--ink); }
+  .hd-fig :global(.hd-t) { font: 12px var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: var(--bg-sunk); stroke-width: 3px; stroke-linejoin: round; }
+  .hd-fig :global(.hd-dim) { fill: var(--ink-3); }
+  .hd-fig :global(.hd-data) { fill: #2a78d6; }
+  .hd-fig :global(.hd-acc) { fill: #e2601a; }
+  .hd-fig :global(.hd-work) { fill: url(#ca-hatch); stroke: #656e74; stroke-width: 1; stroke-linejoin: round; }
+  .hd-fig :global(.hd-shank) { fill: url(#ca-metal-h); stroke: #2c3033; stroke-width: 1; stroke-linejoin: round; }
+  .hd-fig :global(.hd-head) { fill: url(#ca-metal-h); stroke: #2c3033; stroke-width: 1.1; stroke-linejoin: round; }
+  .hd-fig :global(.hd-brk) { stroke: #1b1d1e; stroke-width: 1.2; fill: none; }
+  .hd-fig :global(.hd-ins) { fill: url(#ca-carbide); stroke: #1b1d1e; stroke-width: 1.1; stroke-linejoin: round; }
+  .hd-fig :global(.hd-clamp) { fill: #a2abb2; stroke: #2c3033; stroke-width: 0.9; stroke-linejoin: round; }
+  .hd-fig :global(.hd-hole) { fill: #f9fcff; stroke: #656e74; stroke-width: 0.9; }
+  .hd-fig :global(.hd-pin) { fill: #656e74; }
+  .hd-fig :global(.hd-screw) { fill: #565e63; }
+  .hd-fig :global(.hd-main) { stroke: #e2601a; stroke-width: 3; stroke-linecap: round; fill: none; }
+  .hd-fig :global(.hd-minor) { stroke: #1b1d1e; stroke-width: 1.8; stroke-linecap: round; fill: none; }
+  .hd-fig :global(.hd-feed) { stroke: #1e6fd6; stroke-width: 2; }
+  .hd-fig :global(.hd-arc) { stroke: #e2601a; stroke-width: 1.3; fill: none; }
+  .hd-fig :global(.hd-ref) { stroke: #e2601a; stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+  .hd-fig :global(.hd-ext) { stroke: var(--ink-3); stroke-width: 1; fill: none; }
+  .hd-fig :global(.hd-dimline) { stroke: var(--ink-3); stroke-width: 1; }
+  .hd-fig :global(.hd-sec) { fill: url(#ca-hatch); stroke: #1b1d1e; stroke-width: 1.2; }
+</style>
+
+<script>
+  import { parseHolderCode, clamping, clampingNonIso, styles, stylesNonIso, styleNotes, hands, shapes, clearances, qualified } from '../../data/iso5608.js';
+  import { drawHolder } from '../../lib/holder';
+  import { whenIn } from '../../lib/motion';
+
+  document.querySelectorAll<HTMLElement>('[data-holder]').forEach((root) => {
+    const locale = (root.dataset.locale as 'en' | 'tr') || 'en';
+    const tr = locale === 'tr';
+    const { L, draw } = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const input = root.querySelector('[data-code]') as HTMLInputElement;
+    const error = root.querySelector('[data-error]') as HTMLElement;
+    const results = root.querySelector('[data-results]') as HTMLElement;
+    const svgW = root.querySelector('[data-drawing="w"]') as SVGSVGElement;
+    const svgN = root.querySelector('[data-drawing="n"]') as SVGSVGElement;
+    const insertHref = root.dataset.insert || '#';
+    const dec = (s: string | number) => (tr ? String(s).replace('.', ',') : String(s));
+    const unknown = `<span class="unknown">${L.unknown}</span>`;
+    const flag = (s: string) => `<span class="flag">${s}</span>`;
+    const row = (dt: string, dd: string, pos = '') => `<dt data-pos="${pos}">${dt}</dt><dd data-pos="${pos}">${dd}</dd>`;
+    const strip = root.querySelector('[data-strip]') as HTMLElement;
+    const { S } = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    let lastCode = '';
+    const pad = (n: number | null) => (n == null ? '–' : String(n).padStart(2, '0'));
+
+    function render() {
+      const p = parseHolderCode(input.value);
+      root.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.example!.replace(/\s/g, '') === input.value.toUpperCase().replace(/\s/g, ''))));
+      if (!p) { error.hidden = false; results.innerHTML = ''; svgW.innerHTML = ''; svgN.innerHTML = ''; return; }
+      error.hidden = true;
+      const o: string[] = [];
+      const c = (clamping as any)[p.clamp], cn = (clampingNonIso as any)[p.clamp];
+      o.push(row(L.clamp, c ? `<b>${p.clamp}</b> · ${c[locale]}<span class="sub">${c.aka[locale]}</span>` : cn ? `<b>${p.clamp}</b>${flag(L.nonIso)}<span class="sub">${cn[locale]}</span>` : `<b>${p.clamp}</b> · ${unknown}`, '1'));
+      const sh = (shapes as any)[p.shape];
+      o.push(row(L.shape, sh ? `<b>${p.shape}</b> · ${sh[locale]}` : `<b>${p.shape}</b> · ${unknown}`, '2'));
+      const st = (styles as any)[p.style], sn = (stylesNonIso as any)[p.style];
+      if (st) {
+        const notes = [st.single ? L.single : '', st.round ? L.round : '', p.shape === 'R' ? L.roundKr : '', st.note ? (styleNotes as any)[st.note][locale] : ''].filter(Boolean).join(' ');
+        const shank = st.shank === 'unclear' ? L.unclear : L[st.shank];
+        o.push(row(L.style, `<b>${p.style}</b> · <span class="num">κr ${dec(st.kr)}°</span>, ${shank}, ${L[st.cut]}${st.part ? `<span class="sub">ISO 5610-${st.part} (${L.part})</span>` : ''}${notes ? `<span class="sub">${notes}</span>` : ''}`, '3'));
+      } else if (sn) o.push(row(L.style, `<b>${p.style}</b>${flag(L.nonIso)}<span class="sub">${sn[locale]}</span>`, '3'));
+      else o.push(row(L.style, `<b>${p.style}</b> · ${unknown}`, '3'));
+      const cl = (clearances as any)[p.clearance];
+      o.push(row(L.clear, cl === undefined ? `<b>${p.clearance}</b> · ${unknown}` : cl === null ? `<b>${p.clearance}</b> · ${tr ? 'özel' : 'special'}` : `<b>${p.clearance}</b> · <span class="num">αn ${cl}°</span> (${cl === 0 ? L.neg : L.pos})`, '4'));
+      const hd = (hands as any)[p.hand];
+      o.push(row(L.hand, hd ? `<b>${p.hand}</b> · ${hd[locale]}` : `<b>${p.hand}</b> · ${unknown}`, '5'));
+      if (p.kind === 'cartridge') {
+        o.push(row(L.cartH, `<span class="num">${p.height} mm</span>`, '6'));
+        o.push(row(L.cartT, `<b>C${p.cartridge}</b> · ${L.cart} ${p.cartridge}`, '7'));
+        o.push(row(L.l1, p.lengthCode === '-' ? `<b>-</b> · ${L.dash}` : p.lengthCode ? `<b>${p.lengthCode}</b> · <span class="num">${p.length ?? '—'} mm</span>` : `— · ${L.noLength}`, '8'));
+      } else {
+        o.push(row(L.h, `<span class="num">${p.height} mm</span>`, '6'));
+        o.push(row(L.b, `<span class="num">${p.width} mm</span>`, '7'));
+        o.push(row(L.l1, p.lengthCode === 'X' ? `<b>X</b> · ${L.special}` : p.length != null ? `<b>${p.lengthCode}</b> · <span class="num">${p.length} mm</span>` : `<b>${p.lengthCode}</b> · ${unknown}`, '8'));
+      }
+      o.push(row(L.size, `<b>${p.size}</b> · ${p.edgeLength != null ? `${L.edge} <span class="num">${dec(p.edgeLength)} mm</span>` : `${L.edge} <span class="num">≈ ${Number(p.size)} mm</span><span class="sub">${L.sizeRule}</span>`}`, '9'));
+      o.push(row(L.insert, `<b>${p.insert}</b> · <a href="${insertHref}">${L.insertLink}</a>`, '2 4 9'));
+      if (p.minor != null) o.push(row(L.minor, `<span class="num">${dec(Math.round(p.minor * 10) / 10)}°</span> <span class="sub">180° − κr − εr</span>`, '2 3'));
+      if (p.qualified) o.push(row(L.qual, `<b>${p.qualified}</b> · ${(qualified as any)[p.qualified][locale]}`, '10'));
+      if (p.suffix) o.push(row(L.suffix, `<b>${p.suffix}</b>`, 'sfx'));
+      results.innerHTML = o.join('');
+      const k = p.known;
+      const tiles: [string, string, string, string][] = [
+        ['1', p.clamp, S.clamp, k.clamp || k.clampNonIso ? '' : 'u'], ['2', p.shape, S.shape, k.shape ? '' : 'u'],
+        ['3', p.style, S.style, k.style || k.styleNonIso ? '' : 'u'], ['4', p.clearance, S.clear, k.clearance ? '' : 'u'],
+        ['5', p.hand, S.hand, k.hand ? '' : 'u'],
+      ];
+      if (p.kind === 'cartridge') tiles.push(['6', pad(p.height), S.cartH, 'd'], ['7', `C${p.cartridge}`, S.cart, ''], ['8', p.lengthCode || '–', S.l1, k.length ? '' : 'u']);
+      else tiles.push(['6', pad(p.height), S.h, 'd'], ['7', pad(p.width), S.b, 'd'], ['8', p.lengthCode, S.l1, k.length ? '' : 'u']);
+      tiles.push(['9', p.size, S.size, k.size ? 'd' : 'u']);
+      if (p.qualified) tiles.push(['10', p.qualified, S.qual, '']);
+      if (p.suffix) tiles.push(['sfx', p.suffix, S.suffix, '']);
+      strip.innerHTML = tiles.map(([pos, code, label, cls], i) => `<div class="tile ${cls}" data-pos="${pos}" style="--k:${i}"><span class="pn">${pos === 'sfx' ? '–' : pos}</span><b>${code}</b><span class="pl">${label}</span></div>`).join('');
+      if (p.code !== lastCode) { strip.classList.remove('go'); void strip.offsetWidth; strip.classList.add('go'); lastCode = p.code; }
+      const stDraw = st ?? (sn && sn.kr ? { kr: sn.kr, shank: 'offset', cut: 'side' } : null);
+      svgW.innerHTML = drawHolder(p as any, stDraw, sh ?? null, draw, (s) => dec(s));
+      svgN.innerHTML = drawHolder(p as any, stDraw, sh ?? null, draw, (s) => dec(s), true);
+    }
+    // a tile and its line(s) in the list light up together; "Matching insert" carries positions 2, 4 and 9
+    const light = (pos: string | null) => {
+      root.querySelectorAll('.hl').forEach((e) => e.classList.remove('hl'));
+      if (!pos) return;
+      for (const q of pos.split(' ')) root.querySelectorAll(`.strip [data-pos="${q}"], .decoded [data-pos="${q}"]`).forEach((e) => e.classList.add('hl'));
+      root.querySelectorAll(`.decoded [data-pos="${pos}"]`).forEach((e) => e.classList.add('hl'));
+    };
+    const over = (e: Event) => { const t = (e.target as HTMLElement).closest('[data-pos]') as HTMLElement | null; light(t && t.dataset.pos ? t.dataset.pos : null); };
+    strip.addEventListener('mouseover', over);
+    results.addEventListener('mouseover', over);
+    strip.addEventListener('mouseleave', () => light(null));
+    results.addEventListener('mouseleave', () => light(null));
+    input.addEventListener('input', render);
+    root.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((b) => b.addEventListener('click', () => { input.value = b.dataset.example!; render(); }));
+    lastCode = (parseHolderCode(input.value) || { code: '' }).code;    // the first layout plays when the strip comes into view
+    render();
+    whenIn(strip, () => { strip.classList.remove('go'); void strip.offsetWidth; strip.classList.add('go'); });
+  });
+</script>

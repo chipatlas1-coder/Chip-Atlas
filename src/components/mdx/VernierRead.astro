@@ -1,0 +1,195 @@
+---
+/**
+ * Reading a vernier caliper and an outside micrometer. Caliper modes (0.05 mm vernier: 20 divisions over 19 mm;
+ * 0.02 mm vernier: 50 divisions over 49 mm): an overview of the caliper closing on a round part, and a magnified
+ * window over the scales with the coinciding vernier line marked. Micrometer mode: sleeve with mm lines above and
+ * half-mm lines below the reference line, the thimble with 50 divisions (0.5 mm pitch, 0.01 mm per division).
+ * The value slider moves the instrument; a readout writes the reading as the two steps. "Try another" animates to a
+ * random value. Geometry is exact for the chosen vernier; the drawing is not to scale with a real instrument.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { modes: { v05: 'Kumpas 0,05 mm', v02: 'Kumpas 0,02 mm', mic: 'Mikrometre 0,01 mm' }, value: 'Ölçülen değer', another: 'Başka bir değer', main: 'ana cetvel (1 = 10 mm)', vern: 'verniyer', sleeve: 'kovan', thimble: 'tambur', ref: 'referans çizgisi', s1c: 'Ana cetvel, verniyerin sıfırının solundaki son çizgi', s2c: 'Ana cetvelle çakışan verniyer çizgisi', s1m: 'Kovan: görünen son milimetre ve yarım milimetre çizgisi', s2m: 'Tambur: referans çizgisindeki bölüm', sum: 'Okuma', mm: 'mm', aria: 'Kumpas ve mikrometre okuma: ölçekler büyütülmüş' }
+  : { modes: { v05: 'Caliper 0.05 mm', v02: 'Caliper 0.02 mm', mic: 'Micrometer 0.01 mm' }, value: 'Measured value', another: 'Try another', main: 'main scale (1 = 10 mm)', vern: 'vernier', sleeve: 'sleeve', thimble: 'thimble', ref: 'reference line', s1c: 'Main scale, last line left of the vernier zero', s2c: 'Vernier line that coincides with a main-scale line', s1m: 'Sleeve: last visible millimetre and half-millimetre line', s2m: 'Thimble: division on the reference line', sum: 'Reading', mm: 'mm', aria: 'Reading a vernier caliper and a micrometer: scales magnified' };
+---
+<div class="vr" data-vr data-locale={locale} data-anim>
+  <div class="seg" data-g="m">{(['v05', 'v02', 'mic'] as const).map((k, i) => <button type="button" data-v={k} aria-pressed={String(i === 0)}>{T.modes[k]}</button>)}</div>
+  <svg class="sc" viewBox="0 0 640 268" role="img" aria-label={T.aria} data-sc></svg>
+  <div class="row">
+    <label class="field"><span>{T.value} <output data-o="v">—</output> {T.mm}</span><input type="range" min="0" max="40" step="0.05" value="23.35" data-i="v" /></label>
+    <button type="button" class="btn" data-another>{T.another}</button>
+  </div>
+  <ol class="steps">
+    <li><span data-o="s1l">{T.s1c}</span><b data-o="s1">—</b></li>
+    <li><span data-o="s2l">{T.s2c}</span><b data-o="s2">—</b></li>
+    <li class="tot"><span>{T.sum}</span><b data-o="s3">—</b></li>
+  </ol>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .vr { display: grid; gap: 0.75rem; }
+  .seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1 1 9rem; font: inherit; font-size: 0.84rem; padding: 0.4rem 0.5rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.3rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .sc { width: 100%; height: auto; display: block; }
+  .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: end; }
+  .field { display: grid; gap: 0.3rem; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .btn { font: inherit; font-size: 0.84rem; padding: 0.45rem 0.9rem; border-radius: 8px; border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; }
+  .btn:hover { background: color-mix(in oklab, var(--accent) 10%, transparent); }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
+  @media (max-width: 40rem) { .steps { grid-template-columns: 1fr; } }
+  .steps li { display: grid; gap: 0.2rem; border-top: 3px solid var(--line); padding-top: 0.4rem; font-size: 0.78rem; color: var(--ink-3); }
+  .steps li b { font: 600 1.15rem var(--font-mono); color: var(--ink); }
+  .steps li:nth-child(1) { border-color: #1e5fc4; } .steps li:nth-child(2) { border-color: #e2601a; }
+  .steps li.tot { border-color: #13998a; } .steps li.tot b { color: #0f7a6e; }
+  .vr :global(.tx) { font: 11px var(--font-mono); fill: #364554; }
+  .vr :global(.tn) { font: 600 12px var(--font-mono); fill: #364554; }
+  .vr.narrow :global(.tx) { font-size: 17px; }
+  .vr.narrow :global(.tn) { font-size: 18px; }
+  .vr :global(.tlab) { paint-order: stroke; stroke: #e9edf1; stroke-width: 3px; stroke-linejoin: round; }
+</style>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-vr]').forEach((root) => {
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const tr = root.dataset.locale === 'tr';
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const sc = q<SVGSVGElement>('[data-sc]');
+    const inp = q<HTMLInputElement>('[data-i="v"]');
+    const cid = `vr-gap-${Math.random().toString(36).slice(2, 8)}`;        // unique clip id per instance
+    const dec = (v: number, d: number) => (tr ? v.toFixed(d).replace('.', ',') : v.toFixed(d));
+    const f = (n: number) => n.toFixed(1);
+    type Mode = 'v05' | 'v02' | 'mic';
+    const CFG = {
+      v05: { res: 0.05, n: 20, span: 19, max: 40, d: 2 },     // 20 divisions over 19 mm (each 0.95 mm; MEB, NPL)
+      v02: { res: 0.02, n: 50, span: 49, max: 40, d: 2 },     // 50 divisions over 49 mm (each 0.98 mm)
+      mic: { res: 0.01, n: 50, span: 0, max: 25, d: 2 },      // 0.5 mm pitch, 50 thimble divisions
+    } as const;
+    let mode: Mode = 'v05', shown = 23.35, target = 23.35, anim = false;
+    const snap = (v: number) => Math.round(v / CFG[mode].res) * CFG[mode].res;
+    const drawCaliper = (v: number) => {
+      const c = CFG[mode as 'v05' | 'v02'];
+      // overview: beam 0–150 mm at 3.4 px/mm from x = 40; the part between the jaws has diameter v
+      const K1 = 3.4, X0 = 40, BY = 40;
+      let s = `<rect x="${X0 - 26}" y="${BY - 12}" width="${150 * K1 + 52}" height="24" rx="3" fill="url(#ca-metal-h)" stroke="#5f6c79"/>`;
+      for (let m = 0; m <= 150; m += 10) s += `<line x1="${f(X0 + m * K1)}" y1="${BY - 12}" x2="${f(X0 + m * K1)}" y2="${BY - 4}" stroke="#364554" stroke-width="1"/>`;
+      // fixed jaw at 0, moving jaw at v (outside jaws hang down)
+      s += `<path d="M${X0 - 22},${BY + 12} L${X0},${BY + 12} L${X0},${BY + 78} L${X0 - 8},${BY + 86} L${X0 - 22},${BY + 40} Z" fill="url(#ca-metal)" stroke="#5f6c79"/>`;
+      const xv = X0 + v * K1;
+      s += `<path d="M${f(xv)},${BY + 12} L${f(xv + 60)},${BY + 12} L${f(xv + 60)},${BY + 28} L${f(xv + 22)},${BY + 40} L${f(xv + 8)},${BY + 86} L${f(xv)},${BY + 78} Z" fill="url(#ca-metal)" stroke="#5f6c79"/>`;
+      s += `<rect x="${f(xv - 4)}" y="${BY - 16}" width="${f(c.span * K1 + 20)}" height="32" rx="4" fill="none" stroke="#e2601a" stroke-width="1.6" stroke-dasharray="4 3"/>`;
+      // the part: diameter = jaw gap; clipped to the space between the jaws so it never covers the beam or the window
+      if (v > 1) s += `<clipPath id="${cid}"><rect x="${X0}" y="${BY + 12}" width="${f(v * K1)}" height="74"/></clipPath><circle cx="${f(X0 + (v * K1) / 2)}" cy="${BY + 50}" r="${f((v * K1) / 2)}" fill="#c3ccd5" stroke="#5f6c79" clip-path="url(#${cid})"/>`;
+      // magnified window: 9.5 px/mm, vernier zero at x = 70
+      const K = mode === 'v05' ? 18 : 10.4, VX = 60, MY = 200;
+      const mx = (m: number) => VX + (m - v) * K;
+      s += `<rect x="10" y="${MY - 62}" width="620" height="120" rx="8" fill="#f7f9fb" stroke="#d3dae2"/>`;
+      s += `<line x1="10" y1="${MY}" x2="630" y2="${MY}" stroke="#9aa6b2"/>`;
+      // coincident vernier line
+      const vs = snap(v);                                                   // highlight and readout from the snapped value
+      const frac = Math.round((vs - Math.floor(vs + 1e-9)) / c.res);
+      const kAl = frac % c.n;
+      const lo = Math.floor(v - 10), hi = Math.ceil(v + c.span + 10);
+      for (let m = Math.max(0, lo); m <= hi; m++) {
+        const x = mx(m); if (x < 14 || x > 626) continue;
+        const L = m % 10 === 0 ? 22 : m % 5 === 0 ? 16 : 11;
+        const on = !anim && Math.abs(m - (vs + kAl * (c.span / c.n))) < 1e-6;
+        s += `<line x1="${f(x)}" y1="${MY}" x2="${f(x)}" y2="${MY - L}" stroke="${on ? '#e2601a' : '#364554'}" stroke-width="${on ? 2.4 : 1.2}"/>`;
+        if (m % 10 === 0) s += `<text x="${f(x)}" y="${MY - 28}" class="tn" text-anchor="middle">${m / 10}</text>`;
+      }
+      const step = c.span / c.n;
+      for (let k = 0; k <= c.n; k++) {
+        const x = VX + k * step * K;
+        const label = mode === 'v05' ? k % 2 === 0 : k % 5 === 0;
+        const L = label ? 18 : 11;
+        const on = !anim && k === kAl;
+        s += `<line x1="${f(x)}" y1="${MY}" x2="${f(x)}" y2="${MY + L}" stroke="${on ? '#e2601a' : '#1e5fc4'}" stroke-width="${on ? 2.4 : 1.2}"/>`;
+        if (label) s += `<text x="${f(x)}" y="${MY + 32}" class="tx" text-anchor="middle" style="fill:#1e5fc4">${mode === 'v05' ? k / 2 : k / 5}</text>`;
+      }
+      s += `<path d="M${VX},${MY + 46} L${VX - 5},${MY + 54} L${VX + 5},${MY + 54} Z" fill="#1e5fc4"/>`;
+      s += `<text x="22" y="${MY - 48}" class="tx">${T.main}</text><text x="${f(VX + c.span * K)}" y="${MY + 50}" class="tx" text-anchor="end" style="fill:#1e5fc4">${T.vern}</text>`;
+      const main = Math.floor(vs + 1e-9);
+      return { s, s1: main, s2: kAl * c.res, k: kAl };
+    };
+    const drawMic = (v: number) => {
+      // sleeve: mm lines above, half-mm lines below the reference line, 28 px/mm; the thimble edge stays at x = 430
+      // and the sleeve scale slides under it
+      const K = 28, RY = 140, xe = 430;
+      const X0 = xe - v * K;
+      let s = `<rect x="0" y="${RY - 34}" width="${xe + 2}" height="68" fill="url(#ca-metal-h)" stroke="#5f6c79"/>`;
+      s += `<line x1="0" y1="${RY}" x2="${xe}" y2="${RY}" stroke="#364554" stroke-width="1.4"/>`;
+      // thimble: a drum with a bevelled edge, drawn 2 px right of xe so a sleeve line exactly at the edge (thimble at 0)
+      // stays visible as a separate line; its divisions run vertically, 50 per 0.5 mm
+      s += `<path d="M${f(xe + 2)},${RY - 34} L${f(xe + 16)},${RY - 70} L640,${RY - 70} L640,${RY + 70} L${f(xe + 16)},${RY + 70} L${f(xe + 2)},${RY + 34} Z" fill="url(#ca-metal)" stroke="#5f6c79"/>`;
+      // sleeve lines, drawn after the drum so a line exactly at the thimble edge (thimble at 0) is shown, not hidden
+      for (let m = 0; m <= 25; m++) {
+        const x = X0 + m * K; if (x > xe + 0.5) break; if (x < -K) continue;
+        s += `<line x1="${f(x)}" y1="${RY}" x2="${f(x)}" y2="${RY - (m % 5 === 0 ? 20 : 13)}" stroke="#364554" stroke-width="1.3"/>`;
+        if (m % 5 === 0 && x >= 14) s += x > xe - 8 ? `<text x="${f(x - 3)}" y="${RY - 24}" class="tn" text-anchor="end">${m}</text>` : `<text x="${f(x)}" y="${RY - 24}" class="tn" text-anchor="middle">${m}</text>`;
+        const xh = x + K / 2; if (xh <= xe + 0.5) s += `<line x1="${f(xh)}" y1="${RY}" x2="${f(xh)}" y2="${RY + 12}" stroke="#364554" stroke-width="1.3"/>`;
+      }
+      const rem = v - Math.floor(v * 2 + 1e-9) / 2;                         // 0 … 0.5
+      const div = rem / 0.01;                                                // 0 … 50
+      for (let k = -14; k <= 14; k++) {
+        const d = Math.round(div) + k;
+        const phi = ((d - div) / 50) * 2 * Math.PI;                           // angle round the drum
+        if (Math.abs(phi) > Math.PI / 2.1) continue;
+        const y = RY - 66 * Math.sin(phi);                                   // numbers rise upwards: opening turns the drum down
+        const dd = ((d % 50) + 50) % 50;
+        const L = dd % 5 === 0 ? 16 : 9;
+        const on = !anim && Math.abs(d - div) < 0.5;
+        const x1 = xe + 4 + 14 * Math.max(0, (Math.abs(y - RY) - 34) / 36);   // follow the bevel above and below RY ± 34
+        s += `<line x1="${f(x1)}" y1="${f(y)}" x2="${f(x1 + L)}" y2="${f(y)}" stroke="${on ? '#e2601a' : '#364554'}" stroke-width="${on ? 2.4 : 1.1}" opacity="${f(Math.cos(phi))}"/>`;
+        if (dd % 5 === 0) s += `<text x="${f(x1 + 20)}" y="${f(y + 4)}" class="tx" opacity="${f(Math.cos(phi))}" style="fill:${on ? '#c94f0c' : '#364554'}">${dd}</text>`;
+      }
+      s += `<text x="${xe - 8}" y="${RY + 56}" class="tx" text-anchor="end">${T.sleeve}</text><text x="${xe + 70}" y="${RY - 80}" class="tx">${T.thimble}</text>`;
+      // the reference line's label sits just under the line at its left end (no leader: it would look like a graduation)
+      s += `<text x="8" y="${RY + 27}" class="tx tlab">${T.ref}</text>`;
+      const vs = snap(v), sleeveVal = Math.floor(vs * 2 + 1e-9) / 2, kk = Math.round((vs - sleeveVal) / 0.01);
+      return { s, s1: sleeveVal, s2: kk * 0.01, k: kk };
+    };
+    const draw = () => {
+      const v = shown;
+      const r = mode === 'mic' ? drawMic(v) : drawCaliper(v);
+      sc.innerHTML = r.s;
+      q('[data-o="v"]').textContent = dec(snap(target), 2);
+      q('[data-o="s1"]').textContent = `${dec(r.s1, mode === 'mic' ? 1 : 0)} ${T.mm}`;
+      q('[data-o="s2"]').textContent = mode === 'mic' ? `${r.k} × 0${tr ? ',' : '.'}01 = ${dec(r.s2, 2)} ${T.mm}` : `${r.k} × ${dec(CFG[mode].res, 2)} = ${dec(r.s2, 2)} ${T.mm}`;
+      q('[data-o="s3"]').textContent = `${dec(r.s1 + r.s2, 2)} ${T.mm}`;
+      q('[data-o="s1l"]').textContent = mode === 'mic' ? T.s1m : T.s1c;
+      q('[data-o="s2l"]').textContent = mode === 'mic' ? T.s2m : T.s2c;
+    };
+    const go = (to: number) => {
+      target = snap(Math.max(0, Math.min(CFG[mode].max, to)));
+      inp.value = String(target);
+      if (!document.documentElement.classList.contains('anim')) { shown = target; draw(); return; }
+      const from = shown, t0 = performance.now(); anim = true;
+      const step = (now: number) => {
+        const u = Math.min(1, (now - t0) / 900), e = u * u * (3 - 2 * u);
+        shown = u < 1 ? from + (target - from) * e : target;
+        if (u >= 1) anim = false;                                            // clear before the last draw, so it is highlighted
+        draw(); if (u < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    inp.addEventListener('input', () => { target = snap(+inp.value); shown = target; draw(); });
+    q('[data-another]').addEventListener('click', () => go(Math.random() * (CFG[mode].max - 2) + 1));
+    root.querySelectorAll<HTMLButtonElement>('[data-g="m"] button').forEach((b, _, all) => b.addEventListener('click', () => {
+      mode = b.dataset.v as Mode; all.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      inp.max = String(CFG[mode].max); inp.step = String(CFG[mode].res);
+      target = snap(Math.min(+inp.value, CFG[mode].max)); shown = target; inp.value = String(target); draw();
+    }));
+    const fit = () => root.classList.toggle('narrow', sc.getBoundingClientRect().width > 0 && sc.getBoundingClientRect().width < 480);
+    new ResizeObserver(fit).observe(sc);
+    draw(); fit();
+    whenIn(root, () => { if (!anim) { shown = 0; go(23.35); } });
+  });
+</script>

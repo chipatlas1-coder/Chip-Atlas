@@ -1,0 +1,878 @@
+---
+/**
+ * Micrometer reading simulator: a start choice (tutorial or straight to the test), a step-by-step tutorial in which
+ * the reader turns the thimble, a ten-part test with the reading broken down line by line, and free practice.
+ * Metric 0.01 mm and inch 0.001 in; frames 0–25 … 100–125 mm and 0–1 … 4–5 in; both sleeve numberings for frames
+ * with a base (sleeve numbered from 0, so the frame's base is added, or sleeve numbered with the actual size).
+ * Logic: src/lib/micrometer.ts (tested); drawings: src/lib/micrometerDraw.ts.
+ */
+import ToolShell from '../ToolShell.astro';
+import type { Locale } from '../../i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+
+// Both sleeve numberings are in print for metric frames above 25 mm (BMW training booklet: actual size; DGT India:
+// always 0–25, add the lower limit). No source found says how an inch sleeve above 1 in is numbered, so inch frames
+// use the sleeve numbered from 0 with the base added (micrometer-sim.md, items 1 and 3).
+const INCH_ABS = false;
+
+const steps = {
+  mm: ['parts', 'frame', 'upper', 'lower', 'thimble', 'sum', 'rel', 'abs', 'done'],
+  in: ['parts', 'frame', 'upper', 'lower', 'thimble', 'sum', 'rel', ...(INCH_ABS ? ['abs'] : []), 'done'],
+};
+
+const T = tr
+  ? {
+      title: 'Mikrometre okuma simülatörü',
+      description: 'Dış çap mikrometresini adım adım okumayı öğren, sonra rastgele parçalarla kendini dene: metrik 0,01 mm ve inç 0,001 in, 0–25 mm’den 100–125 mm’ye kadar gövdeler ve iki farklı kovan numaralaması.',
+      lead: 'Öğretici gövdeyi, kovanı ve tamburu sırayla anlatır; sen tamburu çevirerek dener ve öğrenirsin. Test sana on rastgele parça verir ve her okumanın nasıl toplandığını çizgi çizgi gösterir.',
+      startTitle: 'Mikrometre nasıl okunur?',
+      startText: 'Kısa bir öğreticiyle başlayabilir ya da doğrudan teste geçebilirsin. Öğreticiye istediğin an geri dönebilirsin.',
+      startTut: 'Öğreticiyle başla', startSkip: 'Öğreticiyi geç, teste başla',
+      modes: { tutorial: 'Öğretici', test: 'Test', practice: 'Alıştırma' },
+      units: { mm: 'Metrik · mm', in: 'İnç · in' }, unitAria: 'Birim', modeAria: 'Mod',
+      uname: { mm: 'mm', in: 'inç' },
+      closeup: 'Yakın plan', scaleInfo: { mm: '1 bölüntü = 0,01 mm · 1 tur = 0,50 mm', in: '1 bölüntü = 0,001 inç · 1 tur = 0,025 inç' },
+      meta: { mm: 'Metrik · 0,01 mm', in: 'İnç · 0,001 inç' },
+      ovAria: 'Parçayı tutan mikrometre; gövdede ölçme aralığı yazılı', cuAria: 'Kovan ve tambur skalalarının yakın planı',
+      lSleeve: 'KOVAN', lThim: 'TAMBUR',
+      names: { frame: 'gövde', anvil: 'çene', spindle: 'ölçme mili', lock: 'mil sabitleme', sleeve: 'kovan', thimble: 'tambur', ratchet: 'cırcır' },
+      parts: { ball: 'Çelik bilye', shaft: 'Mil', ring: 'Rulman bileziği', hex: 'Altıgen çubuk, anahtar ağzı', pin: 'Pim', block: 'Blok mastar', plate: 'Sac kalınlığı' },
+      help: 'Takıldın mı? Öğreticiye bak →', step: 'Adım', back: 'Geri', next: 'İleri', task: 'Görev', taskDone: 'Tamam!', toTest: 'Teste başla', toPractice: 'Serbest alıştırma',
+      dragHint: 'Tamburu yukarı-aşağı sürükleyerek çevir ya da düğmeleri kullan.',
+      stepsText: {
+        mm: {
+          parts: { t: 'Mikrometrenin parçaları', x: 'Parça <b>çene</b> ile <b>ölçme mili</b> arasında tutulur. <b>Tamburu</b> çevirdikçe ölçme mili ilerler ya da geri çekilir. Son dokunuşu <b>cırcırla</b> yap ve okumayı ilk tıkta al.' },
+          frame: { t: 'Önce gövdeye bak', x: 'Gövdede ölçme aralığı yazar. Bu mikrometre <b>0–25 mm</b> arasını ölçer, çözünürlüğü <b>0,01 mm</b>. Okuma her zaman bu aralığın içindedir.' },
+          upper: { t: 'Kovanın üst çizgileri: milimetre', x: 'Bu mikrometrede referans çizgisinin üstündeki her çizgi <b>1 mm</b>. Her beşinci çizgi uzun ve numaralı: 0, 5, 10… Tamburun kenarının açıkta bıraktığı son çizgiyi bul.', task: 'Tamburu çevir: kovanda tam <b>7 mm</b> görünsün, ondan sonra alt çizgi açılmasın.' },
+          lower: { t: 'Alt çizgiler: yarım milimetre', x: 'Bu mikrometrede referans çizgisinin altındaki çizgiler aradaki <b>yarım milimetreyi</b> gösterir (bazı modellerde bu çizgiler üsttedir). Son tam milimetreden sonra bir alt çizgi açıktaysa <b>0,5</b> ekle.', task: '<b>7,5 mm</b>’yi göster: 7’den sonraki alt çizgi açılsın.' },
+          thimble: { t: 'Tambur: yüzde bir milimetre', x: 'Tamburda <b>50</b> bölüntü var; bir tam tur ölçme milini <b>0,5 mm</b> ilerletir. Yani her bölüntü <b>0,01 mm</b>. Kovandaki yatay referans çizgisiyle hizalanan tambur çizgisini oku.', task: 'Okumayı tam <b>7,88 mm</b> yap.' },
+          sum: { t: 'Hepsini topla', x: 'Soldan sağa topla: son numaralı çizgi, ondan sonraki çizgiler, yarım çizgi ve tambur. Renkler aşağıdaki toplamla aynı.' },
+          rel: { t: 'Büyük mikrometre: kovan 0’dan numaralı', x: 'Bu mikrometrenin gövdesinde <b>50–75 mm</b> yazıyor ama kovanı 0, 5 … 25 diye numaralı. Kovanda okuduğuna gövdedeki <b>50 mm</b>’yi ekle.' },
+          abs: { t: 'Büyük mikrometre: kovanda gerçek değer', x: 'Aynı ölçü, başka bir mikrometre: bu kovanda <b>50, 55 … 75</b> yazıyor. Rakam 50’yi zaten içeriyor; tekrar ekleme. Kovan numaralaması her mikrometrede aynı değildir, bu yüzden her ölçümde önce gövdeye bak.' },
+          done: { t: 'Sıra sende', x: 'Testte seni on rastgele parça bekliyor: bilyeler, miller, pimler, blok mastarlar… Her cevaptan sonra okumanın nasıl toplandığını çizgi çizgi göreceksin.' },
+        },
+        in: {
+          parts: { t: 'Mikrometrenin parçaları', x: 'Parça <b>çene</b> ile <b>ölçme mili</b> arasında tutulur. <b>Tamburu</b> çevirdikçe ölçme mili ilerler ya da geri çekilir. Son dokunuşu <b>cırcırla</b> yap ve okumayı ilk tıkta al.' },
+          frame: { t: 'Önce gövdeye bak', x: 'Gövdede ölçme aralığı yazar. Bu mikrometre <b>0–1 inç</b> arasını ölçer, çözünürlüğü <b>0,001 inç</b>. Okuma her zaman bu aralığın içindedir.' },
+          upper: { t: 'Kovandaki rakamlar: 0,100 inç', x: 'Kovandaki her rakam <b>0,100 inç</b>: 1 = 0,100, 2 = 0,200, 3 = 0,300… Tamburun kenarının açıkta bıraktığı son rakamı bul.', task: 'Tamburu çevir: kovanda <b>3</b> açıkta olsun, ondan sonraki kısa çizgi açılmasın.' },
+          lower: { t: 'Kısa çizgiler: 0,025 inç', x: 'Rakamlar arasında üç kısa çizgi var; çizgiler <b>0,025 inç</b> aralıklı. Son rakamdan sonra açıkta kalan her çizgi için <b>0,025</b> ekle.', task: '3’ten sonra <b>iki</b> kısa çizgi açılsın (0,350 inç).' },
+          thimble: { t: 'Tambur: binde bir inç', x: 'Tamburda <b>25</b> bölüntü var; bir tam tur ölçme milini <b>0,025 inç</b> ilerletir. Yani her bölüntü <b>0,001 inç</b>. Kovandaki yatay referans çizgisiyle hizalanan tambur çizgisini oku.', task: 'Okumayı tam <b>0,361 inç</b> yap.' },
+          sum: { t: 'Hepsini topla', x: 'Soldan sağa topla: son rakam, ondan sonraki kısa çizgiler ve tambur. Renkler aşağıdaki toplamla aynı.' },
+          rel: { t: 'Büyük mikrometre: tabanı ekle', x: 'Bu mikrometrenin gövdesinde <b>1–2 inç</b> yazıyor: 1 ile 2 inç arasını ölçer. Kovanı 0’dan numaralı, bu yüzden kovanda okuduğuna gövdedeki <b>1 inçlik</b> tabanı ekle.' },
+          abs: { t: '', x: '' },
+          done: { t: 'Sıra sende', x: 'Testte seni on rastgele parça bekliyor. Her cevaptan sonra okumanın nasıl toplandığını çizgi çizgi göreceksin.' },
+        },
+      },
+      partOf: 'Parça <b>{n}</b>/{N}', score: 'Puan', time: 'Süre',
+      answerLabel: 'Okuman', check: 'Kontrol et', nextPart: 'Sonraki parça', finish: 'Sonuçları gör',
+      invalid: { mm: '57,88 gibi, en çok iki ondalıkla yaz', in: '0,361 gibi, en çok üç ondalıkla yaz' }, dot: ',',
+      correct: 'Doğru', wrong: 'Yanlış', you: 'Sen', answer: 'Doğrusu',
+      chip: { base: 'Gövde', numbered: 'Kovan rakamı', lines: 'Çizgiler', half: 'Yarım çizgi', thimble: 'Tambur' },
+      note: {
+        zero: '{from}–{to} {ul} mikrometrede eklenecek taban yoktur; kovandaki rakamlar gerçek ölçüdür.',
+        rel: 'Gövdede {from}–{to} {u} yazıyor ama kovan 0’dan numaralı; bu yüzden tabanı ({base} {u}) ekle.',
+        abs: 'Bu kovan {from}–{to} diye numaralı; taban zaten kovandaki rakamın içinde.',
+      },
+      zeroUnit: { mm: 'mm', in: 'inç' }, ul: { mm: 'mm’lik', in: 'inçlik' },
+      diag: {
+        forgotBase: 'Kovanı okudun ama gövdeyi atladın. Bu {from}–{to} {ul} bir mikrometre: tabanı ({base} {u}) ekle.',
+        forgotBaseMore: 'Gövdeyi atladın: tabanı ({base} {u}) ekle. Sonra çizgileri ve tamburu da kontrol et.',
+        doubleBase: 'Bu kovan {from}–{to} diye numaralı, taban zaten rakamın içinde. Tabanı ({base} {u}) tekrar ekleme.',
+        droppedBase: 'Bu kovan gerçek değerle numaralı ({from}–{to}); rakamı olduğu gibi oku, tabanı çıkarma.',
+        mmLow: 'Tambur 0’ı yeni geçti: kenardaki milimetre çizgisi yeni açıldı, onu da say.',
+        halfHigh: 'Tambur {div} gösteriyor, yani tur henüz bitmedi. Sonraki çizgi kenara çok yakın ama henüz açılmadı.',
+        halfLow: 'Tambur 0’ı yeni geçti: kenardaki çizgi yeni açıldı, onu da say.',
+        half: '0,5 mm fark var. Alt çizgilere bak: son tam milimetreden sonra yarım çizgi açıkta mı?',
+        mm: '1 mm fark var. Üst çizgileri tamburun kenarına kadar yeniden say.',
+        lineHigh: 'Tambur {div} gösteriyor, yani tur henüz bitmedi. Sonraki kısa çizgi kenara çok yakın ama henüz açılmadı.',
+        lineLow: 'Tambur 0’ı yeni geçti: kenardaki kısa çizgi yeni açıldı, onu da say.',
+        line: '0,025 inç fark var. Son rakamdan sonra açıkta kalan kısa çizgileri yeniden say.',
+        tenth: '0,100 inç fark var. Tamburun kenarından önceki son rakamı yeniden oku.',
+        one: 'Bir bölüntü fark var. Tamburda referans çizgisiyle tam hizalanan çizgiyi oku.',
+        thimble: 'Kovan kısmı doğru. Tamburda referans çizgisiyle hizalanan çizgiyi oku.',
+        general: 'Sırayla git: gövde, kovan rakamı, çizgiler, yarım çizgi, tambur.',
+        generalIn: 'Sırayla git: gövde, kovan rakamı, kısa çizgiler, tambur.',
+      },
+      resTitle: 'Tur bitti',
+      v10: 'Atölyeye hazırsın.', v8: 'Gözün keskin. Kaçanlara aşağıdan bak.', v5: 'Doğru yoldasın. Öğreticiye ya da alıştırmaya göz at, sonra tekrar dene.', v0: 'Öğreticiden başla: tamburu çevir, her skalayı izle.',
+      best: 'En iyi: <b>{s}/{N}</b>, {t}', newBest: 'Yeni rekor',
+      again: 'Tekrar oyna', copy: 'Skoru kopyala', copied: 'Kopyalandı',
+      share: 'Chip Atlas Mikrometre Okuma Testi’nde {N} mikrometrenin {s} tanesini {t} sürede doğru okudum. Sen kaç yaparsın?',
+      readingLabel: 'Okuma', slider: 'Tambur konumu', random: 'Rastgele değer', showReading: 'Okumayı göster',
+      rangeLabel: 'Mikrometre', mixed: 'Karışık', styleLabel: 'Kovan numarası',
+      styles: { mix: 'Karışık', rel: '0’dan (taban ekle)', abs: 'Gerçek değer' },
+      settingsNote: 'Ayarı değiştirmek yeni tur başlatır.', settingsNoteP: 'Alıştırma yapmak istediğin mikrometreyi seç.',
+      styleNA: 'Bu simülasyonda inç kovanlar 0’dan numaralıdır; tabanı gövdeden ekle.',
+      notesTitle: 'Notlar',
+      notes: [
+        'Metrik mikrometrede ölçme milinin adımı 0,5 mm, tamburdaki bölüntü sayısı 50’dir; her bölüntü 0,01 mm’dir. Kovanda referans çizgisinin üstünde 1 mm, altında 0,5 mm çizgileri bulunur.',
+        'İnç mikrometrede bir tur 0,025 inçtir; tamburdaki 25 bölüntünün her biri 0,001 inçtir. Kovan her 0,100 inçte numaralıdır ve aralarında 0,025 inç aralıklı çizgiler vardır.',
+        'Kaynaklar 25 mm’den büyük metrik mikrometrelerin kovanını iki türlü gösterir: BMW’nin eğitim kitapçığı 125–150 mm’lik mikrometrede kovandan doğrudan 139 mm okur; Hindistan’ın meslek eğitimi metni ise her aralıkta kovanda yalnız 0–25 mm bulunduğunu yazar ve 50–75 mm’lik mikrometrede 50 mm’yi ekler. Simülasyonda ikisi de var; her ölçümde önce gövdedeki aralığa bak.',
+        'Kaynakların çoğu yarım milimetre çizgilerini referans çizgisinin altında gösterir; KTÜ’nün ders notu bazı modellerde bu çizgilerin üstte olduğunu belirtir.',
+        'İnç mikrometrede 2 inçlik bir mikrometre 1 ile 2 inç arasını ölçer (ABD Ordusu TM 9-243). 1 inçten büyük inç kovanların nasıl numaralandığına dair kaynak bulunamadı; simülasyon bu kovanları 0’dan numaralı gösterir ve tabanı gövdeden ekletir.',
+        'Okumayı cırcırın ilk tıkında al ve referans çizgisine tam karşıdan bak; yandan bakmak okumayı kaydırır.',
+        'Simülasyondaki çizimler okumayı öğretmek içindir: gövde biçimi ve renkler belirli bir üreticinin tasarımı değildir.',
+      ],
+    }
+  : {
+      title: 'Micrometer reading simulator',
+      description: 'Learn to read an outside micrometer step by step, then test yourself on random parts: metric 0.01 mm and inch 0.001 in, frames from 0–25 mm to 100–125 mm, and both sleeve numberings.',
+      lead: 'The tutorial walks through the frame, the sleeve and the thimble while you turn the thimble yourself. The test hands you ten random parts and shows, line by line, how each reading adds up.',
+      startTitle: 'How do you read a micrometer?',
+      startText: 'Start with a short tutorial or go straight to the test. You can come back to the tutorial at any time.',
+      startTut: 'Start the tutorial', startSkip: 'Skip it, start the test',
+      modes: { tutorial: 'Tutorial', test: 'Test', practice: 'Practice' },
+      units: { mm: 'Metric · mm', in: 'Inch · in' }, unitAria: 'Unit', modeAria: 'Mode',
+      uname: { mm: 'mm', in: 'in' },
+      closeup: 'Close-up', scaleInfo: { mm: '1 division = 0.01 mm · 1 turn = 0.50 mm', in: '1 division = 0.001 in · 1 turn = 0.025 in' },
+      meta: { mm: 'Metric · 0.01 mm', in: 'Inch · 0.001 in' },
+      ovAria: 'Micrometer holding the part, with the measuring range on the frame', cuAria: 'Close-up of the sleeve and thimble scales',
+      lSleeve: 'SLEEVE', lThim: 'THIMBLE',
+      names: { frame: 'frame', anvil: 'anvil', spindle: 'spindle', lock: 'spindle lock', sleeve: 'sleeve', thimble: 'thimble', ratchet: 'ratchet stop' },
+      parts: { ball: 'Steel ball', shaft: 'Shaft', ring: 'Bearing ring', hex: 'Hex bar, across flats', pin: 'Dowel pin', block: 'Gauge block', plate: 'Plate thickness' },
+      help: 'Stuck? Open the tutorial →', step: 'Step', back: 'Back', next: 'Next', task: 'Task', taskDone: 'Done!', toTest: 'Start the test', toPractice: 'Free practice',
+      dragHint: 'Drag the thimble up or down to turn it, or use the buttons.',
+      stepsText: {
+        mm: {
+          parts: { t: 'The parts of a micrometer', x: 'The part is held between the <b>anvil</b> and the <b>spindle</b>. Turning the <b>thimble</b> moves the spindle in or out. Close the last bit with the <b>ratchet stop</b> and take the reading at its first click.' },
+          frame: { t: 'Look at the frame first', x: 'The frame carries the measuring range. This micrometer measures <b>0–25 mm</b> and reads to <b>0.01 mm</b>. The reading is always inside that range.' },
+          upper: { t: 'Upper sleeve lines: millimetres', x: 'On this micrometer every line above the index line is <b>1 mm</b>. Every fifth line is long and numbered: 0, 5, 10… Find the last line the thimble edge has uncovered.', task: 'Turn the thimble until the sleeve shows exactly <b>7 mm</b>, with no lower line uncovered after it.' },
+          lower: { t: 'Lower lines: half millimetres', x: 'On this micrometer the lines below the index line mark the <b>half millimetre</b> between them (some models carry them above). If a lower line is uncovered after the last whole millimetre, add <b>0.5</b>.', task: 'Show <b>7.5 mm</b>: uncover the lower line after 7.' },
+          thimble: { t: 'Thimble: hundredths', x: 'The thimble has <b>50</b> divisions, and one full turn moves the spindle <b>0.5 mm</b>, so each division is <b>0.01 mm</b>. Read the thimble line that lines up with the long index line on the sleeve.', task: 'Set the reading to exactly <b>7.88 mm</b>.' },
+          sum: { t: 'Add it all up', x: 'Add from left to right: the last numbered line, the lines after it, the half line and the thimble. The colours match the sum below.' },
+          rel: { t: 'Bigger micrometer: sleeve numbered from 0', x: 'This frame says <b>50–75 mm</b>, but its sleeve is numbered 0, 5 … 25. Add the <b>50 mm</b> on the frame to what you read on the sleeve.' },
+          abs: { t: 'Bigger micrometer: actual values on the sleeve', x: 'Same size, another micrometer: this sleeve reads <b>50, 55 … 75</b>. The number already includes the 50, so don’t add it again. Sleeves are not all numbered the same way, so always look at the frame first.' },
+          done: { t: 'Your turn', x: 'The test has ten random parts waiting: balls, shafts, pins, gauge blocks… After each answer you’ll see, line by line, how the reading adds up.' },
+        },
+        in: {
+          parts: { t: 'The parts of a micrometer', x: 'The part is held between the <b>anvil</b> and the <b>spindle</b>. Turning the <b>thimble</b> moves the spindle in or out. Close the last bit with the <b>ratchet stop</b> and take the reading at its first click.' },
+          frame: { t: 'Look at the frame first', x: 'The frame carries the measuring range. This micrometer measures <b>0–1 in</b> and reads to <b>0.001 in</b>. The reading is always inside that range.' },
+          upper: { t: 'Sleeve numbers: 0.100 in', x: 'Each number on the sleeve is <b>0.100 in</b>: 1 = 0.100, 2 = 0.200, 3 = 0.300… Find the last number the thimble edge has uncovered.', task: 'Turn the thimble until <b>3</b> is uncovered and no short line after it.' },
+          lower: { t: 'Short lines: 0.025 in', x: 'Three short lines sit between the numbers, <b>0.025 in</b> apart. For each line uncovered after the last number, add <b>0.025</b>.', task: 'Uncover <b>two</b> short lines after the 3 (0.350 in).' },
+          thimble: { t: 'Thimble: thousandths', x: 'The thimble has <b>25</b> divisions, and one full turn moves the spindle <b>0.025 in</b>, so each division is <b>0.001 in</b>. Read the thimble line that lines up with the long index line on the sleeve.', task: 'Set the reading to exactly <b>0.361 in</b>.' },
+          sum: { t: 'Add it all up', x: 'Add from left to right: the last number, the short lines after it and the thimble. The colours match the sum below.' },
+          rel: { t: 'Bigger micrometer: add the base', x: 'This frame says <b>1–2 in</b>: it measures between 1 and 2 inches. Its sleeve is numbered from 0, so add the <b>1 in</b> base from the frame to what you read on the sleeve.' },
+          abs: { t: '', x: '' },
+          done: { t: 'Your turn', x: 'The test has ten random parts waiting. After each answer you’ll see, line by line, how the reading adds up.' },
+        },
+      },
+      partOf: 'Part <b>{n}</b>/{N}', score: 'Score', time: 'Time',
+      answerLabel: 'Your reading', check: 'Check', nextPart: 'Next part', finish: 'See results',
+      invalid: { mm: 'Type a reading like 57.88, two decimals at most', in: 'Type a reading like 0.361, three decimals at most' }, dot: '.',
+      correct: 'Correct', wrong: 'Not quite', you: 'You', answer: 'Answer',
+      chip: { base: 'Frame', numbered: 'Sleeve number', lines: 'Lines', half: 'Half line', thimble: 'Thimble' },
+      note: {
+        zero: 'On a {from}–{to} {u} micrometer there is no base to add: the sleeve numbers are the actual size.',
+        rel: 'The frame says {from}–{to} {u} but the sleeve is numbered from 0, so add the base ({base} {u}).',
+        abs: 'This sleeve is numbered {from}–{to}, so the base is already in the sleeve number.',
+      },
+      zeroUnit: { mm: 'mm', in: 'in' }, ul: { mm: 'mm', in: 'in' },
+      diag: {
+        forgotBase: 'You read the sleeve but skipped the frame. This is a {from}–{to} {u} micrometer: add the base ({base} {u}).',
+        forgotBaseMore: 'You skipped the frame: add the base ({base} {u}). Then check the lines and the thimble as well.',
+        doubleBase: 'This sleeve is numbered {from}–{to}, so the base is already included. Don’t add the base ({base} {u}) again.',
+        droppedBase: 'This sleeve is numbered with the actual size ({from}–{to}); read the number as it is, don’t take the base off.',
+        mmLow: 'The thimble has just passed 0, so the millimetre line at the edge has just been uncovered. Count it.',
+        halfHigh: 'The thimble shows {div}, so it hasn’t finished the turn yet. The next line is close to the edge but not uncovered.',
+        halfLow: 'The thimble has just passed 0, so the line at the edge has just been uncovered. Count it.',
+        half: 'Off by 0.5 mm. Check the lower lines: is a half line uncovered after the last whole millimetre?',
+        mm: 'Off by 1 mm. Count the upper lines again, up to the thimble edge.',
+        lineHigh: 'The thimble shows {div}, so it hasn’t finished the turn yet. The next short line is close to the edge but not uncovered.',
+        lineLow: 'The thimble has just passed 0, so the short line at the edge has just been uncovered. Count it.',
+        line: 'Off by 0.025 in. Count the short lines uncovered after the last number again.',
+        tenth: 'Off by 0.100 in. Read the last number before the thimble edge again.',
+        one: 'One division off. Read the thimble line that sits exactly on the index line.',
+        thimble: 'The sleeve part is right. Read the thimble line that lines up with the index line.',
+        general: 'Work through it in order: frame, sleeve number, lines, half line, thimble.',
+        generalIn: 'Work through it in order: frame, sleeve number, short lines, thimble.',
+      },
+      resTitle: 'Round complete',
+      v10: 'Workshop ready.', v8: 'Sharp eyes. Check the misses below.', v5: 'Getting there. Look at the tutorial or practise, then go again.', v0: 'Start with the tutorial: turn the thimble and watch each scale.',
+      best: 'Best: <b>{s}/{N}</b> in {t}', newBest: 'New best',
+      again: 'Play again', copy: 'Copy score', copied: 'Copied',
+      share: 'I read {s}/{N} micrometers right in {t} on the Chip Atlas micrometer reading test. Can you beat it?',
+      readingLabel: 'Reading', slider: 'Thimble position', random: 'Random reading', showReading: 'Show reading',
+      rangeLabel: 'Micrometer', mixed: 'Mixed', styleLabel: 'Sleeve numbers',
+      styles: { mix: 'Mixed', rel: 'From 0 (add base)', abs: 'Actual values' },
+      settingsNote: 'Changing a setting starts a new round.', settingsNoteP: 'Pick the micrometer you want to practise on.',
+      styleNA: 'In this simulator inch sleeves are numbered from 0; add the base from the frame.',
+      notesTitle: 'Notes',
+      notes: [
+        'On a metric micrometer the spindle pitch is 0.5 mm and the thimble has 50 divisions, so each division is 0.01 mm. The sleeve has 1 mm lines above the index line and 0.5 mm lines below it.',
+        'On an inch micrometer one turn is 0.025 in and each of the thimble’s 25 divisions is 0.001 in. The sleeve is numbered every 0.100 in, with lines every 0.025 in between.',
+        'Sources show the sleeve of larger metric micrometers both ways: a BMW training booklet reads 139 mm straight off the sleeve of a 125–150 mm micrometer, while an Indian vocational text says every range carries only 0–25 mm on the sleeve and adds 50 mm on a 50–75 mm micrometer. The simulator includes both; always look at the range on the frame first.',
+        'Most sources put the half-millimetre lines below the index line; a KTU (Karadeniz Technical University) course note says some models have them above.',
+        'On inch micrometers a 2-inch micrometer measures from 1 to 2 inches (US Army TM 9-243). No source found says how inch sleeves above 1 in are numbered; the simulator numbers them from 0 and adds the base from the frame.',
+        'Take the reading at the first click of the ratchet and look at the index line from straight on; viewing it at an angle shifts the reading.',
+        'The drawings are made for learning to read: the frame shape and colours are not any maker’s design.',
+      ],
+    };
+
+const sources = [
+  { label: 'D. Flack, Callipers and Micrometers, Measurement Good Practice Guide No. 40, Issue 2, NPL, 2014, pp. 40–47', url: 'https://eprintspublications.npl.co.uk/2043/1/mgpg40.pdf' },
+  { label: 'Mitutoyo America, Product Fundamentals: An Essential Guide of Mitutoyo Precision Tools and Instruments, 2015, p. 2', url: 'https://www.mitutoyo.com/webfoo/wp-content/uploads/2119-Product-Fund.pdf' },
+  { label: 'T.C. MEB, Ölçme ve Kontrol 10 Ders Materyali (S. B. Aydoğmuş), pp. 46–57', url: 'https://meslek.meb.gov.tr/upload/dersmateryali/pdf/MTT2024OK1016.pdf' },
+  { label: 'BMW Technical Training, Basic Measuring Techniques, 2005, pp. 6–7', url: 'https://ia600902.us.archive.org/26/items/BMWTechnicalTrainingDocuments/ST501%20New%20Engine%20Technology%20(Archive%201)/01_Basic%20Measuring%20Techniques.pdf' },
+  { label: 'DGT, Government of India (Bharat Skills), Fitter – Related Theory for Exercise 1.2.33, pp. 90–92', url: 'https://blendedlearning.bharatskills.gov.in/pluginfile.php/489/mod_resource/content/1/Fitter_Sem1_8th%20Week.pdf' },
+  { label: 'US Department of the Army, TM 9-243 Use and Care of Hand Tools and Measuring Tools, 1983, ch. 7', url: 'https://archive.org/stream/use-and-care-of-hand-tools-and-measuring-tools-1983/Use%20and%20Care%20of%20Hand%20Tools%20and%20Measuring%20Tools%201983_djvu.txt' },
+  { label: 'L.S. Starrett Co., Catalog 33, p. 22', url: 'https://www.starrett.com/dms/flipbooks/Cat-33/inc/html/22.html' },
+  { label: 'Karadeniz Teknik Üniversitesi, Of Teknoloji Fakültesi, ölçme ders notu (metre, kumpas, mikrometre), slaytlar 18 ve 24', url: 'https://ktu.edu.tr/dosyalar/ofenerji_YFYR9.pdf' },
+];
+const payload = { T, steps, INCH_ABS };
+---
+<ToolShell locale={locale} route="micrometer" title={T.title} description={T.description} lead={T.lead} sectionN={10} sources={sources}>
+  <div class="mic" data-mic data-locale={locale}>
+    <div class="start" data-start>
+      <div class="start-card panel">
+        <p class="start-eyebrow"><span lang="en">Chip Atlas</span> · {T.modes.tutorial}</p>
+        <h2 class="h2">{T.startTitle}</h2>
+        <p class="start-text">{T.startText}</p>
+        <div class="seg unit-seg" role="group" aria-label={T.unitAria} data-units>
+          <button type="button" data-unit="mm" aria-pressed="true">{T.units.mm}</button>
+          <button type="button" data-unit="in" aria-pressed="false">{T.units.in}</button>
+        </div>
+        <div class="start-btns">
+          <button type="button" class="btn btn-accent" data-act="tutorial">{T.startTut}</button>
+          <button type="button" class="btn" data-act="skip">{T.startSkip}</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bar">
+      <div class="seg mode-seg" role="group" aria-label={T.modeAria} data-modes>
+        <button type="button" data-mode="tutorial" aria-pressed="false">{T.modes.tutorial}</button>
+        <button type="button" data-mode="test" aria-pressed="true">{T.modes.test}</button>
+        <button type="button" data-mode="practice" aria-pressed="false">{T.modes.practice}</button>
+      </div>
+      <div class="seg unit-seg" role="group" aria-label={T.unitAria} data-units>
+        <button type="button" data-unit="mm" aria-pressed="true">{T.units.mm}</button>
+        <button type="button" data-unit="in" aria-pressed="false">{T.units.in}</button>
+      </div>
+    </div>
+
+    <div class="game">
+      <div class="stage panel">
+        <div class="stage-head"><div class="part" data-o="part"></div><div class="meta" data-o="meta"></div></div>
+        <canvas data-c="ov" role="img" aria-label={T.ovAria}></canvas>
+        <div class="cu-bar"><span>{T.closeup}</span><span data-o="scaleinfo"></span></div>
+        <canvas data-c="cu" role="img" aria-label={T.cuAria}></canvas>
+      </div>
+
+      <div class="side">
+        <div class="status panel" data-status>
+          <span class="count" data-o="count"></span>
+          <div class="segs" data-o="segs" aria-hidden="true"></div>
+          <span class="stat push">{T.score} <b data-o="score">0</b></span>
+          <span class="stat">{T.time} <b data-o="time">0:00</b></span>
+        </div>
+
+        <section class="panel pad" data-pane="tutorial" hidden>
+          <div class="tut-head"><span class="eyebrow" data-o="stepno"></span><div class="dots" data-o="dots" aria-hidden="true"></div></div>
+          <h3 class="tut-title" data-o="tt"></h3>
+          <p class="tut-text" data-o="tx"></p>
+          <div class="task" data-o="task" hidden><span class="task-ic" aria-hidden="true"></span><p data-o="tasktext"></p></div>
+          <div class="steppers" data-o="tsteppers" hidden></div>
+          <p class="hint" data-o="thint" hidden>{T.dragHint}</p>
+          <div class="sum" data-o="tsum" hidden></div>
+          <div class="tut-nav">
+            <button type="button" class="btn" data-act="back">← {T.back}</button>
+            <button type="button" class="btn btn-accent" data-act="next">{T.next} →</button>
+          </div>
+          <div class="tut-end" data-o="tend" hidden>
+            <button type="button" class="btn btn-accent" data-act="totest">{T.toTest}</button>
+            <button type="button" class="btn" data-act="topractice">{T.toPractice}</button>
+          </div>
+        </section>
+
+        <section class="panel pad" data-pane="test">
+          <div data-o="ask">
+            <label class="eyebrow" for={`mic-answer-${locale}`}>{T.answerLabel}</label>
+            <div class="answer-row">
+              <div class="afield" data-o="afield"><input id={`mic-answer-${locale}`} data-o="answer" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" maxlength="8" /><span class="unit" data-o="aunit">mm</span></div>
+              <button type="button" class="btn btn-accent" data-act="check">{T.check}</button>
+            </div>
+            <div class="keypad" data-o="keypad">
+              {['7', '8', '9', 'back', '4', '5', '6', 'dot', '1', '2', '3', '0'].map((k) => (
+                <button type="button" data-k={k} class={k === 'back' || k === 'dot' ? 'k-fn' : ''} aria-label={k === 'back' ? (tr ? 'Sil' : 'Delete') : undefined}>{k === 'back' ? '⌫' : k === 'dot' ? T.dot : k}</button>
+              ))}
+            </div>
+            <p class="msg" data-o="msg" role="alert"></p>
+            <button type="button" class="helplink" data-act="help">{T.help}</button>
+          </div>
+          <div class="feedback" data-o="feedback" hidden aria-live="polite"></div>
+          <div class="results" data-o="results" hidden></div>
+        </section>
+
+        <section class="panel pad" data-pane="practice" hidden>
+          <div class="p-readout"><span class="eyebrow">{T.readingLabel}</span><output data-o="pout"></output></div>
+          <div class="sum" data-o="psum"></div>
+          <p class="note" data-o="pnote"></p>
+          <div class="steppers" data-o="psteppers"></div>
+          <label class="sr" for={`mic-slider-${locale}`}>{T.slider}</label>
+          <input type="range" id={`mic-slider-${locale}`} data-o="pslider" min="0" max="2500" step="1" value="788" />
+          <div class="prow">
+            <button type="button" class="btn" data-act="random">{T.random}</button>
+            <label class="switch"><input type="checkbox" data-o="pshow" checked /><span>{T.showReading}</span></label>
+          </div>
+          <p class="hint">{T.dragHint}</p>
+        </section>
+
+        <section class="panel pad settings" data-o="settings">
+          <span class="eyebrow">{T.rangeLabel}</span>
+          <div class="chip-row" data-o="ranges" role="radiogroup" aria-label={T.rangeLabel}></div>
+          <span class="eyebrow mt">{T.styleLabel}</span>
+          <div class="chip-row" data-o="styles" role="radiogroup" aria-label={T.styleLabel}></div>
+          <p class="small-note" data-o="snote"></p>
+        </section>
+      </div>
+    </div>
+    <script type="application/json" data-text set:html={JSON.stringify(payload)} />
+  </div>
+
+  <Fragment slot="notes">
+    <ul>{T.notes.map((n) => <li>{n}</li>)}</ul>
+  </Fragment>
+</ToolShell>
+
+<style>
+  .mic { position: relative; display: grid; gap: 0.9rem; }
+  .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 999px; padding: 3px; gap: 2px; background: var(--bg-raised); flex-wrap: wrap; }
+  .seg button { border: 0; background: transparent; border-radius: 999px; padding: 0.4rem 0.85rem; font: inherit; font-size: 0.88rem; font-weight: 600; color: var(--ink-3); cursor: pointer; min-height: 2.2rem; }
+  .seg button[aria-pressed='true'] { background: var(--ink); color: #fff; }
+  .seg button:focus-visible, .mic button:focus-visible, .mic input:focus-visible { outline: 2px solid var(--data); outline-offset: 2px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; justify-content: space-between; align-items: center; }
+
+  .game { display: grid; gap: 0.9rem; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); align-items: start; }
+  @media (max-width: 860px) { .game { grid-template-columns: minmax(0, 1fr); } }
+  .status { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 1rem; padding: 0.65rem 0.9rem; font: 0.82rem var(--font-mono); color: var(--ink-3); }
+  .status[hidden] { display: none; }
+  .status b { color: var(--ink); font-weight: 600; }
+  .segs { display: flex; gap: 3px; flex: 1 1 120px; min-width: 110px; }
+  .segs :global(i) { flex: 1; height: 6px; border-radius: 2px; background: var(--line-strong); }
+  .segs :global(i.cur) { background: var(--ink); }
+  .segs :global(i.ok) { background: #13998a; }
+  .segs :global(i.no) { background: #c2413b; }
+  .status .stat { display: flex; gap: 0.4rem; font-variant-numeric: tabular-nums; }
+  .status .count { white-space: nowrap; }
+  @media (max-width: 860px) { .segs { order: 5; flex-basis: 100%; } .status .push { margin-left: auto; } }
+
+  .stage { overflow: hidden; }
+  .stage-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--line); }
+  .stage-head .part { font-weight: 600; min-width: 0; }
+  .stage-head .part :global(.rng) { color: var(--ink-3); font-weight: 500; white-space: nowrap; }
+  .stage-head .part :global(small) { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-3); font-weight: 400; margin-right: 0.4rem; }
+  .stage-head .meta { font: 0.72rem var(--font-mono); color: var(--ink-3); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+  canvas { display: block; width: 100%; }
+  [data-c='ov'] { height: clamp(176px, 34vw, 240px); }
+  [data-c='cu'] { height: clamp(200px, 46vw, 330px); touch-action: pan-y; }
+  [data-c='cu'].drag { touch-action: none; cursor: grab; }
+  [data-c='cu'].drag:active { cursor: grabbing; }
+  .cu-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; padding: 0.45rem 0.9rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font: 0.72rem var(--font-mono); color: var(--ink-3); letter-spacing: 0.04em; text-transform: uppercase; background: var(--bg-panel); }
+
+  .side { display: grid; gap: 0.9rem; min-width: 0; }
+  .pad { padding: 1rem; }
+  .mic :global(.eyebrow) { font: 0.72rem var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+  .mt { display: block; margin-top: 0.9rem; }
+
+  /* start */
+  .start { position: absolute; inset: 0; z-index: 5; display: grid; justify-items: center; align-content: start; padding: 3rem 1rem; background: color-mix(in oklab, var(--bg) 72%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius: 12px; }
+  .start[hidden] { display: none; }
+  .start-card { max-width: 30rem; width: 100%; padding: 1.6rem; display: grid; gap: 0.9rem; box-shadow: 0 18px 50px -20px rgba(21, 34, 48, 0.35); animation: rise 0.5s cubic-bezier(.2, .8, .2, 1) both; }
+  .start-eyebrow { font: 0.75rem var(--font-mono); color: var(--accent-text); letter-spacing: 0.06em; text-transform: uppercase; }
+  .start-text { color: var(--ink-2); }
+  .start-btns { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+  /* tutorial */
+  .tut-head { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; }
+  .dots { display: flex; gap: 4px; }
+  .dots :global(i) { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); transition: background 0.3s, transform 0.3s; }
+  .dots :global(i.on) { background: var(--accent); transform: scale(1.25); }
+  .dots :global(i.past) { background: #13998a; }
+  .tut-title { font-size: 1.2rem; font-weight: 600; margin-top: 0.55rem; }
+  .tut-text { margin-top: 0.45rem; color: var(--ink-2); line-height: 1.55; }
+  .tut-text :global(b), .task :global(b) { color: var(--ink); }
+  .task { display: grid; grid-template-columns: 1.6rem 1fr; gap: 0.5rem; align-items: start; margin-top: 0.8rem; padding: 0.7rem 0.8rem; border-radius: 10px; background: color-mix(in oklab, #13998a 9%, var(--bg-raised)); border: 1px dashed color-mix(in oklab, #13998a 60%, transparent); transition: background 0.3s, border-color 0.3s; }
+  .task[hidden] { display: none; }
+  .task-ic { width: 1.4rem; height: 1.4rem; border-radius: 50%; border: 2px solid #13998a; display: grid; place-items: center; }
+  .task.done { background: color-mix(in oklab, #13998a 16%, var(--bg-raised)); border-style: solid; }
+  .task.done .task-ic { background: #13998a; animation: popin 0.45s cubic-bezier(.2, 1.6, .4, 1); }
+  .task.done .task-ic::after { content: ''; width: 0.4rem; height: 0.7rem; border-right: 2px solid #fff; border-bottom: 2px solid #fff; transform: translateY(-1px) rotate(45deg); }
+  @keyframes popin { from { transform: scale(0.3); } to { transform: scale(1); } }
+  .tut-nav, .tut-end { display: flex; justify-content: space-between; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+  .tut-end[hidden] { display: none; }
+
+  /* test */
+  .answer-row { display: flex; gap: 0.5rem; margin-top: 0.4rem; }
+  .afield { flex: 1; display: flex; align-items: center; gap: 0.4rem; background: var(--bg-field); border: 1px solid var(--line-strong); border-radius: 10px; padding: 0 0.8rem; min-width: 0; transition: border-color 0.2s, box-shadow 0.2s; }
+  .afield:focus-within { border-color: var(--data); }
+  .afield input { flex: 1; min-width: 0; width: 100%; background: none; border: 0; outline: none; color: var(--ink); font: 500 1.6rem var(--font-mono); padding: 0.45rem 0; font-variant-numeric: tabular-nums; }
+  .afield.ok { border-color: #13998a; box-shadow: 0 0 0 3px color-mix(in oklab, #13998a 20%, transparent); }
+  .afield.no { border-color: #c2413b; box-shadow: 0 0 0 3px color-mix(in oklab, #c2413b 18%, transparent); }
+  .afield.shake { animation: shake 0.32s; }
+  @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 0.6rem; }
+  .keypad[hidden] { display: none; }
+  .keypad button { height: 46px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-panel); font: 1.2rem var(--font-mono); cursor: pointer; touch-action: manipulation; color: var(--ink); }
+  .keypad button:active { background: var(--line-strong); }
+  .keypad .k-fn { color: var(--ink-3); }
+  .helplink { margin-top: 0.5rem; background: none; border: 0; padding: 0.2rem 0; font: inherit; font-size: 0.85rem; color: var(--data); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in oklab, var(--data) 40%, transparent); }
+  .msg { margin-top: 0.4rem; font-size: 0.85rem; color: #c2413b; min-height: 0; }
+  .feedback :global(.verdict) { display: flex; align-items: center; gap: 0.6rem; font-size: 1.3rem; font-weight: 700; }
+  .feedback :global(.verdict i) { width: 12px; height: 12px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .feedback :global(.verdict.ok) { color: #0f7a6e; }
+  .feedback :global(.verdict.no) { color: #b23a34; }
+  .feedback :global(.vs) { display: flex; gap: 0.3rem 1rem; flex-wrap: wrap; font: 0.85rem var(--font-mono); color: var(--ink-3); margin-top: 0.3rem; }
+  .feedback :global(.vs b) { color: var(--ink); font-weight: 600; }
+  .mic :global(.sum) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 0.8rem; font-family: var(--font-mono); }
+  .mic :global(.sum[hidden]) { display: none; }
+  .mic :global(.chip) { display: inline-flex; flex-direction: column; padding: 0.3rem 0.55rem 0.35rem; border-radius: 8px; border: 1.5px solid; line-height: 1.15; }
+  :global(html.anim) .mic :global(.chip) { animation: chipin 0.4s cubic-bezier(.2, 1.4, .4, 1) both; }
+  .mic :global(.chip small) { font-family: var(--font-sans); font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.9; }
+  .mic :global(.chip b) { font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .mic :global(.c-base) { border-color: #445261; color: #445261; }
+  .mic :global(.c-numbered) { border-color: #e2601a; color: #c94f0c; }
+  .mic :global(.c-lines) { border-color: #8b52c9; color: #7440ad; }
+  .mic :global(.c-half) { border-color: #d99a0b; color: #9a6c05; }
+  .mic :global(.c-thimble) { border-color: #1e5fc4; color: #1e5fc4; }
+  .mic :global(.c-dim) { opacity: 0.38; }
+  .mic :global(.op) { color: var(--ink-3); font-size: 1rem; }
+  .mic :global(.total) { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); }
+  @keyframes chipin { from { opacity: 0; transform: translateY(6px) scale(0.85); } to { opacity: 1; transform: none; } }
+  .mic :global(.note) { margin-top: 0.6rem; font-size: 0.86rem; color: var(--ink-3); }
+  .mic :global(.tip) { margin-top: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 10px; background: var(--bg-panel); border: 1px solid var(--line); font-size: 0.9rem; }
+  .mic :global(.wide) { width: 100%; justify-content: center; margin-top: 0.9rem; }
+  .results :global(h2) { font: 600 2.4rem/1 var(--font-mono); margin-top: 0.2rem; }
+  .results :global(h2 span) { font-size: 1.2rem; color: var(--ink-3); }
+  .results :global(.verdict-line) { margin-top: 0.4rem; font-weight: 600; }
+  .results :global(.best) { margin-top: 0.2rem; font: 0.82rem var(--font-mono); color: var(--ink-3); }
+  .results :global(.best b) { color: var(--accent-text); }
+  .results :global(.rlist) { list-style: none; margin: 0.7rem 0 0; padding: 0; display: grid; gap: 2px; font: 0.82rem var(--font-mono); }
+  .results :global(.rlist li) { display: grid; grid-template-columns: 18px 1fr auto; gap: 0.5rem; align-items: center; padding: 0.3rem 0.5rem; border-radius: 7px; background: var(--bg-panel); }
+  .results :global(.rlist li i) { width: 8px; height: 8px; border-radius: 50%; background: #13998a; }
+  .results :global(.rlist li.no i) { background: #c2413b; }
+  .results :global(.rlist li span:last-child) { color: var(--ink-3); text-align: right; }
+  .results :global(.rlist li.no span:last-child) { color: #b23a34; }
+  .results :global(.row-btns) { display: flex; gap: 0.5rem; margin-top: 0.9rem; flex-wrap: wrap; }
+  .results :global(.row-btns .btn) { flex: 1; justify-content: center; }
+  .results :global(.copy-box) { width: 100%; margin-top: 0.5rem; background: var(--bg-field); border: 1px solid var(--line-strong); border-radius: 8px; padding: 0.5rem; font: 0.78rem var(--font-mono); resize: none; }
+
+  /* practice */
+  .p-readout { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
+  .p-readout output { font: 600 2rem var(--font-mono); font-variant-numeric: tabular-nums; color: var(--data); }
+  .p-readout output :global(small) { font-size: 1rem; color: var(--ink-3); margin-left: 0.25rem; }
+  .mic :global(.steppers) { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 0.8rem; }
+  .mic :global(.steppers[hidden]) { display: none; }
+  .mic :global(.steppers button) { height: 42px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-panel); font: 0.88rem var(--font-mono); cursor: pointer; touch-action: manipulation; color: var(--ink); }
+  .mic :global(.steppers button:active) { background: var(--line-strong); }
+  input[type='range'] { width: 100%; margin: 0.9rem 0 0.2rem; accent-color: var(--accent); }
+  .prow { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.6rem; }
+  .switch { display: flex; align-items: center; gap: 0.45rem; cursor: pointer; font-size: 0.9rem; }
+  .switch input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .hint { margin-top: 0.6rem; font-size: 0.82rem; color: var(--ink-3); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* settings */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.45rem; }
+  .chip-row :global(.rchip) { border: 1px solid var(--line-strong); background: var(--bg-raised); color: var(--ink-2); border-radius: 999px; padding: 0.35rem 0.7rem; font: 0.82rem var(--font-mono); cursor: pointer; min-height: 2rem; }
+  .chip-row :global(.rchip[aria-checked='true']) { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .chip-row :global(.rchip:disabled) { opacity: 0.4; cursor: default; }
+  .small-note { margin-top: 0.6rem; font-size: 0.78rem; color: var(--ink-3); }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { .start-card, .mic :global(.chip), .task.done .task-ic { animation: none; } .afield.shake { animation: none; } }
+</style>
+
+<script>
+  import { SPECS, buildRound, breakdown, parse, fmt, fmtShort, diagnose, reading, type Unit, type Style, type Question, type Reading } from '../../lib/micrometer';
+  import { drawOverview, drawCloseup, COL, type View } from '../../lib/micrometerDraw';
+
+  document.querySelectorAll<HTMLElement>('[data-mic]').forEach((root) => {
+    const { T, steps, INCH_ABS } = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const locale: 'en' | 'tr' = root.dataset.locale === 'tr' ? 'tr' : 'en';
+    const $ = <E extends HTMLElement = HTMLElement>(sel: string) => root.querySelector(sel) as E;
+    const o = <E extends HTMLElement = HTMLElement>(k: string) => $<E>(`[data-o="${k}"]`);
+    const ov = $<HTMLCanvasElement>('[data-c="ov"]'), cu = $<HTMLCanvasElement>('[data-c="cu"]');
+    const motion = () => document.documentElement.classList.contains('anim');
+    const coarse = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+    const store = { get(k: string) { try { return localStorage.getItem(k); } catch { return null; } }, set(k: string, v: string) { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } } };
+    const tpl = (s: string, vars: Record<string, string | number> = {}) => s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
+    const pad2 = (n: number) => String(n).padStart(2, '0');
+    const fmtTime = (ms: number) => { const s = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${pad2(s % 60)}`; };
+    const ROUND = 10;
+
+    type Mode = 'tutorial' | 'test' | 'practice';
+    const S = {
+      unit: 'mm' as Unit, mode: 'test' as Mode, started: false,
+      step: 0, tC: 0, taskDone: false,
+      sel: 'mix' as number | 'mix', styleSel: 'mix' as Style | 'mix',
+      qs: [] as Question[], i: 0, answers: [] as { ans: number; ok: boolean; q: Question }[], t0: 0, t1: 0, pause: 0, answered: false, done: false,
+      result: null as null | { score: number; ms: number; best: { s: number; ms: number }; isNew: boolean },
+      p: { bi: 2, style: 'rel' as Style, inC: 788, show: true },
+    };
+    const spec = () => SPECS[S.unit];
+    const U = () => T.uname[S.unit];
+    let rDisp = 788, partAlpha = 1, pop = 1, anim: null | { from: number; to: number; t0: number; dur: number } = null, popT0 = 0;
+    let fx: { x: number; y: number; vx: number; vy: number; life: number; col: string }[] = [];
+
+    /* ----- tutorial steps ----- */
+    interface Step { key: string; base: number; style: Style; inC: number; hl: string[]; names?: boolean; reveal?: boolean; task?: [number, number]; free?: boolean }
+    const stepCfg = (key: string): Step => {
+      const mm = S.unit === 'mm';
+      const R = mm ? 788 : 361;
+      switch (key) {
+        case 'parts': return { key, base: 0, style: 'rel', inC: R, hl: [], names: true };
+        case 'frame': return { key, base: 0, style: 'rel', inC: R, hl: ['frame'] };
+        case 'upper': return { key, base: 0, style: 'rel', inC: mm ? 320 : 120, hl: ['upper', 'numbers', 'edge'], task: mm ? [700, 749] : [300, 324], free: true };
+        case 'lower': return { key, base: 0, style: 'rel', inC: mm ? 720 : 310, hl: mm ? ['lower', 'edge'] : ['upper', 'edge'], task: mm ? [750, 799] : [350, 374], free: true };
+        case 'thimble': return { key, base: 0, style: 'rel', inC: mm ? 760 : 352, hl: ['thimble', 'datum'], task: [R, R], free: true };
+        case 'sum': return { key, base: 0, style: 'rel', inC: R, hl: [], reveal: true };
+        case 'rel': return { key, base: mm ? 50 : 1, style: 'rel', inC: R, hl: [], reveal: true };
+        case 'abs': return { key, base: mm ? 50 : 1, style: 'abs', inC: R, hl: [], reveal: true };
+        default: return { key, base: 0, style: 'rel', inC: R, hl: [] };
+      }
+    };
+    const stepKeys = () => steps[S.unit] as string[];
+    const curStep = () => stepCfg(stepKeys()[S.step]);
+
+    /* ----- the reading on screen ----- */
+    const view = (): Reading & { part: Question['part'] | null } => {
+      if (S.mode === 'tutorial') { const c = curStep(); return { ...reading(S.unit, c.base, c.style, c.free ? S.tC : c.inC), part: c.names || c.free ? null : 'shaft' }; }
+      if (S.mode === 'practice') { const sp = spec(); const base = sp.bases[S.p.bi]; return { ...reading(S.unit, base, INCH_ABS || S.unit === 'mm' ? S.p.style : 'rel', S.p.inC), part: null }; }
+      return S.qs[S.i];
+    };
+    const revealOn = () => (S.mode === 'tutorial' ? !!curStep().reveal : S.mode === 'practice' ? S.p.show : S.answered);
+
+    const draw = () => {
+      const v = view(); if (!v) return;
+      const st = S.mode === 'tutorial' ? curStep() : null;
+      const V: View = {
+        unit: S.unit, base: v.base, style: v.style, r: rDisp, partC: v.inC, part: v.part, partAlpha: S.mode === 'test' ? partAlpha : 1,
+        reveal: revealOn() && !anim, hl: st ? st.hl : [], names: st && st.names ? T.names : null, locale, pop,
+      };
+      drawOverview(ov, V);
+      const a = drawCloseup(cu, V);
+      if (fx.length) {
+        const ctx = cu.getContext('2d')!;
+        for (const p of fx) { ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, 3.2, 0, Math.PI * 2); ctx.fill(); }
+        ctx.globalAlpha = 1;
+      }
+      lastAnchors = a;
+    };
+    let lastAnchors: { thimble?: { x: number; y: number }; edge: number } = { edge: 0 };
+
+    // one animation loop drives the thimble, the reveal pop-in and the sparks
+    let raf = 0;
+    const tick = (now: number) => {
+      raf = 0; let more = false;
+      if (anim) {
+        const k = Math.min(1, (now - anim.t0) / anim.dur), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        rDisp = anim.from + (anim.to - anim.from) * e; partAlpha = Math.pow(k, 3);
+        if (k >= 1) { rDisp = anim.to; partAlpha = 1; anim = null; if (revealOn()) startPop(); } else more = true;
+      }
+      if (pop < 1) { pop = Math.min(1, (now - popT0) / 650); more = more || pop < 1; }
+      if (fx.length) { for (const p of fx) { p.x += p.vx; p.y += p.vy; p.vy += 0.22; p.life -= 0.022; } fx = fx.filter((p) => p.life > 0); more = more || fx.length > 0; }
+      draw();
+      if (more) raf = requestAnimationFrame(tick);
+    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    const startPop = () => { if (!motion()) { pop = 1; return; } pop = 0; popT0 = performance.now(); kick(); };
+    const animateTo = (target: number) => {
+      if (!motion() || Math.abs(target - rDisp) < 1e-9) { rDisp = target; partAlpha = 1; anim = null; pop = 1; draw(); return; }
+      const dist = Math.abs(target - rDisp) / spec().q * (S.unit === 'mm' ? 1 : 25.4);
+      anim = { from: rDisp, to: target, t0: performance.now(), dur: 450 + Math.min(600, dist * 28) }; partAlpha = 0; kick();
+    };
+    const sparks = () => {
+      if (!motion()) return;
+      const a = lastAnchors.thimble || { x: cu.clientWidth * 0.7, y: cu.clientHeight * 0.5 };
+      const cols = [COL.numbered, COL.lines, COL.half, COL.thimble, '#13998a'];
+      for (let i = 0; i < 34; i++) { const ang = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 4; fx.push({ x: a.x, y: a.y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 2.5, life: 1, col: cols[i % cols.length] }); }
+      kick();
+    };
+
+    /* ----- breakdown chips ----- */
+    const chipsHTML = (r: Reading) => {
+      const sp = SPECS[r.unit], t = breakdown(r);
+      const parts = t.filter((x) => x.kind !== 'half' || sp.half).map((x, i) => {
+        let val = x.kind === 'thimble' ? fmt(sp, x.c, locale) : fmtShort(sp, x.c, locale);
+        if (x.kind === 'lines' && r.unit === 'in') val = `${x.n} × ${fmtShort(sp, sp.line, locale)}`;
+        const dim = (x.kind === 'half' && !x.c) || (x.kind === 'lines' && !x.n);
+        return `<span class="chip c-${x.kind}${dim ? ' c-dim' : ''}" style="animation-delay:${i * 70}ms"><small>${T.chip[x.kind]}</small><b>${val}</b></span>`;
+      });
+      return parts.join('<span class="op">+</span>') + `<span class="op">=</span><span class="total">${fmt(sp, r.valC, locale)}&nbsp;${U()}</span>`;
+    };
+    const noteText = (r: Reading) => {
+      const sp = SPECS[r.unit], vars = { from: r.base, to: r.base + sp.rangeLen, base: r.base, u: U(), ul: T.ul[r.unit] };
+      if (r.base === 0) return tpl(T.note.zero, { ...vars, u: T.zeroUnit[r.unit] });
+      return tpl(r.style === 'rel' ? T.note.rel : T.note.abs, vars);
+    };
+
+    /* ----- shared UI ----- */
+    const setPressed = (sel: string, attr: string, val: string) => root.querySelectorAll<HTMLButtonElement>(sel).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[attr] === val)));
+    const paintHead = () => {
+      o('meta').textContent = T.meta[S.unit];
+      o('scaleinfo').textContent = T.scaleInfo[S.unit];
+      o('aunit').textContent = U();
+      const v = view();
+      if (S.mode === 'test') o('part').innerHTML = `<small>${pad2(S.i + 1)}</small>${T.parts[(v as Question).part]} <span class="rng">· ${v.base}–${v.base + spec().rangeLen} ${U()}</span>`;
+      else if (S.mode === 'practice') o('part').innerHTML = `<small>${T.modes.practice}</small>${v.base}–${v.base + spec().rangeLen} ${U()}`;
+      else o('part').innerHTML = `<small>${T.modes.tutorial}</small>${v.base}–${v.base + spec().rangeLen} ${U()}`;
+    };
+    const stepperHTML = () => {
+      const sp = spec(), st = S.unit === 'mm' ? [-50, -1, 1, 50] : [-25, -1, 1, 25];
+      return st.map((d) => `<button type="button" data-step="${d}">${d > 0 ? '+' : '−'}${fmt(sp, Math.abs(d), locale, sp.dec)}</button>`).join('');
+    };
+    const renderSettings = () => {
+      const sp = spec();
+      const fk = (document.activeElement as HTMLElement | null)?.dataset?.key;
+      const ranges = o('ranges'); ranges.innerHTML = '';
+      const opts: (number | 'mix')[] = S.mode === 'test' ? ['mix', ...sp.bases.map((_, i) => i)] : sp.bases.map((_, i) => i);
+      for (const v of opts) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'rchip'; b.setAttribute('role', 'radio');
+        b.dataset.key = `r-${v}`;
+        b.textContent = v === 'mix' ? T.mixed : `${sp.bases[v]}–${sp.bases[v] + sp.rangeLen}`;
+        const on = S.mode === 'test' ? S.sel === v : S.p.bi === v; b.setAttribute('aria-checked', String(on));
+        b.addEventListener('click', () => { if (S.mode === 'test') { S.sel = v; startRound(); } else { S.p.bi = v as number; renderPractice(); draw(); } renderSettings(); });
+        ranges.appendChild(b);
+      }
+      const styles = o('styles'); styles.innerHTML = '';
+      // a frame without a base has one sleeve numbering only
+      const baseless = S.mode === 'test' ? S.sel === 0 : sp.bases[S.p.bi] === 0;
+      const allowStyle = (S.unit === 'mm' || INCH_ABS) && !baseless;
+      const sopts: (Style | 'mix')[] = S.mode === 'test' ? ['mix', 'rel', 'abs'] : ['rel', 'abs'];
+      for (const v of sopts) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'rchip'; b.setAttribute('role', 'radio');
+        b.dataset.key = `s-${v}`;
+        b.textContent = T.styles[v];
+        const cur = S.mode === 'test' ? S.styleSel : S.p.style;
+        b.setAttribute('aria-checked', String(allowStyle ? cur === v : v === 'rel'));
+        b.disabled = !allowStyle;
+        b.addEventListener('click', () => { if (S.mode === 'test') { S.styleSel = v; startRound(); } else { S.p.style = v as Style; renderPractice(); draw(); } renderSettings(); });
+        styles.appendChild(b);
+      }
+      o('snote').textContent = S.unit === 'in' && !INCH_ABS ? T.styleNA : S.mode === 'test' ? T.settingsNote : T.settingsNoteP;
+      if (fk) (root.querySelector(`[data-key="${fk}"]`) as HTMLElement | null)?.focus();
+    };
+
+    /* ----- tutorial ----- */
+    const renderTutorial = () => {
+      const keys = stepKeys(), key = keys[S.step], c = curStep(), txt = T.stepsText[S.unit][key];
+      o('stepno').textContent = `${T.step} ${S.step + 1}/${keys.length}`;
+      o('dots').innerHTML = keys.map((_, i) => `<i class="${i === S.step ? 'on' : i < S.step ? 'past' : ''}"></i>`).join('');
+      o('tt').textContent = txt.t; o('tx').innerHTML = txt.x;
+      const task = o('task');
+      task.hidden = !c.task; task.classList.toggle('done', S.taskDone);
+      if (c.task) o('tasktext').innerHTML = `<b>${S.taskDone ? T.taskDone : T.task + ':'}</b> ${txt.task}`;
+      o('tsteppers').hidden = !c.free; o('tsteppers').innerHTML = c.free ? stepperHTML() : ''; o('thint').hidden = !c.free;
+      const sum = o('tsum'); sum.hidden = !c.reveal; if (c.reveal) sum.innerHTML = chipsHTML(view());
+      const last = S.step === keys.length - 1;
+      ($('[data-act="back"]') as HTMLButtonElement).disabled = S.step === 0;
+      ($('[data-act="next"]') as HTMLElement).hidden = last;
+      o('tend').hidden = !last;
+      cu.classList.toggle('drag', !!c.free);
+      paintHead();
+    };
+    const goStep = (n: number) => {
+      const keys = stepKeys(); S.step = Math.max(0, Math.min(keys.length - 1, n));
+      const c = curStep(); S.taskDone = false;
+      if (c.free) S.tC = c.inC;
+      renderTutorial(); animateTo(c.inC);
+    };
+    const checkTask = () => {
+      const c = curStep(); if (!c.task || S.taskDone) return;
+      if (S.tC >= c.task[0] && S.tC <= c.task[1]) { S.taskDone = true; renderTutorial(); sparks(); }
+    };
+
+    /* ----- test ----- */
+    const startRound = (focus = false) => {
+      S.qs = buildRound(S.unit, S.sel, S.unit === 'mm' || INCH_ABS ? S.styleSel : 'rel'); S.i = 0; S.answers = []; S.t0 = 0; S.t1 = 0; S.pause = 0; S.answered = false; S.done = false; S.result = null;
+      showQuestion(!focus);
+    };
+    const showQuestion = (noFocus = false) => {
+      S.answered = false;
+      o<HTMLInputElement>('answer').value = ''; o('afield').className = 'afield'; o('msg').textContent = '';
+      o('ask').hidden = false; o('feedback').hidden = true; o('results').hidden = true;
+      renderStatus(); paintHead();
+      animateTo(S.qs[S.i].inC);
+      if (!coarse && !noFocus) setTimeout(() => { try { o<HTMLInputElement>('answer').focus({ preventScroll: true }); } catch { /* ignore */ } }, 30);
+    };
+    const renderStatus = () => {
+      o('count').innerHTML = tpl(T.partOf, { n: Math.min(S.i + 1, ROUND), N: ROUND });
+      o('segs').innerHTML = Array.from({ length: ROUND }, (_, k) => `<i class="${k < S.answers.length ? (S.answers[k].ok ? 'ok' : 'no') : k === S.i && !S.done ? 'cur' : ''}"></i>`).join('');
+      o('score').textContent = String(S.answers.filter((a) => a.ok).length);
+      o('time').textContent = fmtTime(S.t0 ? (S.t1 || performance.now()) - S.t0 : 0);
+    };
+    const startClock = () => { if (!S.t0) S.t0 = performance.now(); };
+    const check = () => {
+      if (S.answered || S.done || S.mode !== 'test') return;
+      const ans = parse(spec(), o<HTMLInputElement>('answer').value);
+      if (ans == null) { o('msg').textContent = T.invalid[S.unit]; const f = o('afield'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake'); return; }
+      startClock();
+      const q = S.qs[S.i], ok = ans === q.valC;
+      S.answers.push({ ans, ok, q }); S.answered = true;
+      o('afield').className = 'afield ' + (ok ? 'ok' : 'no');
+      renderFeedback(); renderStatus(); startPop(); draw();
+      if (ok) sparks();
+    };
+    const renderFeedback = () => {
+      const a = S.answers[S.i]; if (!a) return;
+      const q = a.q, sp = SPECS[q.unit], last = S.i === ROUND - 1;
+      const code = a.ok ? null : diagnose(q, a.ans);
+      const vars = { from: q.base, to: q.base + sp.rangeLen, base: q.base, u: U(), ul: T.ul[q.unit], div: q.inC % sp.rev };
+      const diag = code ? tpl(code === 'general' && q.unit === 'in' ? T.diag.generalIn : T.diag[code], vars) : '';
+      o('feedback').innerHTML =
+        `<div class="verdict ${a.ok ? 'ok' : 'no'}"><i></i>${a.ok ? T.correct : T.wrong}</div>
+         <div class="vs"><span>${T.you}: <b>${fmt(sp, a.ans, locale)} ${U()}</b></span><span>${T.answer}: <b>${fmt(sp, q.valC, locale)} ${U()}</b></span></div>
+         <div class="sum">${chipsHTML(q)}</div>
+         ${code && /Base/.test(code) ? '' : `<p class="note">${noteText(q)}</p>`}
+         ${diag ? `<p class="tip">${diag}</p>` : ''}
+         <button type="button" class="btn btn-accent wide" data-act="nextq">${last ? T.finish : T.nextPart} →</button>`;
+      o('ask').hidden = true; o('feedback').hidden = false;
+      const nb = $('[data-act="nextq"]') as HTMLButtonElement; nb.addEventListener('click', next);
+      if (!coarse) nb.focus({ preventScroll: true });
+    };
+    const next = () => { if (!S.answered) return; if (S.i >= ROUND - 1) { finish(); return; } S.i++; showQuestion(false); };
+    const finish = () => {
+      S.done = true; S.t1 = performance.now();
+      const score = S.answers.filter((a) => a.ok).length, ms = S.t1 - (S.t0 || S.t1);
+      const key = `ca-mic-best-${S.unit}-${S.sel}-${S.unit === 'mm' || INCH_ABS ? S.styleSel : 'rel'}`;
+      let best: { s: number; ms: number } | null = null; try { best = JSON.parse(store.get(key) || 'null'); } catch { best = null; }
+      let isNew = false;
+      if (!best || score > best.s || (score === best.s && ms < best.ms)) { best = { s: score, ms }; isNew = true; store.set(key, JSON.stringify(best)); }
+      S.result = { score, ms, best, isNew };
+      renderResults(); renderStatus();
+      if (score >= 8) sparks();
+    };
+    const renderResults = () => {
+      const { score, ms, best, isNew } = S.result!;
+      const verdict = score === ROUND ? T.v10 : score >= 8 ? T.v8 : score >= 5 ? T.v5 : T.v0;
+      const rows = S.answers.map((a, i) => { const sp = SPECS[a.q.unit]; return `<li class="${a.ok ? '' : 'no'}"><i></i><span>${pad2(i + 1)} · ${fmt(sp, a.q.valC, locale)} ${U()}</span><span>${a.ok ? '✓' : fmt(sp, a.ans, locale)}</span></li>`; }).join('');
+      o('results').innerHTML =
+        `<span class="eyebrow">${T.resTitle}</span>
+         <h2>${score}<span>/${ROUND}</span></h2>
+         <p class="verdict-line">${verdict}</p>
+         <p class="best">${T.time} ${fmtTime(ms)} · ${isNew ? `<b>${T.newBest}</b>` : tpl(T.best, { s: best.s, N: ROUND, t: fmtTime(best.ms) })}</p>
+         <ul class="rlist">${rows}</ul>
+         <div class="row-btns"><button type="button" class="btn btn-accent" data-act="again">${T.again}</button><button type="button" class="btn" data-act="copy">${T.copy}</button></div>
+         <textarea class="copy-box" data-o="copybox" rows="3" readonly hidden></textarea>`;
+      o('ask').hidden = true; o('feedback').hidden = true; o('results').hidden = false;
+      ($('[data-act="again"]') as HTMLElement).addEventListener('click', () => startRound(true));
+      ($('[data-act="copy"]') as HTMLElement).addEventListener('click', () => copyScore(score, ms));
+    };
+    const copyScore = (score: number, ms: number) => {
+      let txt = tpl(T.share, { s: score, N: ROUND, t: fmtTime(ms) });
+      if (/^https?:/.test(location.href)) txt += ' ' + location.href.split('#')[0];
+      const btn = $('[data-act="copy"]') as HTMLButtonElement, box = o<HTMLTextAreaElement>('copybox');
+      const fallback = () => { box.hidden = false; box.value = txt; box.focus(); box.select(); };
+      try { navigator.clipboard.writeText(txt).then(() => { btn.textContent = T.copied; setTimeout(() => (btn.textContent = T.copy), 1600); }).catch(fallback); } catch { fallback(); }
+    };
+
+    /* ----- practice ----- */
+    const renderPractice = () => {
+      const v = view(), sp = spec();
+      o('pout').innerHTML = `${fmt(sp, v.valC, locale)}<small>${U()}</small>`;
+      o('pout').style.visibility = S.p.show ? 'visible' : 'hidden';
+      o('psum').innerHTML = chipsHTML(v); o('psum').hidden = !S.p.show;
+      o('pnote').textContent = noteText(v); o('pnote').hidden = !S.p.show;
+      const sl = o<HTMLInputElement>('pslider'); sl.max = String(sp.span); sl.value = String(S.p.inC);
+      o('psteppers').innerHTML = stepperHTML();
+      paintHead();
+    };
+    const setPractice = (c: number) => { S.p.inC = Math.max(0, Math.min(spec().span, Math.round(c))); anim = null; rDisp = S.p.inC; pop = 1; renderPractice(); draw(); };
+    const setTut = (c: number) => { S.tC = Math.max(0, Math.min(spec().span, Math.round(c))); anim = null; rDisp = S.tC; draw(); checkTask(); };
+
+    /* ----- modes and unit ----- */
+    const setMode = (m: Mode) => {
+      const now = performance.now();
+      if (S.mode === 'test' && m !== 'test' && S.t0 && !S.done && !S.pause) S.pause = now;
+      if (m === 'test' && S.pause) { S.t0 += now - S.pause; S.pause = 0; }
+      S.mode = m; setPressed('[data-mode]', 'mode', m);
+      root.querySelectorAll<HTMLElement>('[data-pane]').forEach((p) => (p.hidden = p.dataset.pane !== m));
+      ($('[data-status]') as HTMLElement).hidden = m !== 'test'; o('settings').hidden = m === 'tutorial';
+      cu.classList.toggle('drag', m === 'practice');
+      renderSettings();
+      if (m === 'tutorial') goStep(S.step);
+      else if (m === 'practice') { renderPractice(); animateTo(S.p.inC); }
+      else { if (!S.qs.length) startRound(); else { paintHead(); renderStatus(); animateTo(S.qs[S.i].inC); } }
+    };
+    const setUnit = (u: Unit) => {
+      if (S.unit === u) return;
+      const key = stepKeys()[S.step];
+      S.unit = u; setPressed('[data-unit]', 'unit', u);
+      const k2 = stepKeys().indexOf(key);
+      S.step = k2 >= 0 ? k2 : Math.min(S.step, stepKeys().length - 1);
+      S.p.inC = u === 'mm' ? 788 : 361; S.p.bi = Math.min(S.p.bi, spec().bases.length - 1);
+      if (u === 'in' && !INCH_ABS) S.p.style = 'rel';
+      S.sel = 'mix';
+      startRound();
+      setMode(S.mode);
+      setMaxLen();
+    };
+    const setMaxLen = () => { o<HTMLInputElement>('answer').maxLength = S.unit === 'mm' ? 6 : 5; };
+
+    /* ----- events ----- */
+    root.querySelectorAll<HTMLButtonElement>('[data-unit]').forEach((b) => b.addEventListener('click', () => setUnit(b.dataset.unit as Unit)));
+    root.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode as Mode)));
+    root.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest('button'); if (!b || !root.contains(b)) return;
+      const act = b.dataset.act;
+      if (act === 'tutorial') { ($('[data-start]') as HTMLElement).hidden = true; S.step = 0; setMode('tutorial'); }
+      else if (act === 'skip') { ($('[data-start]') as HTMLElement).hidden = true; setMode('test'); setTimeout(() => { if (!coarse) o<HTMLInputElement>('answer').focus({ preventScroll: true }); }, 50); }
+      else if (act === 'back') goStep(S.step - 1);
+      else if (act === 'next') goStep(S.step + 1);
+      else if (act === 'totest') { if (!(S.answers.length && !S.done)) startRound(); setMode('test'); }
+      else if (act === 'topractice') setMode('practice');
+      else if (act === 'help') { S.step = 0; setMode('tutorial'); }
+      else if (act === 'check') check();
+      else if (act === 'random') setPractice(Math.floor(Math.random() * (spec().span - 40)) + 20);
+      if (b.dataset.step) { const d = Number(b.dataset.step); if (S.mode === 'tutorial') setTut(S.tC + d); else if (S.mode === 'practice') setPractice(S.p.inC + d); }
+    });
+    if (coarse) o<HTMLInputElement>('answer').setAttribute('inputmode', 'none');   // the on-screen keypad replaces the soft keyboard; a hardware keyboard still types
+    else o('keypad').hidden = true;
+    o<HTMLInputElement>('answer').addEventListener('input', (e) => {
+      const el = e.target as HTMLInputElement; let s = el.value.replace(/[^0-9.,]/g, ''); const i = s.search(/[.,]/);
+      if (i >= 0) s = s.slice(0, i + 1) + s.slice(i + 1).replace(/[.,]/g, '');
+      el.value = s; o('msg').textContent = ''; startClock();
+    });
+    o('keypad').addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest('button') as HTMLButtonElement | null; if (!b || S.answered) return;
+      const k = b.dataset.k!, inp = o<HTMLInputElement>('answer'); let s = inp.value;
+      if (k === 'back') s = s.slice(0, -1); else if (k === 'dot') { if (!/[.,]/.test(s)) s = (s || '0') + T.dot; } else if (s.length < inp.maxLength) s += k;
+      inp.value = s; o('msg').textContent = ''; startClock();
+    });
+    root.addEventListener('keydown', (e) => {
+      if (S.mode !== 'test' || S.done) return;
+      if (e.key === 'Enter') { const t = e.target as HTMLElement; if (t.closest('button')) return; e.preventDefault(); S.answered ? next() : check(); }
+    });
+    setInterval(() => { if (S.mode === 'test' && S.t0 && !S.done) o('time').textContent = fmtTime(performance.now() - S.t0); }, 250);
+    o<HTMLInputElement>('pslider').addEventListener('input', (e) => setPractice(Number((e.target as HTMLInputElement).value)));
+    o<HTMLInputElement>('pshow').addEventListener('change', (e) => { S.p.show = (e.target as HTMLInputElement).checked; renderPractice(); draw(); });
+
+    // turning the thimble by dragging it, or with the wheel
+    let dragging = false, lastY = 0, acc = 0;
+    const canTurn = () => S.mode === 'practice' || (S.mode === 'tutorial' && !!curStep().free);
+    cu.addEventListener('pointerdown', (e) => { if (!canTurn()) return; dragging = true; lastY = e.clientY; acc = S.mode === 'practice' ? S.p.inC : S.tC; anim = null; try { cu.setPointerCapture(e.pointerId); } catch { /* ignore */ } });
+    cu.addEventListener('pointermove', (e) => {
+      if (!dragging) return; const H = cu.getBoundingClientRect().height, Rt = Math.min(H * 0.235 * 1.6, H * 0.44);
+      const dy = e.clientY - lastY; lastY = e.clientY;
+      // one-to-one with the drawn surface, accelerated for quick strokes
+      const gain = 1 + Math.min(8, Math.abs(dy) / 3);
+      acc = Math.max(0, Math.min(spec().span, acc + (dy / Rt) * spec().rev / (2 * Math.PI) * gain));
+      if (S.mode === 'practice') { S.p.inC = Math.round(acc); rDisp = acc; renderPractice(); draw(); } else { S.tC = Math.round(acc); rDisp = acc; draw(); }
+    });
+    const endDrag = () => { if (!dragging) return; dragging = false; const t = S.mode === 'practice' ? S.p.inC : S.tC; rDisp = t; draw(); if (S.mode === 'tutorial') checkTask(); };
+    cu.addEventListener('pointerup', endDrag); cu.addEventListener('pointercancel', endDrag);
+    cu.addEventListener('wheel', (e) => { if (!canTurn()) return; e.preventDefault(); const d = (e.deltaY > 0 ? 1 : -1) * (e.shiftKey ? spec().rev : 1); if (S.mode === 'practice') setPractice(S.p.inC + d); else setTut(S.tC + d); }, { passive: false });
+
+    if (window.ResizeObserver) { new ResizeObserver(() => draw()).observe(ov); new ResizeObserver(() => draw()).observe(cu); }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => draw());
+
+    /* ----- boot ----- */
+    S.qs = buildRound(S.unit, S.sel, S.styleSel); rDisp = S.qs[0].inC;
+    setMaxLen();
+    setMode('test');
+    (window as unknown as Record<string, unknown>).__mic = { S, view, setMode, setUnit, check, next, goStep, draw };
+  });
+</script>

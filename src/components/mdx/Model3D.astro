@@ -1,0 +1,130 @@
+---
+/**
+ * Interactive 3D model, loaded only when it scrolls near the viewport (Three.js is split into its
+ * own chunk). Drag to turn on a desktop; on touch screens the view buttons turn the model so the
+ * page keeps scrolling. Without WebGL a short note is shown instead.
+ *   kind="insert": worn turning insert (flank wear, crater, notch)
+ *   kind="thread": ISO metric bolt thread, cut open, with d, d2, d3
+ *   kind="bore":   honed bore, cut open, crosshatch angle adjustable
+ */
+interface Props { locale: 'en' | 'tr'; kind: 'insert' | 'thread' | 'bore' }
+const { locale, kind } = Astro.props;
+const tr = locale === 'tr';
+const VIEWS: Record<string, { k: string; en: string; tr: string }[]> = {
+  insert: [{ k: 'all', en: 'Whole insert', tr: 'Tüm uç' }, { k: 'flank', en: 'Flank wear', tr: 'Serbest yüzey aşınması' }, { k: 'crater', en: 'Crater', tr: 'Krater' }, { k: 'notch', en: 'Notch', tr: 'Çentik' }],
+  thread: [{ k: 'all', en: 'Whole bolt', tr: 'Tüm cıvata' }, { k: 'section', en: 'Section', tr: 'Kesit' }, { k: 'flank', en: 'Flanks', tr: 'Yanaklar' }],
+  bore: [{ k: 'all', en: 'Whole bore', tr: 'Tüm delik' }, { k: 'wall', en: 'Wall', tr: 'Cidar' }],
+};
+const LABELS: Record<string, { k: string; en: string; tr: string; c?: string; dx?: number; dy?: number }[]> = {
+  insert: [
+    { k: 'flank', en: 'flank wear land VB', tr: 'serbest yüzey aşınma bandı VB', dx: 60, dy: 80 },
+    { k: 'crater', en: 'crater KT', tr: 'krater KT', dx: -120, dy: -60 },
+    { k: 'notch', en: 'notch', tr: 'çentik', dx: 80, dy: 26 },
+    { k: 'doc', en: 'depth-of-cut line', tr: 'kesme derinliği çizgisi', c: 'data', dx: -150, dy: 30 },
+  ],
+  thread: [
+    { k: 'd', en: 'd = 10', tr: 'd = 10', c: 'ink', dx: 34, dy: -22 }, { k: 'd2', en: 'd₂ = 9.026', tr: 'd₂ = 9,026', c: 'violet', dx: 34, dy: 4 }, { k: 'd3', en: 'd₃ = 8.160', tr: 'd₃ = 8,160', c: 'data', dx: 34, dy: 30 },
+    { k: 'P', en: 'P = 1.5', tr: 'P = 1,5', dx: 18, dy: 34 }, { k: 'ang', en: '60°', tr: '60°', dx: -70, dy: 36 },
+  ],
+  bore: [{ k: 'ang', en: 'α', tr: 'α', dx: 60, dy: -70 }],
+};
+const T = tr
+  ? { hint: 'Döndürmek için sürükleyin', hintTouch: 'Görünüm düğmeleriyle döndürün', load: '3B model yükleniyor…', nogl: 'Bu tarayıcı WebGL desteklemiyor; 3B model gösterilemiyor.', angle: 'Çapraz tarama açısı' }
+  : { hint: 'Drag to turn', hintTouch: 'Use the view buttons to turn', load: 'Loading 3D model…', nogl: 'This browser has no WebGL, so the 3D model cannot be shown.', angle: 'Crosshatch angle' };
+---
+<div class="m3d" data-m3d={kind} data-locale={locale}>
+  <div class="stage">
+    <canvas aria-hidden="true"></canvas>
+    <div class="labels" aria-hidden="true">
+      <svg class="leaders">{LABELS[kind].map((l) => <g data-leader={l.k} class:list={[l.c]}><line /><circle r="3" /></g>)}</svg>
+      {LABELS[kind].map((l) => <span class:list={['lab', l.c]} data-label={l.k} data-dx={l.dx ?? 0} data-dy={l.dy ?? 0}>{tr ? l.tr : l.en}</span>)}
+    </div>
+    <p class="status" data-status>{T.load}</p>
+    <p class="hint"><span class="fine">{T.hint}</span><span class="coarse">{T.hintTouch}</span></p>
+  </div>
+  <div class="bar">
+    <div class="views" role="group" aria-label={tr ? 'Görünümler' : 'Views'}>
+      {VIEWS[kind].map((v, i) => <button type="button" data-view={v.k} aria-pressed={i === 0 ? 'true' : 'false'}>{tr ? v.tr : v.en}</button>)}
+    </div>
+    {kind === 'bore' && (
+      <label class="ang"><span>{T.angle} <output data-angle-out>50°</output></span><input type="range" min="20" max="80" step="1" value="50" data-angle /></label>
+    )}
+  </div>
+  <p class="nogl" hidden data-nogl>{T.nogl}</p>
+</div>
+
+<script>
+  const roots = document.querySelectorAll<HTMLElement>('[data-m3d]');
+  const gl = (() => { try { const c = document.createElement('canvas'); return Boolean(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; } })();
+  roots.forEach((root) => {
+    const kind = root.dataset.m3d!;
+    const canvas = root.querySelector('canvas')!;
+    const stage = root.querySelector<HTMLElement>('.stage')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    if (!gl) { stage.hidden = true; root.querySelector<HTMLElement>('.bar')!.hidden = true; root.querySelector<HTMLElement>('[data-nogl]')!.hidden = false; return; }
+    const labels: Record<string, HTMLElement> = {};
+    root.querySelectorAll<HTMLElement>('[data-label]').forEach((el) => (labels[el.dataset.label!] = el));
+    let api: any = null;
+    const io = new IntersectionObserver(async (entries) => {
+      if (!entries[0].isIntersecting || api) return;
+      io.disconnect();
+      try {
+        if (kind === 'insert') { const m = await import('../../lib/models/insert'); api = m.mountInsert(stage, canvas, labels); }
+        if (kind === 'thread') { const m = await import('../../lib/models/thread'); api = m.mountThread(stage, canvas, labels); }
+        if (kind === 'bore') { const m = await import('../../lib/models/bore'); api = m.mountBore(stage, canvas, labels); }
+        status.hidden = true;
+        stage.classList.add('ready');
+      } catch (err) {
+        status.textContent = String(err);
+      }
+    }, { rootMargin: '300px 0px' });
+    io.observe(root);
+    root.querySelectorAll<HTMLButtonElement>('[data-view]').forEach((b) => b.addEventListener('click', () => {
+      root.querySelectorAll('[data-view]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      root.dataset.active = b.dataset.view;
+      api?.show(b.dataset.view);
+    }));
+    const ang = root.querySelector<HTMLInputElement>('[data-angle]');
+    if (ang) ang.addEventListener('input', () => {
+      root.querySelector('[data-angle-out]')!.textContent = `${ang.value}°`;
+      api?.setAngle?.(Number(ang.value));
+    });
+  });
+</script>
+
+<style>
+  .m3d { display: grid; gap: 0.6rem; }
+  .stage { position: relative; aspect-ratio: 16 / 10; min-height: 260px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+    background: radial-gradient(70% 80% at 55% 40%, color-mix(in oklab, var(--color-metro-500) 9%, transparent), transparent 70%), var(--bg-sunk); }
+  @media (max-width: 40rem) { .stage { aspect-ratio: 4 / 3.4; } }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 600ms ease; }
+  .ready canvas { opacity: 1; cursor: grab; }
+  .ready canvas:active { cursor: grabbing; }
+  .status { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-3); }
+  .hint { position: absolute; right: 0.7rem; bottom: 0.55rem; margin: 0; font-size: 0.72rem; color: var(--ink-3); pointer-events: none; }
+  .hint .coarse { display: none; }
+  @media (pointer: coarse) { .hint .fine { display: none; } .hint .coarse { display: inline; } }
+  .labels { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 400ms ease 300ms; }
+  .ready .labels { opacity: 1; }
+  @media (max-width: 40rem) { .m3d:not([data-active]) .labels, .m3d[data-active="all"] .labels { display: none; } }
+  .lab { position: absolute; left: 0; top: 0; padding: 0.15rem 0.45rem; border-radius: 4px; background: color-mix(in oklab, #fbfdff 78%, transparent); border: 1px solid color-mix(in oklab, currentColor 45%, transparent); font-family: var(--font-mono); font-size: 0.72rem; color: #e2601a; white-space: nowrap; transition: opacity 200ms; }
+  .lab.data { color: #2a78d6; }
+  .lab.violet { color: #7a4fd0; }
+  .lab.ink { color: #1b1d1e; }
+  .leaders .ink line { stroke: #1b1d1e; } .leaders .ink circle { fill: #1b1d1e; }
+  .leaders { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .leaders line { stroke: #e2601a; stroke-width: 1; opacity: 0.85; }
+  .leaders circle { fill: #e2601a; stroke: #fbfdff; stroke-width: 1.5; }
+  .leaders .data line { stroke: #2a78d6; } .leaders .data circle { fill: #2a78d6; }
+  .leaders .violet line { stroke: #7a4fd0; } .leaders .violet circle { fill: #7a4fd0; }
+  .leaders g { transition: opacity 200ms; }
+  .bar { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; align-items: center; justify-content: space-between; }
+  .views { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .views button { font-size: 0.8rem; padding: 0.3rem 0.75rem; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink-2); transition: border-color 150ms, color 150ms, background-color 150ms; }
+  .views button:hover { border-color: var(--ink-3); color: var(--ink); }
+  .views button[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+  .ang { display: grid; gap: 0.2rem; font-size: 0.8rem; color: var(--ink-2); min-width: 14rem; }
+  .ang output { color: var(--data); font-family: var(--font-mono); }
+  .ang input { accent-color: var(--accent); }
+  .nogl { margin: 0; padding: 1rem; border: 1px dashed var(--line-strong); border-radius: 6px; color: var(--ink-3); font-size: 0.86rem; }
+</style>

@@ -1,0 +1,112 @@
+---
+key: 42crmo4
+locale: en
+slug: 42crmo4
+title: '42CrMo4 — 1.7225'
+description: 'The chromium-molybdenum quenched and tempered steel 42CrMo4: designations and equivalents (AISI 4140, SCM440), chemical composition, strength by section size in the quenched and tempered condition, hardness, heat treatment, weldability and machining.'
+section: 6
+subsection: steels
+order: 2
+updated: 2026-10-11
+tools: [turning, milling]
+glance:
+  - value: '900'
+    unit: 'MPa'
+    label: 'Minimum yield strength, quenched and tempered, d ≤ 16 mm'
+  - value: '≈ Ø60'
+    unit: 'mm'
+    label: 'Through-hardens in oil up to about this diameter (Ovako)'
+  - value: '241'
+    unit: 'HB'
+    label: 'Maximum hardness, soft annealed (+A)'
+  - value: '4140 / SCM440'
+    label: 'Approximate AISI and JIS equivalents'
+sources:
+  - label: 'EN ISO 683-2:2018, Heat-treatable steels — Part 2: Alloy steels for quenching and tempering (SIS catalogue page)'
+    url: https://www.sis.se/en/produkter/metallurgy/iron-and-steel-products/heattreatable-steels/ss-en-iso-683-22018/
+  - label: 'ISO 683-2:2016 (ISO catalogue page; confirmed 2021)'
+    url: https://www.iso.org/standard/70643.html
+  - label: 'thyssenkrupp Materials Services, 42CrMo4 / 42CrMoS4 data sheet, 2017'
+    url: https://ucpcdn.thyssenkrupp.com/_binary/UCPthyssenkruppBAMaterialsSchulte/dc4e3d67-9afe-4b41-8794-a82c0d3ab7bb/42CrMo4-42CrMoS4-1.7225-1.7227.pdf
+  - label: 'Deutsche Edelstahlwerke, Firmodur 7225 / 7227 data sheet, 2015'
+    url: https://swisssteel-group.com/content-media/documents/Data-Sheets/Engineering-Steel/1.7225_1.7227_de.pdf
+  - label: 'Saarstahl, Werkstoffdatenblatt 42CrMo4 / 42CrMoS4'
+    url: https://www.saarstahl.com/app/uploads/2024/03/20160318093454-42CrMo4-42CrMoS4-.pdf
+  - label: 'Swiss Steel / Steeltec, 42CrMoS4 data sheet (EN ISO 683-2:2018), 2023'
+    url: https://swisssteel-group.com/content-media/documents/Data-Sheets/Engineering-Steel/42CrMoS4_en.pdf
+  - label: 'Lucefin, technical card 42CrMo4 (ISO 683-2:2018), 2024'
+    url: https://lucefin.com/wp-content/uploads/2025/01/ENG-42CrMo4.pdf
+  - label: 'Ovako, Steel Navigator: 42CrMo4'
+    url: https://steelnavigator.ovako.com/steel-grades/42crmo4/
+  - label: 'MISUMI, material comparison table (JIS / AISI / DIN), for reference only'
+    url: https://sg.misumi-ec.com/tech-info/categories/technical_data/td01/a0203.html
+  - label: 'ISCAR, "Materials and Grades according to DIN/ISO 513 and VDI 3323" (material groups, kc1.1)'
+    url: https://www.iscar.com/lms/wp-content/uploads/2021/04/Materials-group.pdf
+  - label: 'Seco Tools, Milling catalogue 2025, "Workpiece materials — Classification" (distributor copy)'
+    url: https://maskin.sde.dk/wp-content/uploads/2025/03/GB-Milling-2025SN1-1.pdf
+---
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { crmoHeat } from '../../../data/steel-charts';
+import StepChart from '../../../components/mdx/StepChart.astro';
+
+import { qtSeries } from '../../../data/steel-charts';
+
+42CrMo4 is a chromium-molybdenum alloy steel for quenching and tempering. Its alloying lets it harden through larger sections than a plain carbon steel: compare its quenched and tempered strengths, given up to 250 mm, with those of C45, which stop at 100 mm. It is supplied soft-annealed, treated for shearability or quenched and tempered.
+
+## Designations
+
+| Name | Number | Note |
+|---|---|---|
+| 42CrMo4 | 1.7225 | Base grade |
+| 42CrMoS4 | 1.7227 | Specified sulphur range 0.020–0.040 % for better machinability |
+
+Approximate equivalents: AISI/SAE **4140** (some makers list 4140H or 4137), JIS **SCM440**. The governing standard is **EN ISO 683-2:2018**, which replaced EN 10083-1 and EN 10083-3 (2006).
+
+## Chemical composition
+
+Heat analysis, % by mass, EN ISO 683-2:
+
+| C | Si | Mn | P max | S max | Cr | Mo | Cu max |
+|---|---|---|---|---|---|---|---|
+| 0.38–0.45 | 0.10–0.40 | 0.60–0.90 | 0.025 | 0.035 | 0.90–1.20 | 0.15–0.30 | 0.40 |
+
+42CrMoS4 has S 0.020–0.040 %. As with C45, the silicon minimum comes with EN ISO 683; the old EN 10083-3 gave only a maximum of 0.40 %.
+
+## Mechanical properties, quenched and tempered (+QT)
+
+| Diameter d (mm) | Re min (MPa) | Rm (MPa) | A min (%) | Z min (%) | KV min (J) |
+|---|---|---|---|---|---|
+| ≤ 16 | 900 | 1100–1300 | 10 | 40 | — |
+| 16 < d ≤ 40 | 750 | 1000–1200 | 11 | 45 | 35 |
+| 40 < d ≤ 100 | 650 | 900–1100 | 12 | 50 | 35 |
+| 100 < d ≤ 160 | 550 | 800–950 | 13 | 50 | 35 |
+| 160 < d ≤ 250 | 500 | 750–900 | 14 | 55 | 35 |
+
+For d ≤ 16 mm thyssenkrupp, Lucefin and Deutsche Edelstahlwerke give no impact value; Saarstahl prints 30 J. Ovako states that the steel through-hardens up to about Ø60 mm after oil quenching.
+
+<Figure caption="Quenched and tempered (+QT): minimum yield strength Re (line) and tensile strength range Rm (band) against the diameter of the heat-treated section, from the EN ISO 683-1 and EN ISO 683-2 values in the tables. C45 is listed only up to 100 mm. Hover a step to read it.">
+  <StepChart locale="en" series={qtSeries} xLabel="d" yLabel="Strength" xMax={250} yMax={1400} yTicks={[0, 200, 400, 600, 800, 1000, 1200, 1400]} xTicks={[0, 16, 40, 100, 160, 250]} lineLabel="Re min" bandLabel="Rm" aria="Step chart of Re and Rm against diameter for C45 and 42CrMo4, quenched and tempered" />
+</Figure>
+
+**Hardness:** soft-annealed (+A) max **241 HB**; treated for shearability (+S) max **255 HB**.
+
+## Heat treatment
+
+| Treatment | Range (°C) | Notes |
+|---|---|---|
+| Normalizing | 840–880 | Saarstahl 850–880 |
+| Soft annealing | 680–720 | |
+| Hardening | 820–860 | Oil or water; thyssenkrupp gives 820–880, Ovako 840–880 |
+| Tempering | 540–680 | For the +QT strengths above |
+
+<Figure caption="Heat treatment temperatures from the table above. The thick bar is the range this page uses; thin bars are the values individual makers print. Hover a bar to read it.">
+  <RangeChart locale="en" rows={crmoHeat("en")} min={500} max={950} ticks={[500, 600, 700, 800, 900]} unit="°C" axisLabel="Temperature" aria="Heat treatment temperature ranges" />
+</Figure>
+
+## Weldability
+
+42CrMo4 is difficult to weld. thyssenkrupp warns of hardening in the heat-affected zone and the weld metal and calls for preheating, an interpass temperature chosen from the CCT diagram, slow cooling and a low-carbon Mo or CrMo filler. Deutsche Edelstahlwerke advises against welded structures and calls for post-weld heat treatment if welding cannot be avoided. Lucefin gives a preheat of 300 °C and stress relieving at 550 °C.
+
+## Machining
+
+thyssenkrupp notes that the machinability depends strongly on the microstructure, that is, on the delivery condition. For cutting-force calculations, ISCAR places annealed 42CrMo4 (200 HB) in its group 6 (kc1.1 = 1775 N/mm², mc = 0.24) and Seco uses 42CrMo4 as the reference of its group P5 (kc1.1 = 2020 N/mm², mc = 0.18). At a chip thickness of 0.2 mm the two give nearly the same kc; see [cutting forces](/fundamentals/cutting-forces/). For better machinability, makers offer 42CrMoS4 with its controlled sulphur content (Lucefin) or calcium-treated grades (Ovako's M-Steel).

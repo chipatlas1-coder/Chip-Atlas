@@ -1,0 +1,48 @@
+---
+/* Chuck gripping force and speed. A three-jaw chuck seen from the front, turning, gripping a bar from outside: the
+   jaws grip inwards (blue) while their centrifugal force pulls outwards (orange). Beside it, the gripping force
+   falling with speed along a parabola, Fsp = Fsp0 − Σ m·r·ω². Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr ? { n: 'n', f: 'Fsp', fc: 'merkezkaç' } : { n: 'n', f: 'Fsp', fc: 'centrifugal' };
+const cx = 150, cy = 160, R = 118;
+const jaws = [-90, 30, 150];
+const rad = (d: number) => (d * Math.PI) / 180;
+// chart: Fsp falls as n²
+const gx0 = 318, gx1 = 462, gy0 = 262, gy1 = 70;
+const curve = Array.from({ length: 41 }, (_, i) => { const u = i / 40; return `${(gx0 + u * (gx1 - gx0)).toFixed(1)},${(gy1 + 20 + u * u * (gy0 - gy1 - 40)).toFixed(1)}`; }).join(' ');
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <g class="spin" style="--spin:7s">
+    <circle class="metal f" style="--i:0" cx={cx} cy={cy} r={R} />
+    <circle class="o2 f" style="--i:0" cx={cx} cy={cy} r={R} />
+    <circle class="h f" style="--i:1" cx={cx} cy={cy} r={R - 14} />
+    <circle class="metal-h f" style="--i:1" cx={cx} cy={cy} r="28" />
+    <circle class="o2 f" style="--i:1" cx={cx} cy={cy} r="28" />
+    {jaws.map((a, i) => {
+      const ux = Math.cos(rad(a)), uy = Math.sin(rad(a));
+      const p = (d: number, s: number) => `${(cx + ux * d - uy * s).toFixed(1)},${(cy + uy * d + ux * s).toFixed(1)}`;
+      return (
+        <g class="f" style={`--i:${2 + i}`}>
+          <path d={`M${p(30, -13)} L${p(102, -13)} L${p(102, 13)} L${p(30, 13)} Z`} class="carbide" stroke="#5f6c79" stroke-width="1.2" />
+          <path d={`M${p(30, -13)} L${p(62, -13)} L${p(62, 13)} L${p(30, 13)} Z`} fill="#c8d0d9" stroke="#5f6c79" stroke-width="1.2" />
+          <path class="a" d={`M${p(104, 0)} L${p(140, 0)}`} marker-end="url(#ca-arr-acc)" />
+          <path class="b" d={`M${p(24, 0)} L${p(8, 0)}`} marker-end="url(#ca-arr-data)" />
+        </g>
+      );
+    })}
+    <circle class="f" style="--i:6" cx={cx} cy={cy} r="3" fill="#152230" />
+    <circle cx={cx} cy={cy} r={R + 30} fill="none" stroke="none" />
+  </g>
+  <!-- gripping force against speed -->
+  <line class="h f" style="--i:6" x1={gx0} x2={gx0} y1={gy1 - 6} y2={gy0} />
+  <line class="h f" style="--i:6" x1={gx0} x2={gx1 + 4} y1={gy0} y2={gy0} />
+  <polyline class="d" style="--i:7" pathLength="1" points={curve} fill="none" stroke="#1e5fc4" stroke-width="3.4" stroke-linecap="round" />
+  <line class="dash f" style="--i:8" x1={gx0} x2={gx1} y1={gy1 + 20} y2={gy1 + 20} />
+  <circle class="f" style="--i:9" cx={gx0 + 0.62 * (gx1 - gx0)} cy={gy1 + 20 + 0.3844 * (gy0 - gy1 - 40)} r="5" fill="#e2601a" stroke="#fff" stroke-width="1.5" />
+  <g class="lbl">
+    <text class="t-data t-sm" x={gx0 + 6} y={gy1 + 12}>{T.f}</text>
+    <text class="t-ink t-sm" x={gx1 - 4} y={gy0 + 16} text-anchor="end">{T.n}</text>
+  </g>
+</svg>

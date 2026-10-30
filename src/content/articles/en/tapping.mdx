@@ -1,0 +1,327 @@
+---
+key: tapping
+locale: en
+slug: tapping
+title: 'Tapping'
+description: 'Cutting and forming internal threads with a tap: the four tap types and where each sends the chips, the DIN 2197 chamfer forms, tap classes ISO 1–3 and the X classes, cutting speeds by maker, feed as pitch times speed, rigid against floating tapping with the CNC cycles, torque and power, and why taps break.'
+section: 2
+subsection: hole-making
+order: 9
+updated: 2026-10-17
+tools: [tapdrill, drilling]
+glance:
+  - value: 'vf = P · n'
+    label: 'Feed: one pitch per revolution'
+  - value: '6H'
+    label: 'Standard tap class, ISO 2 (Vergnano, Völkel, Seco)'
+  - value: '+40–50 %'
+    label: 'Torque of a forming tap against a cutting tap (Völkel)'
+  - value: '≈ 10 %'
+    label: 'Least elongation for forming taps (ISCAR, DC Swiss, Sutton)'
+sources:
+  - label: 'ISCAR, Threading Catalog 62, printed p. 378 (viewer p. 380): tap nomenclature and standards, chamfer forms to DIN 2197'
+    url: https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page380.html
+  - label: 'ISCAR, Hole Making Catalog Inch 2022, p. 55 (chamfer forms)'
+    url: https://iscar.com/Catalogs/publication-2022/english-1/HOLE_MAKING_CATALOG_INCH_2022/flipview_HOLE_MAKING_CATALOG_INCH_2022_P373-P446/files/basic-html/page55.html
+  - label: 'ISCAR, Tapping Tools user guide (tolerances to DIN EN 22857, forming limits)'
+    url: https://www.iscar.com/Catalogs/Publication/Catalogs_Mm/english_1/TAPPING_Catalog/TAPPING_CATALOG.pdf
+  - label: 'YG-1, Prime taps YE-PT19, HSS-PM (tap tolerances, cutting speeds), hosted by Cutwel'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/YG-1 Prime Taps.pdf
+  - label: 'YG-1, Synchro taps and synchro chucks, hosted by Cutwel'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/YG-1 Synchro Taps.pdf
+  - label: 'YG-1, forming taps, catalogue section, hosted by Cutwel'
+    url: https://www.cutwel.co.uk/media/product-pdfs/threading/machine-taps/yg-1-cold-forming-roll-taps-flyer.pdf
+  - label: 'Völkel, “Form B or Form C? Choosing the right machine tap”'
+    url: https://voelkel.com/en/blog/form-b-or-form-c-machine-taps
+  - label: 'Völkel, “Thread tap tolerances at a glance”, 19 November 2025'
+    url: https://voelkel.com/en/blog/thread-tap-tolerances-at-a-glance-differences-applications-and-recommendations
+  - label: 'Völkel, “Thread forming: chip-free, clean, reliable”, 3 December 2025'
+    url: https://voelkel.com/en/blog/gewindeformen-spanlos-sauber-zuverlaessig
+  - label: 'Völkel, Technical Information 06: machine taps'
+    url: https://voelkel.com/media/46/ae/8f/1788161940/06_Technical%20Information_Machine%20Taps.pdf?ts=1788161940
+  - label: 'Völkel, Technical Information 08: fluteless machine taps'
+    url: https://voelkel.com/media/68/4b/99/1788161965/08_Technical%20Information_Fluteless%20Machine%20Taps.pdf?ts=1788161965
+  - label: 'Vergnano, tap catalogue, tolerance classes (p. 254)'
+    url: https://online.flippingbook.com/view/1003886444/257/
+  - label: 'Dormer Pramet, Threading general catalogue 2021–2022 (excerpt, chamfer forms)'
+    url: https://pdf.directindustry.com/pdf/dormer-pramet/threading-general-catalogue-2021-2022/14461-964398.html
+  - label: 'Dormer Pramet, Shark Line material-specific taps, 2020 (excerpt)'
+    url: https://pdf.directindustry.com/pdf/dormer-pramet/shark-line-material-specific-taps-2020/14461-887315.html
+  - label: 'CERATIZIT, catalogue chapter “Gewindebohrer und -former” (German)'
+    url: https://cdn.plansee-group.com/is/content/planseemedia/gd_kp_kt-hk-01-23-00023-kp-hss-gws_sde_asc_pim
+  - label: 'CERATIZIT, catalogue chapter “Kılavuzlar ve ovalama kılavuzları” (Turkish)'
+    url: https://cdn.plansee-group.com/is/content/plansee/gd_kp_kt-hk-01-24-00024-kp-hss-gws_str_asc_pim
+  - label: 'OSG, A-TAP Vol. 15 flier'
+    url: https://www.osg.co.jp/media_dl/flier/file/n_102.pdf
+  - label: 'Yamawa, AU+SP / AU+SL product sheet, hosted by HH Tools (hole size and cutting volume)'
+    url: https://hhtools.nl/content/files/documentatie%20yamawa/au-series.pdf
+  - label: 'Hoffmann Group, data sheet 132880: machine tap M6 × 0.75, nitrided'
+    url: https://cdn.hoffmann-group.com/dsh/en-GB/dsh_en-gb_16825.pdf
+  - label: 'Sutton Tools, thread forming taps'
+    url: https://suttontools.com/product/thread-forming-taps-n/
+  - label: 'Sutton Tools, Technical Information application guide (export edition), “Notes on Tapping”, p. 417'
+    url: https://suttontools-2022.s3-ap-southeast-2.amazonaws.com/Brochure%20and%20Catalogue/Catalogues/Sutton%20Tools/499980054_ApplicationGuide_Export.pdf
+  - label: 'DC Swiss, FPS-FAS thread formers (excerpt)'
+    url: https://pdf.directindustry.com/pdf/dc-swiss-sa/fps-fas/16113-995102.html
+  - label: 'DC Swiss, thread former catalogue pages'
+    url: https://shop.arsam.es/en-ES/download/487350492
+  - label: 'R. Zdanowski (Seco Tools), “Step-by-step guide: how to choose the right threading tap”, Modern Machine Shop, 1 July 2026 (sponsored content)'
+    url: https://www.mmsonline.com/articles/step-by-step-guide-how-to-choose-the-right-threading-tap
+  - label: 'LUBERO, Technology: calculations (torque, power, chip thickness, kc table)'
+    url: https://www.lubero.de/en/technology/calculations
+  - label: 'LUBERO, Technology: gating forms'
+    url: https://www.lubero.de/en/technology/gating-forms
+  - label: 'SUHNER, Formeln / Spindelkalkulator'
+    url: https://www.suhner-machining.com/fileadmin/user_upload/Machining-Spindeln/Suhner-formeln-Spindlekalkulator.pdf
+  - label: 'Haas Automation, G84 tapping (AP-602, April 2016)'
+    url: https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep25-tap-programming/Haas_G84_Tapping.pdf
+  - label: 'Haas Automation, Tap breakage troubleshooting guide'
+    url: https://www.haascnc.com/content/haascnc/en/service/troubleshooting-and-how-to/troubleshooting/tap-breakage-troubleshooting.html
+  - label: 'Siemens, SINUMERIK 840D/840Di/810D Programming Guide Cycles, 04.00 (CYCLE84, CYCLE840)'
+    url: https://support.industry.siemens.com/cs/attachments/109439500/PGZ_0400_en.pdf
+  - label: 'Siemens, SINUMERIK 840D sl G code programming, Programming Manual 03/2009, ch. 1 (CYCLE84 and CYCLE840 headings)'
+    url: https://www.m3.tuc.gr/EQUIPMENT/CTX310/840D%20G-CODE.pdf
+  - label: 'HEIDENHAIN, TNC 320 User’s Manual for Cycle Programming, 10/2018 (cycles 206, 207, 209)'
+    url: https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC320/771851-06/zyklen/1096959-24.pdf
+  - label: 'FANUC Ltd., US 5538369 A, “Machine tool with tapping function” (M29 rigid tap mode)'
+    url: https://patents.google.com/patent/US5538369
+  - label: 'B. Fowler, “G74 G-code: left-hand tapping cycle explained”, Machinist Guides, 6 March 2026'
+    url: https://www.machinistguides.com/g74-code/
+  - label: 'P. Smid, CNC Programming Techniques, Industrial Press 2005, ch. 10 “Standard and rigid tapping” (excerpt)'
+    url: https://www.globalspec.com/reference/56210/203279/chapter-10-standard-and-rigid-tapping
+  - label: 'A. Krenick (T.M. Smith Tool), “Rigid rules”, Cutting Tool Engineering, 1 August 1996'
+    url: https://ctemag.com/?p=95787
+  - label: 'BILZ, synchro tapping holder with minimal length compensation'
+    url: https://www.directindustry.com/prod/bilz/product-5599-2641942.html
+  - label: 'Tungaloy, “Troubled by frequent tap breakage? Try a thread mill!”'
+    url: https://tungaloy.com/?p=461427
+  - label: 'ISO 2857:1973, Ground thread taps for ISO metric threads of tolerances 4H to 8H and 4G to 6G (preview)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+2857-1973.pdf
+---
+import TapTypes from '../../../components/mdx/TapTypes.astro';
+import TapModel3D from '../../../components/mdx/TapModel3D.astro';
+import ChamferForms from '../../../components/mdx/ChamferForms.astro';
+import TapLoad from '../../../components/mdx/TapLoad.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { tapSpeeds } from '../../../data/tapping-charts';
+
+A tap makes an internal thread in a drilled hole. A cutting tap removes the thread grooves as chips; a forming tap presses them into the wall and makes no chips at all. Either way the tap advances exactly one pitch per revolution, so the feed is not a free choice. What you choose is the tap: where it sends the chips, over how many threads its chamfer spreads the cut, which tolerance class it cuts, and how the machine drives it.
+
+The hole comes first, and its size is covered in [tap drill sizes](/processes/tap-drill-sizes/). This page is about the tap and the process.
+
+<Figure caption="A spiral-flute tap, M10 × 1.5 with a form C chamfer, in a blind hole of a block cut open by a quarter. Seen from above it turns clockwise and screws in one pitch per revolution; the thread appears behind the chamfer, and the chamfer leaves incomplete threads at the bottom. Drag to turn the view; the buttons show the tap and the finished thread.">
+  <TapModel3D locale="en" />
+</Figure>
+
+## Four kinds of tap
+
+<Figure caption="Four tap types in section, each turning in its hole. The spiral point pushes the chips ahead, out of the far end of a through hole; right-hand spiral flutes carry them back up to the opening of a blind hole; straight flutes keep short chips in the flutes; the forming tap makes none, and the orange is the material it has pressed into the thread crests. Schematic; with reduced motion the taps stand still.">
+  <TapTypes
+    aria="Four tap types in their holes: spiral point, spiral flute, straight flute and forming tap, with the direction the chips take"
+    types={[
+      { name: 'Spiral point', hole: 'through hole', chips: 'pushed ahead, out of the far end' },
+      { name: 'Spiral flute', hole: 'blind hole', chips: 'carried back to the opening' },
+      { name: 'Straight flute', hole: 'short-chipping material', chips: 'stay in the flutes' },
+      { name: 'Forming tap', hole: 'blind or through hole', chips: 'none: the material flows' },
+    ]}
+  />
+</Figure>
+
+| Tap | Hole | Chips | Work material |
+|---|---|---|---|
+| Spiral point (form B) | Through | Pushed ahead, out of the far end | Long-chipping |
+| Spiral flute, right-hand | Blind | Carried back to the opening | Long-chipping |
+| Straight flute | Blind or through | Stay in the flutes | Short-chipping (grey cast iron, brass) |
+| Forming (fluteless) | Blind or through | None | Ductile (elongation about 10 % or more) |
+
+Völkel describes the two chip-moving designs plainly: the spiral point "pushes the chips generated during tapping forward in the cutting direction", while helical flutes "convey the chips back towards the tool shank and the opening of the tap drill hole". With a straight-fluted form C tap, in Völkel's words, "the chips are not actively conveyed out of the tap drill hole". Seco's selection guide sorts them by chip type: for long-chipping materials such as steel, stainless steel and aluminium, a spiral point for through holes and spiral flutes for blind holes; for short-chipping cast iron, straight flutes. LUBERO's form descriptions point the same way: form B, with its spiral point (a "peel cut"), is for through holes in long-chipping materials.
+
+A spiral point does not belong in a blind hole. Haas warns that the chips can pack into the bottom of the hole until the tap bottoms out. Seco adds the opposite case: if there is little space behind a through hole, pull the chips back with spiral flutes even there.
+
+**Helix angle.** Right-hand spiral-flute taps are made with different helix angles. Völkel lists 15°, 35°, 39° and 40°, Dormer's Shark Line runs from 15° to 48°, ISCAR's speed tables have a column for R40° taps, and YG-1 marks its Prime spiral-flute taps R40 and its synchro tap R45. Seco notes that high-tensile materials may need a smaller helix angle.
+
+**Left-hand flutes for through holes.** On a right-hand tap, left-hand spiral flutes push the chips forward, as a spiral point does. ISCAR lists the left-hand spiral-fluted tap under through holes, and CERATIZIT's TruTap DL has 15° left-hand flutes that send the chips in the cutting direction.
+
+### Forming taps
+
+A forming tap has no cutting edges. Lobes on its thread press the material outward and let it flow into the crests of the thread, so there are no chips to clear: DC Swiss sells one tool for both through and blind holes. The thread is stronger because, as Völkel puts it, "the grain structure is deformed, not separated"; DC Swiss promises higher resistance to stripping. The price is a narrower window:
+
+- **Ductile material only.** ISCAR, DC Swiss and Sutton ask for at least 10 % elongation; YG-1 and the code key in ISCAR's own guide accept 8 to 10 %. Völkel: "Very hard or brittle materials lead to cracks, dimensional problems, or tool damage."
+- **Strength limits depend on the tool.** DC Swiss gives up to 1,150 N/mm², CERATIZIT up to 1,400 N/mm² for its DuoForm formers, and Völkel about 700 N/mm² for steel with its VAP finish and 900 N/mm² with TiN.
+- **A larger hole**, roughly d − 0.45 P to d − 0.5 P: Völkel drills 7.45 mm for M8, against 6.8 mm for a cutting tap. The values per maker are in [tap drill sizes](/processes/tap-drill-sizes/).
+- **More torque:** "about 40–50% more torque than cutting" (Völkel).
+- **Lubrication without gaps.** DC Swiss warns that if the supply of lubricant is interrupted, cold welding quickly destroys the tool. None of the sources requires neat oil: YG-1's forming test ran on a 9 % water-soluble emulsion.
+
+## Chamfer forms
+
+The chamfer (lead) is the tapered start of the tap. Its first threads are ground down to a cone, so each tooth cuts only part of the thread depth and the full profile builds up over several teeth. DIN 2197 names the chamfer forms with letters; tap makers print them as follows.
+
+<Figure caption="The chamfer forms A to F, drawn over the middle of the thread counts in the table. Orange: the chamfered teeth, which do the cutting. Right: a hole that suits each form; the blind holes all have the same full-thread depth and are drawn deeper by the chamfer length, because the chamfer leaves that many incomplete threads at the bottom.">
+  <ChamferForms
+    aria="Chamfer forms A to F of DIN 2197 with the number of chamfered threads and the hole each one suits"
+    head={{ form: 'Form', threads: 'Chamfer threads', use: 'Hole' }}
+    forms={[
+      { k: 'A', threads: '6–8', mid: 7, use: 'short through holes', hole: 'short-through' },
+      { k: 'B', threads: '3.5–5', mid: 4.25, use: 'through holes; spiral point pushes the chips ahead', hole: 'through', point: true },
+      { k: 'C', threads: '2–3', mid: 2.5, use: 'blind holes; through holes in short-chipping materials', hole: 'blind' },
+      { k: 'D', threads: '3.5–5', mid: 4.25, use: 'through holes, and blind holes with a long runout', hole: 'blind' },
+      { k: 'E', threads: '1.5–2', mid: 1.75, use: 'blind holes with a short runout', hole: 'blind' },
+      { k: 'F', threads: '1–1.5', mid: 1.25, use: 'blind holes with a very short runout', hole: 'blind' },
+    ]}
+  />
+</Figure>
+
+| Form | Chamfer threads | Use |
+|---|---|---|
+| A | 6–8 | Short through holes |
+| B | 3.5–5 (4–5) | Through holes, with a spiral point |
+| C | 2–3 | Blind holes; through holes in short-chipping materials |
+| D | 3.5–5 (4–5) | Through holes, and blind holes with a long thread runout |
+| E | 1.5–2 | Blind holes with a short runout |
+| F | 1–1.5 | Blind holes with a very short runout |
+
+The ranges are not quite uniform; the values in brackets are the second reading. For form B, ISCAR, Dormer, DC Swiss and CERATIZIT's product pages print 3.5–5 threads, while YG-1, Völkel and the definitions page of the same CERATIZIT catalogue print 4–5. Form D shows the same split within CERATIZIT's catalogue. Form F appears only in ISCAR's table: LUBERO describes five standard forms, A to E. ISCAR advises avoiding the very short forms where possible. The standard itself was not available to us, so the table gives the values as the makers print them.
+
+**Why the chamfer length matters.** LUBERO estimates the chip each tooth cuts from the pitch P, the number of flutes z and the chamfer length l₄:
+
+$$
+a_e = \frac{0.5 \cdot P^2}{z \cdot l_4}
+$$
+
+For an M10 × 1.5 tap with three flutes, form C (2 to 3 threads, l₄ = 3 to 4.5 mm) gives 0.08 to 0.13 mm per tooth; form B (3.5 to 5 threads, l₄ = 5.25 to 7.5 mm) gives 0.05 to 0.07 mm. A long chamfer is gentler on each tooth, but in a blind hole it costs depth: the chamfer threads leave incomplete threads at the bottom, so the hole has to reach beyond the full thread by the chamfer length plus some clearance. Haas asks for blind holes drilled at least 0.050 in (1.3 mm) deeper than the tap is programmed to go.
+
+## Tolerance classes
+
+The class marked on a tap does not describe the tap's own tolerance: it names the nut-thread classes the tap is meant to cut. ISO 2857 and DIN EN 22857 call these application classes ISO 1, 2 and 3; the old DIN 802 marking used the nut class instead.
+
+| Tap class | DIN 802 (old) | Nut classes it cuts |
+|---|---|---|
+| ISO 1 | 4H | 4H, 5H |
+| ISO 2 | 6H | 4G, 5G, 6H |
+| ISO 3 | 6G | 6G, 7H, 8H |
+| – | 7G | 7G, 8G |
+
+ISO 2 (6H) is the default: Vergnano calls it the standard fit, and Völkel and Seco call 6H the standard and most common class for metric threads. ISO 1 (4H) is for precise fits. ISO 3 (6G) and 7G are for loose fits and for parts that are coated or plated after tapping, which need the extra room; for hot-dip galvanizing Völkel offers taps 0.1 mm oversize.
+
+**The X classes.** Tap makers also sell 4HX, 6HX, 6GX and 7GX. Vergnano places them between the standard classes, 6HX between 6H and 6G and 6GX between 6G and 7G, and gives two reasons for them:
+
+- **Abrasive materials** such as cast iron and aluminium-silicon alloys, where a slightly larger tap lasts longer. Seco also raises the class to 6HX for abrasive materials.
+- **Forming taps**, because the formed material springs back elastically: to get a 6H thread, Vergnano says, you need a 6HX forming tap.
+
+The X classes are not part of DIN EN 22857. ISCAR notes that the codes for 7G/8G and the X zones are yet to be standardized there, so the values from DIN 802 remain valid.
+
+## Cutting speed
+
+Tapping speeds are low, and they depend on the tap as much as on the work material. The chart shows only values from tables whose columns could be read without doubt. Speeds of one maker should not be averaged with another's.
+
+<Figure caption="Tapping speeds as three makers print them, in m/min. YG-1 lists its coated synchro taps, made for synchronised machines, at two to three times the speeds of its bright taps. CERATIZIT gives one value per ISO group, the same for all steels; its band spans its coating variants. Hover a band for its source.">
+  <RangeChart locale="en" {...tapSpeeds("en")} min={0} max={80} ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80]} unit="m/min" axisLabel="Cutting speed" labelWidth={150} aria="Tapping speeds by work material and maker" />
+</Figure>
+
+| Work material | YG-1 Prime | YG-1 Synchro | CERATIZIT | Hoffmann |
+|---|---|---|---|---|
+| Unalloyed steel | 15–20 | 41–46 | 12–15 | – |
+| Alloy steel | 10–15 | 28–33 | 12–15 | – |
+| Austenitic stainless | 5–8 | 13–18 | 7–9 | – |
+| Grey cast iron | 10–15 | 28–33 | 12–18 | 13 |
+| Wrought aluminium | 25–35 | 72–77 | 12 | – |
+
+The YG-1 bright values are for its Prime spiral-flute and spiral-point taps; the coated values are for its synchro taps, made for machines with a synchronised spindle. YG-1's rows are structural steel below 700 N/mm², alloy steel below 850 N/mm², grey cast iron below 150 HB and wrought aluminium with less than 1.5 % silicon. CERATIZIT's figures are for its TruTap through-hole taps with a spiral point, with one value for all steels (ISO P) and one for non-ferrous metals (ISO N); the range spans its coating variants. Hoffmann's value is for a nitrided form C tap for fine threads (M6 × 0.75) in grey cast iron. OSG recommends a synchronised machine above 15 m/min for its A-Taps. The OSG table for hand, spiral-flute, spiral-point and forming taps is in [tap drill sizes](/processes/tap-drill-sizes/).
+
+The spindle speed follows from the cutting speed and the nominal diameter:
+
+$$
+n = \frac{1000 \cdot v_c}{\pi \cdot d}
+$$
+
+M10 at 10 m/min turns at 318 rpm.
+
+## Feed: one pitch per revolution
+
+Each revolution, the tap screws itself one pitch deeper, so the feed per revolution is the pitch, and the feed rate is
+
+$$
+v_f = P \cdot n
+$$
+
+Haas's example for an M12 × 1.75 tap at 500 rpm: F = 1.75 × 500 = 875 mm/min. For inch taps the feed rate is the speed divided by the threads per inch: a 13 TPI tap at 500 rpm needs 500 / 13 = 38.4615 in/min. On machines that program feed per revolution, the feed is simply the pitch.
+
+## Rigid or floating
+
+There are two ways to keep the feed in step with the spindle.
+
+**Rigid (synchronous) tapping.** The control positions the spindle like an axis and moves the feed axis in step with it, with a tap held solidly in the spindle. It needs a machine with a position-controlled spindle: Siemens allows CYCLE84 only if the spindle "is technically able to go into position-controlled spindle operation", and Haas requires its rigid tapping option to tap without a floating holder.
+
+**Tapping with a compensating (floating) holder.** On a machine that cannot synchronise, the holder lets the tap move axially, so the tap's own thread takes over the lead and absorbs the difference between the programmed feed and the true pitch (BILZ). Smid's objection: floating holders make it difficult to hold an exact thread depth, particularly in blind holes.
+
+| Control | Rigid tapping | With a compensating holder |
+|---|---|---|
+| FANUC | M29 S… before G84 (right-hand) or G74 (left-hand) | G84, G74 |
+| Siemens SINUMERIK | CYCLE84, "tapping without compensating chuck" | CYCLE840, "tapping with compensating chuck" |
+| HEIDENHAIN TNC | Cycle 207, rigid tapping | Cycle 206, with a floating tap holder |
+| Haas | G84 / G74 with the rigid tapping option | G84 / G74 with a floating holder |
+
+HEIDENHAIN adds Cycle 209, tapping with chip breaking. G84 is for right-hand taps and G74 for left-hand taps.
+
+**Feed with a compensating holder.** Several sources program a little less than the full lead, so the holder works in tension instead of pushing the tap. Sutton recommends 95 % for spiral-flute taps, "to eliminate tap cutting oversize": M6 × 1 at 1,000 rpm becomes 950 mm/min. For tension-compression holders, Haas says to use 90 % of the calculated feed "to allow constant pressure on the tap as it enters and exits the hole". Allen Krenick of T.M. Smith Tool wrote in 1996 that some users of length-compensating holders on machining centres use only the tension feature and program 98 % of the pitch, especially when they have to program the feed per minute. These are three practices for different holders, not one rule.
+
+**Synchro holders.** Even rigid tapping is not perfectly synchronous. Holders with a small built-in compensation absorb the remaining errors and the pitch tolerance of the tap; BILZ, DC Swiss, YG-1 and CERATIZIT claim longer tap life and better threads with them. BILZ gives its holder ±0.5 mm of spring compensation. In one OSG test, the same M6 spiral-flute tap made 2,798 holes in S45C carbon steel at 15 m/min with synchronised feed, and 1,726 holes in a floating holder.
+
+Haas's own checklist for rigid tapping: start from an R plane at least 5 mm (0.200 in) above the work so the spindle can synchronise and accelerate; hold the tap in a positive drive; and keep the runout low, as some taps break if the runout exceeds 0.03 mm (0.001 in).
+
+## Torque and power
+
+LUBERO, a German tap maker, and SUHNER, a maker of tapping units and spindles, print the same estimate for the torque of a cutting tap:
+
+$$
+M_d = \frac{k_c \cdot P^2 \cdot d}{8000} \quad [\text{N·m}]
+$$
+
+with the specific cutting force kc in N/mm², and the pitch P and nominal diameter d in mm. The cutting power follows from the torque and speed. Both sources divide by 9,500; the exact constant for kW, N·m and rpm is 60,000 / 2π = 9,549, which gives values 0.5 % lower. The calculator uses 9,549.
+
+$$
+P_c = \frac{M_d \cdot n}{9549} \quad [\text{kW}]
+$$
+
+<Figure caption="Torque for the coarse ISO threads in the chosen material, on a log scale, and the speed, feed and power of the chosen thread. For a forming tap the band shows Völkel’s 40 to 50 % on top of the cutting torque. Pick a column to choose a thread.">
+  <TapLoad locale="en" />
+</Figure>
+
+The pitch enters squared, so torque climbs steeply with size: M10 × 1.5 needs about 30 times the torque of M3 × 0.5. In unalloyed structural steel (kc = 2,300 N/mm²), M10 × 1.5 takes 2300 × 1.5² × 10 / 8000 = 6.5 N·m; at 10 m/min, or 318 rpm, that is 0.22 kW at the tap, before the losses of the machine.
+
+LUBERO's values of kc for tapping:
+
+| Work material | Rm (N/mm²) | kc (N/mm²) |
+|---|---|---|
+| Unalloyed structural steel | ≤ 700 | 2,300 |
+| Free-cutting steel | ≤ 700 | 2,300 |
+| Structural steel | 500–950 | 2,500 |
+| Quenched and tempered steel, medium strength | 500–950 | 2,600 |
+| Nitriding steel, quenched and tempered | 950–1,400 | 3,600 |
+| Tool steel | 950–1,400 | 3,600 |
+| Austenitic stainless and acid-resistant steel | 500–950 | 3,200 |
+| Grey cast iron, 120–260 HB | 100–400 | 1,250 |
+| Alloyed grey cast iron, 160–230 HB | 150–250 | 1,600 |
+| Malleable cast iron, 150–280 HB | 350–700 | 1,100 |
+| Aluminium alloys, long-chipping | ≤ 550 | 800 |
+| Aluminium alloys, short-chipping | ≤ 400 | 680 |
+| Copper alloys, long-chipping | 300–700 | 1,100 |
+| Copper alloys, short-chipping | ≤ 500 | 720 |
+
+## Why taps break
+
+A tap is slender, weakened by its flutes and locked in its own thread. The troubleshooting tables of the tap makers and of Haas name the same causes again and again:
+
+- **The tap hits the bottom of the hole.** Drill blind holes deeper; Haas asks for at least 0.050 in (1.3 mm) beyond the programmed depth. ISCAR recommends a holder with axial float and a slipping clutch.
+- **The chips pack.** A spiral-point tap in a blind hole is the classic case (Haas). Tungaloy points out that a tap cuts continuously and makes a large amount of chips that can clog it; YG-1's remedy for chip packing is a tap that moves the chips, or a forming tap.
+- **The hole is too small.** ISCAR lists an undersized pre-hole as a cause of breakage, and YG-1 answers excessive torque with a larger drill. Yamawa reports that opening a hole from 6.8 to 6.9 mm cut the cutting volume by 15 %.
+- **Misalignment and runout.** The axes of the tap and the hole must line up (ISCAR); Haas has seen taps break at more than 0.03 mm runout.
+- **The wrong cycle.** Seco warns that choosing the wrong tapping cycle on a CNC machine breaks taps, because the feed and the spindle rotation are then not synchronised.
+- **Too deep a thread.** Haas: the risk rises sharply beyond one and a half times the major diameter.
+- **Hard materials and small taps.** Tungaloy notes that the load on the tap rises in hard materials, and that small-diameter taps are especially prone to breaking.
+- **Blunt taps and weak lubrication.** ISCAR lists a blunt tap as a cause of breakage, and warns that the lubricant content of a general machining coolant is often too low for tapping.
+- **The wrong tap.** Hand taps are not designed for CNC machines (Haas).
+
+The checklist for the machine, with the depth of a blind hole worked out, is in [tap breakage](/troubleshooting/tap-breakage/).
+
+For the thread itself, see [ISO metric screw threads](/drawings-and-tolerances/iso-metric-threads/); for the hole before it, [drilling](/processes/drilling/).

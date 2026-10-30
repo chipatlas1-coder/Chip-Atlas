@@ -1,0 +1,192 @@
+---
+key: chatter
+locale: en
+slug: chatter
+title: 'Chatter: how to recognise it and how to stop it'
+description: 'Why a cut starts to chatter (the regenerative mechanism and the phase between two waves), how to tell chatter from forced vibration by its sound and its frequency, what a stability lobe diagram shows and how a tap test feeds it, the remedies makers give for turning, boring and milling in the order to try them, where they disagree, and the spindle-speed functions of Haas, Okuma and DMG MORI controls.'
+section: 12
+subsection: machine-problems
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'ft = n × m ÷ 60'
+    label: 'Tooth-passing frequency; chatter sits near a natural frequency instead (Smith)'
+  - value: '12,810 rpm'
+    label: 'Smith’s example: the speed that puts the tooth frequency on the old 427 Hz chatter'
+  - value: '4–5 × D'
+    label: 'Boring-bar L/D above which a bar is prone to vibration (Mitsubishi)'
+  - value: '950–1050 rpm'
+    label: 'Haas spindle speed variation, example around S1000'
+sources:
+  - label: 'G. Stépán, “Modelling nonlinear regenerative effects in metal cutting”, Phil. Trans. R. Soc. Lond. A 359 (2001) 739–757'
+    url: https://galilei.mm.bme.hu/~stepan/docs/stepan_transroysoc.pdf
+  - label: 'S. Smith, “Finding harmony in stable cutting”, Cutting Tool Engineering, 15 December 2010'
+    url: https://ctemag.com/articles/finding-harmony-stable-cutting/
+  - label: 'Cutting Tool Engineering, glossary terms to Smith’s column (“chatter”)'
+    url: https://ctemag.com/node/22696
+  - label: 'S. Smith, “Reasons for stable milling zones”, Cutting Tool Engineering, October 2012'
+    url: https://ctemag.com/?p=96851
+  - label: 'S. Smith, “The science of milling sounds”, Cutting Tool Engineering, 15 February 2013'
+    url: https://ctemag.com/articles/science-milling-sounds/
+  - label: 'T. Schmitz, “How to Stabilize Machining With Tap Testing”, Modern Machine Shop, 17 April 2026'
+    url: https://www.mmsonline.com/articles/how-to-stabilize-machining-with-tap-testing
+  - label: 'T. Schmitz, “Cutting-Edge Perspectives: Insight into Machining Dynamics”, Modern Machine Shop, November 2024, p. 32'
+    url: https://modernmachineshop.mydigitalpublication.com/november-2024/page-32
+  - label: 'T. Schmitz, “Milling Stability Modeling by Sample Partitioning with Chatter Frequency-Based Test Point Selection”, J. Manuf. Mater. Process. 8 (2024) 109'
+    url: https://www.mdpi.com/2504-4494/8/3/109/htm
+  - label: 'C. Tyler, T. L. Schmitz, “Process Damping Identification for Multiple Degree of Freedom Turning Operations”, UNC Charlotte, eqs. 14–15'
+    url: https://mtrc.utk.edu/wp-content/uploads/sites/45/2019/09/tyler_pd.pdf
+  - label: 'T. L. Schmitz, M. A. Davies, K. Medicus, J. Snyder, “Improving High-Speed Machining Material Removal Rates by Rapid Dynamic Analysis” (NIST / UNC Charlotte)'
+    url: https://mtrc.utk.edu/wp-content/uploads/sites/45/2019/09/rapid_dynamic.pdf
+  - label: 'M. A. Davies, J. R. Pratt, B. S. Dutterer, T. J. Burns, “Interrupted machining: a doubling in the number of stability lobes? Part 1”, J. Manuf. Sci. Eng. 124 (2002) (NIST abstract)'
+    url: https://www.nist.gov/node/683901
+  - label: 'F. A. Khasawneh, E. Munch, J. A. Perea, “Chatter Classification in Turning using Machine Learning and Topological Data Analysis”, arXiv 1804.02261'
+    url: https://arxiv.org/pdf/1804.02261
+  - label: 'Y. S. Liao, Y. C. Young, “A New On-Line Spindle Speed Regulation Strategy for Chatter Control”, Int. J. Mach. Tools Manuf. 36 (1996) 651–660'
+    url: https://scholars.lib.ntu.edu.tw/bitstreams/eb5ac059-4ebe-4f11-abe0-96a9516943ab/download
+  - label: 'A. Ertürk, H. N. Özgüven, E. Budak, “İşleme Merkezlerinin Dinamik Analizi ve Süreçte Kararlılık: Yeni Bir Analitik Modelin Uygulamaları”, Makina Tasarım ve İmalat Dergisi 8(2), 2006, 55–66'
+    url: https://open.metu.edu.tr/bitstream/handle/11511/105321/
+  - label: 'S. Atlar, “Modeling Part Dynamics in Machining Processes Considering Material Removal”, MSc thesis, METU, 2007'
+    url: https://etd.lib.metu.edu.tr/upload/12609154/index.pdf
+  - label: 'İ. Arık, “Farklı adımlı kesici ağızlara sahip freze çakılarının tırlama titreşimleri üzerine etkileri”, MSc thesis, Selçuk University, 2010'
+    url: https://acikerisim.selcuk.edu.tr/items/24954cd2-8f12-4e4f-b767-64791b01bf6f
+  - label: 'Kennametal, Tech Tip 32 “Reducing Chatter & Vibration in End Milling”'
+    url: https://stage65.kennametal.com/us/en/resources/technical-tips/milling/tech-tip--32---reducing-chatter-and-vibration-in-end-milling.html
+  - label: 'Kennametal, Tech Tip 12 “Reducing Chatter in End Milling”'
+    url: https://stage65.kennametal.com/id/en/resources/technical-tips/milling/tech-tip--12---reducing-chatter-in-end-milling.html
+  - label: 'Mitsubishi Materials, e-learning course 70 “End milling”: troubleshooting, number of cutting edges'
+    url: https://www.mmc-carbide.com/permanent/courses/70/troubleshooting.html
+  - label: 'Mitsubishi Materials, e-learning course 73 “Face milling”: troubleshooting, number of teeth'
+    url: https://www.mmc-carbide.com/permanent/courses/73/troubleshooting.html
+  - label: 'Mitsubishi Materials, e-learning course 75 “Advanced Turning”: vibrations and cutting resistance of boring bars'
+    url: https://www.mmc-carbide.com/permanent/courses/75/vibrations-and-cutting-resistance-of-boring-bars.html
+  - label: 'Mitsubishi Materials, e-learning course 85 “Basic Turning”: tool overhang and L/D'
+    url: https://www.mmc-carbide.com/permanent/courses/85/tool-overhand-and-ld.html
+  - label: 'ISCAR, “Cutting Tools to Cut Out Vibrations”'
+    url: https://www.iscar.com/newarticles.aspx/lang/bz/newarticleid/4205
+  - label: 'BIG DAISHOWA, “Demystifying Insert Nose Radius Selection”, updated 21 November 2025'
+    url: https://www.bigdaishowa.com/en/tips-tricks/demystifying-insert-nose-radius-selection
+  - label: 'BIG DAISHOWA, “Troubleshooting for Rough Boring”'
+    url: https://www.bigdaishowa.com/en/node/1494
+  - label: 'BIG DAISHOWA, Tooling Today 2023, p. 30 (tool holder selection)'
+    url: https://catalog.bigdaishowa.com/view/944013250/30/
+  - label: 'Sandvik Coromant, “How to choose correct turning insert” (republished by SIAMS, 25 June 2022)'
+    url: https://www.siams.ch/news-en/How-to-choose-correct-turning-insert/3943
+  - label: 'Tungaloy (Turkey), BoreMeister press release on PSC adapters and vibration-damping shanks, December 2025'
+    url: https://tungaloy.com/tr/press-release/expansion_boremeister_psc-adapters/
+  - label: 'Muratec, “Long Workpiece Turning: Methods, Challenges, and Best Practices for CNC Turning”'
+    url: https://machinetools.muratec.net/en/blog/18
+  - label: 'Haas Automation UK, “Improve Your Cutting Finish” (spindle speed variation)'
+    url: https://www.haas.co.uk/?p=1350
+  - label: 'Okuma, Machining Navi'
+    url: https://okuma.com/machining-navi
+  - label: 'Okuma, “Bridging the Skills Gap – Part 5: … Machining-Navi”'
+    url: https://okuma.com/blog/bridging-the-skills-gap---part-5-reduce-setup-time-and-improve-productivity-with-machining-navi
+  - label: 'DMG MORI, Technology Cycle “CELOS Chatter Control”'
+    url: https://www.dmgmori.co.jp/en/movie_library/movie/id=7056
+  - label: 'P. Zelinski, “Video: Chatter Control in Turning Through Spindle Speed Variation”, Modern Machine Shop, 22 February 2016'
+    url: https://mmsonline.com/blog/post/video-chatter-control-in-turning-through-spindle-speed-variation
+  - label: 'K. Hanson, “Don’t hack away at chatter problems”, Cutting Tool Engineering, 15 March 2018 (Harvey Performance)'
+    url: https://www.ctemag.com/articles/dont-hack-away-chatter-problems
+---
+import ChatterRegen from '../../../components/mdx/ChatterRegen.astro';
+import ChatterSpectrum from '../../../components/mdx/ChatterSpectrum.astro';
+import StabilityLobes from '../../../components/mdx/StabilityLobes.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Chatter is the loud, harsh vibration that leaves lines or grooves at regular intervals on the part and can damage the tool. Ertürk, Özgüven and Budak call it a self-excited vibration met while parts are machined, and Stépán describes regenerative chatter as "a kind of self-excited vibration", warning against the habit of identifying it as a resonance. And once it has started, as the glossary to Smith's column in *Cutting Tool Engineering* puts it, it "is often self-sustaining until the problem is corrected." Knowing what feeds it is what turns the usual trial and error into a few deliberate changes.
+
+## How chatter feeds itself
+
+A cut is never perfectly steady. Stépán describes what happens after a disturbance in turning: "the tool starts a damped oscillation relative to the workpiece, and the surface of the workpiece becomes wavy." One revolution later the tool reaches that wave again, so the chip thickness at the tool varies, with a delay equal to the time of one revolution. Milling does the same tooth by tooth: "The vibrating tool causes the teeth to leave behind a wavy surface," Smith writes, and this regeneration of waviness is the main mechanism of chatter in milling. Ertürk and co-workers name it the regeneration of chip thickness, the main cause of chatter, described by Tobias and Fishwick some fifty years before their 2006 paper. Since the cutting force follows the chip thickness ([cutting forces](/fundamentals/cutting-forces/)), a varying chip is a varying force on a tool that can already vibrate.
+
+How much the chip varies depends on the phase between the two waves: the one the previous pass left (the outer side of the chip) and the one the tool cuts now (the inner side). Liao and Young put it as the time delay between two consecutive cuts causing a phase difference. In Smith's words, "when the wave left on the surface is exactly aligned with the tool motion, the chip thickness appears as if there was no vibration."
+
+<Figure caption="The surface unrolled, with the tool on its spring riding the wave it cuts now through the wave the previous pass left. The chip is what lies between them. Slide the phase: at 0° (or 360°) the waves are parallel and the chip is as thick everywhere as without vibration; at 180° its thickness swings by twice the vibration amplitude A. Schematic, amplitudes exaggerated.">
+  <ChatterRegen locale="en" />
+</Figure>
+
+The phase is set by the spindle speed. Over one revolution the vibration completes some whole number of waves N plus a fraction ε/2π of a wave; ε is the phase between the present vibration and the one the previous revolution left. Tyler and Schmitz write it as fc/Ω = N + ε/2π, with fc the chatter frequency and Ω the spindle speed in revolutions per second. Change the speed and the fraction changes, which is why the same tool can chatter at one speed and cut cleanly at a slightly different one.
+
+## Is it chatter, or forced vibration?
+
+Not every vibration is chatter. Forced vibrations, Smith explains, are "directly driven by the rotating spindle": runout gives a force once per revolution, and each tooth that enters the cut gives a force at the tooth-passing frequency, "ft = n × m ÷ 60, where n is the spindle speed in rpm, m is the number of teeth on the tool." They change when the speed changes. Chatter does not follow that family. Its frequency "is close to, but not equal to, one of the natural frequencies" of the machine, tool or part and "is not connected to the tooth passing frequency" (Smith). Schmitz gives the measurement version: chatter is identified "when content appears at frequencies other than the tooth passing frequency" and its multiples (harmonics).
+
+The difference can be heard. "Stable, chatter-free milling produces a clear tone—a single, dominant frequency," Smith writes; chatter "produces a harsh tone, often with different frequencies mixed together." On the part, the spacing of the chatter marks depends on the frequency of the vibration.
+
+<Figure caption="Smith’s example as a spectrum: a two-tooth cutter at 15,000 rpm passes teeth at 500 Hz, with runout at 250 Hz; the cut chatters at 427 Hz, off that family. His rule picks the next speed so the tooth-passing frequency lands on the old chatter frequency: 427 × 60 ÷ 2 = 12,810 rpm. Switch to see the forced lines move while the chatter frequency stays where the structure puts it. Smith calls it the new speed to try; a test cut shows whether it holds. Line heights are schematic.">
+  <ChatterSpectrum locale="en" />
+</Figure>
+
+When the milling machine has a speed range to spare, Smith's rule gives a direct next step: "choose a new spindle speed so the new tooth passing frequency matches the old chatter frequency," then "adjust the feed to keep the chip load constant" (Smith). Smith calls the result, 12,810 rpm in his example, the new speed to try; Schmitz uses the same step, Ω = 60·fc/Nt, to choose the next test speed when mapping a tool's stability. The rule is written for milling, with teeth; in turning there is one pass per revolution, and the lobe diagram below shows where the stable speeds lie.
+
+## The stability lobe diagram
+
+The rule works because stable speeds come in islands. A stability lobe diagram maps them: in Schmitz's words it "separates combinations of spindle speed and axial depth that produce chatter" from those that do not, and lets stable parameters be chosen "without trial and error". Below the line is chatter-free, above it chatter (Khasawneh et al.). Stépán describes the stable and unstable domains as alternating with cutting speed, with "greater domains of stability" at higher speeds. Smith locates the largest stable zone where the tooth-passing frequency equals the natural frequency; "The peaks all occur at integer fractions of the best speed." Davies and co-workers at NIST found the same: the most stable speeds lie approximately at integer fractions of the natural frequencies of the most flexible modes.
+
+For turning, Tyler and Schmitz give the boundary as
+
+$$
+b_{lim} = \frac{-1}{2\,K_s\,\mathrm{Re}[G]}, \qquad \frac{f_c}{\Omega} = N + \frac{\varepsilon}{2\pi}, \qquad \varepsilon = 2\pi - 2\tan^{-1}\frac{\mathrm{Re}[G]}{\mathrm{Im}[G]}
+$$
+
+where G is the oriented frequency response function (FRF) of the tool point, Ks the specific cutting force, b the chip width and N = 0, 1, 2 … the lobe number, the whole waves per revolution. Only frequencies where the real part of G is negative give a limit.
+
+<Figure caption="Stability lobes for an example: a single mode at 120 Hz with a stiffness of 20 N/µm and 3 % damping, Ks = 2000 N/mm², computed with the equations above. Move the point: below the boundary the cut is stable, above it chatters. The pockets sit just above 60·fn/(N + 1), the speeds at which a vibration at the natural frequency fits a whole number of waves into one revolution; “Go to pocket” moves to the nearest one deep enough for the depth set. Not your machine: a real diagram comes from the measured FRF.">
+  <StabilityLobes locale="en" />
+</Figure>
+
+The FRF comes from a tap test: "an instrumented hammer is used to excite a structure and measure the vibration response" (Schmitz), and the purpose of the test is to identify the FRF "for the selected mechanical structure". Schmitz and co-workers at NIST measure it for a particular tool, holder and spindle combination, and Atlar notes that the stability diagram has to be obtained for the spindle, holder and tool together. Two cautions from Schmitz: a speed and depth right at the boundary would most likely not be chosen, because some uncertainty remains, and at low spindle speeds a cut can become stable again through process damping, which "is influenced by the cutting edge design."
+
+## Turning and boring: what to try, in order
+
+The makers' advice for turning and boring, in a practical order: the setup first, the speed last.
+
+<CheckList id="chatter-turning" locale="en" items={[
+  { icon: 'overhang', title: 'Overhang too long', check: 'Tool and boring-bar overhang against the bar diameter (L/D).', fix: 'Shorten it. Mitsubishi: above an L/D of 4–5 a bar is prone to vibration, and above 5 carbide is recommended. ISCAR: steel bars to four diameters, solid carbide to seven, damped bars seven to fourteen.', src: 'Mitsubishi; ISCAR; BIG DAISHOWA; Muratec' },
+  { icon: 'nose', title: 'Nose radius too large', check: 'The nose radius against the depth of cut, above all in finishing and boring.', fix: 'A smaller nose radius. Sandvik Coromant: “Select a smaller nose radius if there is a tendency for vibration.” BIG DAISHOWA traces chatter to excess radial force deflecting the tool; a small radius gives less radial force and more axial force.', src: 'Sandvik Coromant; Mitsubishi; BIG DAISHOWA' },
+  { icon: 'edge', title: 'Edge too blunt or too negative', check: 'Edge preparation, rake angle, and in boring the centre height.', fix: 'A sharper edge or a larger rake angle (Mitsubishi). In boring, Mitsubishi adds that lowering the centre height slightly increases the rake angle and can reduce vibration.', src: 'Mitsubishi' },
+  { icon: 'holder', title: 'Lead angle on a boring head', check: 'The insert holders on a boring head.', fix: 'BIG DAISHOWA’s boring-head table: change to 90° insert holders.', src: 'BIG DAISHOWA (boring heads)' },
+  { icon: 'support', title: 'Slender or thin-walled part', check: 'The part’s length against its diameter, wall thickness, how it is held.', fix: 'Support it: a tailstock “reduces bending and deflection”, a steady rest supports it at intermediate points (Muratec). Haas names thin walls and the diameter-to-length ratio among the causes.', src: 'Muratec; Haas' },
+  { icon: 'damper', title: 'Still too long for a solid bar', check: 'Whether the overhang can be shortened at all.', fix: 'A damped bar: ISCAR builds “a built-in vibration-dampening mechanism” into its bars and into deep grooving tools; Tungaloy writes that its vibration-damping shanks combined with PSC adapters reduce chatter considerably; BIG DAISHOWA offers a damped system too.', src: 'ISCAR; BIG DAISHOWA; Tungaloy' },
+  { icon: 'speed', title: 'Speed', check: 'Where on the speed range the cut runs.', fix: 'Change it, in either direction (see below where the makers disagree). The lobe diagram puts the stable pockets just above 60·fn/(N + 1); a measured chatter frequency, which lies close to fn, is the estimate of fn to use.', src: 'Mitsubishi; Okuma; Haas; Tyler and Schmitz' },
+]} />
+
+For the bar itself, its overhang limits and its deflection, see [internal turning](/processes/internal-turning/).
+
+## Milling: what to try, in order
+
+<CheckList id="chatter-milling" locale="en" items={[
+  { icon: 'overhang', title: 'Tool too long', check: 'Overhang from the spindle nose to the tool tip.', fix: '“Use the shortest overhang from spindle nose to tip of tool” and stub-length end mills where possible (Kennametal); “Use a short overhang” (Mitsubishi). ISCAR sees stability problems on round-insert mills once the overhang exceeds three tool diameters.', src: 'Kennametal; Mitsubishi; ISCAR' },
+  { icon: 'holder', title: 'Holder out of balance or running out', check: 'Balance and runout of the holder and tool.', fix: '“Use balanced tool holders” and check the runout (Kennametal). Harvey Performance adds tool rigidity, balancing and minimal runout to the list.', src: 'Kennametal; Harvey Performance (via CTE)' },
+  { icon: 'pitch', title: 'Equal tooth spacing', check: 'Whether the cutter has equal pitch and helix.', fix: 'A cutter with variable pitch, or variable pitch and helix together (ISCAR’s CHATTERFREE family; Mitsubishi’s irregular-lead end mill). Harvey: changing the angle slightly from flute to flute reduces chatter. Arık studies spacing the inserts unequally on the holder as a remedy.', src: 'ISCAR; Mitsubishi; Harvey Performance (via CTE); Arık' },
+  { icon: 'depth', title: 'Too much engagement', check: 'Axial and radial depth of cut, and the corners of the path.', fix: 'Reduce ap or ae (Kennametal). In corners the engagement grows; Kennametal suggests circular interpolation with a larger corner radius than the drawing shows.', src: 'Kennametal; Mitsubishi' },
+  { icon: 'clamp', title: 'Part or fixture too weak', check: 'How the part is held, thin walls.', fix: 'Hold it more securely and reprogram the path to put the cutting forces into stiffer parts of the workpiece (Kennametal); improve the clamp rigidity (Mitsubishi).', src: 'Kennametal; Mitsubishi' },
+  { icon: 'speed', title: 'Speed', check: 'The chatter frequency, if it can be measured.', fix: 'Smith’s rule: tooth-passing frequency onto the old chatter frequency, feed adjusted to keep the chip load. Kennametal: improve the spindle speed, then adjust the feed accordingly.', src: 'Smith; Kennametal' },
+  { title: 'Conventional milling', check: 'The direction of cut.', fix: 'Kennametal’s Tech Tip 12: “If conventional milling, try climb milling.” The background is on the climb vs conventional milling page.', src: 'Kennametal' },
+]} />
+
+The direction of cut and the forces it produces are explained in [climb vs conventional milling](/processes/climb-vs-conventional-milling/).
+
+## Where the advice splits
+
+Three remedies come with opposite advice from different makers, sometimes from the same one.
+
+- **Number of teeth.** Kennametal's Tech Tip 32 says "Reducing the number of flutes", and Mitsubishi, for thin-walled parts or low rigidity, recommends an end mill with a small number of edges to prevent vibration; Kennametal's Tech Tip 12 says "Select an end mill with more flutes."
+- **Feed.** Kennametal's Tech Tip 12: "Increase the feed, or chipload per tooth/tool"; BIG DAISHOWA warns that cutting the feed too far for a better finish "runs the risk of chattering". Kennametal's Tech Tip 32 lists a smaller chip load instead, with the caution that it can harm the cutter, and Muratec writes that a lower feed reduces the cutting force.
+- **Speed.** Mitsubishi: "Decrease the cutting speed"; BIG DAISHOWA: reduce the surface speed when it is excessive. Okuma: "our first inclination is to slow the RPM’s and this often makes the chatter worse," and "Increasing the RPM’s may be the correct action." Haas names running "too fast or too slow" among the causes.
+
+<Note kind="key" title="Why both directions can work">
+The lobe diagram shows the reason: stable speeds are islands with chatter between them, so the nearest stable speed can lie above or below the present one, and far down the range process damping helps. A measured chatter frequency tells which way to go: in milling through Smith's rule, in turning through the pocket speeds.
+</Note>
+
+## Let the control vary the speed
+
+Several controls can vary the spindle speed, or tell the operator which speed to use.
+
+- **Haas, spindle speed variation (SSV).** Standard on all Haas CNC turning centres and on toolroom lathes with software 6.04 or later, it "allows the operator to specify a range within which the spindle speed will continuously vary", suppressing chatter "by not allowing vibration to begin as a result of constantly changing frequency". M38 turns it on and M39 off; Setting 165 sets how far the speed swings above and below the commanded value and Setting 166 the cycle. With 50 and 30 (3 s), an S1000 "will swing the spindle speed between 950 and 1050 RPM". The spindle is not allowed below 10 rpm, and M30 or RESET turns SSV off.
+- **Okuma, Machining Navi.** An option on the OSP control that listens through acoustic sensors in the spindle cartridge; "When chatter is detected, the function then either recommends spindle speed changes" (the L-g and M-g versions) or, in the M-i version, makes them automatically. Okuma offers it for both turning and milling machines.
+- **DMG MORI, CELOS Chatter Control.** An acceleration sensor in the spindle detects the vibration and the software calculates a spindle speed to suppress it, based on the vibration frequency.
+
+Writing about spindle speed variation in turning, Zelinski sums up the idea: the process "spends only an instant at any problematic speed."

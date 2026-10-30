@@ -1,0 +1,238 @@
+---
+/**
+ * Three reamers in section, each turning in its hole while the figure is in view:
+ * - left-hand helix in a through hole: the chips are pushed ahead, out of the far end;
+ * - straight flutes in a blind hole, short-chipping material: the short chips travel back along the flutes;
+ * - right-hand helix in a blind hole, long-chipping material: the chips are drawn back up.
+ * The reamer cuts right-hand (clockwise seen from above), so a point on the front moves left;
+ * right-hand helical flutes then appear to run up, left-hand flutes down. Six flutes, helix 10°
+ * (schematic; Hoffmann’s left-hand reamer has at most 7°). Below each reamer the pre-drilled hole
+ * shows the stock still to be removed, exaggerated. Rotation is SMIL (started on entry), chip flow
+ * is CSS. Texts come from the article through `types`, in panel order.
+ */
+interface T { name: string; hole: string; chips: string }
+interface Props { types: T[]; aria: string }
+const { types, aria } = Astro.props;
+type K = 'lh' | 'straight' | 'rh';
+const keys: K[] = ['lh', 'straight', 'rh'];
+const W = 180, H = 262, ax = 90, R = 24, stock = 3.2;
+const rs = 16, yBody = 46, top = 92, botT = 250;
+const DEG = Math.PI / 180;
+const f = (n: number) => n.toFixed(2).replace(/\.?0+$/, '');
+const cfg: Record<K, { yTip: number; yB?: number; h: number }> = {
+  lh: { yTip: 196, h: -1 },
+  straight: { yTip: 192, yB: 222, h: 0 },
+  rh: { yTip: 192, yB: 222, h: 1 },
+};
+const cham = 5;                                                      // lead: 45° chamfer, a little deeper than the stock
+// reamer silhouette: shank, neck, body of radius R, lead chamfer at the tip
+const body = (k: K) => {
+  const y = cfg[k].yTip;
+  return `M${ax - R},${yBody} L${ax - R},${y - cham} L${ax - R + cham},${y} L${ax + R - cham},${y} L${ax + R},${y - cham} L${ax + R},${yBody} Z`;
+};
+const shank = `M${ax - rs},-4 L${ax - rs},${yBody - 10} L${ax - R + 2},${yBody - 2} L${ax + R - 2},${yBody - 2} L${ax + rs},${yBody - 10} L${ax + rs},-4 Z`;
+// the work in section: reamed wall (R + 0.6) down to the tip, the pre-drilled hole (R − stock) below it
+const rr = R + 0.6, rd = R - stock;
+const work = (k: K) => {
+  const { yTip, yB } = cfg[k];
+  const yS = yTip - cham + stock;                                    // where the lead meets the drilled hole
+  if (yB) {
+    const tipY = yB + rd * 0.6;                                      // 118° drill point
+    return `M8,${top} L${f(ax - rr)},${top} L${f(ax - rr)},${f(yS)} L${f(ax - rd)},${f(yS + 1)} L${f(ax - rd)},${yB} L${ax},${f(tipY)} L${f(ax + rd)},${yB} L${f(ax + rd)},${f(yS + 1)} L${f(ax + rr)},${f(yS)} L${f(ax + rr)},${top} L${W - 8},${top} L${W - 8},${botT} L8,${botT} Z`;
+  }
+  return `M8,${top} L${f(ax - rr)},${top} L${f(ax - rr)},${f(yS)} L${f(ax - rd)},${f(yS + 1)} L${f(ax - rd)},${botT} L8,${botT} Z M${W - 8},${top} L${f(ax + rr)},${top} L${f(ax + rr)},${f(yS)} L${f(ax + rd)},${f(yS + 1)} L${f(ax + rd)},${botT} L${W - 8},${botT} Z`;
+};
+// the stock ring still to be cut, below the lead (drawn in the accent colour)
+const stockRing = (k: K) => {
+  const { yTip, yB } = cfg[k];
+  const yS = yTip - cham + stock, yE = yB ?? botT;
+  return `M${f(ax - rr)},${f(yS)} L${f(ax - rd)},${f(yS + 1)} L${f(ax - rd)},${yE} L${f(ax - rr)},${yE} Z M${f(ax + rr)},${f(yS)} L${f(ax + rd)},${f(yS + 1)} L${f(ax + rd)},${yE} L${f(ax + rr)},${yE} Z`;
+};
+// flutes seen from the front. Angle 0° is the right edge, −90° the front, −180° the left edge.
+// Each flute's centre angle varies along y with the helix: c(y) = c0 + h·κ·(yRef − y), κ in °/px.
+// The flutes are numbered without wrapping, so every band moves continuously from frame to frame;
+// bands out of sight collapse onto the silhouette edge (zero width) and the clip hides them.
+const NF = 6, FW = 30, FR = 12, A0 = -95, beta = 10;
+const kappa = (360 * Math.tan(beta * DEG)) / (2 * Math.PI * R);
+const xAt = (a: number) => ax + R * Math.cos(Math.min(0, Math.max(-180, a)) * DEG);
+const xEdge = (a: number) => (a > 0 ? ax + R + 6 : a < -180 ? ax - R - 6 : xAt(a));
+// enough flutes that the outermost are out of sight at both ends of the loop (so the last frame equals the first)
+const IDX = [-3, -2, -1, 0, 1, 2, 3, 4];
+const bands = (k: K, rot: number) => {
+  const { yTip, h } = cfg[k], y0 = yBody - 6, y1 = yTip + 2, yRef = (y0 + y1) / 2;
+  const out: string[] = [];
+  for (const i of IDX) {
+    const c0 = A0 + rot - i * (360 / NF);
+    const L: string[] = [], Rt: string[] = [];
+    for (let y = y0; y <= y1 + 1e-6; y += 6) {
+      const c = c0 + h * kappa * (yRef - y);
+      L.push(`${f(xAt(c - FW / 2))},${f(y)}`);
+      Rt.push(`${f(xAt(c + FW / 2))},${f(y)}`);
+    }
+    out.push(`M${L.join(' L')} L${Rt.reverse().join(' L')} Z`);
+  }
+  return out.join(' ');
+};
+// the cutting edge on the leading wall of each flute (the land ahead of it moves left)
+const edges = (k: K, rot: number) => {
+  const { yTip, h } = cfg[k], y0 = yBody - 6, y1 = yTip + 2, yRef = (y0 + y1) / 2;
+  const out: string[] = [];
+  for (const i of IDX) {
+    const c0 = A0 + rot - i * (360 / NF);
+    const P: string[] = [];
+    for (let y = y0; y <= y1 + 1e-6; y += 6) P.push(`${f(xEdge(c0 + h * kappa * (yRef - y) + FW / 2))},${f(y)}`);
+    out.push(`M${P.join(' L')}`);
+  }
+  return out.join(' ');
+};
+const period = 360 / NF;
+const frames = (fn: (rot: number) => string) => Array.from({ length: FR + 1 }, (_, j) => fn(-(j * period) / FR)).join(';');
+const DUR = 1.1;                                                     // seconds per flute pitch
+// a thin curled reaming chip
+const curl = (() => {
+  const o: [number, number][] = [], n: [number, number][] = [];
+  for (let j = 0; j <= 14; j++) {
+    const t = j / 14, a = (200 - 320 * t) * DEG, r = 4.6 - 2.4 * t, w = 1.7 * (1 - t) + 0.4;
+    o.push([(r + w / 2) * Math.cos(a), (r + w / 2) * Math.sin(a)]);
+    n.push([(r - w / 2) * Math.cos(a), (r - w / 2) * Math.sin(a)]);
+  }
+  const L = (q: [number, number][]) => q.map(([x, y]) => `${f(x)},${f(y)}`).join(' L');
+  return `M${L(o)} L${L(n.reverse())} Z`;
+})();
+type Stop = [number, number, number, number];
+const at = (run: Stop[], k: number) => {
+  let i = 0; while (i < run.length - 2 && k > run[i + 1][0]) i++;
+  const [t0, x0, y0, a0] = run[i], [t1, x1, y1, a1] = run[i + 1], u = (k - t0) / (t1 - t0);
+  return `translate(${f(x0 + u * (x1 - x0))}px, ${f(y0 + u * (y1 - y0))}px) rotate(${f(a0 + u * (a1 - a0))}deg)`;
+};
+const vars = (run: Stop[]) => run.map(([, x, y, a], j) => `--x${j}:${f(x)}px; --y${j}:${f(y)}px; --a${j}:${f(a)}deg`).join('; ');
+const downRun: Stop[] = [[0, ax + 4, cfg.lh.yTip + 4, 0], [0.45, ax - 6, cfg.lh.yTip + 26, 160], [1, ax + 3, botT + 16, 340]];
+const upRun: Stop[] = [[0, ax + 6, cfg.rh.yTip - 4, 0], [0.82, ax - 4, top - 6, -260], [1, ax + 40, top - 26, -360]];
+// short chips (straight flutes): fragments ride in the flute in front and turn with it
+const frag = ['M0,0 L3,-1 L4,1.4 L1,2.4 Z', 'M0,0 L2.4,-1.8 L3.6,0.7 L0.7,1.9 Z', 'M0,0 L3.1,0.3 L1.7,2.6 Z', 'M0,0 L2.2,-1.4 L3.3,1 Z'];
+const fragAt: [number, number][] = [[-2.5, -8], [1.5, -13], [-1, -19], [2, -25]];
+const fluteX = (rot: number, i: number) => 0.84 * R * Math.cos(Math.min(0, Math.max(-180, A0 + rot - i * period)) * DEG);
+const vis = (c: number) => Math.min(1, Math.max(0, (-c - 22) / 20)) * Math.min(1, Math.max(0, (c + 158) / 20));
+const fluteO = (rot: number, i: number) => vis(A0 + rot - i * period);
+---
+<div class="rf" data-anim data-rf role="group" aria-label={aria}>
+  {keys.map((k, pi) => {
+    const c = cfg[k];
+    const t = types[pi];
+    const id = `rf-${k}`;
+    return (
+      <figure class="panel" style={`--i:${pi}`}>
+        <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+          <defs>
+            <clipPath id={`${id}-clip`}><path d={body(k)} /></clipPath>
+            <linearGradient id={`${id}-sh`} gradientUnits="userSpaceOnUse" x1={ax - R} x2={ax + R} y1="0" y2="0">
+              <stop offset="0" stop-color="#000" stop-opacity="0.55" /><stop offset="0.22" stop-color="#000" stop-opacity="0" />
+              <stop offset="0.7" stop-color="#000" stop-opacity="0" /><stop offset="1" stop-color="#000" stop-opacity="0.6" />
+            </linearGradient>
+            <linearGradient id={`${id}-fade`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0" /><stop offset="0.14" stop-color="#fff" /></linearGradient>
+            <mask id={`${id}-m`} maskUnits="userSpaceOnUse" x="0" y="-4" width={W} height={H}><rect x="0" y="-4" width={W} height={yBody + 26} fill={`url(#${id}-fade)`} /><rect x="0" y={yBody + 22} width={W} height={H} fill="#fff" /></mask>
+          </defs>
+          <path d={work(k)} class="work" />
+          <path d={stockRing(k)} class="stock" />
+          {c.yB && <path d={`M${f(ax - rd)},${c.yB} L${ax},${f(c.yB + rd * 0.6)} L${f(ax + rd)},${c.yB}`} class="hole-edge" />}
+          <line x1={ax} x2={ax} y1="2" y2={botT + 8} class="axis" />
+          <g mask={`url(#${id}-m)`}>
+            <path d={shank} class="shank" />
+            <path d={body(k)} class="tool" />
+            <g clip-path={`url(#${id}-clip)`}>
+              <path d={bands(k, 0)} class="flute">
+                <animate attributeName="d" dur={`${DUR}s`} repeatCount="indefinite" begin="indefinite" values={frames((rot) => bands(k, rot))} />
+              </path>
+              <path d={edges(k, 0)} class="cut-edge">
+                <animate attributeName="d" dur={`${DUR}s`} repeatCount="indefinite" begin="indefinite" values={frames((rot) => edges(k, rot))} />
+              </path>
+              <rect x={ax - R} y="-4" width={2 * R} height={H} fill={`url(#${id}-sh)`} />
+              <rect x={ax - R * 0.62} y="-4" width={R * 0.3} height={H} class="spec" />
+              {k === 'straight' && IDX.map((fi) => (
+                <g transform={`translate(${f(fluteX(0, fi))} 0)`} opacity={f(fluteO(0, fi))}>
+                  <animateTransform attributeName="transform" type="translate" dur={`${DUR}s`} repeatCount="indefinite" begin="indefinite" values={Array.from({ length: FR + 1 }, (_, j) => `${f(fluteX(-(j * period) / FR, fi))} 0`).join(';')} />
+                  <animate attributeName="opacity" dur={`${DUR}s`} repeatCount="indefinite" begin="indefinite" values={Array.from({ length: FR + 1 }, (_, j) => f(fluteO(-(j * period) / FR, fi))).join(';')} />
+                  {fragAt.map(([dx, dy], j) => <g class="rise" style={`--j:${j}`}><path d={frag[j]} class="frag" transform={`translate(${f(ax + dx)} ${f(c.yTip + dy)}) rotate(${j * 71})`} /></g>)}
+                </g>
+              ))}
+            </g>
+            <path d={body(k)} class="tool-edge" />
+            <path d={shank} class="tool-edge" />
+          </g>
+          {k === 'lh' && Array.from({ length: 4 }, (_, j) => (
+            <g class="chip run down" style={`--k:${j / 4}; --dur:2.2s; --static:${at(downRun, j / 4 + 0.12)}; ${vars(downRun)}`}><path d={curl} /></g>
+          ))}
+          {k === 'rh' && [0, 1, 2].map((j) => (
+            <g class="chip run up" style={`--k:${j / 3}; --dur:3s; --static:${at(upRun, [0.3, 0.6, 0.9][j])}; ${vars(upRun)}`}><path d={curl} /></g>
+          ))}
+          {k === 'lh' && <path d={`M${ax + 38},${c.yTip - 6} L${ax + 38},${botT - 10}`} class="dir" marker-end="url(#ca-arr-data)" />}
+          {k === 'rh' && <path d={`M${ax - 40},${c.yTip - 6} L${ax - 40},${top + 12}`} class="dir" marker-end="url(#ca-arr-data)" />}
+        </svg>
+        <figcaption>
+          <b>{t.name}</b>
+          <span class="hole">{t.hole}</span>
+          <span class="chips">{t.chips}</span>
+        </figcaption>
+      </figure>
+    );
+  })}
+</div>
+
+<script>
+  import { whenIn, beginSmil } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-rf]').forEach((el) => {
+    whenIn(el, () => {
+      beginSmil(el);
+      const svgs = [...el.querySelectorAll('svg')];
+      new IntersectionObserver(([e]) => {
+        el.classList.toggle('paused', !e.isIntersecting);
+        svgs.forEach((s) => (e.isIntersecting ? s.unpauseAnimations() : s.pauseAnimations()));
+      }).observe(el);
+    });
+  });
+</script>
+
+<style>
+  .rf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+  @media (max-width: 30rem) { .rf { gap: 0.35rem; } }
+  .panel { margin: 0; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; padding: 0.35rem 0.45rem 0.6rem; display: grid; gap: 0.3rem; align-content: start; }
+  svg { width: 100%; height: auto; display: block; overflow: hidden; }
+  figcaption { display: grid; gap: 0.1rem; font-size: 0.8rem; line-height: 1.35; padding-inline: 0.15rem; }
+  figcaption b { font-size: 0.9rem; color: var(--ink); }
+  .hole { font: 500 0.72rem var(--font-mono); color: var(--color-spark-400); }
+  .chips { color: var(--ink-3); }
+  .work { fill: url(#ca-hatch); stroke: #555d63; stroke-width: 0.9; stroke-linejoin: round; }
+  .stock { fill: #e2601a; opacity: 0.7; }
+  .hole-edge { fill: none; stroke: #555d63; stroke-width: 0.9; }
+  .axis { stroke: #767e86; stroke-width: 0.7; stroke-dasharray: 10 3 2 3; }
+  .shank, .tool { fill: url(#ca-metal-h); }
+  .tool-edge { fill: none; stroke: #1e2123; stroke-width: 0.8; stroke-linejoin: round; }
+  .flute { fill: #f4f9fe; opacity: 0.92; }
+  .cut-edge { fill: none; stroke: #b8460a; stroke-width: 0.9; stroke-opacity: 0.85; }
+  .spec { fill: #ffffff; opacity: 0.1; }
+  .chip path { fill: url(#ca-chip); stroke: #b06a2a; stroke-width: 0.3; }
+  .frag { fill: #b77531; stroke: #a96400; stroke-width: 0.3; }
+  .dir { stroke: #1e6fd6; stroke-width: 1.4; fill: none; stroke-dasharray: 3 3; }
+  .chip { transform-box: view-box; transform-origin: 0 0; transform: var(--static); }
+  @keyframes rf-down {
+    0% { transform: translate(var(--x0), var(--y0)) rotate(var(--a0)); opacity: 0; }
+    10% { opacity: 1; }
+    45% { transform: translate(var(--x1), var(--y1)) rotate(var(--a1)); }
+    88% { opacity: 1; }
+    100% { transform: translate(var(--x2), var(--y2)) rotate(var(--a2)); opacity: 0; }
+  }
+  @keyframes rf-up {
+    0% { transform: translate(var(--x0), var(--y0)) rotate(var(--a0)); opacity: 0; }
+    12% { opacity: 1; }
+    82% { transform: translate(var(--x1), var(--y1)) rotate(var(--a1)); opacity: 1; }
+    100% { transform: translate(var(--x2), var(--y2)) rotate(var(--a2)); opacity: 0; }
+  }
+  :global(html.anim) .rf[data-anim]:not([data-in]) .panel { opacity: 0; }
+  :global(html.anim) .rf[data-anim][data-in] .panel { animation: ca-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(var(--i) * 90ms); }
+  :global(html.anim) .rf[data-anim][data-in] .chip.run { animation: rf-down var(--dur) linear infinite; animation-delay: calc(var(--k) * var(--dur) * -1); }
+  :global(html.anim) .rf[data-anim][data-in] .chip.run.up { animation-name: rf-up; }
+  /* straight flutes: the short chips travel back along the flute (ISCAR: thrown out of the hole, helped by the coolant) */
+  @keyframes rf-rise { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-110px); opacity: 0; } }
+  :global(html.anim) .rf[data-anim][data-in] .rise { animation: rf-rise 2.6s linear infinite; animation-delay: calc(var(--j) * -0.65s); }
+  .rf.paused .chip, .rf.paused .rise { animation-play-state: paused !important; }
+</style>

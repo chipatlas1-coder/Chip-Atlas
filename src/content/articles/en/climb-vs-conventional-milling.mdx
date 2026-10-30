@@ -1,0 +1,152 @@
+---
+key: climb-vs-conventional-milling
+locale: en
+slug: climb-vs-conventional-milling
+title: 'Climb vs conventional milling'
+description: 'Why the direction of cutter rotation relative to the feed matters: chip thickness at entry and exit, forces that pull or lift the work, backlash, surface finish, when conventional milling is still the better choice, and where to place a face mill.'
+section: 2
+subsection: milling
+order: 2
+updated: 2026-10-11
+tools: [milling]
+glance:
+  - value: 'thick → thin'
+    label: 'Chip from entry to exit in climb milling'
+  - value: '60°'
+    label: 'Engagement angle φe at ae = 0.25 D'
+  - value: '20–50 %'
+    label: 'How much larger the face mill should be than the cut (Sandvik Coromant)'
+  - value: 'up to 7×'
+    label: 'Tool life with a roll-in entry, Inconel 718 (Sandvik Coromant only)'
+sources:
+  - label: 'Sandvik Coromant, "Down milling vs. up milling" (republished by MSC Industrial Supply)'
+    url: https://www.mscdirect.com/knowledge-center/articles/down-milling-vs-milling
+  - label: 'Sandvik Coromant, "Toolpath tips and tricks for metal cutting", Manufacturing Engineering (SME), November 2021'
+    url: https://www.sme.org/technologies/articles/2021/october/toolpath-tips-and-tricks-for-metal-cutting/
+  - label: 'Sandvik Coromant, tips film "Cutter position in milling", 2024'
+    url: https://videos.sandvik.coromant.com/tips-film-cutter-position-in
+  - label: 'Seco Tools, "Controlling mechanical loads in milling operations"'
+    url: https://www.secotools.com/article/controlling_mechanical_loads_in_milling_operations
+  - label: 'Kennametal, "Technical information: cutter pitch" (via MSC), 2017'
+    url: https://www.mscdirect.com/betterMRO/msc-generate-pdf/3381
+  - label: 'ISCAR, Threading Handbook, "Climb milling vs. conventional milling"'
+    url: https://iscar.com/Catalogs/flipview/reference-user-guides/Threading_Handbook/files/basic-html/page193.html
+  - label: 'ISCAR, Machining Titanium guide 2019, pp. 25–26 (engagement angle and chip thickness formulas)'
+    url: https://iscar.com/Catalogs/flipview/reference-user-guides/machining_titanium_05_2019/files/basic-html/page25.html
+  - label: 'Mitsubishi Materials, e-learning "Up and down cut milling"'
+    url: https://mmc-carbide.com/permanent/courses/73/up---down-cut-milling.html
+  - label: 'Mitsubishi Materials, e-learning "Selecting the tool diameter and setting position"'
+    url: https://www.mmc-carbide.com/permanent/courses/73/selecting-the-tool-diamter---setting-position.html
+  - label: 'Ingersoll Cutting Tools (IMC), milling technical section, pp. 304–321'
+    url: https://ssl.ingersoll-imc.com/resources/pdf/0302_Milling_Tech.pdf
+  - label: 'Harvey Performance, "Climb milling vs. conventional milling", In The Loupe, 2017 (updated 2023)'
+    url: https://www.harveyperformance.com/in-the-loupe/conventional-vs-climb-milling/
+  - label: 'DMG MORI, "Grundlagen der Fertigungstechnik", 2022'
+    url: https://de.industryarena.com/dmgmori/blog/grundlagen-der-fertigungstechnik--20186.html
+  - label: 'Wikipedia (de), "Fräsen" (Gleichlauf- und Gegenlauffräsen; cites Fachkunde Metall, Europa-Lehrmittel)'
+    url: https://de.wikipedia.org/wiki/Fr%C3%A4sen
+  - label: 'S. Kalpakjian, S. R. Schmid, Manufacturing Engineering and Technology (SI), 6th ed., ch. 24 — lecture slides, King Saud University'
+    url: https://faculty.ksu.edu.sa/sites/default/files/06%20-%20Milling%20%28AMS%20Nov15_25%29_0.pdf
+  - label: 'M. Vural (İTÜ), EUT 231 Üretim Yöntemleri, talaşlı imalat yöntemleri (Turkish terms)'
+    url: https://ntmyo.gaziantep.edu.tr/files/dosyalar/ch22-talasli-imalat-yontemleri.pdf
+  - label: 'Canadian Metalworking, "About face milling", 2023 (ISCAR and Kyocera statements on engagement)'
+    url: https://cimindustry.com/canadianmetalworking/article/cuttingtools/about-face-milling
+---
+import MillingDirection from '../../../components/mdx/MillingDirection.astro';
+import ClimbBacklash from '../../../components/mdx/ClimbBacklash.astro';
+import LineChart from '../../../components/mdx/LineChart.astro';
+import { hexCurve } from '../../../data/figures';
+
+Every milling cut starts with a choice that is easy to change and matters a great deal: does the cutter turn with the feed or against it? The answer decides whether each tooth enters the work with a thick chip or slides in at zero thickness, and whether the forces press the part onto the table or try to lift it off.
+
+## Two directions
+
+- In **climb milling** (also called down milling), the cutter rotates in the same direction as the feed at the point of contact. Each chip starts thick and ends thin.
+- In **conventional milling** (up milling), the cutter rotates against the feed at the point of contact. Each chip starts at zero thickness and ends thick.
+
+German texts call them *Gleichlauffräsen* and *Gegenlauffräsen*. Turkish course notes also use *aşağı (tırmanma) frezeleme* for climb milling and *yukarı (geleneksel) frezeleme* for conventional milling.
+
+<Figure caption="Peripheral milling seen from the side; the cutter is fixed and the work feeds to the left. The orange band is the engagement arc; its width grows with the chip thickness h = fz · sin φ. The large arrow is the direction of the tangential cutting force on the work, averaged over the engagement.">
+  <MillingDirection locale="en" />
+</Figure>
+
+## Why the chip at entry matters
+
+In conventional milling the edge meets the work where the chip thickness is zero. It cannot cut at once: it is forced into the material and rubs, which creates friction and heat. It also slides over a surface that the previous tooth has work-hardened. Sandvik Coromant, Mitsubishi, Kennametal, Ingersoll and Harvey Performance all describe this rubbing at entry and its result: shorter tool life. At the exit, the chip is at its thickest and hottest, which Sandvik notes causes high tensile stress in the edge and can make the chip stick to it.
+
+In climb milling the edge enters at full chip thickness and leaves at zero, so it cuts from the first moment. Kennametal and Harvey note that more of the heat then goes into the chip. Sandvik Coromant sums it up as its "golden rule" of milling: **thick to thin**.
+
+The price is a heavier impact at entry. Seco notes that the full-thickness entry puts a heavy mechanical load on the edge, though common tool materials usually withstand it.
+
+## Forces and backlash
+
+The two directions push the work in different directions:
+
+- **Conventional milling** tends to lift the workpiece from the table, and its resultant acts against the feed. The fixture must resist lifting.
+- **Climb milling** pulls the workpiece in the direction of the feed and presses it toward the table or fixture. The fixture must resist pulling.
+
+The pull is why climb milling needs a feed drive without play. If the lead screw and nut have backlash, the cutter can jerk the workpiece forward by the amount of the play, as Mitsubishi and the German Wikipedia describe; Harvey Performance warns that breakage can result. Conventional milling pushes the table against the screw, which is why it was the traditional method on older machines. The German Wikipedia, citing the textbook Fachkunde Metall, names ball screws, free of backlash and stiff, as the drive that suits climb milling.
+
+<Figure caption="The screw turns and drives the nut, and with it the table, to the left. In conventional milling the force on the work points against the feed and keeps the nut on the driving flanks. In climb milling it points with the feed: if the screw and nut have play, the table can run ahead until the nut meets the opposite flanks. The enlarged detail shows the nut thread in section; the play is drawn exaggerated.">
+  <ClimbBacklash locale="en" />
+</Figure>
+
+## Surface finish
+
+Harvey Performance, ISCAR, DMG MORI and the German Wikipedia agree that climb milling usually gives the better surface. In conventional milling chips tend to fall in front of the cutter and can be recut, marring the finish.
+
+## The recommendation, and its exceptions
+
+Every tool maker consulted recommends climb milling as the default. Sandvik Coromant calls it "always the preferred method whenever the machine tool, fixture and workpiece will allow for it"; Seco, Kennametal, ISCAR, Ingersoll and Harvey say the same in their own words.
+
+Conventional milling remains the better choice in a few cases:
+
+| Situation | Why | Sources |
+|---|---|---|
+| A machine with backlash in the feed drive | The cutter can pull the table into the cut | Harvey, ISCAR, Ingersoll, Wikipedia (de) |
+| Scale, casting skin, flame-cut or hard surfaces | The edge enters under the hard skin, in cleaner material, instead of hitting it at full chip thickness | Harvey, ISCAR, Ingersoll, Kalpakjian, Wikipedia (de) |
+| Large variations in the stock to be removed | Recommended by Sandvik Coromant | Sandvik |
+| Ceramic inserts in heat-resistant alloys | Ceramics are sensitive to the impact at entry; the gradual entry protects them | Sandvik, Seco |
+| Weak setups, thin walls | Recommended by Seco and Sandvik in some cases | Seco, Sandvik |
+
+<Note kind="warn" title="Where the sources disagree">
+**Thin parts:** Seco and Sandvik mention thin walls as a case for conventional milling, while Kalpakjian's lecture material counts climb milling's downward force as an advantage for thin parts. **Chatter:** Harvey recommends conventional milling for materials that chatter or tear, but the German Wikipedia and DMG MORI describe conventional milling as the more vibration-prone method. Test on the part.
+</Note>
+
+## Face milling: where to put the cutter
+
+In face milling the cutter usually engages on both sides of its centre, so part of each pass is climb and part conventional. Its position decides the chip thickness at entry and exit.
+
+- **Diameter.** Sandvik Coromant recommends a cutter diameter 20 to 50 % larger than the width of cut. Its video puts the best position at about 70 % radial engagement; ISCAR, quoted in Canadian Metalworking, gives 70 to 80 % of the diameter; Mitsubishi recommends D = 1.2 to 1.3 times the width of the workpiece.
+- **Off centre.** Sandvik Coromant and Seco advise against placing the cutter on the centre line of the work: a central position mixes climb and conventional forces and gives a thick chip at exit, with a higher risk of vibration. Mitsubishi, by contrast, describes a centre near the middle of the workpiece as most suitable. The makers disagree here.
+- **Roll into the cut.** Sandvik Coromant recommends entering with a rolling (arc) toolpath so that the chip is thick at entry and thin at exit. It reports up to seven times longer tool life in Inconel 718 at 46 HRC with this technique, a figure from Sandvik alone.
+
+## The formulas
+
+For a cutter of diameter D at radial engagement ae, the engagement angle, measured from the point where the cutting path is tangent to the finished surface, is
+
+$$
+\varphi_e = \arccos\!\left(1 - \frac{2\,a_e}{D}\right)
+$$
+
+and the chip thickness at angle φ, with feed per tooth fz and entering angle κr, is
+
+$$
+h(\varphi) = f_z \cdot \sin\varphi \cdot \sin\kappa_r
+$$
+
+The maximum chip thickness for ae < D/2 is therefore
+
+$$
+h_{ex} = f_z \cdot \sin\kappa_r \cdot 2\sqrt{\frac{a_e}{D}\left(1 - \frac{a_e}{D}\right)}
+$$
+
+and equals fz · sin κr when ae ≥ D/2.
+
+**Example.** At ae = 0.25 D, φe = arccos(0.5) = 60° and hex = 2√(0.25 · 0.75) · fz · sin κr ≈ 0.87 · fz · sin κr: the chip never reaches the feed per tooth.
+
+<Figure caption="Maximum chip thickness as a share of fz · sin κr, against ae/D. Below ae = D/2 the chip never reaches the feed per tooth; at ae = 0.25 D the share is 0.87. Hover to read it.">
+  <LineChart locale="en" series={hexCurve('en')} marks={[{ x: 0.25, y: 0.866, label: '0.87', place: 'se' }, { x: 0.5, y: 1, label: 'ae = D/2' }]} xMin={0} xMax={1} yMin={0} yMax={1.1} xTicks={[0, 0.1, 0.25, 0.5, 0.75, 1]} yTicks={[0, 0.2, 0.4, 0.6, 0.8, 1]} xLabel="ae / D" yLabel="hex / (fz · sin κr)" endLabels={false} xDec={2} yDec={2} aria="Maximum chip thickness against radial engagement" />
+</Figure>
+
+The direction of rotation does not change these numbers; it decides whether the edge meets the thick end of the chip first or last. The [milling calculator](/tools/milling-calculator/) applies the same formulas to set the feed for a target chip thickness.

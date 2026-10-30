@@ -1,0 +1,48 @@
+---
+/* Reaming in section: a straight-flute reamer in a pre-drilled hole. Above its chamfered lead the hole is
+   at size; below it the stock allowance (orange, exaggerated) is still on the wall. Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { reamer: 'rayba', lead: 'giriş pahı', stock: 'raybalama payı (abartılı)', done: 'ölçüsünde delik (ör. H7)', pre: 'ön delik', feed: 'ilerleme' }
+  : { reamer: 'reamer', lead: 'chamfer lead', stock: 'stock allowance (exaggerated)', done: 'hole at size (e.g. H7)', pre: 'pre-drilled hole', feed: 'feed' };
+const xl = 180, xr = 300, a = 11, yTop = 112, yTip = 212, yBot = 296, ch = 9;
+const flutes = [196, 214, 232, 248, 266, 284];
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <!-- workpiece in section: at size above the tip, the allowance still on below -->
+  <path class="hatch f" style="--i:0" d={`M48,${yTop} L${xl},${yTop} L${xl},${yTip} L${xl + a},${yTip + 8} L${xl + a},${yBot} L48,${yBot} Z`} />
+  <path class="hatch f" style="--i:0" d={`M432,${yTop} L${xr},${yTop} L${xr},${yTip} L${xr - a},${yTip + 8} L${xr - a},${yBot} L432,${yBot} Z`} />
+  <rect class="soft-acc f" style="--i:1" x={xl} y={yTip} width={a} height={yBot - yTip} />
+  <rect class="soft-acc f" style="--i:1" x={xr - a} y={yTip} width={a} height={yBot - yTip} />
+  <path class="o2 d" style="--i:2" pathLength="1" d={`M48,${yTop} L${xl},${yTop} L${xl},${yTip} L${xl + a},${yTip + 8} L${xl + a},${yBot} L48,${yBot}`} />
+  <path class="o2 d" style="--i:2" pathLength="1" d={`M432,${yTop} L${xr},${yTop} L${xr},${yTip} L${xr - a},${yTip + 8} L${xr - a},${yBot} L432,${yBot}`} />
+  <line class="b d" style="--i:3" pathLength="1" x1={xl - 3} y1={yTop + 4} x2={xl - 3} y2={yTip - 4} />
+  <line class="b d" style="--i:3" pathLength="1" x1={xr + 3} y1={yTop + 4} x2={xr + 3} y2={yTip - 4} />
+  <line class="c f" style="--i:4" x1="240" y1="10" x2="240" y2="312" />
+
+  <!-- the reamer: shank, fluted body, chamfered lead -->
+  <rect class="metal-h f" style="--i:5" x="214" y="6" width="52" height="64" />
+  <path class="metal-h f" style="--i:6" d={`M${xl + 1},64 L${xr - 1},64 L${xr - 1},${yTip - ch} L${xr - 1 - ch},${yTip} L${xl + 1 + ch},${yTip} L${xl + 1},${yTip - ch} Z`} />
+  <g class="f" style="--i:7">
+    {flutes.map((x) => <line x1={x} y1="66" x2={x} y2={yTip - 2} stroke="#5f6c79" stroke-width="1.4" stroke-opacity="0.7" />)}
+  </g>
+  <path class="o d" style="--i:8" pathLength="1" d={`M214,6 L214,64 L${xl + 1},64 L${xl + 1},${yTip - ch} L${xl + 1 + ch},${yTip} L${xr - 1 - ch},${yTip} L${xr - 1},${yTip - ch} L${xr - 1},64 L266,64 L266,6`} />
+  <path class="a d" style="--i:9" pathLength="1" d={`M${xl + 1},${yTip - ch} L${xl + 1 + ch},${yTip}`} stroke-width="3" />
+  <path class="a d" style="--i:9" pathLength="1" d={`M${xr - 1},${yTip - ch} L${xr - 1 - ch},${yTip}`} stroke-width="3" />
+
+  <!-- rotation and feed -->
+  <path class="b d" style="--i:10" pathLength="1" d="M206,30 A40,12 0 1,0 274,30" marker-end="url(#ca-arr-data)" />
+  <line class="a d" style="--i:11" pathLength="1" x1="330" y1="30" x2="330" y2="80" marker-end="url(#ca-arr-acc)" />
+
+  <g class="lbl">
+    <text class="t-ink" x="280" y="20">{T.reamer}</text>
+    <text class="t-acc t-sm" x="342" y="60">{T.feed}</text>
+    <line class="h" x1={xr - 4} y1={yTip - 4} x2="350" y2="232" />
+    <text class="t-acc t-sm" x="352" y="236">{T.lead}</text>
+    <text class="t-acc t-sm" x={xl - 6} y="262" text-anchor="end">{T.stock}</text>
+    <text class="t-data t-sm" x={xl - 8} y="136" text-anchor="end">{T.done}</text>
+    <text class="t-sm" x="56" y="312">{T.pre}</text>
+  </g>
+</svg>

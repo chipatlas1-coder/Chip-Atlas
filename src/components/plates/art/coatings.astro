@@ -1,0 +1,27 @@
+---
+/* A coated carbide edge in section, magnified: a CVD stack (TiCN, Al2O3, gold TiN on top) on a honed edge. The layer
+   order is sourced; the shares of the layers and the colours other than TiN gold are schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr ? { sub: 'karbür', cvd: 'CVD kaplama' } : { sub: 'carbide', cvd: 'CVD coating' };
+const EX = 300, EY = 140, R = 34;
+const f = (n: number) => n.toFixed(1);
+const layer = (d0: number, d1: number) =>
+  `M20,${f(EY - d1)} L${EX - R},${f(EY - d1)} A${f(R + d1)},${f(R + d1)} 0 0 1 ${f(EX + d1)},${EY + R} L${f(EX + 46 + d1)},300 ` +
+  `L${f(EX + 46 + d0)},300 L${f(EX + d0)},${EY + R} A${f(R + d0)},${f(R + d0)} 0 0 0 ${EX - R},${f(EY - d0)} L20,${f(EY - d0)} Z`;
+const L = [['TiCN', 0, 26, '#7c8ea3'], ['Al₂O₃', 26, 50, '#3b3f4a'], ['TiN', 50, 60, '#d8a93a']] as const;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <path class="carbide f" style="--i:0" d={`M20,${EY} L${EX - R},${EY} A${R},${R} 0 0 1 ${EX},${EY + R} L${EX + 46},300 L20,300 Z`} stroke="#364554" stroke-width="1.5" />
+  {L.map(([, d0, d1, col], i) => <path class="f" style={`--i:${i + 1}`} d={layer(d0, d1)} fill={col} />)}
+  <g class="f" style="--i:4" stroke="#c2413b" stroke-width="1.6" fill="none">
+    {[70, 140, 210].map((x) => <path d={`M${x},${EY - 60} l3,21 l-4,18 l2,15`} />)}
+  </g>
+  <g class="lbl">
+    {L.map(([n], i) => <text class="t-sm" x={392} y={100 - i * 20}>{n}</text>)}
+    {L.map(([, , , col], i) => <rect x={374} y={90 - i * 20} width="12" height="12" rx="2" fill={col} />)}
+    <text class="t-acc t-sm" x={374} y={36}>{T.cvd}</text>
+    <text class="t-sm" x={40} y={270}>{T.sub}</text>
+  </g>
+</svg>

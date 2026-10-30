@@ -1,0 +1,149 @@
+---
+key: tap-drill-sizes
+locale: en
+slug: tap-drill-sizes
+title: 'Tap drill sizes for metric threads'
+description: 'Which drill to use before tapping: the d − P rule and the DIN 336 / ISO 2306 table, why the hole has to fall inside the 6H minor-diameter limits, how much larger a hole a forming tap needs, and what "thread percentage" means.'
+section: 2
+subsection: hole-making
+order: 10
+updated: 2026-10-11
+tools: [tapdrill, drilling]
+glance:
+  - value: 'd − P'
+    label: 'Drill for a cutting tap'
+  - value: '8.5'
+    unit: 'mm'
+    label: 'Drill for M10'
+  - value: '≈ 92 %'
+    label: 'Thread percentage of a d − P hole on the 5H/8 basis (OSG)'
+  - value: '9.30'
+    unit: 'mm'
+    label: 'Hole for an M10 forming tap (BAER, Hommel Hercules)'
+sources:
+  - label: 'ISO 2306:1972, Drills for use prior to tapping screw threads (catalogue page; confirmed 2022)'
+    url: https://www.iso.org/standard/7135.html
+  - label: 'ISO 2306:1972 preview (scope and Table 1)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+2306-1972.pdf
+  - label: 'DIN 336:2003, Drill sizes for tapping holes (ANSI webstore listing; not for cold-forming taps)'
+    url: https://webstore.ansi.org/standards/din/din3362003
+  - label: 'Gühring (Hartner), core hole diameter poster, 2025'
+    url: https://www.hartner.de/wp-content/uploads/2025/07/HAR_Plakat_Kernlochdurchmesser_Bohren_2025_EN.pdf
+  - label: 'GSR, threading tools guide (tap drills to M64)'
+    url: https://threadingtoolsguide.com/en/?p=7843
+  - label: 'Ganter, technical information: threads (6H limits)'
+    url: https://www.ganternorm.com/fileadmin/user_upload/downloads/technischer%20anhang/technical_information/13_gewinde.pdf
+  - label: 'CDE Fasteners, metric internal threads 6H'
+    url: https://cdefasteners.com/sites/default/files/product-specs/metintthread.pdf
+  - label: 'Dormer Pramet, "Which size should I pre-drill?"'
+    url: https://www.dormerpramet.com/cz/en/which-size-should-I-pre-drill
+  - label: 'OSG, Tap Technical Guide Vol. 1 (forming-tap hole formula, tapping speeds)'
+    url: https://res.cloudinary.com/osg-usa-inc/image/upload/v1709319427/Literature/03%20-%20Charts%20and%20Guides/Technical%20Guides/OSG_-_Literature_-_Other_-_Technical_Data_-_Tap_-_Vol_1_-_IA.pdf
+  - label: 'OSG, Tapping Guide Vol. 3, 2024 (thread percentage, inch formula)'
+    url: https://res.cloudinary.com/osg-usa-inc/image/upload/v1717093846/Literature/03%20-%20Charts%20and%20Guides/OSG_-_Chart_-_Tap_Drill_Size_and_Pitch_Diameter_Limit_-_Vol_3_-_2024_-_IA.pdf
+  - label: 'BAER, "Core hole dimensions for screw taps"'
+    url: https://baer.tools/en/blog/core-hole-dimensions-for-screw-taps-everything-you-need-to-know
+  - label: 'Hommel Hercules, "Grundlagen Gewinde" (forming-tap hole table)'
+    url: https://www.hommel-hercules.com/uploads/schnittdaten/Grundlagen_Gewinde.pdf
+  - label: 'Völkel, "Calculate tap drill size"'
+    url: https://voelkel.com/en/blog/calculate-tap-drill-size
+---
+import TapBands from '../../../components/mdx/TapBands.astro';
+import TapHoles from '../../../components/mdx/TapHoles.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { osgTapSpeeds } from '../../../data/figures';
+
+The hole decides more about a tapped thread than the tap does. Too small, and the tap has to cut more material, which raises the torque and with it the risk of breaking the tap. Too large, and the thread is shallow. The right drill is easy to find, and the rule behind it explains every value in the tables.
+
+## The rule: d − P
+
+For a cutting tap, the drill diameter is the nominal diameter minus the pitch:
+
+$$
+D_{\text{drill}} \approx d - P
+$$
+
+M10 has a pitch of 1.5 mm, so the drill is 8.5 mm; M6 × 1 takes 5.0 mm; M20 × 1.5 takes 18.5 mm. The rule appears in ISO 2306, in DIN 336 and in tool makers' tables. DIN 336 and the makers' tables round the result to a standard drill size; for the coarse series only two values differ from d − P:
+
+| Thread | M3 | M4 | M5 | M6 | M8 | M10 | M12 | M14 | M16 | M20 | M24 | M30 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Drill (mm)** | 2.5 | 3.3 | 4.2 | 5.0 | **6.8** | 8.5 | **10.2** | 12.0 | 14.0 | 17.5 | 21.0 | 26.5 |
+
+For M8, d − P would be 6.75 mm; for M12, 10.25 mm. The fine series is rounded the same way: Gühring's DIN 336 table gives 8.8 mm for M10 × 1.25 and 10.8 mm for M12 × 1.25, where d − P would be 8.75 and 10.75 mm. The full table from M1 to M64, with fine threads, is in the [tap drill calculator](/tools/tap-drill-calculator/).
+
+## Why d − P works: the 6H limits
+
+The drill makes the **minor diameter D1 of the nut thread**. ISO 965 gives D1 a tolerance: for the usual class 6H, D1 may lie between its basic value and the basic value plus a tolerance that depends only on the pitch.
+
+| Thread | D1 min (mm) | D1 max (mm) | Drill (mm) |
+|---|---|---|---|
+| M6 | 4.917 | 5.153 | 5.0 |
+| M8 | 6.647 | 6.912 | 6.8 |
+| M10 | 8.376 | 8.676 | 8.5 |
+| M12 | 10.106 | 10.441 | 10.2 |
+| M16 | 13.835 | 14.210 | 14.0 |
+| M20 | 17.294 | 17.744 | 17.5 |
+| M24 | 20.752 | 21.252 | 21.0 |
+
+<Figure caption="Every coarse thread whose 6H tolerance is on file: the band runs from D1 min to D1 max, the dot is the DIN 336 drill. Hover a row for the numbers.">
+  <TapBands locale="en" />
+</Figure>
+
+Every standard drill falls inside the limits, between 28 % and 58 % of the way from D1 min to D1 max; most sit below the middle of the band. ISO 2306 states the principle behind the choice: within the minor-diameter tolerance, the larger the drilled hole, the more economical tapping becomes. A larger hole leaves less material for the tap to cut, which lowers the cutting torque.
+
+<Note kind="warn" title="Drill tolerance and material matter">
+The table values assume an ordinary twist drill. Dormer Pramet notes that they are based on h8 twist drills, and recommends adding 0.1 mm for h7 high-performance drills, and 0.1 mm (up to 0.2 mm with solid carbide) in stainless steel, where the drilled hole can come out smaller. Measure the hole if the thread is critical.
+</Note>
+
+## Forming taps need a larger hole
+
+A forming (roll) tap does not cut. It displaces the material, which flows into the crests of the thread, so the hole must be larger. DIN 336 explicitly does not cover cold-forming taps, and published recommendations differ:
+
+| Thread | BAER: d − 0.5 P + 0.05 | Hommel Hercules table |
+|---|---|---|
+| M6 | 5.55 | 5.55 |
+| M8 | 7.425 | 7.40 |
+| M10 | 9.30 | 9.30 |
+| M12 | 11.175 | 11.10 |
+
+The Hommel Hercules document prints its table under the heading "Gewindeschneiden" (thread cutting), but the values are holes for forming taps: all of them lie well above the 6H maximum, which a cutting tap could not use.
+
+OSG uses a formula that also depends on the desired thread percentage and the tap's tolerance class; for M10 at 90 % it gives 9.24 mm. The sources agree on roughly d − 0.45 P to d − 0.51 P. Use the value of the maker whose tap you use, and measure the minor diameter of the first formed thread.
+
+<Figure caption="M10 to scale, nut thread in section. A cutting tap in a d − P hole cuts the grooves out as chips. A forming tap needs the larger hole: it presses the grooves in, and the material flows towards the axis to form the crests. How far the crests fill depends on the hole, which is why OSG ties its hole size to a thread percentage; the flow is drawn schematically, and the dashed line is the basic profile.">
+  <TapHoles locale="en" mode="cutform" />
+</Figure>
+
+## Thread percentage
+
+"Thread percentage" compares the actual thread overlap with a full thread, but sources use two different definitions of 100 %:
+
+- OSG's metric guide takes the basic overlap **5H/8**. On that basis a d − P hole gives about **92 %**.
+- OSG's inch formula takes **3H/4**. On that basis the same hole gives about **77 %**.
+
+OSG's tapping guide states that 55 % to 65 % thread is sufficient for most requirements. Before comparing percentages from two tables, check which definition each uses.
+
+<Figure caption="M10 to scale. A d − P hole leaves a thread depth of P/2 below the major diameter; the two definitions of a full thread turn that same depth into 92 % or 77 %.">
+  <TapHoles locale="en" mode="percent" />
+</Figure>
+
+## Tapping speed
+
+OSG's technical guide gives these cutting speeds for its taps, in m/min. Coated taps can run 30 to 50 % faster.
+
+| Work material | Hand and spiral-flute taps | Spiral-point taps | Forming taps |
+|---|---|---|---|
+| Low-carbon steel | 8–13 | 15–25 | 8–13 |
+| Medium-carbon steel | 7–12 | 10–15 | 7–10 |
+| High-carbon steel | 6–9 | 8–13 | 5–8 |
+| Alloy steel | 7–12 | 10–15 | 5–8 |
+| Stainless steel | 4–7 (hand), 5–8 (spiral flute) | 8–13 | 5–10 |
+| Aluminium castings | 10–15 | 15–20 | 10–15 |
+
+These are one maker's values for its own taps. The spindle speed follows from n = 1000 · vc / (π · d), and the feed per revolution of a tap is always the pitch.
+
+<Figure caption="The OSG table as ranges. For every steel in the table, spiral-point taps have the highest range; for coated taps, OSG allows 30 to 50 % more.">
+  <RangeChart locale="en" {...osgTapSpeeds("en")} min={0} max={26} ticks={[0, 5, 10, 15, 20, 25]} unit="m/min" axisLabel="Cutting speed" labelWidth={150} aria="OSG tapping speeds by work material and tap type" />
+</Figure>
+
+For the thread geometry behind these numbers, see [ISO metric screw threads](/drawings-and-tolerances/iso-metric-threads/).

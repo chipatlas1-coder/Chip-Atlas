@@ -1,0 +1,135 @@
+---
+key: coolant-concentration
+locale: tr
+slug: kesme-sivisi-konsantrasyonu
+title: 'Kesme sıvısı konsantrasyonu: ölçme ve düzeltme'
+description: 'Su ile karışabilen bir kesme sıvısının konsantrasyonu el refraktometresi ve ürünün faktörüyle nasıl ölçülür, okuma neden kayar, ne zaman titrasyon ya da asit ayırma kullanılır, ne sıklıkla bakılır, fazla zayıf ya da fazla yoğun tank ne yapar ve tankı hedefe ne kadar konsantre, hazır karışım ya da su getirir.'
+section: 8
+subsection: coolant
+order: 2
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'okuma × faktör'
+    label: 'Refraktometreyle konsantrasyon: Brix okuması çarpı ürünün kendi faktörü (Master Fluid Solutions, Blaser, HSE, Q8Oils)'
+  - value: '0,9–3,4'
+    label: 'Master Fluid Solutions’ın aralığında, emülsiyonlardan sentetiklere refraktometre faktörü; birçok emülsiyonda 1,0'
+  - value: '%5–10'
+    label: 'Emülsiyonların olağan çalışma konsantrasyonu (Master Fluid Solutions, TotalEnergies, Petrol Ofisi); hedefi ürünün bilgi formu belirler'
+  - value: 'haftada bir'
+    label: 'Konsantrasyon ve pH için en seyrek kontrol (HSE MW5; IFA/DGUV); üreticiler daha sık ister'
+sources:
+  - label: 'Master Fluid Solutions, Technical Bulletin #110, “Coolant Concentration Facts and Terminology”'
+    url: https://www.masterfluids.com/na/en-us/technical-information/technical-bulletin.php?tbid=110
+  - label: 'Master Fluid Solutions, Technical Bulletin #032, “Concentration Control of Coolants”, rev. 2019'
+    url: https://www.masterfluids.com/na/en-us/technical-information/technical-bulletin.php?tbid=032
+  - label: 'Master Fluid Solutions, Technical Bulletin #028, “Concentration Control of Coolants by Alkaline Titration”'
+    url: https://www.masterfluids.com/na/en-us/technical-information/technical-bulletin.php?tbid=028
+  - label: 'Master Fluid Solutions, Technical Bulletin #060, “The Mathematics of Metalworking Fluids”, rev. 2022'
+    url: https://www.masterfluids.com/na/en-us/technical-information/technical-bulletin.php?tbid=060
+  - label: 'Blaser Swisslube, “Measuring the coolant concentration”, 2022'
+    url: https://blaser.com/measuring-the-coolant-concentration/
+  - label: 'Blaser Swisslube, ATAGO MASTER-M 20 refraktometre kullanım kılavuzu'
+    url: https://blaser.com/wp-content/uploads/blaser_manual_refraktometer_ATAGO_MASTER-M20_d_f_e.pdf.pdf
+  - label: 'Quaker Houghton, “Skill Builder: Concentration”, 2020'
+    url: https://store.quakerhoughton.com/media/pdfs/assembly/skb_concentration_LT_EN_GL.pdf
+  - label: 'Q8Oils (Kuwait Petroleum), VWR refraktometreleri broşürü'
+    url: https://q8oils.com/wp-content/uploads/2025/01/VWR-refractometer-Leaflet_ENG.pdf
+  - label: 'Haas Automation, Coolant Refractometer, Brix 0–32 %, parça 09-0032'
+    url: https://www.haastooling.com/p/09-0032
+  - label: 'ExxonMobil, Technical Topic GM6108SH, “Dos and Don’ts of Handling Aqueous Cutting Fluids”, 2009'
+    url: https://www.global.mobil.com/-/media/files/global/us/industrial/tech-topics/proper-handling-aqueous-cutting-fluids.pdf
+  - label: 'TotalEnergies Lubricants, SSS: su bazlı kesme sıvıları için önerilen konsantrasyon'
+    url: https://lubricants.totalenergies.com/faq/maintenance/what-recommended-concentration-water-based-coolants
+  - label: 'Motul, SAFKOOL 6110 teknik bilgi formu, rev. 04/2021'
+    url: https://azupim01.motul.com/media/motulData/DO/base/SAFKOOL_6110_en_FR_motultech_20210417.pdf
+  - label: 'Petrol Ofisi, Bor Yağı ürün bilgi formu'
+    url: https://petrolofisi.com.tr/medium/Product/Document/d8f06964-fdeb-4282-a01c-a094ebbbe540
+  - label: 'Petrol Ofisi, Bor Yağı ürün sayfası (İngilizce)'
+    url: https://www.petrolofisi.com.tr/metalworking-fluids/bor-yagi
+  - label: 'Lovibond, Veri Sayfası 56M000301, %0-32 Brix refraktometresi'
+    url: https://www.lovibond.com/ix_pim_assets/datasheet/water/tr/Veri%20Sayfas%C4%B1%2056M000301%20-%200-32%20Brix%20refraktometresi%20tr.pdf
+  - label: 'HSE, COSHH essentials MW5, “Managing fluid quality”, 03/21'
+    url: https://www.hse.gov.uk/PUBNS/guidance/mw5.pdf
+  - label: 'IFA / DGUV, KSS-Portal: Prüfung wassergemischter Kühlschmierstoffe'
+    url: https://dguv.de/ifa/praxishilfen/kuehlschmierstoffe/schutzmassnahmen/pruefung-wassergemischter-kuehlschmierstoffe/index.jsp
+  - label: 'IFA / DGUV, KSS-Portal, Lexikon: Gebrauchskonzentration'
+    url: https://dguv.de/ifa/praxishilfen/kuehlschmierstoffe/lexikon/gebrauchskonzentration/index.jsp
+  - label: 'OSHA, Metalworking Fluids: Safety and Health Best Practices Manual'
+    url: https://www.osha.gov/metalworking-fluids/manual
+---
+import CoolantCheck from '../../../components/mdx/CoolantCheck.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Su ile karışabilen bir kesme sıvısı, ister emülsiyon, ister yarı sentetik (*semi-synthetic*) ya da sentetik olsun, suyla seyreltilmiş bir konsantredir (sınıflar [kesme sıvısı türleri](/tr/sogutma-ve-yaglama/kesme-sivisi-turleri/) sayfasında karşılaştırılır) ve karışımdaki konsantre miktarı sıvının nasıl çalışacağını belirler. Master Fluid Solutions bunu tek cümleyle söyler: suyla seyreltilen her sıvı belirli bir konsantrasyon aralığında çalışacak şekilde tasarlanır. Olağan aralık geniştir. Master’a göre hedef çalışma çözeltisi genelde %5 ile %10 arasında konsantre ve %95 ile %90 arasında sudur. TotalEnergies emülsiyonlar için %5–10 verir; Petrol Ofisi’nin bor yağı bilgi formu ise ürünün "su ile %5-%10 oranında karıştırılarak" kullanıldığını yazar. Almanya’da IFA (DGUV), olağan kullanım konsantrasyonunu üreticinin verilerine bağlı olarak %4–8 olarak verir. Taşlamada kullanılan sentetikler genellikle daha düşük konsantrasyonda çalışır: TotalEnergies bunların çoğu zaman yaklaşık %3–6’da kullanılabildiğini yazar; Motul’un SAFKOOL 6110 formu dökme demir ve çeliğin taşlanması için %3–5, çeliğin genel talaşlı işlenmesi için %5–8 verir. Petrol Ofisi ise bor yağı için talaşlı işleme ve taşlamada aynı %5–10’u verir. Geçerli olan sayı tezgâhtaki sıvının bilgi formundaki sayıdır; HSE, konsantrasyon ve pH için tedarikçinin önerdiği değerlere uyulmasını ister.
+
+## Fazla zayıf, fazla yoğun
+
+| | Fazla zayıf | Fazla yoğun |
+|---|---|---|
+| Master Fluid Solutions | korozyon, takım ömrü ve tank ömrü sorunları sık görülür | daha fazla dermatit, kalıntı ve fazla sıvı tüketimi sorunu |
+| OSHA | takım ömrü düşer, bakteri ve/veya mantar sorunları, olası korozyon ve sonunda duruş | dermatit, köpürme ve yoğun kalıntı |
+| IFA (DGUV) | | aşırı konsantrasyon cildi tahriş eden etkiyi artırır ve cilt hastalığına yol açabilir |
+
+OSHA, önerilenden yüksek konsantrasyonu dermatitin nedenleri arasında da sayar. HSE konsantrasyonu bir etkiye bağlamaz; tedarikçinin değerlerini ister ve metal işleme sıvısıyla cilt temasının dermatite yol açabileceği uyarısını yapar.
+
+## El refraktometresiyle ölçme
+
+Master’a göre en kolay ve en yaygın yöntem optik refraktometre kullanmaktır. Alet Brix ölçeğinde okur (Blaser’in ATAGO MASTER-M 20’si %0–20 Brix, Haas’ın sattığı alet %0–32 Brix okur) ve bu sayı henüz konsantrasyon değildir.
+
+1. **Su ile sıfırlayın.** Blaser, el refraktometresinin su ile kalibre edilmesinin önemli olduğunu yazar. Q8Oils ve Quaker Houghton distile su (*distilled water*) kullanır; Blaser’in ATAGO kılavuzu ve Haas musluk suyuna da izin verir. Prizmaya birkaç damla koyup ayar vidasını (*adjustment screw*) sınır tam sıfıra gelene kadar çevirin (Blaser, Q8Oils, Haas). Q8Oils bu ayarın 20 °C oda sıcaklığında yapılmasını şart koşar.
+2. **Numuneyi prizmaya koyun.** İki üç damla; prizmanın kapağı (*daylight plate*) kapatılınca sıvı hava kabarcığı ve kuru yer kalmadan yayılmalıdır (Blaser kılavuzu; Q8Oils da aynısını söyler). Q8Oils, numunenin prizmanın sıcaklığına gelmesi için en az 30 saniye beklenmesini ister. IFA numuneyi sıvı dolaşırken, temiz tanktan ya da doğrudan besleme hattından alır.
+3. **Sınırı okuyun.** Aleti ışığa doğru tutup göz merceğinden (*eyepiece*) bakın. Q8Oils: alanın üst kısmı mavi, alt kısmı beyaz olmalıdır ve değer tam olarak mavi ile beyaz alanın sınırından okunur.
+4. **Faktörle çarpın.** Master: konsantrasyon = refraktometre okuması × Brix faktörü (*Brix factor*; refraktometre faktörü, *refractometer factor* diye de anılır). HSE’nin kayıt formundaki sütun başlığı da konsantrasyonu refraktometre okuması çarpı sıvının düzeltme faktörü (*fluid correction factor*) olarak tanımlar.
+5. **Temizleyin.** Q8Oils her ölçümden sonra aletin suyla dikkatle ve iyice temizlenmesini ister. Blaser: prizma suya daldırılmamalıdır.
+
+Faktör ürüne aittir: Master’a göre her konsantrenin kendine özgü bir Brix faktörü vardır. Haas bu faktör için okuru ürünün bilgi formuna yönlendirir; Quaker ise her tedarikçinin olağan konsantrasyon aralığındaki refraktometre okumalarını gösteren bir tablo vermesi gerektiğini yazar. Master aralığı da verir: Brix faktörleri emülsiyonlar için 0,9’dan sentetikler için 3,4’e kadar uzanır ve birçok emülsiyonun faktörü 1,0’dır. Motul’un formu SAFKOOL 6110 için 2,5 verir; bu sıvıyla 2,0 okuma 2,0 × 2,5 = %5,0 demektir. Quaker faktörün nereden geldiğini açıklar: konsantredeki etken maddelerin, yani ışığı kıranların miktarı faktörü belirler. Örneği: konsantrenin %20’si su ise %10’luk bir karışım en iyi durumda 8,0 okur. Master tersinden okunmaması konusunda uyarır: faktör yalnızca bir çarpan olarak anlamlıdır, ürünün etkinliğini ya da su içeriğini göstermez.
+
+Otomatik sıcaklık kompanzasyonlu bir alet, kendi aralığı içinde sıcaklığı düzeltir: Q8Oils’in VWR aletleri 10–30 °C arasında 20 °C referans sıcaklığına göre otomatik sıcaklık kompanzasyonu (ATC) yapar; Haas ve Lovibond da kendi aletleri için otomatik sıcaklık kompanzasyonu belirtir (Lovibond’un Türkçe veri sayfasında "Otomatik sıcaklık kompenzasyonu").
+
+<Figure caption="Şematik refraktometre görüntüsü. Sayfaya gelindiğinde sınır önce su ile sıfıra getirilir, sonra numunenin okumasına kayar. Tanktaki gerçek konsantrasyonu ve ürünün faktörünü seçin (0,9 ve 3,4 Master Fluid Solutions’ın aralığının uçları, 1,0 birçok emülsiyon, 2,5 Motul SAFKOOL 6110), ölçeğin ne gösterdiğini görün; yabancı yağ (tramp oil) varsa sınır bulanıklaşır. Altta tankı hedefe getirmek için hacim dengesi; hesabı sayfanın aşağısında. Okuma, okunduğu gibi 0,1 °Brix adımlarla gösterilir; faktör büyükse okumadaki küçük bir adım konsantrasyonda büyük bir adımdır. Ölçek Blaser ATAGO MASTER-M 20’deki gibi 0–20 °Brix; tank hacmi ve hedef örnek değerlerdir.">
+  <CoolantCheck locale="tr" />
+</Figure>
+
+## Okumaya ne zaman güvenilmez
+
+Keskin bir çizgi temiz ve kararlı bir sıvı ister. Blaser’e göre ölçekteki okuma dağınık görünüyorsa emülsiyon ya kararsızdır ya da yabancı yağla (*tramp oil*) ağır biçimde kirlenmiştir; IFA da aynı iki nedeni sayar: emülsiyona karışmış büyük miktarda yabancı yağ ve büyük yağ damlacıklı kararsız emülsiyonlar. Master’a göre sistem ağır biçimde kirlenmişse çoğu zaman net bir okuma alınamaz ve okuma bir ölçüde tahmine dayanır. Quaker, ölçümden önce yabancı yağın numuneden alınmasını ister. IFA, artık kararlı hâle getirilemeyen bir emülsiyon için sıvının değiştirilmesini önerir.
+
+Master hatanın yönünü de verir: refraktometreler zamanla gerçek konsantrasyondan yüksek okuma eğilimindedir, çünkü sıvıya giren yabancı yağlar da ışığı kırar. Okumanın hangi yöne kaydığını söyleyen tek kaynak budur. Master ayrıca aletin çok temiz ve kalibre tutulmasını ister.
+
+## Titrasyon ve asit ayırma
+
+Master’a göre konsantrasyonu kontrol etmenin ikinci en yaygın yolu alkali titrasyondur (*alkaline titration*). Kendi setinde numuneye 1–2 damla gösterge boyası (*indicator dye*) konur, 1,0 N sülfürik asit damla damla, sayılarak, çözelti yeşilden pembeye dönene kadar eklenir; damla sayısı çarpı ürünün dönüşüm faktörü (*conversion factor*) konsantrasyonu verir. Yöntem yalnızca alkalinitesi oldukça yüksek ürünlerde işler ve genellikle sentetik ve yarı sentetik ürünlerde en iyi sonucu verir. Quaker: titrasyon çok doğrudur ama benzer bileşikler onu bozar; tanka karışan kirletici alkali bir temizleyiciyse alkali titrasyon ikisini birden okur. Master’a göre titrasyon zamanla gerçek konsantrasyondan düşük okuma eğilimindedir; refraktometrenin tersi.
+
+Çözünür yağlar (*soluble oils*) ve yağ oranı yüksek yarı sentetikler için Master asit ayırmayı (*acid split*) da verir: eklenen asit, sıvıdaki yağı ve yağa benzer diğer maddeleri ayırır. Yaklaşık 20 dakika, ardından 4 ila 24 saatlik bekleme ve özel cam malzeme ile reaktif gerektirir; sıvının toplam yağ ve yüzey aktif madde içeriğini bulmanın çok iyi bir yoludur ama her gün yapılacak bir yöntem değildir.
+
+## Ne sıklıkla
+
+HSE MW5, sıvı konsantrasyonunun (refraktometreyle) ve pH’ın her hafta ölçülmesini ister; kayıtların eğilimleri kolay görmek için tablo ya da grafik hâlinde en az beş yıl saklanmasını ister. Almanya’da IFA, TRGS 611’e göre haftalık pH ve nitrit kontrolünü ve aynı şekilde haftalık konsantrasyon kontrolünü sayar. Üreticiler daha sık ister: Blaser, konsantrasyonun tank her doldurulduğunda kontrol edilmesini ve verilerin en az haftada bir kaydedilmesini; Mobil, her gün ya da vardiya başında refraktometreyle kontrol edilmesini ister. IFA, konsantrasyon hedeften saparsa hemen önlem alınmasını ekler.
+
+## Tankı geri getirmek
+
+- **Su değil, hazır karışımla (*premix*) tamamlayın.** Mobil: tank her zaman zayıf emülsiyonla tamamlanmalı, asla suyla değil. Petrol Ofisi’nin bilgi formu da aynı kuralı verir: "Emülsiyon eklemelerinde asla düz su kullanılmamalıdır"; eklemeler "ayrı bir tankta hazırlanmış uygun konsantrasyondaki emülsiyon" ile yapılır. HSE, kullanımda su buharlaştığı için tamamlamanın yalnızca önerilen konsantrasyonun altındaki sıvıyla yapılmasını ister.
+- **Konsantreyi suya katın, tersini değil.** Mobil: konsantre suya eklenir. Master: konsantreye doğrudan su eklenmemelidir, bu ters bir emülsiyon (*inverse emulsion*) oluşturabilir. Petrol Ofisi: "suyun içerisine yağ eklemesi tanktaki su, sirkülasyon halindeyken yavaşça yapılmalıdır." ve "Asla yağa su eklenmemelidir." Motul: hacimsel karıştırma sistemi yoksa SAFKOOL 6110 sürekli karıştırılarak suya yavaşça dökülür.
+- **Fazla yoğun ya da fazla zayıf.** IFA: fazla yoğun tanka daha düşük, fazla zayıf tanka daha yüksek konsantrasyonlu sıvı eklenir. Mobil’in ve Petrol Ofisi’nin kuralı olağan tamamlama içindir; konsantrasyonu zaten fazla yüksek olan bir tanka OSHA su ekler: doğru konsantrasyona gelene kadar su eklenir. Sonra yeniden ölçün; OSHA, iş bitince doğru konsantrasyonun doğrulanmasını ister.
+
+## Hesap
+
+Ne kadar ekleneceği karışımdan çıkar: c₁ konsantrasyonundaki V litrelik tanka c_A konsantrasyonunda x litre sıvı eklenir ve tank c₂’ye gelir. Hacimlerin doğrudan toplandığı varsayılırsa
+
+$$
+\frac{V \cdot c_1 + x \cdot c_A}{V + x} = c_2 \quad\Rightarrow\quad x = V \cdot \frac{c_2 - c_1}{c_A - c_2}
+$$
+
+Burada c_A saf konsantre için %100, hazır karışım için karışımın konsantrasyonu, su için 0’dır. Bu, bu sayfanın karışım hesabıdır, bir üreticinin formülü değildir; okuma faktörle çarpıldıktan sonraki konsantrasyonla kullanılır. Master’ın TB #060’taki çözümlü örneğiyle uyuşur: 123 galonluk bir tankı %1 yükseltmek için 100’e bölmek 1,23 galonluk bir ekleme verir; ama o zaman tankta 124,23 galon olur, bu yüzden Master’a göre ekleme yaklaşık 1,24 galon olmalıydı. Yukarıdaki denklem c₁ = 0 ve c₂ = %1 ile 123 × 1 ÷ 99 = 1,24 galon verir. Master, konsantrasyon ancak yaklaşık çeyrek puan hassasiyetle ölçülebildiği için uygulamada basit yüzde hesabının yeterli olduğunu ekler. Kullanımdaki bir tankta tam ekleme biraz daha fazladır (%4 → %5: 123 × 1 ÷ 95 ≈ 1,29 galon); bu da Master’ın ölçülebilir dediği çeyrek puanın içinde kalır. Master hesabın sıvı dururken yapılmasını ve merkezî sistemlerde pompaların, tankların ve boruların tuttuğu sıvının da sayılmasını önerir.
+
+Örnekler (bu sayfanın hesabı): %3 ölçülen, hedefi %5 olan 400 L’lik bir tank 400 × 2 ÷ 95 ≈ 8,4 L saf konsantre ya da 400 × 2 ÷ 5 = 160 L %10’luk hazır karışım ister. 400 L’lik bir tankı suyla %8’den %6’ya indirmek 400 × 2 ÷ 6 ≈ 133 L su ister; yoğun bir tankı seyreltmek için neden boş hacim gerektiği buradan görülür.
+
+<CheckList id="coolant-check" locale="tr" items={[
+  { icon: 'align', title: 'Sıfır', check: 'Prizmada su varken refraktometre.', fix: 'Sınır sıfıra gelene kadar ayar vidasını çevirin; saf su (Q8Oils, Quaker), Blaser ve Haas musluk suyuna da izin verir.', src: 'Blaser; Q8Oils; Quaker Houghton; Haas' },
+  { icon: 'coolant', title: 'Numune', check: 'Numunenin nereden ve nasıl alındığı.', fix: 'Sıvı dolaşırken, temiz tanktan ya da besleme hattından (IFA); 2–3 damla, hava kabarcığı yok, 30 s bekleyin (Q8Oils).', src: 'IFA (DGUV); Q8Oils; Blaser' },
+  { icon: 'pitch', title: 'Faktör', check: 'Kullanılan sıvının refraktometre faktörü.', fix: 'Ürün bilgi formundan (Haas) ya da tedarikçinin tablosundan (Quaker) alın ve okumayı onunla çarpın; Master emülsiyonlardan sentetiklere 0,9 ile 3,4 arasını verir.', src: 'Master Fluid Solutions; Quaker Houghton; Haas' },
+  { icon: 'chips', title: 'Bulanık çizgi', check: 'Sınırın keskin olup olmadığı.', fix: 'Dağınık çizgi yabancı yağ ya da kararsız emülsiyon demektir; yabancı yağı numuneden alın (Quaker); yabancı yağ biriktikçe okumanın yüksek çıkacağını hesaba katın (Master).', src: 'Blaser; IFA (DGUV); Quaker Houghton; Master Fluid Solutions' },
+  { icon: 'sync', title: 'Aralık', check: 'Konsantrasyonun en son ne zaman ölçülüp kaydedildiği.', fix: 'pH ile birlikte en az haftada bir (HSE, IFA); üreticiler her doldurmada (Blaser) ya da her vardiyada (Mobil) ister.', src: 'HSE MW5; IFA (DGUV); Blaser; Mobil' },
+  { icon: 'feed', title: 'Tamamlama', check: 'Tanka ne eklendiği.', fix: 'Hazır karışım; konsantre suya dökülür, olağan tamamlamada asla düz su kullanılmaz (Mobil, Petrol Ofisi); sonra yeniden ölçün (OSHA).', src: 'Mobil; Petrol Ofisi; HSE; OSHA' },
+]} />

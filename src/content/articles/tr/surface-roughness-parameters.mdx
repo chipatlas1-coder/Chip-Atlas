@@ -1,0 +1,170 @@
+---
+key: surface-roughness-parameters
+locale: tr
+slug: yuzey-puruzlulugu-parametreleri
+title: 'Yüzey pürüzlülüğü parametreleri — Ra, Rz, Rt ve ötesi'
+description: 'Ra, Rq, Rz, Rt, Rsk, Rku, RSm ve Rmr gerçekte neyi ölçer, kesme dalga boyu (cut-off) nasıl seçilir, ISO 21920 ISO 4287 ve 4288''in yerini alınca ne değişti ve her talaşlı imalat prosesinin tipik olarak ulaştığı Ra.'
+section: 10
+subsection: surface-roughness
+order: 1
+updated: 2026-10-11
+tools: [roughness]
+glance:
+  - value: '5'
+    label: 'Varsayılan değerlendirme uzunluğundaki örnekleme uzunluğu (ISO 4288)'
+  - value: '0,8'
+    unit: 'mm'
+    label: 'Ra 0,1–2 µm için kesme dalga boyu λc'
+  - value: '%16'
+    label: '%16 kuralında sınırı aşabilecek değerlerin oranı'
+  - value: '2021'
+    label: 'ISO 21920, ISO 1302, ISO 4287 ve ISO 4288''in yerini aldı'
+sources:
+  - label: 'R. K. Leach, The measurement of surface texture using stylus instruments, NPL Good Practice Guide No. 37, 2. baskı, 2014'
+    url: https://eprintspublications.npl.co.uk/2041/1/mgpg37.pdf
+  - label: 'Taylor Hobson, Exploring Surface Texture, 7. baskı, 2011'
+    url: https://www.southampton.ac.uk/~assets/doc/Engineering/exploring%20surface%20texture.pdf
+  - label: 'Carl Zeiss, Surface finish guide, 2011'
+    url: https://metrology.me.wisc.edu/wp-content/uploads/sites/225/2023/12/SFG.pdf
+  - label: 'Mitutoyo, Quick guide to surface roughness measurement, Bülten 2229, 2016'
+    url: https://www.mitutoyo.com/webfoo/wp-content/uploads/1984_Surf_Roughness_PG.pdf
+  - label: 'Mahr, MarSurf parametre kılavuzu, pürüzlülük derinliği (Rz, Rmax ve eski tanımlar)'
+    url: https://parameter.mahr.com/html/english/MarSurf/roughnessdepth.html
+  - label: 'Evident (Olympus), yüzey pürüzlülüğü parametreleri'
+    url: https://evidentscientific.com/de/applications/metrology/surface-roughness-measurement-portal/parameters
+  - label: 'ISO 21920-2:2021, katalog sayfası (yayım 2021-12-20)'
+    url: https://www.iso.org/standard/72226.html
+  - label: 'ISO 21920-3:2021, katalog sayfası'
+    url: https://www.iso.org/standard/72228.html
+  - label: 'BS EN ISO 21920-2:2022 önizlemesi (önsözler; standardın yerini aldıkları)'
+    url: https://webstore.ansi.org/preview-pages/BSI/preview_30458657.pdf
+  - label: 'ISO 4287:1997, katalog sayfası (2021-12-20''de geri çekildi)'
+    url: https://www.iso.org/standard/10132.html
+  - label: 'ISO 4288:1996, katalog sayfası (2021-12-20''de geri çekildi)'
+    url: https://www.iso.org/standard/2096.html
+  - label: 'Mahr, "Improved standards for surface texture", 2022'
+    url: https://www.mahr.com/ja/news-events/article-view/improved-standards-for-surface-texture
+  - label: 'Polytec, "Roughness evaluation according to ISO 21920", kılavuz, 2023'
+    url: https://www.polytec.com/_Resources/Persistent/b/0/4/c/b04cc13c305052cbde9f8e699f631252b4e4014f/OM_GL_TOP_Roughness-evaluation-ISO-21920_E_52165.pdf
+  - label: 'Carl Zeiss, Poster Rauheit (ISO 21920), 2026'
+    url: https://asset-downloads.zeiss.com/catalogs/download/iqs2/76929089-4f9d-4830-82c5-fd067ecc9077/Poster_Roughness_2026_DE_011_678557_1.pdf
+  - label: 'Hoffmann / Perschmann, Oberflächenkenngrößen (Mahr içeriği), 2022'
+    url: https://www.perschmann.de/_Resources/Persistent/c/1/7/5/c1752cfe94f0cd28c408a508401d8ae59a418843/messtechnik-oberflaechenkenngroessen-perschmann.pdf
+  - label: 'Autodesk Inventor 2020 Yardımı, "Press Fit Surface Quality" (proseslere göre Ra tablosu)'
+    url: https://help.autodesk.com/cloudhelp/2020/ENU/Inventor-Help/files/GUID-AB89A817-38AB-4DC0-8594-54847FB0034B.htm
+  - label: 'Sunnen, honlama kataloğu bölüm 12, teknik veriler, 2019 (tek kademeli honlanmış yüzeyler için dönüşüm katsayıları)'
+    url: https://www.sunnen.com/cdn/shop/files/sunnen_honing_catalog_section_12_technical_data.pdf
+---
+import ProfileRaRz from '../../../components/mdx/ProfileRaRz.astro';
+
+import RaProcess from '../../../components/mdx/RaProcess.astro';
+import SkewProfiles from '../../../components/mdx/SkewProfiles.astro';
+import Iso21920Map from '../../../components/mdx/Iso21920Map.astro';
+
+"Ra 1,6" teknik resimlerdeki en yaygın yüzey şartıdır ve en çok yanlış anlaşılanlardan biridir. Tek bir sayı bir yüzeyi tarif edemez; her parametre profil hakkında belirli bir soruyu yanıtlar. Sayıyı işe yarar kılan, hangi soruyu yanıtladığını bilmektir.
+
+## Profil ve ortalama çizgi
+
+İğne uçlu (stylus) bir ölçme cihazı yüzeyi bir çizgi boyunca tarar ve yükseklikleri kaydeder. Biçim çıkarıldıktan sonra **kesme dalga boyu λc** olan bir filtre, kısa dalga boylu **pürüzlülüğü** daha uzun dalga boylu dalgalılıktan ayırır. Bütün R parametreleri bu pürüzlülük profilinden, profilin **ortalama çizgisine** göre hesaplanır.
+
+ISO 4287 ve ISO 4288'e göre profil, λc'ye eşit **örnekleme uzunlukları** lr üzerinde değerlendirilir; ISO 4288 varsayılan **değerlendirme uzunluğunu** beş örnekleme uzunluğu olarak belirler.
+
+<Figure caption="Beş örnekleme uzunluğu boyunca sentetik bir pürüzlülük profili. Bant ortalama çizginin etrafında ±Ra'yı gösterir; her bölüm kendi tepe-çukur yüksekliği Rzi'yi gösterir. Bütün değerler çizilen profilden hesaplanmıştır.">
+  <ProfileRaRz locale="tr" />
+</Figure>
+
+## Yükseklik parametreleri
+
+**Ra**, aritmetik ortalama sapma, Z(x) yüksekliklerinin ortalama çizgiden mutlak değerlerinin ortalamasıdır:
+
+$$
+Ra = \frac{1}{l}\int_0^{l} |Z(x)|\,dx
+$$
+
+**Rq**, aynı yüksekliklerin karesel ortalamasıdır (RMS). Büyük sapmalara Ra'dan daha fazla ağırlık verir.
+
+**Rp** ve **Rv**, bir örnekleme uzunluğu içindeki en yüksek tepenin yüksekliği ve en derin çukurun derinliğidir.
+
+**Rz**, profilin en büyük yüksekliği, bir örnekleme uzunluğu içinde Rp + Rv'dir. Raporlanan değer, beş örnekleme uzunluğundaki beş Rz<sub>i</sub> değerinin ortalamasıdır; bunların en büyüğü **Rz1max**'tır.
+
+$$
+Rz = \frac{1}{5}\sum_{i=1}^{5} Rz_i \qquad Rz_i = Rp_i + Rv_i
+$$
+
+**Rt**, profilin toplam yüksekliği, değerlendirme uzunluğunun tamamındaki en yüksek tepe ile en derin çukurun toplamıdır. Bu yüzden her zaman en az Rz kadardır.
+
+Ra ve Rq her şeyin ortalamasını alır; tek bir çizik ya da çapak onları neredeyse değiştirmez. Rz tek tek tepe ve çukurlara daha çok tepki verir; Rt ise en kötü tek özellik tarafından belirlenir. Ra ile Rz arasında sabit bir dönüşüm yoktur: oran profilin biçimine bağlıdır. Örneğin Sunnen tek kademeli (tek grit) honlanmış yüzeyler için Rz ≈ 7,6 · Ra verir ve katsayılarının birden fazla grit ile elde edilen (bileşik) yüzeylere uygulanmadığını belirtir.
+
+<Note kind="warn" title="Rz üç farklı anlamda kullanıldı">
+- ISO 4287:1984'te Rz **on nokta yüksekliğiydi**: beş en yüksek tepenin ortalaması artı beş en derin çukurun ortalaması. 1997'de ISO parametresi olarak kaldırıldı; RzJIS olarak yaşıyor.
+- 1997 ISO Rz'si yukarıda tanımlanan **en büyük yüksekliktir**; daha önce Ry adını taşıyordu.
+- DIN 4768, VDA ve ASME B46.1'deki **Rmax**, en büyük tek Rz<sub>i</sub> değeridir, yani Rz1max ile aynıdır; eski Japon standartlarında ise toplam yükseklik anlamına geliyordu.
+
+Bir resim ya da rapor standart belirtmeden "Rz" diyorsa hangisi olduğunu sorun.
+</Note>
+
+## Biçim, aralık ve malzeme oranı
+
+- **Rsk** (çarpıklık), Z³'ün ortalamasının Rq³'e bölümüdür. Düz bir üst yüzeyi derin çukurlar kesiyorsa negatif, tek tük tepeler yüzeyin üstünde duruyorsa pozitiftir. Aynı Ra'ya sahip iki yüzeyin Rsk'si zıt işaretli olabilir.
+- **Rku** (basıklık), Z⁴'ün ortalamasının Rq⁴'e bölümüdür. Gauss dağılımlı bir profil için 3'tür; daha yüksek değerler daha sivri tepe ya da çukurlar demektir.
+- **RSm**, profil elemanlarının ortalama genişliği, yani dokunun yüzey boyunca aralığıdır. Tornalamada ilerlemeyi yansıtır.
+- **Rmr(c)**, malzeme oranı, profilin c yüksekliğindeki bir çizgiyle kesildiği uzunluğun değerlendirme uzunluğuna yüzde oranıdır. Tüm yükseklikler üzerindeki eğrisi, Abbott–Firestone eğrisi, [Rk parametrelerinin](/tr/metroloji/rk-parametreleri/) temelidir.
+
+<Figure caption="Aynı Ra'ya ölçeklenmiş üç sentetik profil. Yalnızca biçim farklıdır; onları çizilen profillerden hesaplanan Rsk ve Rku ayırır. Sağdaki çubuklar her profilin yükseklik dağılımıdır.">
+  <SkewProfiles locale="tr" />
+</Figure>
+
+## Kesme dalga boyunu seçmek (ISO 4288)
+
+Kesme dalga boyu λc ölçülen pürüzlülüğe uygun olmalıdır. ISO 4288:1996, onu parametrenin beklenen değerinden seçiyordu:
+
+| Ra (µm) | Rz, Rz1max (µm) | RSm (mm), periyodik profiller | λc = lr (mm) | Değerlendirme uzunluğu ln (mm) |
+|---|---|---|---|---|
+| 0,006'nın üstünden 0,02'ye | 0,025'in üstünden 0,1'e | 0,013'ün üstünden 0,04'e | 0,08 | 0,4 |
+| 0,02'nin üstünden 0,1'e | 0,1'in üstünden 0,5'e | 0,04'ün üstünden 0,13'e | 0,25 | 1,25 |
+| 0,1'in üstünden 2'ye | 0,5'in üstünden 10'a | 0,13'ün üstünden 0,4'e | 0,8 | 4 |
+| 2'nin üstünden 10'a | 10'un üstünden 50'ye | 0,4'ün üstünden 1,3'e | 2,5 | 12,5 |
+| 10'un üstünden 80'e | 50'nin üstünden 200'e | 1,3'ün üstünden 4'e | 8 | 40 |
+
+ISO 3274 her kesme dalga boyunu bir kısa dalga filtresi λs ve en büyük iğne ucu yarıçapıyla eşleştirir: λc ≤ 0,8 mm için 2,5 µm ve 2 µm; 2,5 mm için 8 µm ve 5 µm; 8 mm için 25 µm ve 10 µm.
+
+ISO 4288'e göre Ra 1,6 gibi bir şart, ölçülen değerlerin en fazla %16'sı onu aştığında sağlanmış sayılıyordu (%16 kuralı). "Ra max 1,6" ise her değerin sınır içinde kalmasını istiyordu.
+
+## ISO 21920 ile ne değişti
+
+20 Aralık 2021'de yayımlanan ISO 21920-1, -2 ve -3, ISO 1302 (resimde gösterim), ISO 4287 (parametreler) ve ISO 4288'in (ölçme kuralları) yerini aldı; ISO 21920-2 ayrıca ISO 13565-2 ve -3'ün de yerini aldı.
+
+<Figure caption="Beş eski standardın yerinde ISO 21920'nin üç bölümü.">
+  <Iso21920Map locale="tr" />
+</Figure>
+
+Başlıca değişiklikler:
+
+| Konu | ISO 4287, 4288, 13565-2 | ISO 21920 |
+|---|---|---|
+| Örnekleme uzunluğu | lr | bölüm uzunluğu l<sub>sc</sub>, bölüm sayısı n<sub>sc</sub> (varsayılan 5) |
+| Filtreler | λc, λs | iç içelik indeksleri N<sub>ic</sub>, N<sub>is</sub> |
+| Ra, Rq, Rsk, Rku | örnekleme uzunlukları üzerinden ortalama | değerlendirme uzunluğu l<sub>e</sub> üzerinden bir kez hesaplanır |
+| Rz | beş Rz<sub>i</sub>'nin ortalaması | hâlâ bölümler üzerinden ortalama |
+| En büyük tek tepe-çukur yüksekliği | Rz1max (DIN ve VDA'da Rmax) | Rzx |
+| Çekirdeğin malzeme oranları | Mr1, Mr2 (ISO 13565-2) | Rmrk1, Rmrk2 |
+| Varsayılan kabul kuralı | %16 kuralı | max kuralı; %16 kuralı yalnızca belirtilirse geçerli |
+| Kesme dalga boyu seçimi | ölçülen ya da beklenen değerden | resimdeki tolerans değerinden, Sc1–Sc5 ayar sınıflarında |
+
+Kesme dalga boyu seçimi için Ra bantları aynı kaldı. Rz bantları kaydı: 0,16; 0,8; 16 ya da 80 µm'ye kadar bir Rz üst sınırı artık N<sub>ic</sub> = 0,08; 0,25; 0,8 ya da 2,5 mm'yi; 80 µm'nin üstü 8 mm'yi seçer.
+
+<Note kind="key" title="Pratik sonuç">
+Aynı cihazla ölçülen aynı parça, varsayılan kural %16'dan max'a değiştiği için ISO 4288'e göre geçip ISO 21920'ye göre kalabilir. Resimler hangi standardın geçerli olduğunu belirtmelidir.
+</Note>
+
+## Proseslere göre tipik Ra
+
+<Figure caption="Talaşlı imalat proseslerinin yaygın olarak ulaştığı Ra aralıkları. Autodesk Inventor yardımında yayımlanan tablodan aktarılmıştır; özel koşullarda daha yüksek ya da daha düşük değerler elde edilebilir.">
+  <RaProcess locale="tr" />
+</Figure>
+
+<Note kind="note" title="Bu tablo ne kadar güvenilir?">
+Kontrol edebildiğimiz sürüm kaynağını belirtmiyor ve hücreleri sınırları değil yaklaşık bantları işaretliyor. Bir şartın bir proses için doğal olup olmadığını değerlendirmek için kullanın, garanti olarak değil.
+</Note>
+
+Tornalamada pürüzlülüğün geometrik kısmını ilerleme ve uç yarıçapı belirler. [Teorik pürüzlülük hesaplayıcısı](/tr/araclar/teorik-puruzluluk/) bunun sınırı ne kadar belirlediğini gösterir.

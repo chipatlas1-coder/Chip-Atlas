@@ -1,0 +1,142 @@
+---
+key: bolt-property-classes
+locale: en
+slug: bolt-property-classes
+title: 'Bolt property classes — 8.8, 10.9, 12.9 and the rest'
+description: 'What the two numbers on a bolt head mean, the minimum strength, proof stress and hardness of every ISO 898-1 class, how bolts are marked and matched with nuts, and how stainless classes such as A2-70 differ.'
+section: 11
+subsection: threads-and-standard-parts
+order: 1
+updated: 2026-10-11
+tools: []
+glance:
+  - value: '800 / 640'
+    unit: 'MPa'
+    label: 'Class 8.8: nominal tensile strength and yield strength'
+  - value: '1040'
+    unit: 'MPa'
+    label: 'Minimum tensile strength of 10.9 (nominal 1000)'
+  - value: '33.6'
+    unit: 'kN'
+    label: 'Proof load of an M10 bolt of class 8.8'
+  - value: '58.0'
+    unit: 'mm²'
+    label: 'Tensile stress area As of M10'
+sources:
+  - label: 'ISO 898-1:2013, Mechanical properties of fasteners made of carbon steel and alloy steel — Part 1, 5th edition (catalogue page)'
+    url: https://www.iso.org/standard/60610.html
+  - label: 'ISO 898-1:2013 preview (ANSI webstore)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+898-1-2013.pdf
+  - label: 'Optimas, "Mechanical and physical properties of steel fasteners" (ISO 898-1 Table 3)'
+    url: https://optimas.com/technical-resources/mechanical-physical-properties-steel-fasteners/
+  - label: 'TorqBolt, ISO 898-1 property class tables'
+    url: https://TorqBolt.com/iso-898-1-bolting-fasteners-bolting-stud-bolts-screws-suppliers-manufacturers
+  - label: 'AMESweb, metric bolt grades chart (after ISO 898-1:2013)'
+    url: https://amesweb.info/Screws/metric-bolt-grades.aspx
+  - label: 'Optimas, "Chemical compositions of carbon and alloy steel bolts, screws and nuts" (12.9 routes and caution note)'
+    url: https://optimas.com/technical-resources/chemical-compositions-of-carbon-and-alloy-steel-bolts-screws-and-nuts/
+  - label: 'Wikipedia (de), "Festigkeitsklasse"'
+    url: https://de.wikipedia.org/wiki/Festigkeitsklasse
+  - label: 'Bossard, "Marking of fasteners"'
+    url: https://www.bossard.com/en/assembly-technology-expert/technical-information-and-tools/technical-resources/screws-bolts-nuts/marking-of-fasteners/
+  - label: 'Bossard, technical brochure F-013, 2023'
+    url: https://media.bossard.com/-/media/bossard-group/website/documents/technical-resources/en/f-013-en.pdf
+  - label: 'travail-industrie.com, "Vis classe 8.8 / 10.9 / 12.9, inox A2-70 / A4-80 — marquage, résistance"'
+    url: https://travail-industrie.com/blog/article-titre/vis-classe-8-8-10-9-12-9-inox-a2-70-a4-80-marquage-resistance
+  - label: 'ISO 898-2:2022, Nuts with specified property classes, 4th edition'
+    url: https://www.iso.org/standard/79349.html
+  - label: 'BSI, BS EN ISO 898-2:2022 listing (class 9 deleted)'
+    url: https://knowledge.bsigroup.com/products/fasteners-mechanical-properties-of-fasteners-made-of-carbon-steel-and-alloy-steel-nuts-with-specified-property-classes
+  - label: 'Bossard, ISO-designated steel groups for stainless steel fasteners (ISO 3506-1)'
+    url: https://www.bossard.com/au-en/assembly-technology-expert/technical-information-and-tools/technical-resources/stainless-steel-fasteners/iso-designated-steel-groups
+  - label: 'Würth Industrie, DINO technical section (ISO 3506 property classes)'
+    url: https://prueflabor.wuerth-industrie.com/web/media/en/pictures/wuerthindustrie/technikportal/dinokapitel/Kapitel_02_DINO_techn_Teil.pdf
+---
+import BoltClasses from '../../../components/mdx/BoltClasses.astro';
+import BoltCode from '../../../components/mdx/BoltCode.astro';
+
+The two numbers stamped on a steel bolt head are a compact strength specification. They come from ISO 898-1, which sets the mechanical properties of bolts, screws and studs made of carbon steel and alloy steel. The current edition is ISO 898-1:2013, the fifth, with a technical corrigendum issued the same year; ISO confirmed it in 2025 and a revision is under way.
+
+## Reading the two numbers
+
+Take **8.8**:
+
+- The **first number × 100** is the nominal tensile strength in MPa: 8 → 800 MPa.
+- The **second number** is ten times the ratio of nominal yield strength to nominal tensile strength: .8 → 0.8.
+- So first × second × 10 gives the nominal yield strength: 8 × 8 × 10 = 640 MPa.
+
+In the same way 10.9 means 1000 MPa and 900 MPa, and 12.9 means 1200 MPa and 1080 MPa.
+
+<Figure caption="The designation taken apart for five classes, with the bolt head marking. The bars set the nominal values of the designation against the minimum values of the table below; for 8.8 the row for d ≤ 16 mm is used. The matching nut class follows ISO 898-2.">
+  <BoltCode locale="en" />
+</Figure>
+
+<Note kind="warn" title="Design with the minimum values, not the nominal ones">
+The nominal values exist only for the designation system. The standard specifies **minimum** values, and these are what a strength calculation must use. For 10.9, for example, the minimum tensile strength is 1040 MPa and the minimum yield 940 MPa, both higher than the nominal 1000 and 900.
+</Note>
+
+## Minimum properties by class
+
+<Figure caption="Minimum tensile strength and minimum yield (lower yield ReL, 0.2 % proof strength Rp0.2, or Rpf for the full-size fastener) by property class, ISO 898-1:2013.">
+  <BoltClasses locale="en" />
+</Figure>
+
+| Class | Rm nominal (MPa) | Rm min (MPa) | Yield min (MPa) | Proof stress Sp (MPa) | Elongation A min (%) | Hardness (HV) |
+|---|---|---|---|---|---|---|
+| 4.6 | 400 | 400 | ReL 240 | 225 | 22 | 120–220 |
+| 4.8 | 400 | 420 | Rpf 340 | 310 | — | 130–220 |
+| 5.6 | 500 | 500 | ReL 300 | 280 | 20 | 155–220 |
+| 5.8 | 500 | 520 | Rpf 420 | 380 | — | 160–220 |
+| 6.8 | 600 | 600 | Rpf 480 | 440 | — | 190–250 |
+| 8.8, d ≤ 16 mm | 800 | 800 | Rp0.2 640 | 580 | 12 | 250–320 |
+| 8.8, d > 16 mm | 800 | 830 | Rp0.2 660 | 600 | 12 | 255–335 |
+| 9.8, d ≤ 16 mm only | 900 | 900 | Rp0.2 720 | 650 | 10 | 290–360 |
+| 10.9 | 1000 | 1040 | Rp0.2 940 | 830 | 9 | 320–380 |
+| 12.9 | 1200 | 1220 | Rp0.2 1100 | 970 | 8 | 385–435 |
+
+Notes on the table:
+
+- For 4.8, 5.8 and 6.8 the standard marks the Rpf values as under investigation and gives them only to calculate the proof-stress ratio. Instead of A, measured on a machined test piece, it specifies the elongation of the full-size fastener Af: 0.24, 0.22 and 0.20.
+- 8.8 has two rows: above 16 mm the standard sets slightly higher minimum values. 9.8 is defined only up to 16 mm.
+- The **proof load** of a bolt is Sp × A<sub>s</sub>, where A<sub>s</sub> is the stressed area of the thread. The bolt must carry it without permanent elongation. For an M10 coarse thread, A<sub>s</sub> = 58.0 mm², so an 8.8 bolt has a proof load of 580 × 58.0 ≈ 33.6 kN and a minimum tensile load of 800 × 58.0 ≈ 46.4 kN.
+
+## Two routes to 12.9
+
+ISO 898-1 allows class 12.9 to be made in two ways, with the same mechanical properties; its tables list the class twice, once with the designation underlined. One route is alloy steel, quenched and tempered at 425 °C or more. The other is carbon steel with additives such as boron, manganese, chromium or molybdenum, quenched and tempered at 380 °C or more.
+
+The standard also advises caution when class 12.9 is considered: the manufacturer's capability, the service conditions and the tightening method should be taken into account, and the environment can cause stress corrosion cracking, in both uncoated and coated fasteners.
+
+## Marking
+
+- Hexagon and hexalobular head bolts and screws with a thread diameter of 5 mm or more must carry the **manufacturer's identification mark and the property class**, for all classes.
+- The dot may be left out: "88" and "109" are valid markings.
+- A leading zero, such as **08.8** or **010.9**, marks a fastener with reduced loadability: it may not carry the full loads specified for its class.
+
+## Matching nuts
+
+Nuts follow ISO 898-2, whose current edition is ISO 898-2:2022. Its property classes are 04, 05, 5, 6, 8, 10 and 12; class 9 has been deleted. A nut's class number is the first number of the strongest bolt class it is designed to carry:
+
+| Bolt | Nut |
+|---|---|
+| 5.8 | 5 |
+| 6.8 | 6 |
+| 8.8 | 8 |
+| 10.9 | 10 |
+| 12.9 | 12 |
+
+A nut of a higher class may replace one of a lower class.
+
+## Stainless steel bolts
+
+Stainless fasteners follow ISO 3506-1, current edition 2020, and are marked differently: steel group and grade, a dash, then the property class.
+
+- The letter gives the structure: **A** austenitic, **C** martensitic, **F** ferritic, **D** duplex. The digit after it is the alloy type within the group.
+- The two digits after the dash are one tenth of the minimum tensile strength.
+
+| Marking | Meaning | Rm min (MPa) | Rp0.2 min (MPa) |
+|---|---|---|---|
+| A2-70 | Austenitic (1.4301 type, no Mo), cold worked | 700 | 450 |
+| A4-80 | Austenitic with 2–3 % Mo (1.4401 / 1.4404 type), "acid-resistant" | 800 | 600 |
+| A2-50, A4-50 | Austenitic, class 50 | 500 | 210 |
+
+An A2-70 bolt is therefore weaker than an 8.8 steel bolt, and its yield is a smaller share of its tensile strength (450/700 ≈ 0.64, against 640/800 = 0.8). Do not swap one for the other without recalculating the joint.

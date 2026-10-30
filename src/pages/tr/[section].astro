@@ -1,0 +1,12 @@
+---
+import SectionPage from '../../components/SectionPage.astro';
+import { sections } from '../../data/sections';
+
+export function getStaticPaths() {
+  return sections
+    .filter((sec) => sec.n !== 18)
+    .map((sec) => ({ params: { section: sec.slug.tr }, props: { n: sec.n } }));
+}
+const { n } = Astro.props;
+---
+<SectionPage locale="tr" n={n} />

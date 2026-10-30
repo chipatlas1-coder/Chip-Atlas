@@ -1,0 +1,102 @@
+---
+key: tap-breakage
+locale: en
+slug: tap-breakage
+title: 'Tap breakage'
+description: 'Why taps break, in the order to check at the machine: the hole bottom, chips, the hole size, alignment and holding, the cycle, depth, wear, coolant and material; how deep to drill a blind hole; the other tapping faults with their causes and remedies; and when a forming tap or a thread mill is the better tool.'
+section: 12
+subsection: tool-problems
+order: 1
+updated: 2026-10-17
+tools: [tapdrill]
+glance:
+  - value: '0.050 in'
+    label: 'Drill blind holes at least this much deeper than the tap goes (Haas)'
+  - value: '1.5 × d'
+    label: 'Thread depth beyond which the risk of breakage rises sharply (Haas)'
+  - value: '0.03 mm'
+    label: 'Tap runout above which some taps break (Haas)'
+  - value: '−15 %'
+    label: 'Cutting volume, opening an M8 × 1.25 tap hole from 6.8 to 6.9 mm (Yamawa)'
+sources:
+  - label: 'Haas Automation, Tap breakage troubleshooting guide (last updated 29 March 2023)'
+    url: https://www.haascnc.com/content/haascnc/en/service/troubleshooting-and-how-to/troubleshooting/tap-breakage-troubleshooting.html
+  - label: 'Haas Automation, G84 tapping (AP-602, April 2016)'
+    url: https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep25-tap-programming/Haas_G84_Tapping.pdf
+  - label: 'ISCAR, Threading Catalog 62, viewer p. 392: taps troubleshooting'
+    url: https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page392.html
+  - label: 'ISCAR, Threading Catalog 62, printed p. 378 (viewer p. 380): chamfer forms to DIN 2197'
+    url: https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page380.html
+  - label: 'ISCAR, Tapping Tools user guide (coolant for tapping, p. 21)'
+    url: https://www.iscar.com/Catalogs/Publication/Catalogs_Mm/english_1/TAPPING_Catalog/TAPPING_CATALOG.pdf
+  - label: 'YG-1, Synchro taps catalogue section, troubleshooting guide pp. 19 and 21, hosted by Cutwel'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/YG-1 Synchro Taps.pdf
+  - label: 'YG-1, Prime taps YE-PT19 (troubleshooting), hosted by Cutwel'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/YG-1 Prime Taps.pdf
+  - label: 'R. Zdanowski (Seco Tools), “Step-by-step guide: how to choose the right threading tap”, Modern Machine Shop, 1 July 2026 (sponsored content)'
+    url: https://www.mmsonline.com/articles/step-by-step-guide-how-to-choose-the-right-threading-tap
+  - label: 'Yamawa, AU+SP / AU+SL product sheet, hosted by HH Tools'
+    url: https://hhtools.nl/content/files/documentatie%20yamawa/au-series.pdf
+  - label: 'Sutton Tools, Technical Information application guide (export edition), “Notes on Tapping”, p. 417'
+    url: https://suttontools-2022.s3-ap-southeast-2.amazonaws.com/Brochure%20and%20Catalogue/Catalogues/Sutton%20Tools/499980054_ApplicationGuide_Export.pdf
+  - label: 'Tungaloy, “Troubled by frequent tap breakage? Try a thread mill!”'
+    url: https://tungaloy.com/?p=461427
+  - label: 'DC Swiss, thread former catalogue pages'
+    url: https://shop.arsam.es/en-ES/download/487350492
+  - label: 'Dormer Pramet, Forming taps brochure (excerpt)'
+    url: https://pdf.directindustry.com/pdf/dormer-pramet/forming-taps/14461-588136.html
+  - label: 'Völkel, “Thread forming: chip-free, clean, reliable”, 3 December 2025'
+    url: https://voelkel.com/en/blog/gewindeformen-spanlos-sauber-zuverlaessig
+---
+import CheckList from '../../../components/mdx/CheckList.astro';
+import BlindHoleDepth from '../../../components/mdx/BlindHoleDepth.astro';
+
+Taps are prone to breaking under high loads, Tungaloy notes, narrow ones especially, and getting a broken tap out of a part is difficult and can damage the part. Haas's troubleshooting guide and the tables of ISCAR and YG-1 name the same causes again and again. Here they are in the order that is quickest to check at the machine; the general background is in [tapping](/processes/tapping/).
+
+## Check in this order
+
+<CheckList id="tap-breakage" locale="en" items={[
+  { icon: 'bottom', title: 'The tap hits the bottom of the hole', check: 'The drilled depth against the depth the tap is programmed to; the drill point does not count.', fix: 'Drill blind holes at least 0.050 in (1.3 mm) deeper than the tap goes. ISCAR adds a tapping holder with axial float and a slipping clutch.', src: 'Haas; ISCAR; YG-1' },
+  { icon: 'chips', title: 'Chips pack in the flutes or the hole', check: 'The tap type against the hole: a spiral-point tap pushes the chips ahead, so it belongs in through holes only.', fix: 'Spiral flutes for blind holes, a spiral point for through holes; where the material allows, a forming tap makes no chips at all.', src: 'Haas; YG-1; Seco; Tungaloy' },
+  { icon: 'hole', title: 'The hole is too small', check: 'Measure the hole and compare it with the tap drill and the 6H limits.', fix: 'Use the right drill. A slightly larger hole cuts the load: Yamawa reports 15 % less cutting volume for M8 × 1.25 when the hole goes from 6.8 to 6.9 mm, and Haas says a 75 % thread needs a third of the cutting force of a full one.', src: 'ISCAR; YG-1; Yamawa; Haas' },
+  { icon: 'align', title: 'Tap and hole are not aligned, or the tap runs out', check: 'The runout (TIR) of the tap in its holder, and the spindle against the hole.', fix: 'Align the tap with the pre-hole. Haas: some taps break if the runout is more than 0.03 mm (0.001 in); YG-1 suggests a floating holder.', src: 'ISCAR; Haas; YG-1' },
+  { icon: 'holder', title: 'The tap slips in its holder', check: 'Whether the holder drives the tap by its square.', fix: 'Hold the tap in a positive-drive holder made for taps, such as ER tap collets with a square drive.', src: 'Haas; Sutton' },
+  { icon: 'sync', title: 'Feed and spindle are out of step', check: 'The cycle (rigid only with the rigid option; G84 right-hand, G74 left-hand) and the feed: pitch × speed.', fix: 'Correct cycle and feed; with a compensating holder, a little less than the full pitch (Sutton 95 % for spiral-flute taps, Haas 90 %).', src: 'Seco; Haas; Sutton' },
+  { icon: 'depth', title: 'The thread is too deep', check: 'The thread depth against the diameter.', fix: 'Stay near 1.5 × d: Haas says the risk rises sharply beyond it, and thread engagement beyond 1.5 times the fastener diameter adds no strength.', src: 'Haas' },
+  { icon: 'wear', title: 'The tap is blunt', check: 'Wear on the chamfer teeth.', fix: 'Regrind or replace it.', src: 'ISCAR; YG-1' },
+  { icon: 'coolant', title: 'The lubrication is too weak', check: 'The coolant concentration, with a refractometer.', fix: 'More lubricant in the coolant: ISCAR finds general-purpose coolant often too lean for tapping and, where the content cannot be raised, suggests a separate unit that feeds concentrated emulsion to the hole or the tap. To see whether the coolant is to blame, Haas suggests a series of holes with tapping oil or compound brushed on the tap instead.', src: 'Haas; ISCAR' },
+  { icon: 'hard', title: 'Hard material, or a small tap', check: 'Hardness of the work and size of the tap.', fix: 'Slower speed and a tap made for the material; Tungaloy recommends a thread mill. For small diameters Haas recommends roll (forming) taps, which are stronger, but only in ductile material: Völkel warns that very hard or brittle material leads to cracks or tool damage.', src: 'Tungaloy; YG-1; Haas; Völkel' },
+]} />
+
+## How deep to drill a blind hole
+
+One of the commonest causes of breakage needs only arithmetic. To get a full thread to depth L, the tap's tip has to go deeper by the length of its chamfer, which only cuts incomplete threads; the drilled hole has to go deeper still, and the drill point adds a cone below that. Haas also reminds programmers that the tip angle makes a hole shallower than the programmed depth if it is not allowed for.
+
+<Figure caption="The depth chain of a blind hole: full thread, chamfer (the upper end of the makers’ range for the form), Haas’s 0.050 in clearance and an assumed 118° drill point. Tap drills to DIN 336; the drawing is to scale and sized to fit. Point at a result to pick out the part of the chain it adds up.">
+  <BlindHoleDepth locale="en" />
+</Figure>
+
+For an M10 × 1.5 thread 15 mm deep with a form C tap (2–3 chamfer threads), the tap goes to 15 + 3 × 1.5 = 19.5 mm, the drill at full diameter to at least 20.8 mm and the drill point to 23.3 mm. A form B tap, with 3.5–5 chamfer threads (4–5 at YG-1), needs up to 3 mm more. That extra depth is why blind holes with little room below the thread take the short chamfers C and E, although ISCAR advises avoiding E where possible and Seco counts using it where a longer chamfer would fit as a common error that shortens tool life. Form B is a through-hole tap in any case: its spiral point pushes the chips ahead (Haas).
+
+## Other tapping faults
+
+ISCAR's and YG-1's tables pair each fault with its usual causes:
+
+| Fault | Likely causes | Remedies |
+|---|---|---|
+| Oversize thread | Wrong tap for the material; misalignment; the tap jams; chips pack; galling; a tap reground off centre | A tap for the material group; align; better lubrication and a corrected speed; spiral flutes or a spiral point; regrind concentric |
+| Undersize thread | Tap limits too small (YG-1) | An oversize tap; YG-1 also corrects the chamfer and the cutting angle |
+| Bell-mouthed entry | Too little or wrong starting pressure | More starting pressure; a holder with axial float |
+| Stripped thread | Wrong geometry; spindle and feed out of step | A tap for the material; check the feed, axial float |
+| Rough or torn thread | A blunt or badly reground tap; a chamfer too short | Regrind or replace; a longer chamfer (YG-1) |
+| Chipped teeth | Poor lubrication; chips jamming; the tap hits the bottom; too short a lead after regrinding | More and better coolant; a different tap or speed; a deeper hole; keep the lead when regrinding |
+| Rapid wear | Irregular material; wrong speed; lean coolant; a work-hardened pre-hole | Adjust speed and coolant; drill the pre-hole carefully; a coated or vanadium HSS tap (YG-1) |
+| Galling | Material welding to the tap | A thread-relieved tap, a surface treatment, proper lubricant, lower speed, a larger hole (YG-1) |
+
+## Forming taps fail differently
+
+A forming tap does not jam on chips, but it is sensitive to the hole and the lubrication. DC Swiss warns that a hole that is too small gives too big a profile and needs more torque, and that if the lubricant supply is interrupted, cold welding quickly ends the tool's life. Dormer gives the correction from the thread itself: if material is pushed up at the entry, choose a slightly larger drill; if the profile is not filled, a slightly smaller one. Völkel adds that forming takes about 40–50 % more torque than cutting, so the machine needs that reserve.
+
+## When to change the method
+
+Where taps keep breaking, Tungaloy suggests a thread mill: it cuts intermittently with a low and steady cutting force, makes short broken chips, and if it does break, only its fragments have to be removed. The price is programming, since a thread mill follows a helical path (G02/G03 with Z) instead of a fixed tapping cycle. For small threads, Haas recommends forming taps, which are stronger than cutting taps.

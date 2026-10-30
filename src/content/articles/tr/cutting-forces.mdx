@@ -1,0 +1,183 @@
+---
+key: cutting-forces
+locale: tr
+slug: kesme-kuvvetleri
+title: 'Kesme kuvvetleri ve özgül kesme kuvveti'
+description: 'Kesme kuvvetinin üç bileşeni, Kienzle modeli kc = kc1.1 · h⁻ᵐᶜ, bundan güç ve torkun hesaplanması ve farklı kataloglardaki kc1.1 değerlerinin neden asla karıştırılmaması gerektiği.'
+section: 1
+subsection: cutting-mechanics
+order: 1
+updated: 2026-10-11
+tools: [turning, milling, drilling]
+glance:
+  - value: '0,15–0,32'
+    label: 'Katalog tablosunda mc aralığı'
+  - value: '+%16'
+    label: 'Talaş kalınlığı yarıya inince kc artışı, mc = 0,22'
+  - value: '3,39'
+    unit: 'kW'
+    label: 'Çözümlü örnek: C45, ap 2 mm, f 0,25 mm, vc 200 m/dak'
+  - value: '≈ %1'
+    label: 'Talaş açısındaki her derece için güç değişimi (Sandvik Coromant)'
+sources:
+  - label: 'Wikipedia (de), "Zerspankraft" (kuvvet bileşenleri ve doğrultuları; Fritz/Schulze, Fertigungstechnik''e göre yanaşma açısının etkisi)'
+    url: https://de.wikipedia.org/wiki/Zerspankraft
+  - label: 'Wikipedia (de), "Spezifische Schnittkraft" (düzeltme katsayıları)'
+    url: https://de.wikipedia.org/wiki/Spezifische_Schnittkraft
+  - label: 'Wikipedia (en), "Cutting force (machining)"'
+    url: https://en.wikipedia.org/wiki/Cutting_force_(machining)
+  - label: 'O. Kienzle, "Die Bestimmung von Kräften und Leistungen an spanenden Werkzeugen und Werkzeugmaschinen", VDI-Z 94 (11/12), 299–305, 1952 (Astakhov 2022 ve Velchev vd. 2011''deki atıfla)'
+  - label: 'V. P. Astakhov, "Cutting Force Modeling: Genesis, State of the Art, and Development", J. P. Davim (ed.), Mechanical and Industrial Engineering, Springer, 2022'
+    url: https://link.springer.com/chapter/10.1007/978-3-030-90487-6_2
+  - label: 'M. Janota, P. Kolář, M. Sulitka, "Operational Method for Identification of Specific Cutting Force During Milling", MM Science Journal, 2019, 3250–3257'
+    url: https://www.mmscience.eu/journal/issues/november-2019/articles/operational-method-for-identification-of-specific-cutting-force-during-milling/download
+  - label: 'Sandvik Coromant, metal kesme e-öğrenme, tornalama, frezeleme ve delme formülleri ve tanımları (metrik)'
+    url: https://cdn.sandvik.coromant.com/files/sitecollectiondocuments/services/metal-cutting-e-learning/formulas-and-definitions/formulas-and-deinitions-for-turning-metric-enu.pdf
+  - label: 'Sandvik Coromant, Metalcutting Technical Guide, frezeleme bölümü (hex = 1 mm için kc1; talaş açısının her derecesi için yaklaşık %1 güç değişimi)'
+    url: https://dcngli4g50fhp.cloudfront.net/userfiles/ad/sandvik/documents/sandvik_5747275_catalog.pdf
+  - label: 'Sandvik Coromant, Deep hole machining — CoroDrill 428 information (malzeme grubuna göre kc1)'
+    url: http://cappmedia.sandvik.com/cor/d245w/information.pdf
+  - label: 'ISCAR, "Materials and Grades according to DIN/ISO 513 and VDI 3323" (malzeme grubuna göre kc1.1 ve mc)'
+    url: https://www.iscar.com/lms/wp-content/uploads/2021/04/Materials-group.pdf
+  - label: 'ISCAR, Tornalama kataloğu (inç) 2022, s. 160 (malzeme grupları, kc1 ve mc)'
+    url: https://iscar.com/Catalogs/publication-2022/english-1/Turning_catalog_INCH_2022_45/flipview_Turning_catalog_INCH_2022_P691-914/files/basic-html/page160.html
+  - label: 'ISCAR, teknik makale "Machining Calculations" (1 − γ/100 talaş açısı düzeltmesi; kc1 0° talaş açısını esas alır)'
+    url: https://www.iscar.com/en-hq/technical-articles/year-2025/machining-calculations
+  - label: 'Machining Doctor, "Specific cutting force (kc, kc1)" (1 − 0,01·γ talaş açısı düzeltmesi)'
+    url: https://www.machiningdoctor.com/glossary/specific-cutting-force-kc-kc1
+  - label: 'Seco Tools, Frezeleme kataloğu 2025, "Workpiece materials — Classification" (SMG), s. 908–919 (bayi kopyası)'
+    url: https://maskin.sde.dk/wp-content/uploads/2025/03/GB-Milling-2025SN1-1.pdf
+  - label: 'Mitsubishi Materials, tornalama formülleri (net güç)'
+    url: https://www.mmc-carbide.com/en_jp/technical_information/formula/co2/turning
+---
+import KienzleChart from '../../../components/mdx/KienzleChart.astro';
+import ForceChain from '../../../components/mdx/ForceChain.astro';
+
+Kesici kenara gelen kuvvet, bir operatörün hesaba katması gereken neredeyse her şeyi belirler: iş mili gücünü, torku, ince bir parçanın takımdan ne kadar kaçacağını ve kenarın dayanıp dayanmayacağını. Bu kuvvet temel ilkelerden işe yarar bir doğrulukla hesaplanamaz; uygulama basit bir deneysel modele ve ölçülmüş katsayılara dayanır. Bu modeli iyi kullanmak büyük ölçüde sayıların nereden geldiğini bilmekten ibarettir.
+
+## Üç bileşen
+
+Tornalamada takıma etkiyen bileşke kuvvet, tezgâh hareketlerinin doğrultularında üç bileşene ayrılır.
+
+
+- **Fc, esas kesme kuvveti**, kesme hızı doğrultusunda etkir. Normalde üçünün en büyüğüdür ve kesme hızıyla birlikte gücü ve iş mili torkunu belirler.
+- **Ff, ilerleme kuvveti**, ilerleme ekseni boyunca etkir; takımda ilerleme hareketine karşı yönelir. İlerleme hareketi yavaş olduğundan Ff çok az güç çeker, ama ilerleme tahrikinin bu kuvveti sağlaması gerekir.
+- **Fp, pasif kuvvet**, diğer ikisine diktir. Bu doğrultuda hareket olmadığı için iş yapmaz. Takımı ve parçayı birbirinden iter; ince uzun parçalarda ve delik tornalama barlarında sehim için önemlidir.
+
+Yanaşma açısı κr yükü Ff ile Fp arasında paylaştırır. Almanca Wikipedia'nın kesme kuvveti maddesine göre büyük κr, Ff'yi artırır (en büyük değeri 90°'de), Fp'yi düşürür ve Fc'yi biraz azaltır. Bileşenler arasındaki yayımlanmış sayısal oranlar koşullara göre değiştiğinden bu sayfa bir oran vermez.
+
+## Kienzle modeli
+
+Esas kesme kuvveti talaş kesitiyle, A = b · h, orantılıdır. Aradaki katsayı N/mm² cinsinden **özgül kesme kuvveti** kc'dir:
+
+$$
+F_c = k_c \cdot b \cdot h
+$$
+
+Tornalamada b = ap / sin κr ve h = f · sin κr, dolayısıyla b · h = ap · f.
+
+kc sabit değildir. İnce talaşlar milimetrekare başına kalın talaşlardan daha fazla kuvvet ister. Otto Kienzle bunu 1952'de bir üs (kuvvet) yasasıyla tanımladı:
+
+$$
+k_c = k_{c1.1} \cdot h^{-m_c}
+$$
+
+- **kc1.1**, 1 mm kalınlığında ve 1 mm genişliğinde bir talaş için özgül kesme kuvvetidir.
+- **mc**, talaş inceldikçe kc'nin ne kadar hızlı arttığını belirler: log kc, log h'ye karşı çizildiğinde doğrunun eğimi −mc'dir. Aşağıdaki katalog tablosunda mc 0,15 ile 0,32 arasında değişir.
+
+Talaş kalınlığını yarıya indirmek kc'yi 2<sup>mc</sup> katına çıkarır: mc = 0,22 için %16, mc = 0,25 için %19. Talaş kesiti yarıya indiği için kuvvetin kendisi yine de düşer.
+
+Birleştirince:
+
+$$
+F_c = k_{c1.1} \cdot b \cdot h^{\,1-m_c}
+$$
+
+İlerleme ve pasif kuvvet için de aynı biçim, kendi katsayılarıyla (kf1.1, mf ve kp1.1, mp) kullanılır. Bu katsayılar çok daha seyrek yayımlanır.
+
+## Kuvvetten güce ve torka
+
+Kesme gücü, esas kesme kuvveti ile kesme hızının çarpımıdır. Sandvik Coromant tornalamada net kesme gücünü şöyle verir:
+
+$$
+P_c = \frac{v_c \cdot a_p \cdot f_n \cdot k_c}{60 \cdot 10^3}\ \text{kW}
+$$
+
+Burada vc m/min, ap ve fn mm, kc N/mm² cinsindendir. Bu kenardaki güçtür. Mitsubishi Materials aynı ifadeyi tezgâh verimi η'ya bölerek verir; bu, tezgâhın sağlaması gereken güçtür.
+
+**Örnek.** C45 çeliği, ISCAR katsayıları kc1.1 = 1500 N/mm² ve mc = 0,22. İlerleme fn = 0,25 mm, yanaşma açısı κr = 95°, kesme derinliği ap = 2 mm, kesme hızı vc = 200 m/min, çap 50 mm.
+
+- h = 0,25 · sin 95° = 0,249 mm
+- kc = 1500 · 0,249<sup>−0,22</sup> ≈ 2037 N/mm²
+- Fc = 2037 · 2 · 0,25 ≈ 1018 N
+- Pc = 200 · 2 · 0,25 · 2037 / 60 000 ≈ 3,39 kW
+- İş milindeki tork = Fc · D/2 ≈ 1018 N · 0,025 m ≈ 25,5 N·m
+
+<Figure caption="Aynı örnek bir zincir olarak. Her adım önceki bir adımın sonucunu (←) ve renkleriyle işaretli girdileri kullanır; sayılar elle yazılmadı, girdilerden hesaplandı.">
+  <ForceChain locale="tr" />
+</Figure>
+
+[Tornalama hesaplayıcısı](/tr/araclar/tornalama-hesaplayicisi/) aynı hesabı her girdi için yapar.
+
+### Frezeleme ve delme
+
+Model her prosesin talaş kalınlığıyla aynen geçerlidir. Frezelemede Sandvik Coromant ortalama talaş kalınlığı hm'yi kullanır ve gücü vf mm/min olmak üzere Pc = ae · ap · vf · kc / (60 · 10⁶) kW olarak yazar. Delme için Sandvik formülü Pc = vc · Dc · fn · kc / (240 · 10³) kW'tır. [Frezeleme](/tr/araclar/frezeleme-hesaplayicisi/) ve [delme](/tr/araclar/delme-hesaplayicisi/) hesaplayıcılarına bakın.
+
+## Talaş açısı
+
+Daha pozitif bir talaş açısı kuvveti düşürür. Sandvik Coromant'ın teknik kılavuzu pratik bir kural verir: talaş açısındaki her bir derecelik değişim güç tüketimini yaklaşık %1 değiştirir. ISCAR ve Machining Doctor aynı kuralı formüle katar:
+
+$$
+k_c = k_{c1.1} \cdot h^{-m_c} \cdot \left(1 - \frac{\gamma}{100}\right)
+$$
+
+Burada γ derece cinsindendir. ISCAR, kc1 değerlerinin 0° talaş açısını esas aldığını belirtir. Diğer tablolarda yayımlanmış bir kc1.1 değerinin hangi talaş açısını esas aldığı kaynağa bağlıdır ve kataloglar bunu her zaman yazmaz.
+
+## kc1.1 nereden gelir, kaynaklar neden ayrışır
+
+kc1.1 ve mc türetilmez, ölçülür. Her takım üreticisi kendi malzeme sınıflarına göre gruplanmış kendi tablosunu yayımlar. Aşağıdaki değerler üç katalogdan aynen alınmış, kc iki talaş kalınlığında hesaplanmıştır.
+
+| Malzeme | Kaynak ve grup | kc1.1 (N/mm²) | mc | h = 0,1 mm'de kc | h = 0,2 mm'de kc |
+|---|---|---|---|---|---|
+| C45 (orta karbonlu çelik) | ISCAR grup 2, 190 HB | 1500 | 0,22 | 2489 | 2137 |
+| | Seco P4 (C45E) | 2000 | 0,15 | 2825 | 2546 |
+| | Sandvik P1.2, 125–225 HB | 1600 | — | — | — |
+| 42CrMo4 (düşük alaşımlı çelik) | ISCAR grup 6, tavlanmış, 200 HB | 1775 | 0,24 | 3085 | 2612 |
+| | Seco P5 (42CrMo4) | 2020 | 0,18 | 3057 | 2699 |
+| | Sandvik P2.1, 150–260 HB | 1700 | — | — | — |
+| Östenitik paslanmaz (304) | ISCAR grup 14, 180 HB | 2150 | 0,20 | 3408 | 2966 |
+| | Seco M2 (X5CrNi18-10) | 1920 | 0,18 | 2906 | 2565 |
+| | Sandvik M1.0, 150–275 HB | 1950 | — | — | — |
+| Lamel grafitli dökme demir | ISCAR grup 15, 180 HB | 1150 | 0,20 | 1823 | 1587 |
+| | Seco K1 (EN-GJL-250) | 930 | 0,32 | 1943 | 1557 |
+| | Sandvik K2.1, 150–220 HB | 890 | — | — | — |
+| Dövme alüminyum, ısıl işlemle sertleştirilebilir | ISCAR grup 22, 100 HB | 800 | 0,25 | 1423 | 1196 |
+| Ti-6Al-4V | ISCAR grup 37 | 2110 | 0,22 | 3502 | 3006 |
+| | Seco S12 (TiAl6V4) | 1500 | 0,24 | 2607 | 2207 |
+| | Sandvik S4.2, tavlanmış | 1400 | — | — | — |
+| Inconel 718 | ISCAR grup 33–35 | 3300 | 0,24 | 5735 | 4856 |
+| | Seco S3 (Inconel 718) | 2530 | 0,21 | 4103 | 3547 |
+| | Sandvik S2.0 | 2650 | — | — | — |
+| Sertleştirilmiş çelik, yaklaşık 60 HRC | ISCAR grup 39 | 4700 | — | — | — |
+| | Seco H7 (100Cr6, 56–64 HRC) | 2480 | 0,17 | 3668 | 3260 |
+
+<Figure caption="Aynı malzeme için iki katalogdan özgül kesme kuvveti kc = kc1.1 · h⁻ᵐᶜ; log–log eksenlerde her biri eğimi −mc olan bir doğrudur. Değerler yukarıdaki tablodandır; kesikli çizgiler h = 0,1 ve 0,2 mm'yi gösterir. Bir malzeme seçin ve ikisini de okumak için üzerine gelin.">
+  <KienzleChart locale="tr" />
+</Figure>
+
+Sandvik'in CoroDrill 428 verileri mc olmadan yalnızca kc1 verir; bu yüzden kc yalnızca bu kaynaktan hesaplanamaz. ISCAR da sertleştirilmiş malzeme grupları 38–41 için mc vermez; Ti-6Al-4V için ise 2022 inç tornalama kataloğu 0,22 yerine mc = 0,24 verir. Seco alüminyum grupları için değer vermez.
+
+Tablonun gösterdikleri:
+
+- **kc1.1 tek başına yanıltıcıdır.** C45 için Seco'nun kc1.1'i ISCAR'ınkinden üçte bir yüksektir, ama mc değerleri farklı olduğu için h = 0,2 mm'de ikisinin verdiği kc %20'den az farklıdır. Lamel grafitli dökme demirde kc1.1 yaklaşık dörtte bir farklıdır, ama h = 0,2 mm'de kc %2 içinde uyuşur.
+- **Pratik talaş kalınlığında fark kapanır, ama her zaman yeterince değil.** h = 0,2 mm'de iki değer 42CrMo4 için %4 içinde uyuşur, ama 304 için yaklaşık %16, C45 için %19 farklı kalır.
+- **Zor malzemeler birbirinden uzak kalır.** h = 0,2 mm'de ISCAR değerleri Ti-6Al-4V ve Inconel 718 için Seco'nunkilerin yaklaşık 1,4 katıdır. Sertleştirilmiş çelikte ISCAR'ın kc1.1 değeri Seco'nunkinin 1,9 katıdır; ISCAR mc vermediği için kc karşılaştırılamaz.
+- **Laboratuvar değerleri de dağınıklık gösterir.** C45 (170 HB) üzerinde 2019'da yapılan bir frezeleme çalışması, yönteme bağlı olarak kc1.1'i 1262 ile 1713 N/mm², mc'yi 0,31 ile 0,47 arasında belirlemiştir.
+
+<Note kind="warn" title="Kaynakları asla karıştırmayın">
+kc1.1 ve mc aynı ölçüm setine birlikte uydurulur. kc1.1'i bir katalogdan, mc'yi başka bir katalogdan almak hiçbir malzemeye ait olmayan bir sayı üretir. İkisi için tek bir kaynak kullanın ve hangisi olduğunu belirtin.
+</Note>
+
+<Note kind="key" title="Hesaplanan kesme kuvveti ne kadar doğrudur?">
+Sonucu bir tezgâh, iş mili ya da bağlama aparatını boyutlandırmak için paylı bir tahmin olarak kullanın. Yalnızca takım aşınması bile kuvveti belirgin biçimde artırır; Almanca Wikipedia'nın özgül kesme kuvveti maddesi aşınmış takım için yaklaşık 1,5 düzeltme katsayısı verir. Yukarıdaki zor malzemelerde kaynak seçimi sonucu yaklaşık üçte bir ya da daha fazla değiştirir.
+</Note>

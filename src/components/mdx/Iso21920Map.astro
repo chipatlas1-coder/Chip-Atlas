@@ -1,0 +1,53 @@
+---
+/**
+ * Which standards ISO 21920 replaced (article text): ISO 21920-1, -2 and -3, published
+ * 20 December 2021, replaced ISO 1302, ISO 4287 and ISO 4288; ISO 21920-2 also replaced
+ * ISO 13565-2 and -3.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? { old: 'Yerini aldığı standartlar', now: 'ISO 21920, 20 Aralık 2021', draw: 'resimde gösterim', par: 'parametreler', meas: 'ölçme kuralları', rk: 'Rk parametreleri' }
+  : { old: 'Replaced standards', now: 'ISO 21920, 20 December 2021', draw: 'drawing indication', par: 'parameters', meas: 'measurement rules', rk: 'Rk parameters' };
+const rows = [
+  { olds: [{ n: 'ISO 1302', d: L.draw }], nw: { n: 'ISO 21920-1', d: L.draw } },
+  { olds: [{ n: 'ISO 4287', d: L.par }, { n: 'ISO 13565-2', d: L.rk }, { n: 'ISO 13565-3', d: '' }], nw: { n: 'ISO 21920-2', d: L.par } },
+  { olds: [{ n: 'ISO 4288', d: L.meas }], nw: { n: 'ISO 21920-3', d: L.meas } },
+];
+---
+<div class="isomap">
+  <div class="hd"><span>{L.old}</span><span></span><span>{L.now}</span></div>
+  {rows.map((r) => (
+    <div class="row">
+      <ul class="olds">
+        {r.olds.map((o) => <li><b>{o.n}</b>{o.d && <span>{o.d}</span>}</li>)}
+      </ul>
+      <svg class="arr" viewBox="0 0 60 40" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M2,20 L50,20" />
+        <path d="M44,13 L54,20 L44,27" class="head" />
+      </svg>
+      <div class="nw"><b>{r.nw.n}</b><span>{r.nw.d}</span></div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .isomap { display: grid; gap: 0.55rem; padding: 0.9rem 1rem 1rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  .hd, .row { display: grid; grid-template-columns: minmax(0, 1fr) 3.5rem minmax(0, 1fr); gap: 0.6rem; align-items: center; }
+  .hd { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+  .hd span:last-child { color: var(--color-spark-400); }
+  .row + .row { border-top: 1px dashed var(--line); padding-top: 0.55rem; }
+  .olds { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+  .olds li { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; padding: 0.4rem 0.6rem; border: 1px solid var(--line); border-radius: 5px; color: var(--ink-3); background: color-mix(in oklab, var(--bg) 60%, transparent); }
+  .olds li::before { content: none; }
+  .olds b { font-family: var(--font-mono); font-weight: 500; font-size: 0.86rem; color: var(--ink-2); text-decoration: line-through; text-decoration-color: color-mix(in oklab, var(--ink-3) 70%, transparent); }
+  .olds span, .nw span { font-size: 0.78rem; }
+  .arr { width: 100%; height: 1.6rem; overflow: visible; }
+  .arr path { fill: none; stroke: var(--color-spark-400); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; }
+  .nw { display: flex; flex-direction: column; gap: 0.1rem; padding: 0.55rem 0.75rem; border: 1px solid color-mix(in oklab, var(--color-spark-400) 55%, var(--line)); border-radius: 5px; background: color-mix(in oklab, var(--color-spark-400) 8%, transparent); }
+  .nw b { font-family: var(--font-mono); font-weight: 600; font-size: 0.98rem; color: var(--ink); }
+  .nw span { color: var(--ink-2); }
+  .olds b, .nw b { white-space: nowrap; }
+  @media (max-width: 40rem) { .hd, .row { grid-template-columns: minmax(0, 1fr) 1.6rem minmax(0, 1fr); gap: 0.4rem; } .isomap { padding: 0.8rem 0.7rem; } .nw { padding: 0.5rem 0.55rem; } .nw b { font-size: 0.88rem; } .olds li { padding: 0.35rem 0.5rem; } .olds b { font-size: 0.8rem; } }
+</style>

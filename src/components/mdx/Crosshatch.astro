@@ -1,0 +1,103 @@
+---
+/**
+ * Honing crosshatch from the kinematics: a point on the stone moves with the peripheral speed vc
+ * and the axial (stroke) speed va, so each scratch makes atan(va/vc) with the circumferential
+ * direction. Up- and down-stroke scratches cross at the included angle α = 2·atan(va/vc).
+ * Drawn on the unrolled bore wall: horizontal = circumference, vertical = bore axis.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? { D: 'Delik çapı D (mm)', n: 'İş mili devri n (dev/dak)', va: 'Strok (eksenel) hızı va (m/dak)', vc: 'Çevresel hız vc', alpha: 'Çapraz tarama açısı α (iç açı)', half: 'Yataya göre açı α/2', target: 'Hedef açı için gereken va', targetLabel: 'Hedef iç açı', axis: 'delik ekseni', circ: 'çevre yönü (açılmış duvar)', aria: 'Honlamada çapraz tarama açısı, açılmış delik duvarı üzerinde' }
+  : { D: 'Bore diameter D (mm)', n: 'Spindle speed n (rpm)', va: 'Stroke (axial) speed va (m/min)', vc: 'Peripheral speed vc', alpha: 'Crosshatch angle α (included)', half: 'Angle to the horizontal α/2', target: 'va needed for the target angle', targetLabel: 'Target included angle', axis: 'bore axis', circ: 'circumferential direction (wall unrolled)', aria: 'Honing crosshatch angle on the unrolled bore wall' };
+const uid = `xh-${locale}`;
+---
+<div class="xh" data-xh data-locale={locale} data-l={JSON.stringify(L)}>
+  <div class="grid">
+    <div class="inputs">
+      <label class="field"><span>{L.D}</span><input id={`${uid}-D`} type="number" min="1" step="any" value="100" data-i="D" /></label>
+      <label class="field"><span>{L.n}</span><input id={`${uid}-n`} type="number" min="1" step="1" value="150" data-i="n" /></label>
+      <label class="field"><span>{L.va} <output class="num" data-o="vaShow">20</output></span>
+        <input id={`${uid}-va`} type="range" min="2" max="60" step="0.5" value="20" data-i="va" /></label>
+      <label class="field"><span>{L.targetLabel} <output class="num" data-o="tShow">50</output>°</span>
+        <input id={`${uid}-t`} type="range" min="10" max="140" step="1" value="50" data-i="t" /></label>
+    </div>
+    <svg viewBox="0 0 360 260" role="img" aria-label={L.aria} data-svg></svg>
+  </div>
+  <dl class="read">
+    <div><dt>{L.vc}</dt><dd class="num" data-o="vc">—</dd></div>
+    <div><dt>{L.alpha}</dt><dd class="num big" data-o="alpha">—</dd></div>
+    <div><dt>{L.half}</dt><dd class="num" data-o="half">—</dd></div>
+    <div><dt>{L.target}</dt><dd class="num" data-o="need">—</dd></div>
+  </dl>
+</div>
+
+<style>
+  .xh { display: grid; gap: 0.75rem; }
+  .grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 1rem; align-items: start; }
+  @media (max-width: 44rem) { .grid { grid-template-columns: 1fr; } }
+  .inputs { display: grid; gap: 0.75rem; }
+  .field > span { display: flex; gap: 0.35rem; font-size: 0.85rem; }
+  .field output { color: var(--data); }
+  svg { width: 100%; height: auto; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .read { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+  @media (max-width: 44rem) { .read { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .read dt { font-size: 0.78rem; color: var(--ink-3); }
+  .read dd { margin: 0; color: var(--data); font-size: 1.1rem; }
+  .read dd.big { color: var(--accent); font-size: 1.4rem; }
+</style>
+
+<script>
+  const DEG = Math.PI / 180;
+  document.querySelectorAll<HTMLElement>('[data-xh]').forEach((root) => {
+    const L = JSON.parse(root.dataset.l!);
+    const tr = root.dataset.locale === 'tr';
+    const dec = (v: number, k = 1) => (tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+    const i = (k: string) => root.querySelector(`[data-i="${k}"]`) as HTMLInputElement;
+    const o = (k: string) => root.querySelector(`[data-o="${k}"]`) as HTMLElement;
+    const svg = root.querySelector('[data-svg]') as SVGSVGElement;
+    const font = 'font-family="IBM Plex Mono, monospace" font-size="11.5"';
+
+    function render() {
+      const D = Number(i('D').value), n = Number(i('n').value), va = Number(i('va').value), target = Number(i('t').value);
+      o('vaShow').textContent = dec(va, 1);
+      o('tShow').textContent = String(target);
+      if (!(D > 0) || !(n > 0)) { ['vc', 'alpha', 'half', 'need'].forEach((k) => (o(k).textContent = '—')); svg.innerHTML = ''; return; }
+      const vc = (Math.PI * D * n) / 1000; // m/min
+      const half = Math.atan(va / vc); // rad, to the circumferential direction
+      const alpha = 2 * half;
+      const need = vc * Math.tan((target / 2) * DEG);
+      o('vc').textContent = `${dec(vc)} m/${tr ? 'dak' : 'min'}`;
+      o('alpha').textContent = `${dec(alpha / DEG)}°`;
+      o('half').textContent = `${dec(half / DEG)}°`;
+      o('need').textContent = `${dec(need)} m/${tr ? 'dak' : 'min'}`;
+
+      // Unrolled wall: draw two families of scratches at ±half to the horizontal
+      const x0 = 20, x1 = 340, y0 = 30, y1 = 220, W = x1 - x0, H = y1 - y0;
+      const parts: string[] = [];
+      parts.push(`<defs><clipPath id="xh-clip-${tr ? 't' : 'e'}"><rect x="${x0}" y="${y0}" width="${W}" height="${H}"/></clipPath></defs>`);
+      parts.push(`<rect x="${x0}" y="${y0}" width="${W}" height="${H}" fill="color-mix(in oklab, var(--color-steel-500) 12%, transparent)" stroke="var(--color-steel-500)"/>`);
+      const g: string[] = [];
+      const k = Math.tan(half);
+      const spacing = 16;
+      // lines y = y0 + k (x - c) and y = y0 - k (x - c) for many c
+      for (let c = x0 - W * 4; c < x1 + W * 4; c += spacing / Math.max(Math.sin(half), 0.05)) {
+        g.push(`<line x1="${c}" y1="${y0}" x2="${c + H / Math.max(k, 1e-3)}" y2="${y1}" stroke="var(--accent)" stroke-width="1" stroke-opacity="0.7"/>`);
+        g.push(`<line x1="${c}" y1="${y1}" x2="${c + H / Math.max(k, 1e-3)}" y2="${y0}" stroke="var(--data)" stroke-width="1" stroke-opacity="0.7"/>`);
+      }
+      parts.push(`<g clip-path="url(#xh-clip-${tr ? 't' : 'e'})">${g.join('')}</g>`);
+      // angle mark at the centre
+      const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, r = 46;
+      parts.push(`<line x1="${cx - 70}" y1="${cy}" x2="${cx + 70}" y2="${cy}" stroke="var(--ink-2)" stroke-dasharray="4 3"/>`);
+      parts.push(`<path d="M${cx + r * Math.cos(half)} ${cy - r * Math.sin(half)} A${r} ${r} 0 0 1 ${cx + r * Math.cos(half)} ${cy + r * Math.sin(half)}" fill="none" stroke="var(--ink)" stroke-width="2"/>`);
+      parts.push(`<rect x="${cx + r + 6}" y="${cy - 11}" width="56" height="20" rx="3" fill="var(--bg-panel)"/>`);
+      parts.push(`<text x="${cx + r + 10}" y="${cy + 4}" ${font} fill="var(--ink)">α ${dec(alpha / DEG, 0)}°</text>`);
+      parts.push(`<text x="${x0}" y="${y1 + 18}" ${font} fill="var(--ink-3)">← ${L.circ} →</text>`);
+      parts.push(`<text x="${x0}" y="${y0 - 10}" ${font} fill="var(--ink-3)">↕ ${L.axis}</text>`);
+      svg.innerHTML = parts.join('');
+    }
+    ['D', 'n', 'va', 't'].forEach((k) => i(k).addEventListener('input', render));
+    render();
+  });
+</script>

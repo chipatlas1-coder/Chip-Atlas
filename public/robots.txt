@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://chipatlas.com/sitemap-index.xml

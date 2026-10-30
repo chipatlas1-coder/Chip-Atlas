@@ -1,0 +1,82 @@
+---
+/**
+ * The article's worked example as a calculation chain: inputs → h → kc → Fc → Pc and torque.
+ * Every number is computed here from the same inputs the article lists (C45, ISCAR kc1.1 = 1500,
+ * mc = 0.22; fn 0.25 mm, κr 95°, ap 2 mm, vc 200 m/min, D 50 mm), so the figure cannot drift from
+ * the formulas. Each input has a colour; the steps show the inputs they use.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const inp = { kc11: 1500, mc: 0.22, fn: 0.25, kr: 95, ap: 2, vc: 200, D: 50 };
+const h = inp.fn * Math.sin((inp.kr * Math.PI) / 180);
+const kc = inp.kc11 * Math.pow(h, -inp.mc);
+const Fc = kc * inp.ap * inp.fn;
+const Pc = (inp.vc * inp.ap * inp.fn * kc) / 60000;
+const M = Fc * (inp.D / 2 / 1000);
+const num = (v: number, k: number) => { const s = v.toFixed(k); return tr ? s.replace('.', ',') : s; };
+const grp = (v: number) => { const s = Math.round(v).toString(); return s.length > 4 ? s.replace(/\B(?=(\d{3})+(?!\d))/g, tr ? '.' : ',') : s; };
+const C = { mat: '#7a4fd0', fn: '#1e6fd6', kr: '#13998a', ap: '#c98a0a', vc: '#d4520f', D: '#be6299' };
+const inputs = [
+  { k: 'mat', html: tr ? `C45 · ISCAR: k<sub>c1.1</sub> ${grp(inp.kc11)} N/mm², m<sub>c</sub> ${num(inp.mc, 2)}` : `C45 · ISCAR: k<sub>c1.1</sub> ${grp(inp.kc11)} N/mm², m<sub>c</sub> ${num(inp.mc, 2)}` },
+  { k: 'fn', html: `f<sub>n</sub> ${num(inp.fn, 2)} mm` },
+  { k: 'kr', html: `κ<sub>r</sub> ${inp.kr}°` },
+  { k: 'ap', html: `a<sub>p</sub> ${inp.ap} mm` },
+  { k: 'vc', html: `v<sub>c</sub> ${inp.vc} m/min` },
+  { k: 'D', html: `D ${inp.D} mm` },
+];
+const steps = [
+  { t: tr ? 'Talaş kalınlığı' : 'Chip thickness', f: 'h = f<sub>n</sub> · sin κ<sub>r</sub>', w: `${num(inp.fn, 2)} · sin ${inp.kr}°`, v: `${num(h, 3)} mm`, uses: ['fn', 'kr'] },
+  { t: tr ? 'Özgül kesme kuvveti' : 'Specific cutting force', f: 'k<sub>c</sub> = k<sub>c1.1</sub> · h<sup>−m<sub>c</sub></sup>', w: `${grp(inp.kc11)} · ${num(h, 3)}<sup>−${num(inp.mc, 2)}</sup>`, v: `≈ ${grp(kc)} N/mm²`, uses: ['mat'] },
+  { t: tr ? 'Esas kesme kuvveti' : 'Main cutting force', f: 'F<sub>c</sub> = k<sub>c</sub> · a<sub>p</sub> · f<sub>n</sub>', w: `${grp(kc)} · ${inp.ap} · ${num(inp.fn, 2)}`, v: `≈ ${grp(Fc)} N`, uses: ['ap', 'fn'] },
+  { t: tr ? 'Kesme gücü' : 'Cutting power', f: 'P<sub>c</sub> = v<sub>c</sub> · a<sub>p</sub> · f<sub>n</sub> · k<sub>c</sub> / 60 000', w: `${inp.vc} · ${inp.ap} · ${num(inp.fn, 2)} · ${grp(kc)} / 60 000`, v: `≈ ${num(Pc, 2)} kW`, uses: ['vc', 'ap', 'fn'], end: true },
+  { t: tr ? 'İş milindeki tork' : 'Spindle torque', f: 'M = F<sub>c</sub> · D / 2', w: `${grp(Fc)} N · ${num(inp.D / 2000, 3)} m`, v: `≈ ${num(M, 1)} N·m`, uses: ['D'], end: true },
+];
+---
+<div class="chain">
+  <ul class="inputs" aria-label={tr ? 'Girdiler' : 'Inputs'}>
+    {inputs.map((i) => <li style={`--c:${C[i.k as keyof typeof C]}`}><i></i><span set:html={i.html} /></li>)}
+  </ul>
+  <ol class="steps">
+    {steps.map((s, i) => (
+      <li class:list={{ end: s.end }}>
+        <div class="top"><span class="n">{i + 1}</span><span class="t">{s.t}</span></div>
+        <p class="f" set:html={s.f} />
+        <p class="w" set:html={s.w} />
+        <p class="v">{s.v}</p>
+        <p class="uses" aria-label={tr ? 'Kullanılan girdiler' : 'Inputs used'}>
+          {[[], [1], [2], [2], [3]][i].map((p) => <span class="prev">← {p}</span>)}
+          {s.uses.map((u) => <i style={`--c:${C[u as keyof typeof C]}`}></i>)}
+        </p>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .chain { display: grid; gap: 0.6rem; padding: 0.9rem 1rem 0.4rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  .inputs { list-style: none; margin: 0 0 0.3rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .inputs li { margin: 0; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.25rem 0.6rem; border: 1px solid var(--line-strong); border-radius: 14px; font-family: var(--font-mono); font-size: 0.76rem; color: var(--ink); background: color-mix(in oklab, var(--c) 9%, transparent); }
+  .inputs li::before { content: none; }
+  .inputs i, .uses i { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--c); display: inline-block; flex: none; }
+  .steps { list-style: none; margin: 0; padding: 0; position: relative; counter-reset: none; }
+  .steps::before { content: ""; position: absolute; left: calc(0.675rem - 0.7px); top: 1.4rem; bottom: 1.6rem; width: 1.4px; background: color-mix(in oklab, var(--color-spark-400) 45%, var(--line)); }
+  .steps li { margin: 0; display: grid; grid-template-columns: 1.35rem minmax(7.5rem, 10.5rem) minmax(0, 1fr) auto; grid-template-areas: "n t f v" "n u w v"; column-gap: 1rem; row-gap: 0.15rem; align-items: baseline; padding: 0.65rem 0; border-top: 1px solid var(--line); }
+  .steps li:first-child { border-top: 0; }
+  .steps li::before { content: none; }
+  .top { display: contents; }
+  .n { grid-area: n; align-self: start; position: relative; z-index: 1; width: 1.35rem; height: 1.35rem; border-radius: 50%; border: 1.4px solid var(--color-spark-400); background: var(--bg-sunk); color: var(--color-spark-400); font: 600 0.72rem/1.15rem var(--font-mono); text-align: center; }
+  .t { grid-area: t; font-size: 0.86rem; font-weight: 600; color: var(--ink); line-height: 1.25; }
+  .f { grid-area: f; margin: 0; font-size: 0.9rem; color: var(--ink); }
+  .w { grid-area: w; margin: 0; font-family: var(--font-mono); font-size: 0.76rem; color: var(--ink-3); }
+  .v { grid-area: v; align-self: center; margin: 0; font-family: var(--font-mono); font-size: 1.05rem; color: var(--color-metro-400); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+  .end .v { color: var(--color-spark-400); font-size: 1.15rem; }
+  .uses { grid-area: u; margin: 0; display: flex; align-items: center; gap: 0.35rem; min-height: 1rem; }
+  .prev { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-3); margin-right: 0.15rem; }
+  @media (max-width: 40rem) {
+    .steps li { grid-template-columns: 1.35rem minmax(0, 1fr); grid-template-areas: "n t" "n f" "n w" "n v" "n u"; column-gap: 0.75rem; }
+    .v { text-align: left; }
+  }
+  .f :global(sub), .w :global(sub), .inputs :global(sub) { font-size: 0.72em; }
+  .f :global(sup), .w :global(sup) { font-size: 0.72em; }
+</style>

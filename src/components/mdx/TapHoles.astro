@@ -1,0 +1,168 @@
+---
+/**
+ * Two figures for the tap drill article, both drawn to scale for M10 (P = 1.5 mm), nut thread in
+ * axial section with the nut material above and the hole below. Basic profile (ISO 68-1): groove
+ * root flat P/8 at D, 60° flanks, crest flat P/4 at D1 = D − 5H/4.
+ *   mode="cutform": cutting tap in a d − P hole (8.5 mm) vs forming tap in a 9.30 mm hole
+ *                   (BAER and the Hommel table). Cut: the grooves are removed as chips. Formed: the
+ *                   grooves are pressed in and the material flows towards the crests (schematic).
+ *   mode="percent": thread depth of a d − P hole, P/2, against the two definitions of 100 %
+ *                   (OSG metric 5H/8, OSG inch 3H/4).
+ */
+import { trapWave, pts } from '../plates/cuttergeom';
+interface Props { locale: 'en' | 'tr'; mode: 'cutform' | 'percent' }
+const { locale, mode } = Astro.props;
+const tr = locale === 'tr';
+const d = 10, P = 1.5, H = (Math.sqrt(3) / 2) * P;
+const D1 = d - 1.082532 * P, D1max = 8.676, holeCut = d - P, holeForm = 9.3;
+const n = (v: number, k = 2) => { const s = v.toFixed(k); return tr ? s.replace('.', ',') : s; };
+const f = (v: number) => v.toFixed(1);
+// z: depth below the major diameter D, in mm (radial). y grows with z.
+const panel = (W: number, k: number, x0: number, pitches: number, top: number) => {
+  const Y = (z: number) => top + z * k, X = (x: number) => x0 + x * k;
+  const wf = ((5 * H) / 8) * Math.tan(Math.PI / 6);
+  const prof = trapWave(0, pitches * P, 0, P, wf, P / 4, 0, (5 * H) / 8).map(([x, z]) => [X(x), Y(z)] as [number, number]);
+  return { W, k, X, Y, prof, x1: X(pitches * P) };
+};
+const zOf = (dia: number) => (d - dia) / 2;
+const T = tr
+  ? { cut: 'Kesme kılavuzu', form: 'Ezme kılavuzu', holeC: `delik Ø${n(holeCut, 1)} = d − P`, holeF: `delik Ø${n(holeForm, 2)} (BAER, Hommel)`, chips: 'talaş olarak kesilir', pressed: 'yerinden itilir', flows: 'dişin üst kısımlarına akar', band: '6H D₁ aralığı', target: 'temel profil', D: 'D', D1: 'D₁',
+      depth: 'diş derinliği', metric: 'OSG metrik: 100 % = 5H/8', inch: 'OSG inç: 100 % = 3H/4', hole: `d − P deliği: P/2` }
+  : { cut: 'Cutting tap', form: 'Forming tap', holeC: `hole Ø${n(holeCut, 1)} = d − P`, holeF: `hole Ø${n(holeForm, 2)} (BAER, Hommel)`, chips: 'cut away as chips', pressed: 'pressed in', flows: 'flows into the crests', band: '6H band of D₁', target: 'basic profile', D: 'D', D1: 'D₁',
+      depth: 'thread depth', metric: 'OSG metric: 100 % = 5H/8', inch: 'OSG inch: 100 % = 3H/4', hole: 'hole d − P: P/2' };
+// percent mode values
+const depthHole = P / 2, pMetric = (depthHole / ((5 * H) / 8)) * 100, pInch = (depthHole / ((3 * H) / 4)) * 100;
+const pc = (v: number) => (tr ? `%${n(v, 0)}` : `${n(v, 0)} %`);
+---
+{mode === 'cutform' && (() => {
+  const k = 100, x0 = 10, top = 52, W = x0 * 2 + 2 * P * k;
+  const panels = [
+    { name: T.cut, hole: holeCut, lab: T.holeC, cut: true },
+    { name: T.form, hole: holeForm, lab: T.holeF, cut: false },
+  ];
+  return (
+    <div class="taph cf">
+      {panels.map((p) => {
+        const g = panel(W, k, x0, 2, top);
+        const zh = zOf(p.hole), yh = g.Y(zh);
+        const yTop = top - 22, yBot = g.Y((5 * H) / 8) + 30;
+        const above = g.prof.map(([x, y]) => [x, Math.min(y, yh)] as [number, number]);   // outline clipped at the hole line
+        const below = g.prof.map(([x, y]) => [x, Math.max(y, yh)] as [number, number]);
+        const groove = `M${f(g.X(0))},${f(yh)} L${pts(above)} L${f(g.x1)},${f(yh)} Z`;   // between outline and hole line, above it
+        const crest = `M${f(g.X(0))},${f(yh)} L${pts(below)} L${f(g.x1)},${f(yh)} Z`;    // between hole line and outline, below it
+        const nutCut = `M${f(g.X(0))},${f(yTop)} L${pts(above)} L${f(g.x1)},${f(yTop)} Z`;
+        const nutForm = `M${f(g.X(0))},${f(yTop)} L${pts(g.prof)} L${f(g.x1)},${f(yTop)} Z`;
+        const yB0 = g.Y(zOf(D1)), yB1 = g.Y(zOf(D1max));
+        return (
+          <figure class="pn">
+            <svg viewBox={`0 0 ${W} ${f(yBot)}`} role="img" aria-label={`${p.name}: ${p.lab}`}>
+              <defs><linearGradient id={`th-fade-${locale}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e6fd6" stop-opacity="0.55" /><stop offset="0.55" stop-color="#1e6fd6" stop-opacity="0.32" /><stop offset="1" stop-color="#1e6fd6" stop-opacity="0" /></linearGradient></defs>
+              <path d={p.cut ? nutCut : nutForm} fill="url(#ca-hatch)" />
+              <rect x={g.X(0)} y={f(yB1)} width={g.x1 - g.X(0)} height={f(yB0 - yB1)} class="band" />
+              {p.cut && <path d={groove} class="chips" />}
+              {!p.cut && <path d={groove} class="pressed" />}
+              {!p.cut && <path d={crest} fill={`url(#th-fade-${locale})`} />}
+              <path d={`M${pts(g.prof)}`} class="target" />
+              {p.cut && <path d={`M${pts(above)}`} class="cutline" />}
+              <line x1={g.X(0)} x2={g.x1} y1={yh} y2={yh} class="hole" />
+              {!p.cut && [0, 1, 2].flatMap((c) => [-1, 1].map((sgn) => {
+                const xa = c * P + sgn * 0.06 * P, xb = c * P + sgn * 0.36 * P;
+                if (xb < 0.02 || xb > 2 * P - 0.02) return null;
+                return <path d={`M${f(g.X(xa))},${f(g.Y(0.2))} Q${f(g.X((xa + xb) / 2) + sgn * 10)},${f(g.Y(zh - 0.02))} ${f(g.X(xb))},${f(g.Y(zh + 0.1))}`} class="flow" marker-end="url(#ca-arr-data)" />;
+              }))}
+              <text x={g.X(0)} y="18" class="ttl">{p.name}</text>
+              <text x={g.X(P / 2)} y={f(top - 6)} text-anchor="middle" class="lab dim">{tr ? 'somun' : 'nut'}</text>
+              <text x={g.x1 - 4} y={f(yBot - 8)} text-anchor="end" class="lab acc">{p.lab}</text>
+            </svg>
+            <figcaption>{p.cut ? T.chips : `${T.pressed}, ${T.flows}`}</figcaption>
+          </figure>
+        );
+      })}
+      <p class="key"><span><i class="k-chip"></i>{T.chips}</span><span><i class="k-press"></i>{T.pressed}</span><span><i class="k-formed"></i>{tr ? 'akan malzeme' : 'material that flows in'}</span><span><i class="k-band"></i>{T.band}</span><span><i class="k-tgt"></i>{T.target}</span></p>
+    </div>
+  );
+})()}
+
+{mode === 'percent' && (() => {
+  const W = 520, k = 190, top = 34;
+  const g = panel(W, k, 14, 1, top);
+  const yh = g.Y(depthHole);
+  const clamp = g.prof.map(([x, y]) => [x, Math.min(y, yh)] as [number, number]);
+  const nut = `M${f(g.X(0))},${f(top - 22)} L${pts(clamp)} L${f(g.x1)},${f(top - 22)} Z`;
+  const br = [
+    { z: depthHole, lab: 'P/2', c: '#e2601a', x: g.x1 + 30 },
+    { z: (5 * H) / 8, lab: '5H/8', c: '#1e6fd6', x: g.x1 + 74 },
+    { z: (3 * H) / 4, lab: '3H/4', c: '#7a4fd0', x: g.x1 + 118 },
+  ];
+  const yb = g.Y((3 * H) / 4);
+  return (
+    <div class="taph pc">
+      <svg viewBox={`0 0 ${W} ${f(yb + 34)}`} role="img" aria-label={`${T.hole}: ${pc(pMetric)} (5H/8), ${pc(pInch)} (3H/4)`}>
+        <path d={nut} fill="url(#ca-hatch)" />
+        <path d={`M${pts(g.prof)}`} class="target" />
+        <path d={`M${pts(clamp)}`} class="cutline" />
+        <line x1={g.X(0)} x2={br[2].x + 8} y1={g.Y(0)} y2={g.Y(0)} class="ref" />
+        {br.map((r) => <line x1={g.X(0)} x2={r.x + 8} y1={g.Y(r.z)} y2={g.Y(r.z)} class={r.lab === 'P/2' ? 'hole' : 'ref'} style={r.lab === 'P/2' ? '' : `stroke:${r.c}`} />)}
+        {br.map((r) => (
+          <g>
+            <line x1={r.x} x2={r.x} y1={g.Y(0) + 1} y2={g.Y(r.z) - 1} class="dimline" style={`stroke:${r.c}`} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+            <text x={r.x} y={f(yb + 22)} text-anchor="middle" class="blab" style={`fill:${r.c}`}>{r.lab}</text>
+          </g>
+        ))}
+        <text x={g.X(0) + 2} y={f(g.Y(0) - 8)} class="lab">D</text>
+        <text x={g.X(0) + 4} y={f(yh - 7)} class="lab acc">{tr ? `d − P deliği` : 'hole d − P'}</text>
+      </svg>
+      <div class="read">
+        <p class="rl"><span class="sw" style="background:#1e6fd6"></span>{T.metric}</p>
+        <p class="rv">{pc(pMetric)}</p>
+        <p class="rf">P/2 ÷ 5H/8 = {n(depthHole, 3)} ÷ {n((5 * H) / 8, 3)}</p>
+        <p class="rl"><span class="sw" style="background:#7a4fd0"></span>{T.inch}</p>
+        <p class="rv">{pc(pInch)}</p>
+        <p class="rf">P/2 ÷ 3H/4 = {n(depthHole, 3)} ÷ {n((3 * H) / 4, 3)}</p>
+      </div>
+    </div>
+  );
+})()}
+
+<style>
+  .taph { display: grid; gap: 0.5rem; }
+  .cf { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+  @media (max-width: 40rem) { .cf { grid-template-columns: minmax(0, 1fr); } }
+  .pn { margin: 0; padding: 0.5rem 0.6rem 0.6rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; display: grid; gap: 0.3rem; }
+  .pn figcaption { font-size: 0.8rem; color: var(--ink-2); }
+  .pc { padding: 0.8rem 0.9rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 1.2rem; align-items: center; }
+  @media (max-width: 40rem) { .pc { grid-template-columns: minmax(0, 1fr); } }
+  .read p { margin: 0; max-width: none; }
+  .rl { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: var(--ink-2); }
+  .rl:not(:first-child) { margin-top: 0.9rem !important; }
+  .sw { width: 0.7rem; height: 0.7rem; border-radius: 2px; display: inline-block; }
+  .rv { font-family: var(--font-mono); font-size: 1.9rem; line-height: 1.1; color: var(--ink); }
+  .rf { font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-3); }
+  .blab { font-family: var(--font-mono); font-size: 14px; }
+  svg { width: 100%; height: auto; display: block; }
+  .band { fill: color-mix(in oklab, #13998a 30%, transparent); }
+  .chips { fill: color-mix(in oklab, #e2601a 40%, #fbfdff); stroke: none; }
+  .pressed { fill: color-mix(in oklab, #1e6fd6 16%, #fbfdff); stroke: #1e6fd6; stroke-width: 1; stroke-dasharray: 3 3; }
+  .formed { fill: color-mix(in oklab, #1e6fd6 45%, #ecf2f7); }
+  .target { fill: none; stroke: #1b1d1e; stroke-opacity: 0.75; stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .cutline { fill: none; stroke: #1b1d1e; stroke-width: 1.5; stroke-linejoin: round; }
+  .hole { stroke: #e2601a; stroke-width: 1.8; }
+  .ref { stroke: #656e74; stroke-width: 1; stroke-dasharray: 3 3; }
+  .flow { stroke: #1e6fd6; stroke-width: 1.6; fill: none; }
+  .dimline { stroke-width: 1.4; }
+  .ttl { font-family: var(--font-sans); font-size: 13px; font-weight: 600; fill: var(--ink); }
+  .lab { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-2); paint-order: stroke; stroke: #fbfdff; stroke-width: 3px; }
+  /* phones: the percent drawing (520 wide) shrinks to about 60 % */
+  @media (max-width: 40rem) { .pc .lab { font-size: 18px; } .pc .blab { font-size: 17px; } }
+  .lab.acc { fill: #e2601a; }
+  .lab.dim { fill: var(--ink-3); }
+  .pv { font-family: var(--font-mono); font-size: 22px; fill: var(--ink); }
+  .key { grid-column: 1 / -1; margin: 0.2rem 0 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; font-size: 0.76rem; color: var(--ink-3); max-width: none; }
+  .key span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .key i { display: inline-block; width: 16px; height: 10px; border-radius: 2px; }
+  .k-chip { background: color-mix(in oklab, #e2601a 40%, #fbfdff); }
+  .k-press { background: color-mix(in oklab, #1e6fd6 16%, #fbfdff); border: 1px dashed #1e6fd6; }
+  .k-formed { background: linear-gradient(180deg, color-mix(in oklab, #1e6fd6 60%, transparent), transparent); }
+  .k-band { background: color-mix(in oklab, #13998a 22%, transparent); }
+  .k-tgt { height: 0 !important; border-top: 1.2px dashed #1b1d1e; }
+</style>

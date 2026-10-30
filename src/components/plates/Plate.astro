@@ -1,0 +1,91 @@
+---
+/**
+ * Article plate: a technical drawing that stands for the article.
+ * hero  — in the article header; strokes draw themselves once on load, labels follow.
+ * thumb — on section pages and cards; same drawing, no labels, no motion.
+ * The art for each article lives in ./art/<key>.astro (viewBox 0 0 480 320).
+ */
+import { plateCaption } from '../../data/plates';
+interface Props { k: string; locale: 'en' | 'tr'; mode?: 'hero' | 'thumb'; transition?: boolean }
+const { k, locale, mode = 'hero', transition = true } = Astro.props;
+const arts = import.meta.glob<{ default: any }>('./art/*.astro', { eager: true });
+const Art = arts[`./art/${k}.astro`]?.default;
+const caption = plateCaption(k, locale);
+---
+{Art && (
+  <div class:list={['plate', mode]} style={transition ? `view-transition-name: plate-${k}` : undefined}>
+    <Art locale={locale} label={caption} />
+    {mode === 'hero' && caption && <p class="plate-cap">{caption}</p>}
+  </div>
+)}
+
+<style is:global>
+  .plate {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background-color: var(--bg-sunk);
+    background-image:
+      linear-gradient(color-mix(in oklab, var(--color-graphite-600) 22%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--color-graphite-600) 22%, transparent) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: -1px -1px;
+    overflow: hidden;
+  }
+  .plate > svg { width: 100%; height: auto; display: block; }
+  .plate-cap {
+    margin: 0; padding: 0.55rem 0.9rem 0.6rem; border-top: 1px solid var(--line);
+    background: #eef2f6;
+    font-family: var(--font-sans); font-size: 0.8rem; color: var(--ink-2); max-width: none;
+  }
+
+  /* Drawing vocabulary */
+  .plate .o { fill: none; stroke: var(--color-graphite-200); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+  .plate .o2 { fill: none; stroke: var(--color-graphite-100); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+  .plate .h { fill: none; stroke: var(--color-graphite-400); stroke-width: 1; }
+  .plate .c { fill: none; stroke: var(--color-graphite-500); stroke-width: 1; stroke-dasharray: 14 4 3 4; }
+  .plate .dash { fill: none; stroke: var(--color-graphite-400); stroke-width: 1; stroke-dasharray: 4 4; }
+  .plate .a { fill: none; stroke: var(--color-spark-500); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .plate .b { fill: none; stroke: var(--color-metro-500); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .plate .metal { fill: url(#ca-metal); }
+  .plate .metal-h { fill: url(#ca-metal-h); }
+  .plate .face { fill: url(#ca-face); }
+  .plate .carbide { fill: url(#ca-carbide); }
+  .plate .coat { fill: url(#ca-coat); }
+  .plate .chip { fill: url(#ca-chip); }
+  .plate .hatch { fill: url(#ca-hatch); }
+  .plate .hatch-x { fill: url(#ca-hatch-x); }
+  .plate .hatch-acc { fill: url(#ca-hatch-acc); }
+  .plate .sunk { fill: var(--bg-sunk); }
+  .plate .fill-acc { fill: var(--color-spark-500); }
+  .plate .fill-data { fill: var(--color-metro-500); }
+  .plate .soft-acc { fill: color-mix(in oklab, var(--color-spark-500) 18%, transparent); }
+  .plate .soft-data { fill: color-mix(in oklab, var(--color-metro-500) 16%, transparent); }
+  .plate text { font-family: var(--font-mono); font-size: 12px; fill: var(--color-graphite-300); paint-order: stroke; stroke: var(--bg-sunk); stroke-width: 3.5px; stroke-linejoin: round; }
+  .plate text.t-acc { fill: var(--color-spark-400); }
+  .plate text.t-data { fill: var(--color-metro-400); }
+  .plate text.t-ink { fill: var(--color-graphite-100); }
+  .plate text.t-big { font-family: var(--font-sans); font-weight: 600; font-size: 30px; fill: var(--color-graphite-100); letter-spacing: -0.02em; }
+  .plate text.t-mid { font-family: var(--font-sans); font-weight: 600; font-size: 17px; fill: var(--color-graphite-100); }
+  .plate text.t-sm { font-size: 10.5px; }
+  .plate text.it { font-style: italic; font-family: var(--font-sans); font-size: 15px; }
+
+  .plate.thumb .lbl { display: none; }
+  .plate.thumb { border-radius: 6px; }
+
+  /* One orchestrated moment: the plotter draws the plate, then the labels arrive. */
+  @media (prefers-reduced-motion: no-preference) {
+    .plate.hero .d { stroke-dasharray: 1; stroke-dashoffset: 1; animation: plate-draw 1.15s cubic-bezier(0.55, 0.05, 0.25, 1) forwards; animation-delay: calc(var(--i, 0) * 80ms + 120ms); }
+    .plate.hero .f { opacity: 0; animation: plate-fade 0.7s ease-out forwards; animation-delay: calc(var(--i, 0) * 80ms + 250ms); }
+    .plate.hero .lbl { opacity: 0; animation: plate-fade 0.6s ease-out forwards; animation-delay: calc(var(--i, 0) * 70ms + 1100ms); }
+    .plate.hero .spin { transform-box: fill-box; transform-origin: center; animation: plate-spin var(--spin, 9s) linear infinite; }
+    .plate.hero .spin-ccw { transform-box: fill-box; transform-origin: center; animation: plate-spin var(--spin, 9s) linear infinite reverse; }
+    .plate.hero .stroke-y { animation: plate-stroke 3.2s ease-in-out infinite alternate; }
+    .plate.hero .flow { stroke-dasharray: 6 10; animation: plate-flow 1.4s linear infinite; }
+  }
+  @keyframes plate-draw { to { stroke-dashoffset: 0; } }
+  @keyframes plate-fade { to { opacity: 1; } }
+  @keyframes plate-spin { to { transform: rotate(360deg); } }
+  @keyframes plate-stroke { from { transform: translateY(-34px); } to { transform: translateY(34px); } }
+  @keyframes plate-flow { to { stroke-dashoffset: -32; } }
+</style>

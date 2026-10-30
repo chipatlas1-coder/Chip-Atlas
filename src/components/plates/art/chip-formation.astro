@@ -1,0 +1,101 @@
+---
+/* Orthogonal cutting drawn to its geometry. Rake angle 10° (written α, the textbook symbol the
+   article uses), clearance 7°, shear angle φ = 28°, uncut thickness h = 22 units.
+   Chip thickness hc = h·cos(φ − α)/sin φ ≈ 44.6, so the chip's free side passes through S.
+   Flow lines: each layer of the work moves toward the tool, turns at the shear plane and leaves
+   parallel to the rake face; the chip then curls away. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? { chip: 'talaş', tool: 'takım', work: 'iş parçası', shear: 'kayma düzlemi', rake: 'talaş yüzeyi', flank: 'serbest yüzey' }
+  : { chip: 'chip', tool: 'tool', work: 'workpiece', shear: 'shear plane', rake: 'rake face', flank: 'clearance face' };
+const rad = (d: number) => (d * Math.PI) / 180;
+const al = rad(10), cl = rad(7), phi = rad(28);
+const yS = 168, yC = 190, h = yC - yS; // free surface, cut line
+const T = [300, yC];
+const S = [T[0] - h / Math.tan(phi), yS];
+const hc = (h * Math.cos(phi - al)) / Math.sin(phi);
+const u = [Math.sin(al), -Math.cos(al)]; // up the rake face
+const nv = [-Math.cos(al), -Math.sin(al)]; // from the rake face into the chip
+const add = (p: number[], q: number[], k = 1) => [p[0] + k * q[0], p[1] + k * q[1]];
+const lc = 64; // contact length along the rake face
+const Rf = 34; // curl radius of the free side
+const sweep = rad(-112);
+const contactEnd = add(T, u, lc);
+const cIn = add(contactEnd, nv, hc);
+const C = add(cIn, nv, Rf);
+const a0 = Math.atan2(-nv[1], -nv[0]);
+const f1 = (p: number[]) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+const arc = (r: number, steps = 28) => Array.from({ length: steps + 1 }, (_, i) => { const a = a0 + (sweep * i) / steps; return [C[0] + r * Math.cos(a), C[1] + r * Math.sin(a)]; });
+const outer = arc(Rf + hc), inner = arc(Rf);
+const chip = `M${f1(S)} L${f1(T)} L${f1(contactEnd)} ${outer.map((p) => 'L' + f1(p)).join(' ')} ${[...inner].reverse().map((p) => 'L' + f1(p)).join(' ')} Z`;
+// streamline for a layer at depth fraction k (0 = free surface, 1 = cut line)
+const stream = (k: number) => {
+  const P = add(S, [T[0] - S[0], T[1] - S[1]], k);
+  const Q = add(cIn, nv, -k * hc);
+  const r = Rf + k * hc;
+  const a = arc(r, 24).slice(0, 22);
+  return `M48,${(yS + k * h).toFixed(1)} L${f1(P)} L${f1(Q)} ${a.map((p) => 'L' + f1(p)).join(' ')}`;
+};
+const layers = [0.2, 0.45, 0.7, 0.92];
+const grains = [204, 220, 238, 258, 280, 304];
+const R = add(T, u, 160);
+const yClear = yC - (480 - T[0]) * Math.tan(cl);
+// dimension across the chip
+const I = add(T, u, 34), O = add(I, nv, hc);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id={`cf-work-${locale}`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e6ebef" /><stop offset="1" stop-color="#cdd5dc" />
+    </linearGradient>
+  </defs>
+  <!-- workpiece: break line on the left, uncut layer, cut line under the tool -->
+  <path class="f" style="--i:0" fill={`url(#cf-work-${locale})`} d={`M46,${yS} L${f1(S)} L${f1(T)} L480,${yC} L480,320 L50,320 C40,300 58,286 48,266 C38,246 56,230 46,210 C38,194 52,180 46,${yS} Z`} />
+  <g class="f" style="--i:1" stroke="#9fa8b0" stroke-width="1" fill="none" stroke-opacity="0.75">
+    {grains.map((y) => <line x1="48" y1={y} x2="480" y2={y} />)}
+  </g>
+  <path class="o2 d" style="--i:1" pathLength="1" d={`M46,${yS} L${f1(S)} L${f1(T)} L480,${yC}`} />
+  <path class="h f" style="--i:1" d={`M46,${yS} C52,180 38,194 46,210 C56,230 38,246 48,266 C58,286 40,300 50,320`} />
+  <line class="dash f" style="--i:2" x1="46" y1={yC} x2={T[0]} y2={yC} />
+  <!-- heat: primary shear zone and the rake-face contact -->
+  <line class="f" style="--i:5" x1={S[0]} y1={S[1]} x2={T[0]} y2={T[1]} stroke="#e2601a" stroke-opacity="0.35" stroke-width="12" stroke-linecap="round" />
+  <line class="f" style="--i:6" x1={T[0]} y1={T[1]} x2={contactEnd[0]} y2={contactEnd[1]} stroke="#e2601a" stroke-opacity="0.2" stroke-width="9" stroke-linecap="round" />
+  <!-- chip -->
+  <path class="chip f" style="--i:3" d={chip} />
+  <!-- flow lines through the shear plane into the chip -->
+  <g fill="none" stroke-linejoin="round">
+    {layers.map((k, i) => <path class="d" style={`--i:${4 + i}`} pathLength="1" d={stream(k)} stroke="#1b1d1e" stroke-opacity="0.55" stroke-width="1" />)}
+  </g>
+  <path class="o d" style="--i:4" pathLength="1" d={chip} />
+  <!-- tool -->
+  <path class="carbide f" style="--i:1" d={`M${f1(T)} L${f1(R)} L480,${R[1].toFixed(1)} L480,${yClear.toFixed(1)} Z`} />
+  <path class="o2 d" style="--i:2" pathLength="1" d={`M480,${R[1].toFixed(1)} L${f1(R)} L${f1(T)} L480,${yClear.toFixed(1)}`} />
+  <!-- shear plane -->
+  <line class="a d" style="--i:5" pathLength="1" x1={S[0]} y1={S[1]} x2={T[0]} y2={T[1]} />
+
+  <g class="lbl">
+    <line class="h" x1="40" y1={yS} x2="14" y2={yS} />
+    <line class="h" x1="40" y1={yC} x2="14" y2={yC} />
+    <line class="h" x1="22" y1={yS + 2} x2="22" y2={yC - 2} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <text class="it t-ink" x="4" y={yS - 6}>h</text>
+    <line class="h" x1={I[0]} y1={I[1]} x2={O[0]} y2={O[1]} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" stroke="#1b1d1e" />
+    <text class="it t-ink" x={O[0] - 30} y={O[1] - 2}>h<tspan font-size="11" dy="4">c</tspan></text>
+    <path class="h" d={`M${T[0] - 34},${yC} A34,34 0 0,1 ${(T[0] - 34 * Math.cos(phi)).toFixed(1)},${(yC - 34 * Math.sin(phi)).toFixed(1)}`} stroke="#e2601a" />
+    <text class="it t-acc" x={T[0] - 52} y={yC - 3}>φ</text>
+    <line class="dash" x1={T[0]} y1={yC} x2={T[0]} y2="112" />
+    <path class="h" d={`M${T[0]},${yC - 58} A58,58 0 0,1 ${(T[0] + 58 * Math.sin(al)).toFixed(1)},${(yC - 58 * Math.cos(al)).toFixed(1)}`} />
+    <text class="it t-ink" x={T[0] + 16} y={yC - 52}>α</text>
+    <line class="a" x1="80" y1="268" x2="190" y2="268" marker-end="url(#ca-arr-acc)" />
+    <text class="it t-acc" x="82" y="258">v<tspan font-size="11" dy="4">c</tspan></text>
+    <line class="h" x1="232" y1="236" x2={(S[0] + T[0]) / 2 + 4} y2={(S[1] + T[1]) / 2 + 2} />
+    <text x="128" y="244">{L.shear}</text>
+    <line class="h" x1="168" y1="58" x2="222" y2="72" />
+    <text class="t-ink" x="120" y="56">{L.chip}</text>
+    <text class="t-mid" x="388" y="106">{L.tool}</text>
+    <text class="t-sm" x={R[0] + 10} y={R[1] - 8}>{L.rake}</text>
+    <text class="t-sm" x="362" y={yClear - 12}>{L.flank}</text>
+    <text class="t-ink" x="70" y="306">{L.work}</text>
+  </g>
+</svg>

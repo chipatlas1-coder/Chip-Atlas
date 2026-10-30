@@ -1,0 +1,93 @@
+---
+key: ballbar
+locale: tr
+slug: ballbar-testi
+title: 'Ballbar testi (ISO 230-4)'
+description: 'Bir CNC tezgâhını, teleskopik bir çubuğa karşı bir çember boyunca hareket ettirerek kontrol etmek: ballbar neyi ölçer, ISO 230-4 ve terimleri, test nasıl yapılır, backlash, reversal spike, diklik (squareness), servo mismatch ve ölçek farkı (scale mismatch) çizimde nasıl görünür ve sonrasında ne yapılır.'
+section: 3
+subsection: machine-selection
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'CW + CCW'
+    label: 'Her yönde birer tur: standart test (Renishaw)'
+  - value: '90° ya da 180°'
+    label: 'Renishaw’ın 360°’lik test yayı için önerdiği taşma (overshoot)'
+  - value: '220°'
+    label: 'QC20-W’nin merkez pivotuyla düşey düzlemlerdeki kısmi yay (Renishaw)'
+  - value: '±(0,7 + %0,3 L) µm'
+    label: 'QC20-W ölçme doğruluğu, L ölçülen uzunluk; 15–25 °C’de geçerli (Renishaw)'
+sources:
+  - label: 'ISO 230-4:2022, Test code for machine tools — Part 4: Circular tests for numerically controlled machine tools, 3. baskı (katalog sayfası)'
+    url: https://www.iso.org/standard/79155.html
+  - label: 'SIS (İsveç Standartlar Enstitüsü), ISO 230-4:2022 ürün sayfası: 3. baskı, onay 22.02.2022, durum geçerli'
+    url: https://www.sis.se/en/produkter/manufacturing-engineering/industrial-automation-systems/numerically-controlled-machines/iso-230-42022
+  - label: 'ISO 230-4:2005, 2. baskı (önizleme: önsöz ve içindekiler)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+230-4-2005.pdf
+  - label: 'Renishaw, QC20-W wireless ballbar system, broşür L-8014-1588-07-A'
+    url: https://renishaw.com/resourcecentre/en/download/qc20-w--25899
+  - label: 'Renishaw, QC20 ballbar, broşür L-8014-9054-01-A, 2024'
+    url: https://renishaw.com/media/pdf/en/24168909daf94465b81a3dbab3e99900.pdf
+  - label: 'Renishaw, white paper “Ballbar testing in tandem with circle, diamond, square machining tests”, H-5650-2055-01-A'
+    url: https://renishaw.com/resourcecentre/en/download/--99071
+  - label: 'Renishaw, uygulama notu “Errors diagnosed using partial arc analysis”, H-8014-1639-01-A'
+    url: https://renishaw.com/resourcecentre/en/download/application-note-errors-diagnosed-using-partial-arc-analysis--32314
+  - label: 'Haas Automation, “Ballbar - QC20-W - Analysis”, 2020'
+    url: https://www.haascnc.com/content/haascnc/en/service/troubleshooting-and-how-to/how-to/ballbar---qc20-w---analysis.html
+  - label: 'HEIDENHAIN, KGM 200 serisi ızgara enkoderleri (ürün sayfası)'
+    url: https://www.heidenhain.us/products/testing-inspection-devices/machine-tool-inspection/kgm-200/
+  - label: 'J. Józwik, Ł. Semotiuk, I. Kuric, “Diagnostic of CNC Lathe with QC 20 Ballbar System”, Advances in Science and Technology Research Journal 9(28), 2015, 96–102'
+    url: https://bibliotekanauki.pl/articles/103158.pdf
+  - label: 'M. Woźniak, P. Majda, “Analysis of results of circular tests for numerically controlled machine tools…”, Advances in Manufacturing Science and Technology 40(3), 2016'
+    url: https://yadda.icm.edu.pl/baztech/element/bwmeta1.element.baztech-d876e06c-7f30-4bcc-b7ec-45a1b34f8bd0/c/Wozniak_Majda_Analysis_of_results_of_circular_tests_Adv_in_Mfg_Science_and_Technol_V40_nr_3_2016.pdf
+  - label: 'Seoul National University OCW, Precision Metrology, Week 11: Contour measurement using the ball-bar sensor (ders notları)'
+    url: https://ocw.snu.ac.kr/sites/default/files/NOTE/Precision%20Metrology%20Week11%20-%20contour_measurement.pdf
+  - label: 'C. Warren, “The In’s and Out’s of Ballbar Calibration”, MoldMaking Technology, 2003 (güncelleme 2023)'
+    url: https://www.moldmakingtechnology.com/articles/the-ins-and-outs-of-ballbar-calibration
+---
+import BallbarPlot from '../../../components/mdx/BallbarPlot.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Ballbar, iki ucunda birer bilye bulunan teleskopik bir çubuktur; bilyelerden biri iş milinde, öteki tablada tutulur. Tezgâh iş milini programlanmış bir çember boyunca hareket ettirir ve çubuğun dönüştürücüsü yarıçapın nasıl değiştiğini kaydeder; Renishaw’a göre ballbar, sabit bir nokta etrafında döndürülürken yarıçaptaki değişimleri ölçer. Seoul Ulusal Üniversitesi’nin ders notları fikri açıkça koyar: kusursuz bir tezgâh anma çemberine karşılık gelen kusursuz bir çember verir. Çubuğun kendi küçük belirsizliği dışında sapmalar tezgâhtan gelir ve farklı kusurlar farklı biçimler bırakır. Kumandanın dairesel interpolasyonu nasıl yaptığı için [G00, G01, G02, G03](/tr/cnc-programlama/g00-g01-g02-g03-hareket-komutlari/) sayfasına bakın.
+
+Test ISO 230-4’te standartlaştırılmıştır. Güncel baskı, Şubat 2022’de onaylanan üçüncü baskıdır (ISO; SIS): standart, sayısal denetimli takım tezgâhlarının kontur izleme (*contouring*) başarımını belirleme yöntemlerini verir. Standart ballbar’a bağlı değildir; örneğin HEIDENHAIN onu temassız ızgara enkoderi (*grid encoder*) için anar. Terimleri değişmiştir: 2005 baskısı dairesel histerezis H’nin (*circular hysteresis*) yerine iki yönlü dairesel sapma G(b)’yi (*bi-directional circular deviation*) koymuş ve ortalama iki yönlü radyal sapma D’yi (*mean bi-directional radial deviation*) eklemiştir; 2022 özeti iki yönlü dairesel hatanın (*bi-directional circular error*) test edilip değerlendirilmesini tanımlar ve dairesel hatalarla radyal hatalar (*radial errors*) arasındaki farkları anlatır; tanımları bu sayfa için görülmedi. Başlıca sayı yarıçapların yayılımıdır. Renishaw’ın 2022 baskısından önce yazılmış teknik makalesine göre kaydedilen veri merkezlenir, en büyük ve en küçük yarıçap arasındaki fark hesaplanır ve ISO 230-4 ile B5.54 standartlarında bu sonuca dairesel sapma (*circular deviation*) denir. Woźniak ve Majda da 2005 baskısına dayanarak dairesellik sapması G’yi gerçek yolun noktalarının en küçük kareler çemberinin merkezine en büyük ve en küçük uzaklığı arasındaki fark olarak tanımlar.
+
+## Testin yapılışı
+
+- **İki yön.** Renishaw: standart test, tezgâhın art arda iki çember çizmesini ister; biri saat ibresi yönünde (CW), öteki ters yönde (CCW).
+- **Taşma (*overshoot*).** Renishaw’a göre uygulamada tezgâhın hızlanıp yavaşlayabilmesi için test çemberinden önce ve sonra fazladan bir yay eklenir. Teknik makalesi 90° ya da 180° önerir; bu, eksenlerin yön değiştirme noktalarındaki izlerin güvenle yakalanmasını sağlar.
+- **Düzlemler.** Haas testi XY, XZ ve YZ eksen bileşimlerinin her birinde yapar. QC20-W’nin merkez pivotuyla (*centre pivot*) düşey düzlemler 220°’lik bir yayla test edilir; böylece üç düzlem de merkez pivotu yeniden konumlandırmadan kontrol edilebilir (Renishaw). Woźniak ve Majda YZ ve XZ testlerini −20° ile 200° arasında, XY testini tam çember olarak yapmıştır.
+- **Yarıçap.** QC20-W 100, 150, 250, 300, 400, 450, 550 ya da 600 mm yarıçaplarla, uzatmalarla 1350 mm’ye kadar ve isteğe bağlı küçük çember setiyle (*small circle kit*) 50 mm yarıçapla test eder (Renishaw). Renishaw’ın 2024 tarihli QC20 broşürü standart setin en küçük yarıçapını 100 mm olarak verir; aynı broşürün teknik tablosu ise 30 mm ile 1350 mm arası test yarıçapları verir. Renishaw’a göre küçük çemberler servo ve dinamik hataların etkisini öne çıkarır; HEIDENHAIN, kendi ızgara enkoderi için, büyük yarıçaplı dairesel interpolasyon testlerinin tezgâh geometrisi verisi verdiğini yazar.
+- **İlerleme.** Tek bir standart ilerleme bulunamadı. Haas’ın yordamı 150 mm yarıçapta 254 mm/dak kullanır; Renishaw, test işlenmiş bir parçayla karşılaştırılacaksa ballbar testindeki ilerlemenin son paso kesmelerindekiyle aynı olması gerektiğini yazar.
+- **Çubuğun kendisi.** Renishaw’a göre ballbar boyu ideal olarak testten önce ballbar kalibratörüyle kalibre edilmelidir; Haas kalibrasyon setini en az 30 dakika ortam sıcaklığına alıştırır. Renishaw QC20-W’nin doğruluğunu ± (0,7 + %0,3 L) µm olarak verir (L, hatanın ölçüldüğü uzunluk); 15–25 °C arasında geçerlidir, çözünürlük 0,1 µm’dir.
+
+## Çizimi okumak
+
+Renishaw hataları ilerlemeye verdikleri tepkiye göre ayırır. Aralarında ölçek (*scaling*) ve diklik (*squareness*) hatalarının da bulunduğu konum (*positional*) hataları ilerleme ne olursa olsun aynı büyüklükte kalır; aralarında *backlash*, *reversal spike* ve servo kazancının (*servo gain*) bulunduğu dinamik (*dynamic*) hatalar ilerlemeyle değişir. İkinci ayırt edici yöndür: bazı biçimler çember öbür yönde çizilince ters döner, bazıları dönmez.
+
+<Figure caption="Bir ballbar çizimi, büyütülmüş: 100 mm’lik anma çemberinden sapma, saat ibresine ters (kırmızı) ve saat ibresi yönünde (mavi); tezgâh çemberi dolaştıkça kalem izi çizer. Her seferinde bir hata, büyüklüğü kaydırıcıda; veri merkezlenir, ölçek (ortadaki µm/bölme) hatanın büyüklüğüne uyar ve gösterge her turun en büyük ve en küçük yarıçapı arasındaki farktır. Biçimler bu sayfanın tek bir hata için birinci dereceden modellerinden gelir (backlash: dönüş noktasının iki yanında backlash’in yarısı kadar gecikme; diklik: eksenler arasında bir çarpıklık; X’te bir ölçek farkı; servo mismatch: bir eksenin ötekinden Δt kadar geride kalması); kaynakların anlattığı biçimleri gösterir, ölçülmüş bir tezgâhı değil.">
+  <BallbarPlot locale="tr" />
+</Figure>
+
+- **Backlash (boşluk).** Bir eksenin yön değiştirdiği yerde bir basamak. Józwik ve arkadaşlarına göre backlash çizimde hareket yarıçapının eğrinin içinden dışına ya da içine sıçraması olarak görülür; vida-somun bağlantısındaki boşluk gibi nedenleri vardır. SNU notları onu yön değiştirme noktasındaki yarıçap sıçraması olarak okur. Renishaw: backlash ayar ya da kompanzasyon gerektirebilir.
+- **Reversal spike.** Yön değiştirme noktalarında kısa bir sivrilik. Józwik ve arkadaşları: yön değiştiğinde ortaya çıkar; başlıca nedeni servo sürücünün kumanda sinyaline fazla yavaş yanıt vermesidir. Test ettikleri tornada Z eksenindeki sivrilik ilerlemeyle büyümüştür: 500 mm/dak’da −0,2 µm’den 2000 mm/dak’da −3,7 µm’ye; X eksenindeki ise −1,8 ile −2,1 µm arasında kalmıştır. Bir sektör makalesi bunu eksenin yön değiştirme noktasında bir an durabilmesiyle açıklar.
+- **Diklik (*squareness*).** Köşegenler üzerinde bir oval. Józwik ve arkadaşlarına göre çizim 45° ya da 135° eğik bir oval ya da yer fıstığı biçimini alır ve ekseni dairesel interpolasyonun iki yönü için, saat ibresi yönünde de tersinde de aynıdır. Ölçtükleri diklik 500 ile 2000 mm/dak arasındaki ilerlemelerde −66 ile −84 µm/m arasında kalmıştır. Renishaw: tezgâhın dikliği ayar ya da kompanzasyon gerektirebilir.
+- **Servo mismatch (servo uyumsuzluğu).** Yine 45°’de bir oval, ama yön değişince 90° dönen bir oval; nedeni eşleşmeyen servo kazançlarıdır (MoldMaking Technology); SNU notları terime iki yönde ters işaret verir. Renishaw onu bir zaman olarak verir: bir örnek çizimin etiketi 0.2mS servo mismatch’tir; Renishaw’ın bu değeri nasıl tanımladığı bulunamadı. Bu sayfanın modelinde bir eksenin v ilerlemesinde Δt kadar geride kalması, en büyük ve en küçük yarıçapı arasındaki farkı v·Δt olan bir oval verir: 1000 mm/dak’da 1 ms yaklaşık 17 µm eder, yarıçap ne olursa olsun (SNU notlarındaki servo teriminde de yarıçap yoktur); diklik gibi geometrik hatalar ise yarıçapla büyür.
+- **Ölçek farkı (*scale mismatch*).** Bir eksen boyunca bir oval; eksen fazla ya da eksik gittiği için (MoldMaking Technology). Renishaw: kalibre edilmiş bir ballbar ile yazılım eksen ölçeği ve radyal sapma için göreli değil mutlak hataları hesaplar.
+
+Renishaw’ın yazılımı başkalarını da adlandırır: aralarında *lateral play*, *cyclic error*, doğrusallık (*straightness*) ve *stick-slip* vardır. Bir sektör makalesi *cyclic error*’ı vidadaki ya da bağlantısındaki bir kusurdan gelen bir dalgalılık olarak anlatır (MoldMaking Technology); ötekilerin çizimdeki biçimleri bu sayfa için okunan kaynaklarda bulunamadı.
+
+## Testten sonra
+
+Renishaw’ın Ballbar 20 yazılımı teşhis edilen her hatayı tezgâhın genel doğruluğuna etkisine göre sıralar; Renishaw birçok hatanın çoğu zaman dakikalar içinde giderilebildiğini yazar. Teknik makalesi neyin gerekebileceğini sayar: backlash, diklik ve eksen kılavuzlarının doğrusallığı ayar ya da kompanzasyon gerektirebilir; backlash ya da boşluk (*play*) hataları için eksen backlash’i ayar ya da kompanzasyon, kılavuz boşluğu ise ayar gerektirebilir. Kumandanın neyi kompanze edebildiğini, neyin mekanik iş gerektirdiğini tam olarak sıralayan bir kaynak bulunamadı.
+
+Bir tezgâhın test aralığını belirleyen bir kaynak da bulunamadı. MoldMaking Technology, yeni ekipmanı önce test eden, tezgâh taşındıktan, çarptıktan ya da iş mili arızalandıktan sonra yeniden ve yılda bir kez test eden bir kullanıcıyı anlatır. Renishaw’ın 12 ayı ballbar’ın kendisinin kalibrasyonu içindir: Renishaw, ölçümün şartname içinde kaldığından emin olmak için QC20 ballbar’ın her 12 ayda bir yeniden kalibre edilmesini önerir.
+
+<CheckList id="ballbar-before" locale="tr" items={[
+  { icon: 'sync', title: 'Yönler', check: 'İki turun da yapılıp yapılmadığı.', fix: 'Bir saat ibresi yönünde, bir ters yönde çember (Renishaw).', src: 'Renishaw' },
+  { icon: 'depth', title: 'Taşma', check: 'Test çemberinden önceki ve sonraki yaylar.', fix: 'Yön değiştirme noktalarındaki izler için 90° ya da 180° taşma (Renishaw).', src: 'Renishaw' },
+  { icon: 'align', title: 'Düzlem ve yarıçap', check: 'Hangi düzlemler, hangi yarıçap.', fix: 'XY, XZ ve YZ (Haas); merkez pivotla düşey düzlemlerde 220° yay; servo ve dinamik hatalar için küçük yarıçap (Renishaw).', src: 'Haas; Renishaw' },
+  { icon: 'hard', title: 'Sıcaklık', check: 'Ballbar ve kalibratör.', fix: 'Seti en az 30 dakika bekletin (Haas); testten önce çubuk boyunu kalibre edin; doğruluk 15–25 °C’de geçerli (Renishaw).', src: 'Haas; Renishaw' },
+  { icon: 'speed', title: 'İlerleme', check: 'Hataların ilerlemeyle değişip değişmediği.', fix: 'Konum hataları aynı kalır, dinamik hatalar değişir (Renishaw); bu yüzden ikinci bir ilerlemede yapılan tekrar onları ayırt eder.', src: 'Renishaw' },
+]} />

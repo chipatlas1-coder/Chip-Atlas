@@ -1,0 +1,50 @@
+---
+/* M10 tapped hole in section, 14 units per mm: drill 8.5 mm (d − P), thread major 10 mm,
+   pitch 1.5 mm, 118° drill point, thread stops short of the hole bottom. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const s = 14, cx = 240, rd = (8.5 / 2) * s, rM = 5 * s, p = 1.5 * s;
+const top = 70, threadEnd = 200, holeEnd = 238;
+const tip = holeEnd + rd / Math.tan((59 * Math.PI) / 180);
+// internal thread wall in section, ISO profile truncated by the drill: crest flat on the drilled
+// diameter, 60° flanks, root flat P/8 on the major diameter. The right wall is shifted by P/2 (helix).
+const wall = (side: number) => {
+  const pts: string[] = [];
+  const run = (rM - rd) * Math.tan(Math.PI / 6), root = p / 8, crest = p - root - 2 * run;
+  const shift = side > 0 ? p / 2 : 0;
+  const x1 = cx + side * rd, x2 = cx + side * rM;
+  pts.push(`${x1},${top}`);
+  for (let y = top + shift - p; y < threadEnd - p; y += p) {
+    const a = y + crest, b = a + run, c = b + root, d = c + run;
+    if (b < top) continue;
+    pts.push(`${x1},${Math.max(a, top)}`, `${x2},${b}`, `${x2},${c}`, `${x1},${d}`);
+  }
+  pts.push(`${x1},${threadEnd}`, `${x1},${holeEnd}`);
+  return pts;
+};
+const L = wall(-1), R = wall(1);
+const left = `M40,${top} L${L.join(' L')} L${cx},${tip} L${cx},300 L40,300 Z`;
+const right = `M440,${top} L${R.join(' L')} L${cx},${tip} L${cx},300 L440,300 Z`;
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <path class="hatch f" style="--i:0" d={left} />
+  <path class="hatch f" style="--i:1" d={right} />
+  <path class="o2 d" style="--i:2" pathLength="1" d={`M40,${top} L${L.join(' L')} L${cx},${tip}`} />
+  <path class="o2 d" style="--i:3" pathLength="1" d={`M440,${top} L${R.join(' L')} L${cx},${tip}`} />
+  <line class="c f" style="--i:4" x1={cx} y1="30" x2={cx} y2="306" />
+  <line class="dash f" style="--i:5" x1={cx - rM} y1={top} x2={cx - rM} y2={threadEnd} />
+  <line class="dash f" style="--i:5" x1={cx + rM} y1={top} x2={cx + rM} y2={threadEnd} />
+  <g class="lbl">
+    <line class="h" x1={cx - rM} y1="66" x2={cx - rM} y2="38" /><line class="h" x1={cx + rM} y1="66" x2={cx + rM} y2="38" />
+    <line class="h" x1={cx - rM + 2} y1="44" x2={cx + rM - 2} y2="44" marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <text class="t-ink" x={cx - 26} y="38">d = 10</text>
+    <line class="a" x1={cx - rd + 2} y1="222" x2={cx + rd - 2} y2="222" marker-start="url(#ca-arr-acc)" marker-end="url(#ca-arr-acc)" stroke-width="1.6" />
+    <text class="t-acc" x={cx + rd + 12} y="226">{dec('8.5')} = d − P</text>
+    <text class="t-sm" x={cx + rd + 12} y="244">{tr ? 'kılavuz matkabı' : 'tap drill'}</text>
+    <text class="t-acc" x={cx - 12} y={tip + 18}>118°</text>
+    <text class="t-sm" x="48" y="92">M10 (P = {dec("1.5")})</text>
+    <text class="t-data t-sm" x="322" y="92">6H: D₁ {dec('8.376')} … {dec('8.676')}</text>
+  </g>
+</svg>

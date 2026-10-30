@@ -1,0 +1,106 @@
+---
+/**
+ * Tensile stress area of an ISO metric bolt thread, drawn to scale for the size given
+ * (default M10, P = 1.5). External thread design profile: crest flat P/8 at d, 60° flanks,
+ * rounded root reaching d3 = d − 1.226869 P (root radius H/6, tangent to both flanks).
+ * d2 = d − 0.649519 P; ds = (d2 + d3)/2; As = π/4 · ds² (ISO 898-1). All values computed here.
+ */
+interface Props { locale: 'en' | 'tr'; d?: number; P?: number }
+const { locale, d = 10, P = 1.5 } = Astro.props;
+const tr = locale === 'tr';
+const H = (Math.sqrt(3) / 2) * P;
+const d2 = d - 0.649519 * P, d3 = d - 1.226869 * P, ds = (d2 + d3) / 2;
+const As = (Math.PI / 4) * ds * ds;
+const n = (v: number, k = 3) => { const s = v.toFixed(k); return tr ? s.replace('.', ',') : s; };
+const L = tr
+  ? { pitch: 'bölüm dairesi çapı', stress: 'gerilme kesiti çapı', root: 'diş dibi çapı', major: 'anma çapı', area: 'gerilme kesiti', axis: 'eksene doğru', sec: 'kesit' }
+  : { pitch: 'pitch diameter', stress: 'stress-area diameter', root: 'minor diameter', major: 'nominal diameter', area: 'tensile stress area', axis: 'towards the axis', sec: 'section' };
+const lines = [
+  { k: 'd', v: d, txt: L.major, c: '#1b1d1e' },
+  { k: 'd₂', v: d2, txt: L.pitch, c: '#7a4fd0' },
+  { k: 'dₛ', v: ds, txt: L.stress, c: '#e2601a' },
+  { k: 'd₃', v: d3, txt: L.root, c: '#1e6fd6' },
+];
+// external thread outline in "depth below the major diameter" (mm) along x (mm)
+const prof = (x0: number, x1: number) => {
+  const r = H / 6;
+  const pts: [number, number][] = [];
+  const cr = P / 8;                      // crest flat
+  // one period starting at the middle of a crest: crest, flank down, root arc, flank up
+  const t30 = Math.tan(Math.PI / 6);
+  const depth = (u: number) => {
+    // u in [0, P): distance from crest centre. Sharp V profile depth below sharp crest:
+    const a = Math.abs(((u + P / 2) % P) - P / 2);           // distance to nearest crest centre
+    let z = Math.max(0, (a - cr / 2) / t30 - 0);              // flank: depth grows by 1/tan30 per mm, from crest flat edge
+    z = Math.min(z, H * 7 / 8);                                // sharp root would be at 7H/8 below d
+    // root arc: centre on the root bisector at depth (7H/8 − r) + ... (circle tangent to both flanks)
+    const b = P / 2 - a;                                       // distance to the root centre line
+    const cz = (7 * H) / 8 - 2 * r;                            // arc centre: 2r above the sharp root, so its deepest point is at 7H/8 − r = 17H/24
+    const xt = r * Math.cos(Math.PI / 6);                      // half-width where the arc meets the flanks
+    if (b <= xt) z = cz + Math.sqrt(Math.max(0, r * r - b * b));
+    return z;
+  };
+  const N = Math.round(((x1 - x0) / P) * 120);
+  for (let i = 0; i <= N; i++) { const x = x0 + ((x1 - x0) * i) / N; pts.push([x, depth(x)]); }
+  return pts;
+};
+const G = [false, true].map((narrow) => {
+  const W = narrow ? 360 : 640, k = narrow ? 92 : 96;           // px per mm
+  const px0 = narrow ? 14 : 200, pw = narrow ? 1.6 * P : 2.2 * P; // profile window in mm
+  const top = narrow ? 34 : 40, Yd = (z: number) => top + z * k; // z = depth below d (mm)
+  const X = (x: number) => px0 + x * k;
+  const pts = prof(0, pw);
+  const zRoot = (d - d3) / 2;
+  const bottom = Yd(zRoot) + 38;
+  const outline = pts.map(([x, z], i) => `${i ? 'L' : 'M'}${X(x).toFixed(1)},${Yd(z).toFixed(1)}`).join(' ');
+  const body = `${outline} L${X(pw).toFixed(1)},${bottom} L${X(0).toFixed(1)},${bottom} Z`;
+  const lx1 = X(pw) + 10, tx = lx1 + 8;
+  const ic = narrow ? { x: 180, y: bottom + 96, R: 66 } : { x: 92, y: 112, R: 74 };
+  const H2 = narrow ? ic.y + ic.R + 30 : Math.max(bottom + 26, ic.y + ic.R + 28);
+  return { narrow, W, H: H2, k, X, Yd, outline, body, lx1, tx, bottom, ic, px0, pw };
+});
+---
+<div class="stress">
+  {G.map(({ narrow, W, H: HH, X, Yd, outline, body, lx1, tx, bottom, ic, px0, pw }) => (
+    <svg viewBox={`0 0 ${W} ${HH}`} role="img" class={narrow ? 'narrow' : 'wide'} aria-label={`M${n(d, 0)} × ${n(P, 1)}: d₂ ${n(d2)}, d₃ ${n(d3)}, dₛ ${n(ds)} mm, As ${n(As, 1)} mm²`}>
+      <path d={body} fill="url(#ca-metal)" />
+      <path d={outline} class="prof-line" />
+      {lines.map((l) => (
+        <g>
+          <line x1={X(0)} x2={lx1} y1={Yd((d - l.v) / 2)} y2={Yd((d - l.v) / 2)} stroke={l.c} class="dl" />
+          <text x={tx} y={Yd((d - l.v) / 2) + 4} class="lk" style={`fill:${l.c}`}>{l.k} = {n(l.v)}</text>
+        </g>
+      ))}
+      <line x1={X(0)} x2={X(pw)} y1={bottom} y2={bottom} class="cut" />
+      <text x={X(pw / 2)} y={bottom + 16} text-anchor="middle" class="sm">↓ {L.axis}</text>
+      <g>
+        <circle cx={ic.x} cy={ic.y} r={ic.R} class="cd" />
+        <circle cx={ic.x} cy={ic.y} r={ic.R * (ds / d)} class="cs" />
+        <circle cx={ic.x} cy={ic.y} r={ic.R * (d3 / d)} class="c3" />
+        <text x={ic.x} y={ic.y - 4} text-anchor="middle" class="as">Aₛ</text>
+        <text x={ic.x} y={ic.y + 14} text-anchor="middle" class="asv">{n(As, 1)} mm²</text>
+        <text x={ic.x} y={ic.y + ic.R + 18} text-anchor="middle" class="sm">{L.sec} M{n(d, 0)}</text>
+      </g>
+    </svg>
+  ))}
+  <div class="formula">Aₛ = π/4 · ((d₂ + d₃)/2)² = π/4 · {n(ds)}² = <b>{n(As, 1)} mm²</b></div>
+</div>
+
+<style>
+  .stress { display: grid; gap: 0.5rem; padding: 0.8rem 1rem 0.8rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  svg { width: 100%; height: auto; display: block; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } }
+  .prof-line { fill: none; stroke: #1b1d1e; stroke-width: 1.6; stroke-linejoin: round; }
+  .dl { stroke-width: 1.3; stroke-dasharray: 6 4; }
+  .lk { font-family: var(--font-mono); font-size: 12px; paint-order: stroke; stroke: #fbfdff; stroke-width: 3px; }
+  .cut { stroke: #9fa8b0; stroke-width: 1; stroke-dasharray: 2 3; }
+  .sm { font-family: var(--font-mono); font-size: 10.5px; fill: var(--ink-3); }
+  .cd { fill: none; stroke: #1b1d1e; stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .cs { fill: color-mix(in oklab, #e2601a 30%, #fbfdff); stroke: #e2601a; stroke-width: 1.4; }
+  .c3 { fill: none; stroke: #1e6fd6; stroke-width: 1; stroke-dasharray: 3 3; }
+  .as { font-family: var(--font-mono); font-size: 15px; fill: var(--ink); }
+  .asv { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-2); }
+  .formula { margin: 0; font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-2); max-width: none; }
+  .formula b { color: var(--color-spark-400); font-weight: 500; }
+</style>

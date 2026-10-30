@@ -1,0 +1,182 @@
+---
+key: honing-and-plateau-honing
+locale: en
+slug: honing-and-plateau-honing
+title: 'Honing and plateau honing'
+description: 'How honing corrects a bore: the kinematics and the crosshatch angle, what honing can and cannot fix, abrasives and bonds, plateau honing and its Rk targets from three sources, and how hydraulic cylinder tubes are finished by honing or by skiving and roller burnishing.'
+section: 2
+subsection: grinding-and-finishing
+order: 5
+updated: 2026-10-11
+tools: [roughness]
+glance:
+  - value: '40–60°'
+    label: 'Typical crosshatch angle in engine bores'
+  - value: '< 1'
+    unit: 'µm'
+    label: 'Size and form tolerances in precision bores (KADIA)'
+  - value: '1/3'
+    label: 'Stone overrun at each end, as a share of stone length'
+  - value: 'H8'
+    label: 'Bore tolerance of honed hydraulic cylinder tubes'
+sources:
+  - label: 'KADIA, honing technology; abrasives and honing oils'
+    url: https://kadia.com/en/honing/honing-technology/
+  - label: 'Sunnen, honing process overview'
+    url: https://sunnen.com/Processes/Honing
+  - label: 'Sunnen, honing booklet'
+    url: https://cdn.shopify.com/s/files/1/0903/7856/7977/files/honing_book_06-06.pdf?v=1746679306
+  - label: 'Sunnen, DF-104 "Obtaining specified finishes by honing", 2009'
+    url: https://cdn.shopify.com/s/files/1/0903/7856/7977/files/DF104_c_200903.pdf?v=1756913584
+  - label: 'Sunnen, DF-105 "Choosing the right stone", 2009'
+    url: https://cdn.shopify.com/s/files/1/0903/7856/7977/files/DF105_c_200903.pdf?v=1756913584
+  - label: 'Nagel, honing stones and cutting agents'
+    url: https://nagel.com/en/products/cutting-agent/
+  - label: 'Precision Surfacing Solutions, stroke honing and bore shapes'
+    url: https://www.precision-surface.com/stroke-honing-impact-on-bore-shapes
+  - label: 'I. Demirci et al., honing texture anisotropy in helical slide and plateau honing, Proc. IMechE Part J 230(8) (crosshatch angle formula)'
+    url: https://sam.ensam.eu/bitstream/10985/15180/3/MSMP_JET_2015_DEMIRCI.pdf
+  - label: 'M. Yousfi, S. Mezghani, I. Demirci, M. El Mansori, "Smoothness and plateaudness contributions…", Wear 332–333, 2015'
+    url: https://sam.ensam.eu/bitstream/10985/9819/4/MSMP_WEAR_2015_MEZGHANI.pdf
+  - label: 'P. Woś, J. Michalski, cylinder liner honing and aircraft engine performance, Tribology Letters 41(3), 2011'
+    url: https://link.springer.com/article/10.1007/s11249-010-9733-y
+  - label: 'MS Motorservice, Technipedia, "Honing results — assessment"'
+    url: https://www.ms-motorservice.com/sg/en/technipedia/honing-results-assessment
+  - label: 'Zynp International, US 10107227 B2, "Method of forming a cylinder liner", 2018'
+    url: https://patents.google.com/patent/US10107227
+  - label: 'J. Gruszka, P. Pawlus, T. G. Mathia, "Morphologies of cylinder liner surfaces of today and for tomorrow", 5th International Conference on Surface Metrology, Poznań, 2016'
+    url: https://wilit.put.poznan.pl/sites/default/files/2022-05/4.49.pdf
+  - label: 'Delapena, European patent EP 0248071 B1 (angle of the stone traverse to the bore axis)'
+    url: https://data.epo.org/publication-server/rest/v1.2/patents/EP0248071NWB1/document.html
+  - label: 'Modern Machine Shop, "Lose the peaks, leave the valleys", 2007'
+    url: https://mmsonline.com/articles/lose-the-peaks-leave-the-valleys
+  - label: 'Engine Builder, cylinder bore honing and crosshatch'
+    url: https://www.enginebuildermag.com/?p=2525
+  - label: 'M. Mahlfeld, K. Dröder, "Performance and wear of diamond honing stones", Machines 11(4), 502, 2023'
+    url: https://www.mdpi.com/2075-1702/11/4/502
+  - label: 'Tenaris, "Seamless tubes for hydraulic cylinders", brochure, 2021'
+    url: https://www.tenaris.com/media/tyzf1wto/brochure-seamless-tubes-for-hycy-20210525.pdf
+  - label: 'ECOROLL, combined skiving and roller burnishing of cylinder tubes'
+    url: https://www.ecoroll.com/processes/combined-skiving/roller-burnishing-fast-and-efficient-internal-machining-of-cylinder-tubes.html
+  - label: 'Sunnen, skiving and roller burnishing'
+    url: https://sunnen.com/Processes/Skiving-Burnishing
+  - label: 'CMC Italia, honed cold-drawn tubes H8 (Expometals listing)'
+    url: https://www.expometals.net/en/hall/semi-finished-products/long-products/stand/cmc-italia/products/honed-cold-drawn-seamless-or-welded-tubes-h8
+  - label: 'Hydro ZNPHS, piston rods and cylinder tubes catalogue, 2012 (Polish)'
+    url: https://www.hydro.com.pl/materialy/_upload/Katalogi/Katalog_Prety_tloczyskowe_i_rury_cylindrowe_2012.pdf
+  - label: 'Marcegaglia, carbon steel tubes for hydraulic cylinders, catalogue'
+    url: https://www.carbonsteel.marcegaglia.com/wp-content/uploads/2021/02/Marcegaglia-Carbon-Steel-Tubes-catalogue-download-cylinder.pdf
+---
+import Crosshatch from '../../../components/mdx/Crosshatch.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import HoningForms from '../../../components/mdx/HoningForms.astro';
+import HoningStroke from '../../../components/mdx/HoningStroke.astro';
+import SkiveRoll from '../../../components/mdx/SkiveRoll.astro';
+import Model3D from '../../../components/mdx/Model3D.astro';
+import { honingTargets } from '../../../data/figures';
+
+Honing is the process that finishes a bore to size, form and texture at the same time. A tool with abrasive stones turns in the bore while it strokes up and down, and the stones are pressed outward as material comes off. The result is a bore with accurate size and form — KADIA quotes dimensional and geometrical tolerances below 1 µm for precision bores — and a crosshatch texture whose angle and depth can be set on purpose.
+
+## Kinematics and the crosshatch angle
+
+Three motions run together: the tool rotates, it oscillates along the bore axis, and the stones are fed radially outward. KADIA, Sunnen and the academic literature describe the process the same way.
+
+Every abrasive grain therefore moves along a helix. On the upstroke and on the downstroke the helices run in opposite directions, and their scratches cross. Unrolled, the wall shows two families of lines at an angle α/2 to the circumferential direction, with
+
+$$
+\tan\frac{\alpha}{2} = \frac{v_a}{v_c}
+$$
+
+where va is the axial (stroke) speed and vc the peripheral speed, vc = π · D · n / 1000 in m/min with D in mm and n in rpm. α is the **included** angle between the two families of scratches.
+
+<Figure caption="Crosshatch on the unrolled bore wall. Change the bore diameter, spindle speed and stroke speed to see the angle, or set a target angle to get the stroke speed it needs. Demirci and co-authors' example: Ø76 mm, 160 rpm and 18 m/min give about 50°.">
+  <Crosshatch locale="en" />
+</Figure>
+
+<Figure caption="The same crosshatch on a bore cut in half. The scratches run at α/2 either side of the circumferential direction; the two marked in orange meet at the included angle α. Set the angle to see the ratio va/vc that produces it.">
+  <Model3D locale="en" kind="bore" />
+</Figure>
+
+<Note kind="warn" title="Which angle is quoted?">
+The papers above and Engine Builder quote the included angle α, so "45°" means scratches at 22.5° to the horizontal on each side. A Delapena patent instead quotes the angle of the stone traverse to the bore axis. MS Motorservice gives a "honing angle" without defining it. Always state which convention a specification uses.
+</Note>
+
+A faster stroke relative to the rotation gives a steeper (larger) angle. Near the ends of the stroke, where the tool stops and reverses, the angle becomes slightly smaller, as Sunnen notes.
+
+Typical values for engine bores cluster around 40 to 60°: MS Motorservice gives 25–45° for passenger cars and 40–60° for diesel utility vehicles, Sunnen calls 45–60° the average in practice, and the Zynp liner patent specifies 40–60°. We found no maker's value specific to hydraulic cylinders.
+
+## What honing corrects — and what it does not
+
+Honing corrects:
+
+- **Size** and **roundness**, including waviness;
+- **Taper, barrel and bell mouth** shapes;
+- **Straightness** along the bore;
+- the surface left by boring or reaming.
+
+Its result depends on the stroke. Sunnen and Precision Surfacing both recommend that the stones overrun each end of the bore by about one third of the stone length. Too much overrun makes a bell mouth; too little leaves the ends tight or the bore barrel-shaped. For short bores, Sunnen recommends a stone length of about two thirds of the bore length.
+
+<Figure caption="The stone at both ends of its stroke, and the bore shape that results. Schematic, with the shape errors exaggerated.">
+  <HoningStroke locale="en" />
+</Figure>
+
+Honing with a floating tool does **not** correct the position or the axis of the bore: the tool follows the existing bore. Sunnen notes that rigid multi-stone tools can correct hole location, which is the exception.
+
+<Figure caption="Bore errors drawn exaggerated against the target bore: four in longitudinal section, three in cross-section. Honing brings the first six to the dashed line; a floating tool follows the existing bore, so a bore in the wrong place stays in the wrong place.">
+  <HoningForms locale="en" />
+</Figure>
+
+## Abrasives and bonds
+
+| Abrasive | Typical use, according to the makers |
+|---|---|
+| Aluminium oxide (corundum) | Tough materials and heavy stock removal in steel; often rough honing |
+| Silicon carbide | Fine finishes; the plateau stage with fine-grit vitrified stones |
+| Diamond | Hard materials, and in practice production honing of cast-iron engine bores |
+| CBN | Production honing of hardened steel |
+
+Stones are bonded vitrified (ceramic), metal or resin; electroplated diamond and CBN are used for single-pass tools. Diamond and CBN grits are designated by grain size in micrometres, for example D107 or D25. Sunnen notes that a harder work material gives a finer finish with the same grit, and that higher stone pressure gives a rougher one.
+
+Honing is done with plenty of fluid, mostly mineral or synthetic honing oil; water-based fluids are used less often. The fluid cools, flushes the chips and keeps the stones from loading up.
+
+## Plateau honing
+
+A bore honed in one stage has a profile of sharp peaks and valleys, and the peaks wear off during running-in. Plateau honing removes them in the factory instead:
+
+1. **Base (rough) honing** establishes size, form and the depth of the grooves.
+2. **Plateau honing** with fine stones or brushes cuts the peaks down to flat plateaus and leaves the deep valleys. It takes only a few strokes; Yousfi and co-authors observed the plateau forming in the first ten.
+
+The plateaus carry the piston rings like a run-in surface; the valleys retain oil. The aims named in the literature are fast running-in, low friction and low oil consumption. The surface is specified with the Rk parameters; see [Rk, Rpk, Rvk](/metrology/rk-parameters/).
+
+Three independent sources give similar targets for engine bores:
+
+| Parameter | MS Motorservice, passenger car | Zynp patent (liner maker) | Gruszka et al., "today" |
+|---|---|---|---|
+| Rpk (µm) | < 0.20 | ≤ 0.25 | < 0.3 |
+| Rk (µm) | 0.20–0.60 | about 0.2–0.6 | 0.25–0.75 |
+| Rvk (µm) | 1.40–1.80 | about 1.2–2.5 ¹ | 1.7–3.0 |
+| Mr1 (%) | 4–12 | ≤ 10 | — |
+| Mr2 (%) | 75–90 | 70–90 | — |
+| Crosshatch | 25–45° | 40–60° | — |
+
+¹ The patent's own table gives 1.2–2.8 µm. Measuring conditions differ: MS Motorservice measures over 4.8 mm with a 2 µm, 90° stylus; the patent uses a 2.5 mm cut-off over 12.5 mm with a 5 µm stylus. The values are not interchangeable without the conditions.
+
+<Figure caption="The three sets of targets from the table, side by side. Dotted bars are upper limits only. The measuring conditions differ between the sources, so the bars show agreement in magnitude, not interchangeable limits.">
+  <RangeChart locale="en" {...honingTargets("en")} min={0} max={3.2} ticks={[0, 0.5, 1, 1.5, 2, 2.5, 3]} unit="µm" axisLabel="Height" labelWidth={70} aria="Plateau-honing targets for Rpk, Rk and Rvk from three sources" />
+</Figure>
+
+## Hydraulic cylinder tubes: honing or skiving and roller burnishing
+
+Cylinder tubes for hydraulics are usually cold-drawn tubes of E355 (the former St 52) to EN 10305-1 (seamless) or EN 10305-2 (welded). Their bore is finished in one of two ways:
+
+| | Honed tube | Skived and roller-burnished tube |
+|---|---|---|
+| Bore tolerance | H8 (CMC Italia; Hydro ZNPHS catalogue) | Tenaris: H8 to H11, depending on the ratio of bore diameter to wall thickness |
+| Roughness | Ra ≤ 0.3–0.4 µm | Ra ≤ 0.30 µm (Tenaris); 0.1–0.3 µm, Rz < 1 µm (ECOROLL); 0.05–0.20 µm (Sunnen) |
+| Process | Abrasive; removes material and corrects form | A skiving head cuts the bore, roller burnishing tools follow and smooth it by plastic deformation |
+
+<Figure caption="The two routes for a cylinder tube, schematic. Honing works the whole bore with expanding stones that rotate and stroke; the combined tool skives the bore and burnishes it behind the knives in a single pass. Values from the table above.">
+  <SkiveRoll locale="en" />
+</Figure>
+
+ECOROLL states that skiving and roller burnishing has almost completely replaced honing for cylinder tubes, and Sunnen says it can be up to 70 % faster than honing; both make tools and machines for the process. Tenaris gives a local straightness of 1 mm per metre, which Marcegaglia (1:1000) and other makers repeat.

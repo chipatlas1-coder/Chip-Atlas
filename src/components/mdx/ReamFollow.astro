@@ -1,0 +1,157 @@
+---
+/**
+ * "Reamers follow the hole" (Kennametal), in two routes, in section:
+ * A: a drilled hole that has walked off position and leans; the reamer follows it: the hole comes
+ *    to size but stays where the drill put it.
+ * B: drilled undersize, trued with a boring bar on the drawing's axis, then reamed: size and
+ *    position both right (Kennametal: true the hole with a boring bar or end mill before reaming).
+ * Walk and lean are exaggerated. The tools run once on entry (and on Replay); without motion the
+ * figure shows the end state.
+ */
+interface Props {
+  aria: string;
+  t: { a: string; b: string; target: string; drilled: string; size: string; pos: string; replay: string; drill: string; bore: string; ream: string };
+}
+const { aria, t } = Astro.props;
+const W = 300, H = 258, x0 = 150, top = 64, bot = 224, Rf = 20;       // Rf: reamed radius, both routes
+const f = (n: number) => n.toFixed(2).replace(/\.?0+$/, '');
+// a straight hole between (xt, top) and (xb, bot) of radius r, as a quadrilateral
+const hole = (xt: number, xb: number, r: number) => `M${f(xt - r)},${top - 1} L${f(xt + r)},${top - 1} L${f(xb + r)},${bot + 1} L${f(xb - r)},${bot + 1} Z`;
+const routes = {
+  a: { drill: { xt: x0 + 5, xb: x0 + 19, r: 17 }, steps: ['ream'] as const },
+  b: { drill: { xt: x0 + 2.5, xb: x0 + 9.5, r: 8 }, bore: 18.5, steps: ['bore', 'ream'] as const },
+};
+const tilt = (xt: number, xb: number) => (Math.atan2(xb - xt, bot - top) * 180) / Math.PI;
+// tools: drawn upright at the origin (tip at y = 0), rotated onto the axis they follow
+const reamer = (r: number) => {
+  const flutes = [-0.62, -0.2, 0.2, 0.62].map((u) => `<line x1="${f(u * r)}" x2="${f(u * r)}" y1="-120" y2="-5" class="rw-fl"/>`).join('');
+  return `<path d="M${-r},-150 L${-r},-4 L${-r + 4},0 L${r - 4},0 L${r},-4 L${r},-150 Z" class="rw-tool"/>${flutes}<path d="M${-r},-150 L${-r},-4 L${-r + 4},0 L${r - 4},0 L${r},-4 L${r},-150" class="rw-edge"/>`;
+};
+const boringBar = (r: number) => `<rect x="-7" y="-160" width="14" height="156" rx="2" class="rw-tool"/><path d="M5,-14 L${f(r)},-10 L${f(r)},-3 L5,-2 Z" class="rw-ins"/><rect x="-7" y="-160" width="14" height="156" rx="2" class="rw-edge"/>`;
+---
+<div class="rw" data-rw data-anim role="group" aria-label={aria}>
+  {(['a', 'b'] as const).map((k, pi) => {
+    const R = routes[k], d = R.drill;
+    const ang = tilt(d.xt, d.xb);
+    const len = bot + 6 - (top - 2);                                   // the tip starts at the top face, as the reveal does
+    const id = `rw-${k}`;
+    return (
+      <figure class={`panel ${k}`} style={`--i:${pi}`}>
+        <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+          <defs>
+            <clipPath id={`${id}-blk`}><rect x="26" y={top} width={W - 52} height={bot - top} /></clipPath>
+            <clipPath id={`${id}-cr`}><rect x="0" y={top - 2} width={W} height={bot - top + 4} class="rw-rev r" /></clipPath>
+            {k === 'b' && <clipPath id={`${id}-cb`}><rect x="0" y={top - 2} width={W} height={bot - top + 4} class="rw-rev b" /></clipPath>}
+          </defs>
+          <rect x="26" y={top} width={W - 52} height={bot - top} class="rw-work" />
+          <g clip-path={`url(#${id}-blk)`}>
+            <path d={hole(d.xt, d.xb, d.r)} class="rw-hole drilled" />
+            {k === 'b' && <g clip-path={`url(#${id}-cb)`}><path d={hole(x0, x0, routes.b.bore)} class="rw-hole bored" /></g>}
+            <g clip-path={`url(#${id}-cr)`}>
+              <path d={k === 'a' ? hole(d.xt, d.xb, Rf) : hole(x0, x0, Rf)} class="rw-hole reamed" />
+              <path d={k === 'a' ? hole(d.xt, d.xb, Rf) : hole(x0, x0, Rf)} class="rw-wall" />
+            </g>
+          </g>
+          {/* the axis the drawing asks for, and the axis the drill took */}
+          <line x1={x0} x2={x0} y1={top - 30} y2={bot + 14} class="rw-target" />
+          <line x1={f(d.xt - ((d.xb - d.xt) * 30) / (bot - top))} x2={f(d.xb + ((d.xb - d.xt) * 14) / (bot - top))} y1={top - 30} y2={bot + 14} class="rw-drilled" />
+          <text x={x0 - 6} y={bot + 28} text-anchor="end" class="rw-lab target">{t.target}</text>
+          <text x={f(d.xb + 6)} y={bot + 28} class="rw-lab drilled">{t.drilled}</text>
+          {/* tools, each travelling down its axis and back */}
+          {k === 'b' && (
+            <g transform={`translate(${x0} ${bot + 6})`}><g class="rw-go bore" style={`--len:${len}px`}><g set:html={boringBar(routes.b.bore)} /></g></g>
+          )}
+          <g transform={k === 'a' ? `translate(${f(d.xb)} ${bot + 6}) rotate(${f(-ang)})` : `translate(${x0} ${bot + 6})`}>
+            <g class={`rw-go ream ${k}`} style={`--len:${len}px`}><g set:html={reamer(Rf - 1)} /></g>
+          </g>
+          {/* result */}
+          <g class="rw-res" transform={`translate(${W / 2} 22)`}>
+            <g class="ok s"><rect x="-128" y="-14" width="122" height="24" rx="12" /><text x="-67" y="3" text-anchor="middle">✓ {t.size}</text></g>
+            <g class={`s2 ${k === 'a' ? 'bad' : 'ok'}`}><rect x="6" y="-14" width="122" height="24" rx="12" /><text x="67" y="3" text-anchor="middle">{k === 'a' ? '✗' : '✓'} {t.pos}</text></g>
+          </g>
+        </svg>
+        <figcaption>
+          <b>{k === 'a' ? t.a : t.b}</b>
+          <span class="steps">{k === 'a' ? `${t.drill} → ${t.ream}` : `${t.drill} → ${t.bore} → ${t.ream}`}</span>
+        </figcaption>
+      </figure>
+    );
+  })}
+  <button type="button" class="replay" data-replay hidden>↻ {t.replay}</button>
+</div>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-rw]').forEach((el) => {
+    const btn = el.querySelector<HTMLButtonElement>('[data-replay]')!;
+    whenIn(el, () => {
+      el.classList.add('go');
+      btn.hidden = false;
+    });
+    btn.addEventListener('click', () => {
+      el.classList.remove('go');
+      void el.offsetWidth;                                             // restart the CSS animations
+      el.classList.add('go');
+    });
+  });
+</script>
+
+<style>
+  .rw { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; position: relative; }
+  @media (max-width: 34rem) { .rw { grid-template-columns: 1fr; } }
+  .panel { margin: 0; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; padding: 0.35rem 0.45rem 0.6rem; display: grid; gap: 0.3rem; align-content: start; }
+  svg { width: 100%; height: auto; display: block; overflow: hidden; }
+  figcaption { display: grid; gap: 0.1rem; font-size: 0.8rem; line-height: 1.35; padding-inline: 0.15rem; }
+  figcaption b { font-size: 0.9rem; color: var(--ink); }
+  .steps { font: 500 0.72rem var(--font-mono); color: var(--color-spark-400); }
+  .replay { justify-self: end; grid-column: 1 / -1; font: 500 0.78rem var(--font-mono); color: var(--ink-2); background: transparent; border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.3rem 0.65rem; min-height: 2rem; cursor: pointer; }
+  .replay:hover { color: var(--ink); border-color: var(--ink-3); }
+  .replay:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .rw-work { fill: url(#ca-hatch); stroke: #555d63; stroke-width: 0.9; }
+  .rw-hole { stroke: none; }
+  .rw-hole.drilled { fill: #e0e7ee; }
+  .rw-hole.bored { fill: #ecf3fa; }
+  .rw-hole.reamed { fill: var(--bg-sunk); }
+  .rw-wall { fill: none; stroke: #2a78d6; stroke-width: 1.6; }
+  .rw-target { stroke: #13998a; stroke-width: 1.2; stroke-dasharray: 10 3 2 3; }
+  .rw-drilled { stroke: #e2601a; stroke-width: 1; stroke-dasharray: 4 3; }
+  .rw-lab { font: 500 10.5px var(--font-mono); paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; }
+  .rw-lab.target { fill: #13998a; }
+  .rw-lab.drilled { fill: #e2601a; }
+  :global(.rw-tool) { fill: url(#ca-metal-h); }
+  :global(.rw-edge) { fill: none; stroke: #1e2123; stroke-width: 0.8; }
+  :global(.rw-fl) { stroke: #f4f9fe; stroke-width: 2.2; opacity: 0.8; }
+  :global(.rw-ins) { fill: #c98a0a; stroke: #916e00; stroke-width: 0.6; }
+  .rw-res rect { stroke-width: 1; }
+  .rw-res text { font: 500 11.5px var(--font-mono); }
+  .rw-res .ok rect { fill: color-mix(in oklab, #13998a 16%, #f7fbfe); stroke: #13998a; }
+  .rw-res .ok text { fill: #0f8f6f; }
+  .rw-res .bad rect { fill: color-mix(in oklab, #ed372b 16%, #f7fbfe); stroke: #e54538; }
+  .rw-res .bad text { fill: #c2413b; }
+  /* static (no motion): end state, tools out of the way */
+  .rw-go { opacity: 0; }
+  /* motion: the tools run down their axes and back; the clip under each one opens as it cuts */
+  .rw-rev { transform-box: fill-box; transform-origin: 50% 0; }
+  :global(html.anim) .rw[data-anim]:not(.go) :is(.rw-rev) { transform: scaleY(0); }
+  :global(html.anim) .rw[data-anim]:not(.go) .rw-res > g { opacity: 0; }
+  :global(html.anim) .rw.go .rw-go { animation: rw-run 2.6s cubic-bezier(0.45, 0, 0.35, 1) both; }
+  :global(html.anim) .rw.go .rw-go.ream { animation-delay: 0.5s; }
+  :global(html.anim) .rw.go .rw-go.ream.b { animation-delay: 3.1s; }
+  :global(html.anim) .rw.go .rw-rev { animation: rw-open 1.17s cubic-bezier(0.45, 0, 0.35, 1) both; }
+  :global(html.anim) .rw.go .rw-rev.r { animation-delay: 0.5s; }
+  :global(html.anim) .rw.go .panel.b .rw-rev.r { animation-delay: 3.1s; }
+  :global(html.anim) .rw.go .rw-res > g { animation: ca-pop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  :global(html.anim) .rw.go .panel.a .rw-res > .s { animation-delay: 2.5s; }
+  :global(html.anim) .rw.go .panel.a .rw-res > .s2 { animation-delay: 2.75s; }
+  :global(html.anim) .rw.go .panel.b .rw-res > .s { animation-delay: 5.1s; }
+  :global(html.anim) .rw.go .panel.b .rw-res > .s2 { animation-delay: 5.35s; }
+  /* the tool's tip starts above the work, runs to the bottom (45 %), dwells, and comes back out */
+  @keyframes rw-run {
+    0% { transform: translateY(calc(var(--len, 190px) * -1)); opacity: 0; }
+    8% { opacity: 1; }
+    45%, 55% { transform: translateY(0); }
+    92% { opacity: 1; }
+    100% { transform: translateY(calc(var(--len, 190px) * -1)); opacity: 0; }
+  }
+  @keyframes rw-open { 0% { transform: scaleY(0); } 100% { transform: scaleY(1); } }
+</style>

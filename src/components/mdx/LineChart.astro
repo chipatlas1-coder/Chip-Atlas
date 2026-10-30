@@ -1,0 +1,143 @@
+---
+/**
+ * Line chart for relations given by the article's formulas or tables.
+ * Series are sampled point lists; optional point markers; a crosshair reads every series at the
+ * pointer. Linear or log axes. Direct labels at the line ends; legend when there are 2+ series.
+ */
+interface Series { name: string; color: string; points: [number, number][]; dashed?: boolean }
+interface Mark { x: number; y: number; label: string; color?: string; place?: 'ne' | 'se' | 'nw' | 'sw' }
+interface Band { x0: number; x1: number; label: string }
+interface HLine { y: number; label: string }
+interface Props {
+  locale: 'en' | 'tr'; series: Series[]; marks?: Mark[]; bands?: Band[]; hlines?: HLine[];
+  xMin: number; xMax: number; yMin: number; yMax: number; xTicks: number[]; yTicks: number[];
+  xLabel: string; yLabel: string; endLabels?: boolean; yTickText?: string[]; xTickText?: string[]; tipUnit?: string; xLog?: boolean; yLog?: boolean; aria: string; xDec?: number; yDec?: number; height?: number;
+}
+const { locale, series, marks = [], bands = [], hlines = [], xMin, xMax, yMin, yMax, xTicks, yTicks, xLabel, yLabel, endLabels = true, yTickText, xTickText, tipUnit = '', xLog = false, yLog = false, aria, xDec = 2, yDec = 2, height = 330 } = Astro.props;
+const tr = locale === 'tr';
+const tx = (v: number) => (xLog ? Math.log10(v) : v), ty = (v: number) => (yLog ? Math.log10(v) : v);
+const n = (v: number) => (tr ? String(v).replace('.', ',') : String(v));
+/* Two layouts: wide, and narrow for phones (≈360 units, so type stays near its set size). */
+function layout(narrow: boolean) {
+  const W = narrow ? 360 : 640, H = narrow ? Math.round(height * 0.92) : height;
+  const L = narrow ? 46 : 60, R = endLabels && !narrow ? 110 : narrow ? 14 : 30, T = 22, B = 44;
+  const X = (v: number) => L + ((tx(v) - tx(xMin)) / (tx(xMax) - tx(xMin))) * (W - L - R);
+  const Y = (v: number) => T + (1 - (ty(v) - ty(yMin)) / (ty(yMax) - ty(yMin))) * (H - T - B);
+  const d = (s: Series) => s.points.map(([x, y], i) => `${i ? 'L' : 'M'}${X(x).toFixed(1)},${Y(y).toFixed(1)}`).join(' ');
+  const ends = series.map((s) => ({ s, y: Y(s.points[s.points.length - 1][1]) }));
+  const sorted = [...ends].sort((a, b) => a.y - b.y);
+  for (let i = 1; i < sorted.length; i++) if (sorted[i].y - sorted[i - 1].y < 14) sorted[i].y = sorted[i - 1].y + 14;
+  // thin out x tick labels that would collide
+  const xl: number[] = [];
+  let last = -1e9;
+  xTicks.forEach((v) => { const px = X(v), w = n(v).length * 6.8; if (px - w / 2 > last + 6) { xl.push(v); last = px + w / 2; } });
+  return { narrow, W, H, L, R, T, B, X, Y, d, ends, xl, geo: JSON.stringify({ W, H, L, R, T, B }) };
+}
+const G = [layout(false), layout(true)];
+const cfg = JSON.stringify({ xMin, xMax, yMin, yMax, xLog, yLog, tr, xDec, yDec, xLabel, tipUnit, series: series.map((s) => ({ name: s.name, color: s.color, points: s.points })) });
+---
+<div class="linechart" data-linechart={cfg}>
+  {series.length > 1 && (
+    <div class="legend" aria-hidden="true">{series.map((s) => <span><i style={`background:${s.color}`} class:list={{ dashed: s.dashed }}></i>{s.name}</span>)}</div>
+  )}
+  {series.length === 1 && endLabels && (
+    <div class="legend narrow" aria-hidden="true"><span><i style={`background:${series[0].color}`}></i>{series[0].name}</span></div>
+  )}
+  {G.map(({ narrow, W, H, L, R, T, B, X, Y, d, ends, xl, geo }) => (
+  <div class:list={['plot', narrow ? 'narrow' : 'wide']} data-geo={geo}>
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria}>
+      {yTicks.map((v, i) => <g><line x1={L} x2={W - R} y1={Y(v)} y2={Y(v)} class="grid" /><text x={L - 8} y={Y(v) + 4} text-anchor="end" class="tick">{yTickText ? yTickText[i] : n(v)}</text></g>)}
+      {xTicks.map((v, i) => <g><line x1={X(v)} x2={X(v)} y1={T} y2={H - B} class="grid" />{xl.includes(v) && <text x={X(v)} y={H - B + 18} text-anchor="middle" class="tick">{xTickText ? xTickText[i] : n(v)}</text>}</g>)}
+      {bands.map((b) => <g><rect x={X(b.x0)} y={T} width={X(b.x1) - X(b.x0)} height={H - T - B} class="band" /><text x={(X(b.x0) + X(b.x1)) / 2} y={H - B - 8} text-anchor="middle" class="blab">{b.label}</text></g>)}
+      {hlines.map((h) => <g><line x1={L} x2={W - R} y1={Y(h.y)} y2={Y(h.y)} class="hl" /><text x={W - R - 4} y={Y(h.y) - 6} text-anchor="end" class="hlab">{h.label}</text></g>)}
+      <text x={narrow ? 4 : L} y={T - 8} class="axlab">{yLabel}</text>
+      <text x={W - R} y={H - 8} text-anchor="end" class="axlab">{xLabel}</text>
+      {series.map((s) => <path d={d(s)} fill="none" stroke={s.color} stroke-width="2.4" stroke-linejoin="round" stroke-dasharray={s.dashed ? '7 5' : undefined} />)}
+      {endLabels && !narrow && ends.map((e) => <text x={W - R + 8} y={e.y + 4} class="dlab">{e.s.name}</text>)}
+      {marks.map((m) => {
+        const p = m.place ?? 'ne';
+        let west = p[1] === 'w';
+        if (!west && X(m.x) + 10 + m.label.length * 6.8 > W - 2) west = true;
+        return (
+          <g>
+            <circle cx={X(m.x)} cy={Y(m.y)} r="5.5" fill={m.color ?? '#1b1d1e'} stroke="#fbfdff" stroke-width="2" />
+            <text x={X(m.x) + (west ? -10 : 10)} y={Y(m.y) + (p[0] === 's' ? 18 : -8)} text-anchor={west ? 'end' : 'start'} class="mlab">{m.label}</text>
+          </g>
+        );
+      })}
+      <line data-cross x1="0" x2="0" y1={T} y2={H - B} class="cross" visibility="hidden" />
+      {series.map((s, i) => <circle data-dot={i} r="4.5" fill={s.color} stroke="#fbfdff" stroke-width="2" visibility="hidden" />)}
+      <rect data-hit x={L} y={T} width={W - L - R} height={H - T - B} fill="transparent" />
+    </svg>
+    <div class="tip" hidden><span data-tx></span><div data-rows></div></div>
+  </div>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-linechart]').forEach((root) => {
+    const c = JSON.parse(root.dataset.linechart!);
+    const tx = (v: number) => (c.xLog ? Math.log10(v) : v), ty = (v: number) => (c.yLog ? Math.log10(v) : v);
+    const at = (pts: number[][], x: number) => {
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+        if ((x >= x0 && x <= x1) || (x <= x0 && x >= x1)) { const u = x1 === x0 ? 0 : (x - x0) / (x1 - x0); return y0 + u * (y1 - y0); }
+      }
+      return null;
+    };
+    const fmt = (v: number, k: number) => (c.tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+    root.querySelectorAll<HTMLElement>('.plot').forEach((plot) => {
+      const g = JSON.parse(plot.dataset.geo!);
+      const svg = plot.querySelector('svg')!;
+      const X = (v: number) => g.L + ((tx(v) - tx(c.xMin)) / (tx(c.xMax) - tx(c.xMin))) * (g.W - g.L - g.R);
+      const Y = (v: number) => g.T + (1 - (ty(v) - ty(c.yMin)) / (ty(c.yMax) - ty(c.yMin))) * (g.H - g.T - g.B);
+      const inv = (sx: number) => { const u = (sx - g.L) / (g.W - g.L - g.R); const t = tx(c.xMin) + u * (tx(c.xMax) - tx(c.xMin)); return c.xLog ? Math.pow(10, t) : t; };
+      const tip = plot.querySelector<HTMLElement>('.tip')!, cross = svg.querySelector('[data-cross]')!, hit = svg.querySelector('[data-hit]')!;
+      hit.addEventListener('pointermove', (ev: any) => {
+        const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+        const p = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+        const x = Math.min(c.xMax, Math.max(c.xMin, inv(p.x)));
+        cross.setAttribute('x1', String(X(x))); cross.setAttribute('x2', String(X(x))); cross.setAttribute('visibility', 'visible');
+        const rows = plot.querySelector('[data-rows]')!; rows.textContent = '';
+        c.series.forEach((s: any, i: number) => {
+          const y = at(s.points, x); const dot = svg.querySelector(`[data-dot="${i}"]`)!;
+          if (y === null) { dot.setAttribute('visibility', 'hidden'); return; }
+          dot.setAttribute('cx', String(X(x))); dot.setAttribute('cy', String(Y(y))); dot.setAttribute('visibility', 'visible');
+          const r = document.createElement('b'); r.style.setProperty('--c', s.color); r.textContent = `${fmt(y, c.yDec)}${c.tipUnit}  ${s.name}`; rows.appendChild(r);
+        });
+        (tip.querySelector('[data-tx]') as HTMLElement).textContent = `${c.xLabel}: ${fmt(x, c.xDec)}`;
+        tip.hidden = false;
+        const rb = plot.getBoundingClientRect();
+        const px = (X(x) / g.W) * rb.width;
+        tip.style.left = `${px + 14 + tip.offsetWidth > rb.width ? Math.max(0, px - tip.offsetWidth - 14) : px + 14}px`;
+        tip.style.top = '6px';
+      });
+      hit.addEventListener('pointerleave', () => { tip.hidden = true; cross.setAttribute('visibility', 'hidden'); svg.querySelectorAll('[data-dot]').forEach((d) => d.setAttribute('visibility', 'hidden')); });
+    });
+  });
+</script>
+
+<style>
+  .linechart { display: grid; gap: 0.4rem; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-size: 0.8rem; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .legend i { width: 16px; height: 2.5px; border-radius: 2px; display: inline-block; }
+  .legend i.dashed { background-image: linear-gradient(90deg, transparent 50%, var(--bg-sunk) 50%) !important; background-size: 6px 100%; }
+  .plot { position: relative; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } .legend.narrow { display: flex; } }
+  svg { width: 100%; height: auto; touch-action: pan-y; }
+  .grid { stroke: var(--line); }
+  .cross { stroke: var(--ink-2); }
+  .band { fill: color-mix(in oklab, var(--data) 10%, transparent); }
+  .blab { font-size: 11px; fill: var(--color-metro-400); }
+  .hl { stroke: var(--ink-3); stroke-dasharray: 5 4; }
+  .hlab { font-size: 11px; fill: var(--ink-2); paint-order: stroke; stroke: var(--bg-sunk); stroke-width: 3px; }
+  .tick { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); }
+  .axlab { font-size: 11.5px; fill: var(--ink-3); }
+  .dlab { font-size: 12px; fill: var(--ink-2); font-weight: 500; }
+  .mlab { font-family: var(--font-mono); font-size: 11px; fill: var(--ink); paint-order: stroke; stroke: var(--bg-sunk); stroke-width: 3px; }
+  .tip { position: absolute; pointer-events: none; display: grid; gap: 0.15rem; padding: 0.45rem 0.65rem; background: var(--bg-raised); border: 1px solid var(--line-strong); border-radius: 6px; font-size: 0.78rem; color: var(--ink-3); box-shadow: 0 8px 24px -6px rgba(21, 34, 48, 0.22); min-width: 8rem; }
+  .tip :global(b) { font-family: var(--font-mono); font-weight: 500; color: var(--ink); font-size: 0.84rem; display: flex; align-items: center; gap: 0.45rem; white-space: nowrap; }
+  .tip :global(b)::before { content: ""; width: 12px; height: 2.5px; border-radius: 2px; background: var(--c); }
+</style>

@@ -1,0 +1,132 @@
+---
+/**
+ * Telling chatter from forced vibration by its frequency, and Smith's speed rule (CTE 2010, 2013).
+ * The sound of a cut as a spectrum: the forced lines move with the spindle (runout at n/60, the tooth-passing
+ * frequency ft = n × m ÷ 60 and its multiples); the chatter line sits near a natural frequency, off that family.
+ * Smith's example: 15,000 rpm, two teeth, ft = 500 Hz, chatter at 427 Hz; the new speed that puts the tooth
+ * frequency on the old chatter frequency is 427 × 60 ÷ 2 = 12,810 rpm. The button slides the family there.
+ * Bar heights are schematic; the frequencies are Smith's.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { before: '15.000 dev/dak (tırlıyor)', after: 'Kurala göre: 12.810 dev/dak', freq: 'frekans (Hz)', run: 'salgı n/60', tooth: 'dişlerin geçişi ft', harm: 'katları', chatter: 'tırlama', old: 'eski tırlama frekansı', n: 'Devir n', ft: 'Dişlerin geçiş frekansı ft = n × m ÷ 60', fc: 'Tırlama frekansı fc', next: 'Yeni devir = fc × 60 ÷ m', rpm: 'dev/dak', m: 'm = 2 diş', aria: 'Kesme sesinin frekans dağılımı: iş milinin sürdüğü çizgiler devirle kayar, tırlama çizgisi bir doğal frekansın yakınında kalır; Smith’in kuralı yeni devri, dişlerin geçiş frekansı eski tırlama frekansına denk gelecek şekilde seçer' }
+  : { before: '15,000 rpm (chattering)', after: 'By the rule: 12,810 rpm', freq: 'frequency (Hz)', run: 'runout n/60', tooth: 'tooth passing ft', harm: 'multiples', chatter: 'chatter', old: 'old chatter frequency', n: 'Spindle speed n', ft: 'Tooth-passing frequency ft = n × m ÷ 60', fc: 'Chatter frequency fc', next: 'New speed = fc × 60 ÷ m', rpm: 'rpm', m: 'm = 2 teeth', aria: 'Spectrum of the sound of a cut: the forced lines slide with spindle speed, the chatter line stays near a natural frequency; Smith’s rule picks the new speed so the tooth-passing frequency lands on the old chatter frequency' };
+const W = 640, H = 250, X0 = 40, X1 = 620, Y0 = 200, Y1 = 26, fMax = 1600;
+const X = (f: number) => X0 + ((X1 - X0) * f) / fMax;
+const grp = (v: number) => (tr ? Math.round(v).toLocaleString('tr-TR') : Math.round(v).toLocaleString('en-US'));
+const ticks = [0, 200, 400, 600, 800, 1000, 1200, 1400, 1600];
+const fc = 427, m = 2, n1 = 15000, n2 = (fc * 60) / m;
+---
+<div class="cs" data-cs data-locale={locale} data-anim>
+  <div class="seg" role="radiogroup" aria-label={T.n}>
+    <button type="button" role="radio" aria-checked="true" class="on" data-s="0">{T.before}</button>
+    <button type="button" role="radio" aria-checked="false" data-s="1">{T.after}</button>
+  </div>
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={T.aria} class="plot">
+    <defs>
+      <linearGradient id={`cs-g-${locale}`} x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c2413b" /><stop offset="1" stop-color="#e2601a" /></linearGradient>
+      <linearGradient id={`cs-b-${locale}`} x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#2a6fd6" /><stop offset="1" stop-color="#6da7ec" /></linearGradient>
+    </defs>
+    {ticks.map((f) => <g><line x1={X(f)} x2={X(f)} y1={Y1} y2={Y0} class="gl" /><text x={X(f)} y={Y0 + 16} text-anchor="middle" class="tk">{grp(f)}</text></g>)}
+    <line x1={X0} x2={X1} y1={Y0} y2={Y0} class="ax" />
+    <text x={(X0 + X1) / 2} y={H - 6} text-anchor="middle" class="axl">{T.freq}</text>
+    <!-- the old chatter frequency, a fixed reference -->
+    <line x1={X(fc)} x2={X(fc)} y1={Y1 - 4} y2={Y0} class="ref" />
+    <text x={X(fc) - 6} y={Y1 + 4} text-anchor="end" class="refl">{T.old} {fc} Hz</text>
+    <!-- the forced family: runout harmonics (small) and tooth-passing harmonics (tall) -->
+    <g data-fam style={`--k:1`}>
+      <rect data-r="1" x={X(n1 / 60) - 3} y={Y0 - 26} width="6" height="26" rx="2" class="run" />
+      {[1, 2, 3].map((j) => <rect data-t={j} x={X((j * n1 * m) / 60) - 5} y={Y0 - [130, 84, 52][j - 1]} width="10" height={[130, 84, 52][j - 1]} rx="3" fill={`url(#cs-b-${locale})`} />)}
+      <text data-tl x={X((n1 * m) / 60) + 9} y={Y0 - 118} class="lbl b">{T.tooth} {grp((n1 * m) / 60)} Hz</text>
+      <text data-rl x={X(n1 / 60) - 7} y={Y0 - 8} text-anchor="end" class="lbl s">{T.run}</text>
+    </g>
+    <!-- the chatter line: near a natural frequency, off the family -->
+    <g data-ch>
+      <rect x={X(fc) - 6} y={Y0 - 160} width="12" height="160" rx="3" fill={`url(#cs-g-${locale})`} class="chat" />
+      <text x={X(fc) + 10} y={Y0 - 146} class="lbl c">{T.chatter} {fc} Hz</text>
+    </g>
+  </svg>
+  <dl class="read">
+    <div><dt>{T.n}</dt><dd class="num" data-o="n">{grp(n1)} {T.rpm}</dd></div>
+    <div><dt>{T.ft} ({T.m})</dt><dd class="num" data-o="ft">{grp((n1 * m) / 60)} Hz</dd></div>
+    <div><dt>{T.fc}</dt><dd class="num c">{fc} Hz</dd></div>
+    <div><dt>{T.next}</dt><dd class="num" data-o="nx">{fc} × 60 ÷ {m} = {grp(n2)} {T.rpm}</dd></div>
+  </dl>
+  <script type="application/json" data-cfg set:html={JSON.stringify({ W, X0, X1, Y0, fMax, fc, m, n1, n2, rpm: T.rpm, tooth: T.tooth })} />
+</div>
+
+<style>
+  .cs { display: grid; gap: 0.75rem; }
+  .plot { width: 100%; height: auto; display: block; }
+  .seg { display: inline-flex; justify-self: start; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { font: inherit; font-size: 0.85rem; padding: 0.45rem 0.9rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.3rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button.on { background: var(--accent); color: #fff; }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .gl { stroke: var(--line); stroke-width: 1; }
+  .ax { stroke: #5f6c79; }
+  .tk { font: 11px var(--font-mono); fill: var(--ink-3); }
+  .axl { font: 12px var(--font-sans); fill: var(--ink-2); }
+  .ref { stroke: #c2413b; stroke-width: 1.2; stroke-dasharray: 4 4; opacity: 0.7; }
+  .refl { font: 11px var(--font-mono); fill: #b23a34; opacity: 0; transition: opacity 0.6s; }
+  .cs[data-after] .refl { opacity: 1; }
+  .ref { opacity: 0; transition: opacity 0.6s; }
+  .cs[data-after] .ref { opacity: 0.7; }
+  .run { fill: #9aa6b2; }
+  .lbl { font: 12px var(--font-mono); paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+  .lbl.b { fill: #1e5fc4; }
+  .lbl.s { fill: var(--ink-3); font-size: 11px; }
+  .lbl.c { fill: #b23a34; font-weight: 600; }
+  [data-ch] { transition: opacity 0.6s; }
+  .cs[data-after] [data-ch] { opacity: 0.35; }
+  .cs[data-after] [data-ch] text { opacity: 0; }
+  :global(html.anim) .cs:not([data-in]) .chat { transform: scaleY(0); }
+  :global(html.anim) .cs[data-in] .chat { transform-box: fill-box; transform-origin: 50% 100%; animation: cs-grow 0.9s 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards, cs-wobble 1.3s 1.2s ease-in-out infinite; }
+  @keyframes cs-grow { from { transform: scaleY(0); } }
+  @keyframes cs-wobble { 50% { transform: scaleY(0.9); } }
+  .cs[data-after] .chat { animation: none !important; }
+  .read { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem 1rem; margin: 0; }
+  @media (max-width: 40rem) { .read { grid-template-columns: 1fr 1fr; } }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; color: var(--ink); font-size: 0.95rem; }
+  .read dd.c { color: #b23a34; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-cs]').forEach((root) => {
+    const C = JSON.parse((root.querySelector('[data-cfg]') as HTMLElement).textContent || '{}');
+    const tr = root.dataset.locale === 'tr';
+    const grp = (v: number) => (tr ? Math.round(v).toLocaleString('tr-TR') : Math.round(v).toLocaleString('en-US'));
+    const X = (f: number) => C.X0 + ((C.X1 - C.X0) * f) / C.fMax;
+    const btns = [...root.querySelectorAll<HTMLButtonElement>('[data-s]')];
+    let n = C.n1, raf = 0;
+    const draw = () => {
+      root.querySelectorAll<SVGRectElement>('[data-r]').forEach((r) => { const j = Number(r.dataset.r); r.setAttribute('x', (X((j * n) / 60) - 3).toFixed(1)); });
+      root.querySelectorAll<SVGRectElement>('[data-t]').forEach((r) => { const j = Number(r.dataset.t); r.setAttribute('x', (X((j * n * C.m) / 60) - 5).toFixed(1)); });
+      const tl = root.querySelector('[data-tl]')!, ft = (n * C.m) / 60;
+      tl.setAttribute('x', (X(ft) + 9).toFixed(1)); tl.textContent = `${C.tooth} ${grp(ft)} Hz`;
+      root.querySelector('[data-rl]')!.setAttribute('x', (X(n / 60) - 7).toFixed(1));
+      root.querySelector('[data-o="n"]')!.textContent = `${grp(n)} ${C.rpm}`;
+      root.querySelector('[data-o="ft"]')!.textContent = `${grp(ft)} Hz`;
+    };
+    const go = (to: number) => {
+      cancelAnimationFrame(raf);
+      const from = n, t0 = performance.now(), ms = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1100;
+      const step = (now: number) => {
+        const k = ms ? Math.min(1, (now - t0) / ms) : 1, e = k < 0.5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2;
+        n = from + (to - from) * e; draw();
+        if (k < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+    btns.forEach((b) => b.addEventListener('click', () => {
+      const after = b.dataset.s === '1';
+      btns.forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', String(x === b)); });
+      root.toggleAttribute('data-after', after);
+      go(after ? C.n2 : C.n1);
+    }));
+    draw();
+  });
+</script>

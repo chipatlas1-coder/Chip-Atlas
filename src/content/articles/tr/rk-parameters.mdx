@@ -1,0 +1,140 @@
+---
+key: rk-parameters
+locale: tr
+slug: rk-parametreleri
+title: 'Rk, Rpk, Rvk — plato honlanmış bir yüzeyi okumak'
+description: 'Ra bir silindir deliğini neden tarif edemez, Abbott–Firestone eğrisi ISO 13565-2''ye göre tepe, çekirdek ve çukurlara nasıl ayrılır, Rk, Rpk, Rvk, Mr1 ve Mr2 ne anlama gelir; motor silindirleri ve keçe karşı yüzeyleri için yayımlanmış hedef değerler.'
+section: 10
+subsection: surface-roughness
+order: 2
+status: review
+updated: 2026-10-11
+tools: [roughness]
+glance:
+  - value: '%40'
+    label: 'Çekirdeği tanımlayan en küçük eğimli kiriş'
+  - value: '5'
+    label: 'Parametre: Rk, Rpk, Rvk, Mr1, Mr2'
+  - value: '< 0,20'
+    unit: 'µm'
+    label: 'Binek araç silindirleri için Rpk hedefi (MS Motorservice)'
+  - value: 'Rmrk1, Rmrk2'
+    label: 'ISO 21920-2''de Mr1 ve Mr2''nin yeni adları'
+sources:
+  - label: 'ImageMet, ISO 13565 pürüzlülük analizi (filtre; Rk, Mr1, Mr2, Rpk, Rvk yapımı)'
+    url: https://www.imagemet.com/WebHelp6/Content/RoughnessAnalysis/RoughnessISO13565.htm
+  - label: 'D. Hüser vd. (PTB), arXiv:1603.00746 (Rk ailesinin tanımları)'
+    url: https://arxiv.org/pdf/1603.00746
+  - label: 'M. Krystek (PTB), arXiv:1012.0678, 2010 (ISO 13565-1 filtresi ve halefleri)'
+    url: https://arxiv.org/pdf/1012.0678
+  - label: 'Mahr, MarSurf parametre kılavuzu, Rk parametreleri'
+    url: https://parameter.mahr.com/html/english/MarSurf/rrrmm.html
+  - label: 'Digital Surf, ISO 13565 parametreleri kılavuzu'
+    url: https://guide.digitalsurf.com/en/guide-iso-13565-parameters.html
+  - label: 'W. Graboń, P. Pawlus, Metrology and Measurement Systems 23(4), 2016 (ISO 13565-3 parametreleri)'
+    url: https://www.czasopisma.pan.pl//Content/106351/PDF/10.1515mms-2016-0046%20paper%2009.pdf
+  - label: 'ISO 13565-1:1996, katalog sayfası (2026''da onaylandı)'
+    url: https://www.iso.org/standard/22279.html
+  - label: 'BS EN ISO 21920-2:2022 önizlemesi (önsözler; ISO 13565-2 ve -3''ün yerini alması)'
+    url: https://webstore.ansi.org/preview-pages/BSI/preview_30458657.pdf
+  - label: 'Hoffmann / Perschmann, Oberflächenkenngrößen (Mr1/Mr2''nin Rmrk1/Rmrk2 olarak yeniden adlandırılması), 2022'
+    url: https://www.perschmann.de/_Resources/Persistent/c/1/7/5/c1752cfe94f0cd28c408a508401d8ae59a418843/messtechnik-oberflaechenkenngroessen-perschmann.pdf
+  - label: 'MS Motorservice, Technipedia, "Honing results — assessment"'
+    url: https://www.ms-motorservice.com/sg/en/technipedia/honing-results-assessment
+  - label: 'Trelleborg Sealing Solutions, "An introduction to counter surfaces", teknik makale, 2019'
+    url: https://www.trelleborg.com/seals/-/media/tss-media-repository/tss_website/services-and-tools/technical-library/whitepapers/introduction-to-counter-surfaces-whitepaper_en.pdf?rev=-1
+  - label: 'Parker Hannifin, Fluid Power Seal Design Guide EPS 5370/USA (üçüncü taraf kopyası)'
+    url: https://www.hdslippers.com/cgi-bin/pdf/Catalogues/Fluid Power Parker Seals.pdf
+  - label: 'Freudenberg, Merkel Compact Seal S8 veri sayfası'
+    url: https://products.fst.com/pim/assets/design/productdatasheets/merkel_compact_seal_s8__en.pdf
+  - label: 'SKF, K02-RD piston keçesi veri sayfası, 2019'
+    url: https://cdn.skfmediahub.skf.com/api/public/0901d196802a94db/pdf_preview_medium/0901d196802a94db_pdf_preview_medium.pdf
+---
+import AbbottRk from '../../../components/mdx/AbbottRk.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { msBoreTargets } from '../../../data/figures';
+
+Plato honlanmış bir silindir deliğinin aynı anda iki görevi vardır. Pürüzsüz platoları segmanları taşır; derin honlama izleri yağ tutar. Ra ikisinin ortalamasını tek bir sayıya çevirir ve hiçbiri hakkında bir şey söylemez. ISO 13565-2'nin Rk parametreleri tam da bu tür yüzeyler için geliştirildi: profili alışma sırasında aşınıp gidecek tepelere, yükü taşıyan bir çekirdeğe ve yağlayıcıyı tutan çukurlara ayırırlar.
+
+## Malzeme oranı eğrisi
+
+Pürüzlülük profilinin bütün yüksekliklerini en yüksekten en alçağa sıralayın ve her yüksekliğin üstünde kalan değerlendirme uzunluğu payına karşı çizin. Sonuç **malzeme oranı eğrisi**, yani Abbott–Firestone eğrisidir. En üstte yalnızca en yüksek tepe kesilir (%0); en altta her şey (%100).
+
+Plato honlanmış bir yüzeyde eğri S biçimlidir: birkaç tepenin öne çıktığı üstte dik, plato boyunca yatık, derin izlerin olduğu altta yine diktir.
+
+<Figure caption="Sentetik bir plato honlanmış profil (solda) ve malzeme oranı eğrisi (sağda), aynı yükseklik ölçeğinde, ISO 13565-2 yapımıyla. Düğmeler yapımı aşağıdaki adımların sırasıyla kurar. Bütün değerler çizilen profilden hesaplanmıştır.">
+  <AbbottRk locale="tr" />
+</Figure>
+
+## Adım adım yapım
+
+1. **Eşdeğer doğru.** %40 malzeme oranını kapsayan bir kesen, eğimi en küçük olana kadar eğri boyunca kaydırılır. Bu konum profilin çekirdeğini belirler.
+2. **Rk, çekirdek pürüzlülük derinliği.** Doğruyu %0 ve %100'e uzatın. Bu iki kesişim arasındaki yükseklik Rk'dir.
+3. **Mr1 ve Mr2.** Çekirdeğin iki ucundan geçen yatay çizgiler eğriyi Mr1'de (çekirdeğin en küçük malzeme oranı) ve Mr2'de (en büyük) keser.
+4. **Rpk, indirgenmiş tepe yüksekliği.** %0'dan Mr1'e kadar eğri ile üst çekirdek çizgisi arasındaki A1 alanı, Mr1 tabanlı eşit alanlı bir dik üçgenle değiştirilir:
+
+$$
+Rpk = \frac{2\,A_1}{Mr_1}
+$$
+
+5. **Rvk, indirgenmiş çukur derinliği.** Aynı şekilde Mr2'den %100'e kadar alt çekirdek çizgisi ile eğri arasındaki A2 alanı şunu verir:
+
+$$
+Rvk = \frac{2\,A_2}{100\,\% - Mr_2}
+$$
+
+İşlev açısından okunuşu:
+
+- **Rpk**, alışma sırasında aşınıp gidecek tepeleri tarif eder. Küçük olması iyidir.
+- **Rk**, uzun vadede yükü taşıyan çekirdeği tarif eder.
+- **Rvk**, yağı tutan çukurları tarif eder. Yağlayıcıyı tutacak kadar büyük olmalıdır.
+- **Mr1** tepelerin kapladığı uzunluk payıdır; **%100 − Mr2** çukurların kapladığı paydır.
+
+<Note kind="note" title="Filtreleme ve geçerlilik">
+Parametreler, derin çukurların ortalama çizgiyi aşağı çekmesini önleyen ISO 13565-1'in özel iki aşamalı filtresiyle süzülmüş bir profil üzerinde tanımlanır: profil filtrelenir, ilk ortalama çizginin altındaki her şey o çizgiyle değiştirilir ve bu değiştirilmiş profil yeniden filtrelenir; yeni ortalama çizgi özgün profilden çıkarılınca pürüzlülük profili elde edilir. Sonradan halef olarak sağlam (robust) filtreler getirilmiştir. Digital Surf, parametrelerin yalnızca malzeme oranı eğrisi S biçimli olduğunda anlamlı olduğunu belirtir.
+</Note>
+
+## ISO 21920'deki adları
+
+ISO 21920-2:2021, ISO 13565-2 ve -3'ün yerini aldı. Rk, Rpk ve Rvk adlarını korudu; Mr1 ve Mr2 **Rmrk1** ve **Rmrk2** oldu. Filtre standardının durumu kuruluşa göre farklıdır: ISO, ISO 13565-1'i yürürlükte gösterir ve 2026'da onaylamıştır; BSI ve Mahr'ın DIN tabanlı özeti ise onu geri çekilmiş olarak listeler.
+
+ISO 13565-3, malzeme olasılık eğrisine dayanan ikinci bir aile ekledi: Rpq, Rvq ve Rmq. Bunlar normal olasılık ölçeğinde plato ve çukur bölgelerinin eğimleri ile geçişlerindeki malzeme oranıdır. Silindir gömlekleri ve yakıt enjektörleri gibi iki bileşenli yüzeyler için düşünülmüştür.
+
+## Yayımlanmış hedef değerler
+
+<Note kind="warn" title="İnceleme altında — tek kaynaklı değerler">
+Aşağıdaki her değer seti tek bir üreticinin yayınından gelir ve o üreticinin ürünleri ile ölçme koşulları için geçerlidir. Henüz ikinci bağımsız bir kaynakla doğrulanmamıştır. Her zaman resimdeki ya da motor veya keçe üreticisinin şartnamesindeki değerleri kullanın.
+</Note>
+
+### Motor silindir delikleri (MS Motorservice)
+
+| Parametre | Binek araç, benzinli ve dizel | Dizel ticari araç |
+|---|---|---|
+| Ra (µm) | 0,15–0,40 | 0,30–0,50 |
+| Rpk (µm) | < 0,20 | 0,20–0,40 |
+| Rk (µm) | 0,20–0,60 | 0,50–1,50 |
+| Rvk (µm) | 1,40–1,80 | 1,50–2,00 |
+| Mr1 (%) | 4–12 | 4–10 |
+| Mr2 (%) | 75–90 | 80–90 |
+| Honlama açısı | 25–45° | 40–60° |
+
+4,8 mm tarama uzunluğunda, 2 µm uç yarıçaplı ve 90° koni açılı iğneyle ölçülmüştür. Rvk'nin Rpk'nin birkaç katı olduğuna dikkat edin: yüzeyin büyük ölçüde plato olması, yağ tutan derin izler taşıması amaçlanır. Bir gömlek üreticisinin patenti (Zynp) ile Gruszka, Pawlus ve Mathia'nın bir makalesi benzer aralıklar verir; [honlama ve plato honlama](/tr/prosesler/honlama-ve-plato-honlama/) sayfasında karşılaştırılmıştır.
+
+<Figure caption="Tablodaki Rpk, Rk ve Rvk aralıkları iki motor türü için. Noktalı çubuk yalnızca üst sınırdır.">
+  <RangeChart locale="tr" {...msBoreTargets("tr")} min={0} max={2.2} ticks={[0, 0.5, 1, 1.5, 2]} unit="µm" axisLabel="Yükseklik" labelWidth={70} aria="Binek araç ve dizel ticari araç için MS Motorservice silindir hedefleri" />
+</Figure>
+
+### Hidrolik keçe karşı yüzeyleri
+
+| Üretici, yüzey | Ra (µm) | Diğer sınırlar | Malzeme oranı |
+|---|---|---|---|
+| Trelleborg, honlanmış ya da taşlanmış delikler | 0,05–0,4 | Rz 0,6–2,5; Rpk 0,05–0,40; Rvk 0,10–1,4 | Rmr %50–70 |
+| Parker, dinamik yüzeyler, hidrolik yağ | 0,08–0,3 (PTFE için ≤ 0,3) | Rz ≤ 8 · Ra, en fazla 1,8 (PTFE için 1,6) | Rmr termoplastik %45–70, kauçuk %55–85, PTFE %60–90 |
+| Freudenberg, Merkel S8 kayma yüzeyi | 0,05–0,3 | Rz1max ≤ 3,0 | Mr %50–90 |
+| SKF, K02-RD piston keçesi kayma yüzeyi | 0,05–0,2 | Rt max ≤ 2,5 | nota bakın |
+
+<Note kind="key" title="Malzeme oranları üreticiler arasında karşılaştırılamaz">
+Trelleborg ve Parker Rmr'yi %5 malzeme oranındaki bir referans çizgisinin 0,25 · Rz altında ölçer (Trelleborg krom ve yumuşak kaplamalar için %5, nitrürlenmiş ya da sertleştirilmiş yüzeyler için %2, seramik için %0 kullanır). Freudenberg c = Rz/2'de, referansı %0'da alarak ölçer; SKF'nin veri sayfası, hangi yüzey için geçerli olduğunu belirtmeden, referans %0 iken 0,5 · Rz kesme derinliğinde %50–95 verir. Aynı yüzey bu yüzden iki yöntemle farklı yüzdeler verir.
+</Note>
+
+Honlama ya da taşlamadan önce tornalanmış bir yüzeyin pürüzlülüğünü ilerleme ve uç yarıçapının nasıl belirlediğini görmek için [teorik pürüzlülük hesaplayıcısını](/tr/araclar/teorik-puruzluluk/) kullanın.

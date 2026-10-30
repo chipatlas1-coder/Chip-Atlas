@@ -1,0 +1,135 @@
+---
+key: coolant-concentration
+locale: en
+slug: coolant-concentration
+title: 'Coolant concentration: measuring and correcting it'
+description: 'How to measure the concentration of a water-miscible cutting fluid with a hand refractometer and the product’s factor, why the reading drifts, when titration or an acid split is used instead, how often to check, what a sump that is too weak or too strong does, and how much concentrate, premix or water brings it back to target.'
+section: 8
+subsection: coolant
+order: 2
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'reading × factor'
+    label: 'Concentration from a refractometer: the Brix reading times the product’s own factor (Master Fluid Solutions, Blaser, HSE, Q8Oils)'
+  - value: '0.9–3.4'
+    label: 'Refractometer factors in Master Fluid Solutions’ range, emulsions to synthetics; many emulsions are 1.0'
+  - value: '5–10 %'
+    label: 'Typical working concentration of emulsions (Master Fluid Solutions, TotalEnergies, Petrol Ofisi); the product’s data sheet sets the target'
+  - value: 'weekly'
+    label: 'Minimum check of concentration and pH (HSE MW5; IFA/DGUV); makers ask for more often'
+sources:
+  - label: 'Master Fluid Solutions, Technical Bulletin #110, “Coolant Concentration Facts and Terminology”'
+    url: https://www.masterfluids.com/na/en-us/technical-information/technical-bulletin.php?tbid=110
+  - label: 'Master Fluid Solutions, Technical Bulletin #032, “Concentration Control of Coolants”, rev. 2019'
+    url: https://www.masterfluids.com/na/en-us/technical-information/technical-bulletin.php?tbid=032
+  - label: 'Master Fluid Solutions, Technical Bulletin #028, “Concentration Control of Coolants by Alkaline Titration”'
+    url: https://www.masterfluids.com/na/en-us/technical-information/technical-bulletin.php?tbid=028
+  - label: 'Master Fluid Solutions, Technical Bulletin #060, “The Mathematics of Metalworking Fluids”, rev. 2022'
+    url: https://www.masterfluids.com/na/en-us/technical-information/technical-bulletin.php?tbid=060
+  - label: 'Blaser Swisslube, “Measuring the coolant concentration”, 2022'
+    url: https://blaser.com/measuring-the-coolant-concentration/
+  - label: 'Blaser Swisslube, Operation manual, refractometer ATAGO MASTER-M 20'
+    url: https://blaser.com/wp-content/uploads/blaser_manual_refraktometer_ATAGO_MASTER-M20_d_f_e.pdf.pdf
+  - label: 'Quaker Houghton, “Skill Builder: Concentration”, 2020'
+    url: https://store.quakerhoughton.com/media/pdfs/assembly/skb_concentration_LT_EN_GL.pdf
+  - label: 'Q8Oils (Kuwait Petroleum), VWR refractometers leaflet'
+    url: https://q8oils.com/wp-content/uploads/2025/01/VWR-refractometer-Leaflet_ENG.pdf
+  - label: 'Haas Automation, Coolant Refractometer, Brix 0–32 %, part 09-0032'
+    url: https://www.haastooling.com/p/09-0032
+  - label: 'ExxonMobil, Technical Topic GM6108SH, “Dos and Don’ts of Handling Aqueous Cutting Fluids”, 2009'
+    url: https://www.global.mobil.com/-/media/files/global/us/industrial/tech-topics/proper-handling-aqueous-cutting-fluids.pdf
+  - label: 'TotalEnergies Lubricants, FAQ: recommended concentration for water based coolants'
+    url: https://lubricants.totalenergies.com/faq/maintenance/what-recommended-concentration-water-based-coolants
+  - label: 'Motul, technical data sheet SAFKOOL 6110, rev. 04/2021'
+    url: https://azupim01.motul.com/media/motulData/DO/base/SAFKOOL_6110_en_FR_motultech_20210417.pdf
+  - label: 'Petrol Ofisi, Bor Yağı ürün bilgi formu (Turkish product data sheet)'
+    url: https://petrolofisi.com.tr/medium/Product/Document/d8f06964-fdeb-4282-a01c-a094ebbbe540
+  - label: 'Petrol Ofisi, Bor Yağı product page (English)'
+    url: https://www.petrolofisi.com.tr/metalworking-fluids/bor-yagi
+  - label: 'Lovibond (Tintometer), datasheet 56M000301, 0–32 % Brix refractometer (Turkish)'
+    url: https://www.lovibond.com/ix_pim_assets/datasheet/water/tr/Veri%20Sayfas%C4%B1%2056M000301%20-%200-32%20Brix%20refraktometresi%20tr.pdf
+  - label: 'HSE, COSHH essentials MW5, “Managing fluid quality”, 03/21'
+    url: https://www.hse.gov.uk/PUBNS/guidance/mw5.pdf
+  - label: 'IFA / DGUV, KSS-Portal: Prüfung wassergemischter Kühlschmierstoffe'
+    url: https://dguv.de/ifa/praxishilfen/kuehlschmierstoffe/schutzmassnahmen/pruefung-wassergemischter-kuehlschmierstoffe/index.jsp
+  - label: 'IFA / DGUV, KSS-Portal, Lexikon: Gebrauchskonzentration'
+    url: https://dguv.de/ifa/praxishilfen/kuehlschmierstoffe/lexikon/gebrauchskonzentration/index.jsp
+  - label: 'OSHA, Metalworking Fluids: Safety and Health Best Practices Manual'
+    url: https://www.osha.gov/metalworking-fluids/manual
+---
+import CoolantCheck from '../../../components/mdx/CoolantCheck.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+A water-miscible cutting fluid, whether an emulsion, a semi-synthetic or a synthetic, is a concentrate diluted in water (the classes are compared on the [types of cutting fluid](/coolant-and-lubrication/cutting-fluid-types/) page), and how much concentrate is in the mix decides how it works. Master Fluid Solutions puts it in one line: "Every water dilutable fluid is designed to run within a specific concentration range." The usual band is wide. Master: "In general, the target working solution is between 5% and 10% coolant concentrate mixed with between 95% and 90% water." TotalEnergies gives 5 to 10 % for emulsions, and Petrol Ofisi's data sheet for its Bor Yağı gives 5–10 %. The German IFA (DGUV) puts the usual in-use concentration at 4 to 8 %, depending on the maker's figures. Synthetics for grinding often run lower: TotalEnergies writes that they can often be used "around 3 to 6%", and Motul's sheet for SAFKOOL 6110 gives 3–5 % for grinding cast iron and steel and 5–8 % for general machining of steel; Petrol Ofisi, by contrast, gives 5–10 % for its Bor Yağı for cutting and grinding alike. The number that counts is the one on the data sheet of the fluid in the machine; HSE: "Follow your supplier's recommended levels for fluid concentration and pH."
+
+## Too weak, too strong
+
+| | Too weak | Too strong |
+|---|---|---|
+| Master Fluid Solutions | "corrosion, tool, and sump life problems are frequently observed" | "more dermatitis, residue, and excess fluid usage problems" |
+| OSHA | "decreased tool life, bacteria and/or fungus problems", "possible corrosion and eventual downtime" | "dermatitis, foaming, and heavy residues" |
+| IFA (DGUV) | | excessive concentrations strengthen the skin-irritating effect and can lead to skin disease |
+
+OSHA also lists concentrations higher than recommended among the causes of dermatitis. HSE does not tie concentration to an effect; it asks for the supplier's levels and warns that "Skin exposure to MWF can cause dermatitis."
+
+## Measuring with a hand refractometer
+
+Master: "The easiest and most common method is to use an optical refractometer." The instrument reads in degrees Brix (Blaser's ATAGO MASTER-M 20 reads 0–20 % Brix, Haas sells one for 0–32 % Brix), and that number is not yet the concentration.
+
+1. **Zero it with water.** Blaser: "It is important to calibrate a handheld refractometer with water." Q8Oils and Quaker Houghton use distilled water; Blaser's ATAGO manual and Haas also allow tap water. With a few drops on the prism, turn the adjustment screw until the boundary sits on zero (Blaser, Q8Oils, Haas). Q8Oils: "The adjustment must be carried out at 20 °C room temperature."
+2. **Put the sample on the prism.** Two or three drops, with the daylight plate closed so that the fluid spreads "without air bubbles or dry spots" (Blaser's manual; Q8Oils says the same). Q8Oils: "Wait at least 30 seconds" so that the sample takes the temperature of the prism. IFA takes the sample while the fluid circulates, from the clean tank or straight from the supply line.
+3. **Read the boundary.** Hold the instrument towards a light and look into the eyepiece. Q8Oils: "The upper part of the field should be blue and the lower part white." and "You can read the value exactly at the boundary between the blue and white field."
+4. **Multiply by the factor.** Master: "Coolant Concentration = Refractometer Reading x Brix Factor". HSE's record sheet heads its column "Concentration % (refractometer reading x fluid correction factor)".
+5. **Clean it.** Q8Oils: "Between each measurement, clean the instrument carefully and thoroughly with water." Blaser: "Do NOT immerse the prism in water!"
+
+The factor belongs to the product: "Every coolant concentrate has its own unique Brix factor" (Master). Haas sends the reader to the product's data sheet for it, and Quaker says each supplier should provide a chart of refractometer readings over the normal concentration range. Master gives the spread: "Brix factors range from 0.9 for emulsions, to 3.4 for synthetics." and "the Brix factor for many emulsions is 1.0". Motul's sheet gives 2.5 for SAFKOOL 6110, so with that fluid a reading of 2.0 means 2.0 × 2.5 = 5.0 %. Quaker explains where the factor comes from: "The level of active ingredients (i.e. those that refract) in the concentrate dictates the factor." Its example: "If a product contains 20% water in the concentrate, then a 10% dilution will read 8.0 at best." Master warns against reading it backwards: "A Brix factor is meaningful only as a multiplier; it does not indicate anything about a product's efficacy or water content."
+
+Within its range, an instrument with automatic temperature compensation corrects for temperature: Q8Oils' VWR units "have ATC (automatic temperature compensation) from 10 to 30 °C to a reference temperature of 20 °C"; Haas and Lovibond also list automatic temperature compensation for theirs.
+
+<Figure caption="A schematic refractometer view. On entry the boundary is first set to zero with water, then moves to the reading of the sample. Set the true concentration in the sump and the product’s factor (0.9 and 3.4 are the ends of Master Fluid Solutions’ range, 1.0 is many emulsions, 2.5 is Motul SAFKOOL 6110) to see what the scale shows; with tramp oil the boundary blurs. Below, the volume balance for bringing the sump to target, worked out further down this page. The reading is shown to 0.1 °Brix, as it is read; with a large factor, a small reading step is a large step in concentration. The scale is 0–20 °Brix, as on the Blaser ATAGO MASTER-M 20; sump volume and target are example values.">
+  <CoolantCheck locale="en" />
+</Figure>
+
+## When the reading cannot be trusted
+
+A sharp line needs a clean, stable fluid. Blaser writes that a diffuse reading means the emulsion is either unstable or heavily contaminated with tramp oil, and IFA names the same two causes: large amounts of emulsified tramp oil, and unstable emulsions with large oil droplets. Master: with a heavily contaminated system a good clear reading "is often not possible," "making the actual reading somewhat of an educated guess." Quaker: tramp oil "should be removed from the dilution prior to testing." IFA's advice for an emulsion that can no longer be made stable is to replace the fluid.
+
+Master also gives the direction of the error: "Refractometers, over time, tend to read higher than 'actual' concentration" because "the tramp oils, etc. that get into the fluid will also refract the light". It is the only source here that says which way the reading drifts. It also asks for the instrument to be kept "very clean and in calibration".
+
+## Titration and the acid split
+
+Master: "Alkaline titration is the next most common method of checking concentration." In its kit, 1–2 drops of indicator dye go into the sample and 1.0 N sulfuric acid is added drop by drop, counting, "until the solution turns from green to pink"; the number of drops times the product's conversion factor gives the concentration. It only suits products with "a fairly large amount of alkalinity" and "typically works best with synthetic and semisynthetic products." Quaker: "A titration is very accurate but will be interfered by similar compounds." Its example: "If you are conducting an alkaline titration and an alkaline cleaner is the contaminant, you will read both." Over time, Master writes, titration "tends to read lower than the 'actual' concentration", the opposite of the refractometer.
+
+For soluble oils and high-oil semi-synthetics Master adds the acid split, in which the acid makes the oil in the fluid "plus other oil-like materials" separate. It takes "About 20 minutes and then a 4 to 24 hour wait plus special glassware and reagents." and is "a very good way of getting at the total oil and surfactant content of a fluid", but "It is not a method that you would typically want to do every day."
+
+## How often
+
+HSE MW5: "Measure the fluid concentration (with a refractometer) and pH every week." It asks for the records to be kept "for at least five years" in a table or graph, to make trends easy to spot. In Germany the IFA lists a weekly check of pH and nitrite under TRGS 611 and, likewise, a weekly check of the concentration. Makers ask for more: Blaser, "The coolant concentration should get checked whenever the tank gets filled up.", with the data recorded at least once a week; Mobil, "at the beginning of every day/shift." IFA adds that a deviation from the target concentration should be acted on at once.
+
+## Bringing the sump back
+
+- **Top up with premix, not water.** Mobil: "Always top up with weak emulsion, never with water." Petrol Ofisi's Turkish data sheet says the same: plain water is never to be used for emulsion additions, which are made with emulsion of the right concentration prepared in a separate tank. HSE asks for the top-up to be weaker than the target, because water evaporates in use: "Therefore top up only with fluid below recommended concentration."
+- **Concentrate into water, never the reverse.** Mobil: "Do add the concentrate to the water." Master: "Never add water directly to coolant concentrate, which can form an inverse emulsion." Petrol Ofisi: add the oil to the water slowly while the water in the tank circulates, and never add water to the oil. Motul: "If no volumetric mixing system is available, slowly pour SAFKOOL 6110 into water while stirring continuously".
+- **Too strong or too weak.** IFA: add fluid of lower concentration to a sump that is too strong and of higher concentration to one that is too weak. Mobil's and Petrol Ofisi's rule is for routine top-ups; for a sump that is already too strong OSHA adds water: "If too strong, add water to reach the proper concentration." Then measure again; OSHA: "The correct concentration should be verified when finished."
+
+## The arithmetic
+
+How much to add follows from mixing: a sump of V litres at c₁ gets x litres of a fluid at c_A and ends at c₂. Assuming the volumes simply add,
+
+$$
+\frac{V \cdot c_1 + x \cdot c_A}{V + x} = c_2 \quad\Rightarrow\quad x = V \cdot \frac{c_2 - c_1}{c_A - c_2}
+$$
+
+with c_A = 100 % for neat concentrate, the premix strength for premix and 0 for water. This is this page's mixing arithmetic, not a maker's formula, and it gives the concentration after the reading has been multiplied by the factor. It agrees with Master's worked example in TB #060: to raise a 123-gallon sump by 1 %, dividing by 100 gives "the 1.23 gallon add", but then the sump holds 124.23 gallons, so "my add should have been about 1.24 gallons"; the equation above with c₁ = 0 and c₂ = 1 % gives 123 × 1 ÷ 99 = 1.24 gallons. Master adds that in practice the simple percentage works fine, because concentration can only be measured to about a quarter of a per cent. From a sump already in use the exact add is a little larger (4 → 5 %: 123 × 1 ÷ 95 ≈ 1.29 gallons), still within the quarter of a per cent that Master says can be measured. Master also advises doing the calculation with the fluid at rest, and counting what central systems hold in pumps, tanks and pipes.
+
+Examples (this page's arithmetic): a 400 L sump measured at 3 % with a 5 % target needs 400 × 2 ÷ 95 ≈ 8.4 L of neat concentrate, or 400 × 2 ÷ 5 = 160 L of a 10 % premix. Bringing a 400 L sump from 8 % down to 6 % with water takes 400 × 2 ÷ 6 ≈ 133 L, which shows why lowering a strong sump needs free volume.
+
+<CheckList id="coolant-check" locale="en" items={[
+  { icon: 'align', title: 'Zero', check: 'The refractometer with water on the prism.', fix: 'Turn the adjustment screw until the boundary is on zero; distilled water (Q8Oils, Quaker), tap water also allowed by Blaser and Haas.', src: 'Blaser; Q8Oils; Quaker Houghton; Haas' },
+  { icon: 'coolant', title: 'Sample', check: 'Where and how the sample is taken.', fix: 'While the fluid circulates, from the clean tank or the supply line (IFA); 2–3 drops, no air bubbles, wait 30 s (Q8Oils).', src: 'IFA (DGUV); Q8Oils; Blaser' },
+  { icon: 'pitch', title: 'Factor', check: 'The refractometer factor of the fluid in use.', fix: 'Take it from the product data sheet (Haas) or the supplier’s chart (Quaker) and multiply the reading by it; Master gives 0.9 to 3.4 across its emulsions to synthetics.', src: 'Master Fluid Solutions; Quaker Houghton; Haas' },
+  { icon: 'chips', title: 'Fuzzy line', check: 'Whether the boundary is sharp.', fix: 'A diffuse line means tramp oil or an unstable emulsion; remove the tramp oil from the sample (Quaker), and expect the reading to run high as tramp oil builds up (Master).', src: 'Blaser; IFA (DGUV); Quaker Houghton; Master Fluid Solutions' },
+  { icon: 'sync', title: 'Interval', check: 'When the concentration was last measured and recorded.', fix: 'At least weekly with pH (HSE, IFA); makers ask at every fill (Blaser) or every shift (Mobil).', src: 'HSE MW5; IFA (DGUV); Blaser; Mobil' },
+  { icon: 'feed', title: 'Top-up', check: 'What goes into the sump.', fix: 'Premix, concentrate poured into water, never plain water as a routine top-up (Mobil, Petrol Ofisi); measure again afterwards (OSHA).', src: 'Mobil; Petrol Ofisi; HSE; OSHA' },
+]} />

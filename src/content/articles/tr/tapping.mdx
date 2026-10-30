@@ -1,0 +1,329 @@
+---
+key: tapping
+locale: tr
+slug: kilavuz-cekme
+title: 'Kılavuz çekme'
+description: 'Kılavuzla iç diş kesme ve ezme: dört kılavuz tipi ve talaşı nereye gönderdikleri, DIN 2197 kesme (ağız) formları, ISO 1–3 kılavuz sınıfları ve X sınıfları, üreticilere göre kesme hızları, adım çarpı devir olarak ilerleme, CNC çevrimleriyle senkron ve kompanzeli kılavuz çekme, tork ve güç, kılavuzların neden kırıldığı.'
+section: 2
+subsection: hole-making
+order: 9
+updated: 2026-10-17
+tools: [tapdrill, drilling]
+glance:
+  - value: 'vf = P · n'
+    label: 'İlerleme: devir başına bir adım'
+  - value: '6H'
+    label: 'Standart kılavuz sınıfı, ISO 2 (Vergnano, Völkel, Seco)'
+  - value: '+%40–50'
+    label: 'Ezme kılavuzunun kesme kılavuzuna göre torku (Völkel)'
+  - value: '≈ %10'
+    label: 'Ezme kılavuzu için en düşük kopma uzaması (ISCAR, DC Swiss, Sutton)'
+sources:
+  - label: 'ISCAR, Threading Catalog 62, basılı s. 378 (görüntüleyici s. 380): kılavuz terimleri ve standartları, DIN 2197 kesme formları'
+    url: https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page380.html
+  - label: 'ISCAR, Hole Making Catalog Inch 2022, s. 55 (kesme formları)'
+    url: https://iscar.com/Catalogs/publication-2022/english-1/HOLE_MAKING_CATALOG_INCH_2022/flipview_HOLE_MAKING_CATALOG_INCH_2022_P373-P446/files/basic-html/page55.html
+  - label: 'ISCAR, Tapping Tools kullanım rehberi (DIN EN 22857 toleransları, ezme sınırları)'
+    url: https://www.iscar.com/Catalogs/Publication/Catalogs_Mm/english_1/TAPPING_Catalog/TAPPING_CATALOG.pdf
+  - label: 'YG-1, Prime kılavuzlar YE-PT19, HSS-PM (kılavuz toleransları, kesme hızları), Cutwel sitesinde'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/YG-1 Prime Taps.pdf
+  - label: 'YG-1, senkron kılavuzlar ve senkron tutucular, Cutwel sitesinde'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/YG-1 Synchro Taps.pdf
+  - label: 'YG-1, ezme kılavuzları katalog bölümü, Cutwel sitesinde'
+    url: https://www.cutwel.co.uk/media/product-pdfs/threading/machine-taps/yg-1-cold-forming-roll-taps-flyer.pdf
+  - label: 'Völkel, “Form B or Form C? Choosing the right machine tap”'
+    url: https://voelkel.com/en/blog/form-b-or-form-c-machine-taps
+  - label: 'Völkel, “Thread tap tolerances at a glance”, 19 Kasım 2025'
+    url: https://voelkel.com/en/blog/thread-tap-tolerances-at-a-glance-differences-applications-and-recommendations
+  - label: 'Völkel, “Thread forming: chip-free, clean, reliable”, 3 Aralık 2025'
+    url: https://voelkel.com/en/blog/gewindeformen-spanlos-sauber-zuverlaessig
+  - label: 'Völkel, Teknik Bilgi 06: tezgâh kılavuzları'
+    url: https://voelkel.com/media/46/ae/8f/1788161940/06_Technical%20Information_Machine%20Taps.pdf?ts=1788161940
+  - label: 'Völkel, Teknik Bilgi 08: oluksuz tezgâh kılavuzları'
+    url: https://voelkel.com/media/68/4b/99/1788161965/08_Technical%20Information_Fluteless%20Machine%20Taps.pdf?ts=1788161965
+  - label: 'Vergnano, kılavuz kataloğu, tolerans sınıfları (s. 254)'
+    url: https://online.flippingbook.com/view/1003886444/257/
+  - label: 'Dormer Pramet, Threading general catalogue 2021–2022 (alıntı, kesme formları)'
+    url: https://pdf.directindustry.com/pdf/dormer-pramet/threading-general-catalogue-2021-2022/14461-964398.html
+  - label: 'Dormer Pramet, Shark Line malzemeye özel kılavuzlar, 2020 (alıntı)'
+    url: https://pdf.directindustry.com/pdf/dormer-pramet/shark-line-material-specific-taps-2020/14461-887315.html
+  - label: 'CERATIZIT, katalog bölümü “Gewindebohrer und -former” (Almanca)'
+    url: https://cdn.plansee-group.com/is/content/planseemedia/gd_kp_kt-hk-01-23-00023-kp-hss-gws_sde_asc_pim
+  - label: 'CERATIZIT, katalog bölümü “Kılavuzlar ve ovalama kılavuzları” (Türkçe)'
+    url: https://cdn.plansee-group.com/is/content/plansee/gd_kp_kt-hk-01-24-00024-kp-hss-gws_str_asc_pim
+  - label: 'OSG, A-TAP Vol. 15 broşürü'
+    url: https://www.osg.co.jp/media_dl/flier/file/n_102.pdf
+  - label: 'Yamawa, AU+SP / AU+SL ürün sayfası, HH Tools sitesinde (delik çapı ve kesme hacmi)'
+    url: https://hhtools.nl/content/files/documentatie%20yamawa/au-series.pdf
+  - label: 'Hoffmann Group, veri sayfası 132880: tezgâh kılavuzu M6 × 0,75, nitrürlenmiş'
+    url: https://cdn.hoffmann-group.com/dsh/en-GB/dsh_en-gb_16825.pdf
+  - label: 'Sutton Tools, ezme kılavuzları'
+    url: https://suttontools.com/product/thread-forming-taps-n/
+  - label: 'Sutton Tools, Technical Information uygulama rehberi (ihracat baskısı), “Notes on Tapping”, s. 417'
+    url: https://suttontools-2022.s3-ap-southeast-2.amazonaws.com/Brochure%20and%20Catalogue/Catalogues/Sutton%20Tools/499980054_ApplicationGuide_Export.pdf
+  - label: 'DC Swiss, FPS-FAS ezme kılavuzları (alıntı)'
+    url: https://pdf.directindustry.com/pdf/dc-swiss-sa/fps-fas/16113-995102.html
+  - label: 'DC Swiss, ezme kılavuzu katalog sayfaları'
+    url: https://shop.arsam.es/en-ES/download/487350492
+  - label: 'R. Zdanowski (Seco Tools), “Step-by-step guide: how to choose the right threading tap”, Modern Machine Shop, 1 Temmuz 2026 (sponsorlu içerik)'
+    url: https://www.mmsonline.com/articles/step-by-step-guide-how-to-choose-the-right-threading-tap
+  - label: 'LUBERO, Technology: calculations (tork, güç, talaş kalınlığı, kc tablosu)'
+    url: https://www.lubero.de/en/technology/calculations
+  - label: 'LUBERO, Technology: gating forms (kesme formları)'
+    url: https://www.lubero.de/en/technology/gating-forms
+  - label: 'SUHNER, Formeln / Spindelkalkulator'
+    url: https://www.suhner-machining.com/fileadmin/user_upload/Machining-Spindeln/Suhner-formeln-Spindlekalkulator.pdf
+  - label: 'Haas Automation, G84 kılavuz çekme (AP-602, Nisan 2016)'
+    url: https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep25-tap-programming/Haas_G84_Tapping.pdf
+  - label: 'Haas Automation, kılavuz kırılması sorun giderme rehberi'
+    url: https://www.haascnc.com/content/haascnc/en/service/troubleshooting-and-how-to/troubleshooting/tap-breakage-troubleshooting.html
+  - label: 'Siemens, SINUMERIK 840D/840Di/810D Programming Guide Cycles, 04.00 (CYCLE84, CYCLE840)'
+    url: https://support.industry.siemens.com/cs/attachments/109439500/PGZ_0400_en.pdf
+  - label: 'Siemens, SINUMERIK 840D sl G code programming, Programming Manual 03/2009, bölüm 1 (CYCLE84 ve CYCLE840 başlıkları)'
+    url: https://www.m3.tuc.gr/EQUIPMENT/CTX310/840D%20G-CODE.pdf
+  - label: 'HEIDENHAIN, TNC 320 User’s Manual for Cycle Programming, 10/2018 (206, 207 ve 209 çevrimleri)'
+    url: https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC320/771851-06/zyklen/1096959-24.pdf
+  - label: 'FANUC Ltd., US 5538369 A, “Machine tool with tapping function” (M29 senkron kılavuz modu)'
+    url: https://patents.google.com/patent/US5538369
+  - label: 'B. Fowler, “G74 G-code: left-hand tapping cycle explained”, Machinist Guides, 6 Mart 2026'
+    url: https://www.machinistguides.com/g74-code/
+  - label: 'P. Smid, CNC Programming Techniques, Industrial Press 2005, bölüm 10 “Standard and rigid tapping” (alıntı)'
+    url: https://www.globalspec.com/reference/56210/203279/chapter-10-standard-and-rigid-tapping
+  - label: 'A. Krenick (T.M. Smith Tool), “Rigid rules”, Cutting Tool Engineering, 1 Ağustos 1996'
+    url: https://ctemag.com/?p=95787
+  - label: 'BILZ, en küçük boy kompanzasyonlu senkron kılavuz tutucu'
+    url: https://www.directindustry.com/prod/bilz/product-5599-2641942.html
+  - label: 'Tungaloy, “Troubled by frequent tap breakage? Try a thread mill!”'
+    url: https://tungaloy.com/?p=461427
+  - label: 'ISO 2857:1973, Ground thread taps for ISO metric threads of tolerances 4H to 8H and 4G to 6G (önizleme)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+2857-1973.pdf
+  - label: 'Ankara Üniversitesi Açık Ders, “Klavuz ve pafta takımları” (Türkçe terimler)'
+    url: https://acikders.ankara.edu.tr/mod/resource/view.php?id=34885
+---
+import TapTypes from '../../../components/mdx/TapTypes.astro';
+import TapModel3D from '../../../components/mdx/TapModel3D.astro';
+import ChamferForms from '../../../components/mdx/ChamferForms.astro';
+import TapLoad from '../../../components/mdx/TapLoad.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { tapSpeeds } from '../../../data/tapping-charts';
+
+Kılavuz, delinmiş bir deliğe iç diş açar. Kesme kılavuzu diş boşluklarını talaş olarak kaldırır; ezme kılavuzu ise onları cidara bastırarak açar ve hiç talaş çıkarmaz. Her iki durumda da kılavuz her devirde tam bir adım ilerler; yani ilerleme serbestçe seçilemez. Seçilen şey kılavuzun kendisidir: talaşı nereye gönderdiği, ağzının kesmeyi kaç dişe yaydığı, hangi tolerans sınıfını açtığı ve tezgâhın onu nasıl tuttuğu ve sürdüğü.
+
+Önce delik gelir; çapı [kılavuz matkap çapları](/tr/prosesler/kilavuz-matkap-caplari/) sayfasında anlatılır. Bu sayfa kılavuzu ve işlemi ele alır.
+
+<Figure caption="Çeyreği kesilerek açılmış bir bloğun kör deliğinde, C formu ağızlı M10 × 1,5 helisel oluklu bir kılavuz. Üstten bakıldığında saat yönünde döner ve her devirde bir adım ilerler; diş ağzın arkasında oluşur, ağız da deliğin dibinde eksik diş bırakır. Görünümü döndürmek için sürükleyin; düğmeler kılavuzu ve açılmış dişi gösterir.">
+  <TapModel3D locale="tr" />
+</Figure>
+
+## Dört kılavuz tipi
+
+<Figure caption="Kesitte dört kılavuz tipi, her biri kendi deliğinde dönerken. Spiral uç talaşı öne iter ve açık deliğin öbür ucundan dışarı çıkarır; sağ helisel oluklar talaşı kör deliğin ağzına doğru geri taşır; düz oluklar kısa talaşı oluklarda tutar; ezme kılavuzu talaş çıkarmaz, turuncu bölge onun diş tepelerine doğru bastırdığı malzemedir. Şematiktir; hareket azaltıldığında kılavuzlar durur.">
+  <TapTypes
+    aria="Deliklerinde dört kılavuz tipi: spiral uçlu, helisel oluklu, düz oluklu ve ezme kılavuzu, talaşın gittiği yönle birlikte"
+    types={[
+      { name: 'Spiral uçlu', hole: 'açık delik', chips: 'öne itilir, öbür uçtan çıkar' },
+      { name: 'Helisel oluklu', hole: 'kör delik', chips: 'delik ağzına geri taşınır' },
+      { name: 'Düz oluklu', hole: 'kısa talaşlı malzeme', chips: 'oluklarda kalır' },
+      { name: 'Ezme kılavuzu', hole: 'kör veya açık delik', chips: 'yok: malzeme akar' },
+    ]}
+  />
+</Figure>
+
+| Kılavuz | Delik | Talaş | İş malzemesi |
+|---|---|---|---|
+| Spiral uçlu (B formu) | Açık | Öne itilir, öbür uçtan çıkar | Uzun talaşlı |
+| Helisel oluklu, sağ | Kör | Delik ağzına geri taşınır | Uzun talaşlı |
+| Düz oluklu | Kör veya açık | Oluklarda kalır | Kısa talaşlı (gri dökme demir, pirinç) |
+| Ezme (oluksuz) | Kör veya açık | Yok | Sünek (kopma uzaması yaklaşık %10 ve üzeri) |
+
+Völkel talaşı taşıyan iki tasarımı açıkça tarif eder: spiral uç, kılavuz çekerken oluşan talaşı kesme yönünde öne iter; helisel oluklar ise talaşı takım sapına ve kılavuz deliğinin ağzına doğru geri taşır. Völkel’e göre düz oluklu C formu bir kılavuzda talaş, kılavuz deliğinden etkin biçimde dışarı taşınmaz. Seco’nun seçim rehberi tipleri talaş türüne göre ayırır: çelik, paslanmaz çelik ve alüminyum gibi uzun talaşlı malzemelerde açık delik için spiral uç, kör delik için helisel oluk; kısa talaşlı dökme demirde düz oluk. LUBERO’nun form tanımları da aynı yöndedir: spiral uçlu B formu, uzun talaşlı malzemelerde açık delikler içindir.
+
+Spiral uçlu kılavuz kör deliğe uygun değildir. Haas, talaşın deliğin dibine sıkışabileceği ve kılavuzun dibe oturacağı konusunda uyarır. Seco tersini de ekler: açık deliğin arkasında yer azsa talaşı orada da helisel oluklarla geri çekin.
+
+**Helis açısı.** Sağ helisel oluklu kılavuzlar farklı helis açılarıyla yapılır. Völkel 15°, 35°, 39° ve 40° sayar; Dormer’in Shark Line serisi 15° ile 48° arasındadır; ISCAR’ın hız tablolarında R40° kılavuzlar için bir sütun vardır, YG-1 de Prime helisel oluklu kılavuzlarını R40, senkron kılavuzunu R45 olarak işaretler. Seco, yüksek dayanımlı malzemelerde daha küçük bir helis açısı gerekebileceğini belirtir.
+
+**Açık delik için sol helisli oluklar.** Sağ diş açan bir kılavuzda sol helisli oluklar talaşı spiral uç gibi öne iter. ISCAR sol helisel oluklu kılavuzu açık delikler arasında sayar; CERATIZIT’in TruTap DL kılavuzunun 15° sol helisli olukları da talaşı kesme yönünde gönderir.
+
+### Ezme kılavuzları
+
+Ezme kılavuzunun kesici kenarı yoktur. Dişindeki çıkıntılar malzemeyi dışa bastırır ve dişin tepelerine akmasını sağlar; temizlenecek talaş olmadığından DC Swiss açık ve kör delik için tek bir takım satar. CERATIZIT’in Türkçe kataloğu bu takımlara “ovalama kılavuzu” der. Diş daha dayanıklıdır, çünkü Völkel’in deyişiyle tane yapısı ayrılmaz, şekil değiştirir; DC Swiss sıyrılmaya karşı daha yüksek direnç vaat eder. Bunun bedeli daha dar bir çalışma aralığıdır:
+
+- **Yalnızca sünek malzeme.** ISCAR, DC Swiss ve Sutton en az %10 kopma uzaması ister; YG-1 ve ISCAR’ın kendi rehberindeki kod anahtarı %8–10’u kabul eder. Völkel: çok sert veya gevrek malzemeler çatlaklara, ölçü sorunlarına ya da takım hasarına yol açar.
+- **Dayanım sınırı takıma bağlıdır.** DC Swiss 1.150 N/mm²’ye, CERATIZIT DuoForm ezme kılavuzlarında 1.400 N/mm²’ye kadar izin verir; Völkel çelik için VAP yüzeyle yaklaşık 700 N/mm², TiN ile 900 N/mm² verir.
+- **Daha büyük delik**, kabaca d − 0,45 P ile d − 0,5 P arası: Völkel M8 için 7,45 mm deler; kesme kılavuzunda bu 6,8 mm’dir. Üreticilerin değerleri [kılavuz matkap çapları](/tr/prosesler/kilavuz-matkap-caplari/) sayfasındadır.
+- **Daha fazla tork:** kesmeye göre yaklaşık %40–50 daha fazla (Völkel).
+- **Kesintisiz yağlama.** DC Swiss, yağlayıcı beslemesi kesilirse soğuk kaynamanın takımı hızla bozacağını yazar. Kaynakların hiçbiri saf yağ şartı koşmaz: YG-1’in ezme denemesi %9’luk suda çözünür emülsiyonla yapılmıştır.
+
+## Kesme (ağız) formları
+
+Ağız, kılavuzun konik başlangıcıdır. İlk dişleri bir koni boyunca taşlanarak alçaltılmıştır; böylece her diş diş derinliğinin yalnızca bir kısmını keser ve tam profil birkaç dişte oluşur. DIN 2197 bu formları harflerle adlandırır; CERATIZIT’in Türkçe kataloğu bunlara “kesme formları”, ağızdaki dişlere de “ağızlayan diş” der. Üreticiler formları şöyle basar:
+
+<Figure caption="A–F kesme formları, tablodaki diş sayılarının ortası alınarak çizilmiştir. Turuncu: kesmeyi yapan, ağızda alçaltılmış dişler. Sağda her forma uyan bir delik; kör deliklerin tam diş derinliği aynıdır ve ağız uzunluğu kadar derin çizilmiştir, çünkü ağız deliğin dibinde o kadar eksik diş bırakır.">
+  <ChamferForms
+    aria="DIN 2197 A–F kesme formları, ağızlayan diş sayıları ve her birinin uyduğu delik"
+    head={{ form: 'Form', threads: 'Ağızlayan diş', use: 'Delik' }}
+    forms={[
+      { k: 'A', threads: '6–8', mid: 7, use: 'kısa açık delikler', hole: 'short-through' },
+      { k: 'B', threads: '3,5–5', mid: 4.25, use: 'açık delikler; spiral uç talaşı öne iter', hole: 'through', point: true },
+      { k: 'C', threads: '2–3', mid: 2.5, use: 'kör delikler; kısa talaşlı malzemede açık delikler', hole: 'blind' },
+      { k: 'D', threads: '3,5–5', mid: 4.25, use: 'açık delikler ve uzun diş çıkışlı kör delikler', hole: 'blind' },
+      { k: 'E', threads: '1,5–2', mid: 1.75, use: 'kısa diş çıkışlı kör delikler', hole: 'blind' },
+      { k: 'F', threads: '1–1,5', mid: 1.25, use: 'çok kısa diş çıkışlı kör delikler', hole: 'blind' },
+    ]}
+  />
+</Figure>
+
+| Form | Ağızlayan diş | Kullanım |
+|---|---|---|
+| A | 6–8 | Kısa açık delikler |
+| B | 3,5–5 (4–5) | Açık delikler, spiral uçlu |
+| C | 2–3 | Kör delikler; kısa talaşlı malzemede açık delikler |
+| D | 3,5–5 (4–5) | Açık delikler ve uzun diş çıkışlı kör delikler |
+| E | 1,5–2 | Kısa diş çıkışlı kör delikler |
+| F | 1–1,5 | Çok kısa diş çıkışlı kör delikler |
+
+Aralıklar tam olarak örtüşmez; parantez içindeki değerler ikinci okumadır. B formu için ISCAR, Dormer, DC Swiss ve CERATIZIT’in ürün sayfaları 3,5–5 diş basar; YG-1, Völkel ve aynı CERATIZIT kataloğunun tanım sayfası ise 4–5 basar. D formunda aynı ayrılık CERATIZIT kataloğunun kendi içinde vardır. F formu yalnızca ISCAR’ın tablosunda yer alır; LUBERO A’dan E’ye beş standart form tarif eder. ISCAR çok kısa formlardan mümkünse kaçınılmasını önerir. Standardın kendisine erişilemediği için tablo değerleri üreticilerin bastığı biçimde verir.
+
+**Ağız uzunluğu neden önemli?** LUBERO, her dişin kestiği talaşı adım P, oluk sayısı z ve ağız uzunluğu l₄ ile tahmin eder:
+
+$$
+a_e = \frac{0{,}5 \cdot P^2}{z \cdot l_4}
+$$
+
+Üç oluklu M10 × 1,5 bir kılavuzda C formu (2–3 diş, l₄ = 3–4,5 mm) diş başına 0,08–0,13 mm verir; B formu (3,5–5 diş, l₄ = 5,25–7,5 mm) 0,05–0,07 mm verir. Uzun ağız her dişe daha az yük bindirir ama kör delikte derinlik ister: ağızdaki dişler deliğin dibinde eksik diş bırakır, bu yüzden delik tam dişin ötesine ağız uzunluğu artı bir miktar boşluk kadar inmelidir. Haas kör deliklerin, kılavuzun programlanan derinliğinden en az 0,050 inç (1,3 mm) daha derin delinmesini ister.
+
+## Tolerans sınıfları
+
+Kılavuzun üzerindeki sınıf, kılavuzun kendi toleransını değil, açması amaçlanan somun dişi sınıflarını belirtir. ISO 2857 ve DIN EN 22857 bunlara ISO 1, 2 ve 3 uygulama sınıfları der; eski DIN 802 işaretlemesi bunun yerine somun sınıfını kullanırdı.
+
+| Kılavuz sınıfı | DIN 802 (eski) | Açtığı somun sınıfları |
+|---|---|---|
+| ISO 1 | 4H | 4H, 5H |
+| ISO 2 | 6H | 4G, 5G, 6H |
+| ISO 3 | 6G | 6G, 7H, 8H |
+| – | 7G | 7G, 8G |
+
+Varsayılan ISO 2’dir (6H): Vergnano bunu standart geçme olarak adlandırır; Völkel ve Seco metrik dişler için 6H’yi standart ve en yaygın sınıf sayar. ISO 1 (4H) hassas geçmeler içindir. ISO 3 (6G) ve 7G gevşek geçmeler ve kılavuz çekildikten sonra kaplanacak parçalar içindir, çünkü kaplama ek yer ister; sıcak daldırma galvaniz için Völkel 0,1 mm büyütülmüş kılavuzlar sunar.
+
+**X sınıfları.** Üreticiler 4HX, 6HX, 6GX ve 7GX kılavuzlar da satar. Vergnano bunları standart sınıfların arasına yerleştirir, 6HX’i 6H ile 6G, 6GX’i 6G ile 7G arasına, ve iki gerekçe verir:
+
+- **Aşındırıcı malzemeler**, örneğin dökme demir ve alüminyum-silisyum alaşımları; burada biraz büyük bir kılavuz daha uzun dayanır. Seco da aşındırıcı malzemelerde sınıfı 6HX’e yükseltir.
+- **Ezme kılavuzları**, çünkü ezilen malzeme elastik olarak geri esner: Vergnano’ya göre 6H bir diş için 6HX bir ezme kılavuzu gerekir.
+
+X sınıfları DIN EN 22857’nin parçası değildir. ISCAR, 7G/8G ve X bölgelerinin kodlarının bu standartta henüz tanımlanmadığını, bu yüzden DIN 802 değerlerinin geçerliliğini koruduğunu belirtir.
+
+## Kesme hızı
+
+Kılavuz çekme hızları düşüktür ve iş malzemesi kadar kılavuza da bağlıdır. Grafik yalnızca sütunları kuşkusuz okunabilen tablolardaki değerleri gösterir. Bir üreticinin hızlarının ortalaması bir başkasınınkiyle alınmamalıdır.
+
+<Figure caption="Üç üreticinin bastığı kılavuz çekme hızları, m/dak. YG-1, senkron tezgâhlar için yapılmış kaplamalı kılavuzlarını kaplamasız kılavuzlarının iki ila üç katı hızlarla verir. CERATIZIT her ISO grubu için tek değer verir, bütün çelikler için aynıdır; bandı kaplama çeşitlerini kapsar. Kaynağını görmek için bir bandın üzerine gelin.">
+  <RangeChart locale="tr" {...tapSpeeds("tr")} min={0} max={80} ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80]} unit="m/dak" axisLabel="Kesme hızı" labelWidth={150} aria="İş malzemesi ve üreticiye göre kılavuz çekme hızları" />
+</Figure>
+
+| İş malzemesi | YG-1 Prime | YG-1 Synchro | CERATIZIT | Hoffmann |
+|---|---|---|---|---|
+| Alaşımsız çelik | 15–20 | 41–46 | 12–15 | – |
+| Alaşımlı çelik | 10–15 | 28–33 | 12–15 | – |
+| Östenitik paslanmaz | 5–8 | 13–18 | 7–9 | – |
+| Gri dökme demir | 10–15 | 28–33 | 12–18 | 13 |
+| Dövme alüminyum | 25–35 | 72–77 | 12 | – |
+
+YG-1’in kaplamasız değerleri Prime helisel oluklu ve spiral uçlu kılavuzları içindir; kaplamalı değerler, senkron iş miline sahip tezgâhlar için yapılmış senkron kılavuzlarına aittir. YG-1’in satırları 700 N/mm²’nin altında yapı çeliği, 850 N/mm²’nin altında alaşımlı çelik, 150 HB’nin altında gri dökme demir ve %1,5’ten az silisyumlu dövme alüminyumdur. CERATIZIT’in değerleri spiral uçlu TruTap açık delik kılavuzları içindir; tüm çelikler (ISO P) için bir, demir dışı metaller (ISO N) için bir değer verir ve aralık kaplama çeşitlerini kapsar. Hoffmann’ın değeri ince diş (M6 × 0,75) için nitrürlenmiş bir C formu kılavuzun gri dökme demirdeki hızıdır. OSG, A-Tap kılavuzları için 15 m/dak’nın üzerinde senkron bir tezgâh önerir. OSG’nin el, helisel oluklu, spiral uçlu ve ezme kılavuzları tablosu [kılavuz matkap çapları](/tr/prosesler/kilavuz-matkap-caplari/) sayfasındadır.
+
+Devir, kesme hızından ve anma çapından bulunur:
+
+$$
+n = \frac{1000 \cdot v_c}{\pi \cdot d}
+$$
+
+M10 kılavuz 10 m/dak’da 318 dev/dak döner.
+
+## İlerleme: devir başına bir adım
+
+Kılavuz her devirde kendini bir adım daha derine vidalar; bu yüzden devir başına ilerleme adıma eşittir ve ilerleme hızı şudur:
+
+$$
+v_f = P \cdot n
+$$
+
+Haas’ın örneği, 500 dev/dak’da M12 × 1,75 bir kılavuz: F = 1,75 × 500 = 875 mm/dak. İnç kılavuzlarda ilerleme hızı devrin inç başına diş sayısına bölümüdür: 500 dev/dak’da 13 TPI bir kılavuz 500 / 13 = 38,4615 inç/dak ister. İlerlemeyi devir başına programlayan tezgâhlarda ilerleme doğrudan adımdır.
+
+## Senkron mu, kompanzeli mi?
+
+İlerlemeyi iş miliyle aynı adımda tutmanın iki yolu vardır.
+
+**Senkron kılavuz çekme** (İngilizcede rigid tapping). Kontrol iş milini bir eksen gibi konumlar ve ilerleme eksenini onunla adım adım götürür; kılavuz iş milinde rijit tutulur. Bunun için konum kontrollü bir iş mili gerekir: Siemens, CYCLE84’ü ancak iş mili teknik olarak konum kontrollü çalışmaya geçebiliyorsa kullandırır; Haas da kompanzeli tutucu olmadan kılavuz çekmek için senkron kılavuz çekme opsiyonunu şart koşar.
+
+**Kompanzeli (yüzer) tutucuyla kılavuz çekme.** Senkronlama yapamayan bir tezgâhta tutucu kılavuzun eksenel yönde hareket etmesine izin verir; böylece hatveyi kılavuzun kendi dişi taşır ve programlanan ilerleme ile gerçek adım arasındaki farkı tutucu karşılar (BILZ). Smid’in itirazı: kompanzeli tutucular, özellikle kör deliklerde, diş derinliğini tam tutmayı zorlaştırır.
+
+| Kontrol | Senkron kılavuz çekme | Kompanzeli tutucuyla |
+|---|---|---|
+| FANUC | G84 (sağ) veya G74 (sol) öncesinde M29 S… | G84, G74 |
+| Siemens SINUMERIK | CYCLE84, kompanzeli tutucusuz kılavuz çekme | CYCLE840, kompanzeli tutucuyla kılavuz çekme |
+| HEIDENHAIN TNC | Çevrim 207, senkron kılavuz çekme | Çevrim 206, kompanzeli tutucuyla |
+| Haas | Senkron kılavuz çekme opsiyonuyla G84 / G74 | Kompanzeli tutucuyla G84 / G74 |
+
+HEIDENHAIN’de ayrıca talaş kırmalı kılavuz çekme için Çevrim 209 vardır. G84 sağ, G74 sol kılavuzlar içindir.
+
+**Kompanzeli tutucuda ilerleme.** Birçok kaynak tam adımın biraz altında programlar; böylece tutucu kılavuzu itmek yerine çekmede çalışır. Sutton helisel oluklu kılavuzlar için kılavuzun büyük kesmesini önlemek amacıyla %95 önerir: 1.000 dev/dak’da M6 × 1 için ilerleme 950 mm/dak olur. Haas, çekme-basma kompanzeli tutucularda, kılavuz deliğe girip çıkarken üzerinde sabit bir baskı kalması için hesaplanan ilerlemenin %90’ının kullanılmasını söyler. T.M. Smith Tool’dan Allen Krenick 1996’da, işleme merkezlerinde boy kompanzasyonlu tutucu kullananların bir kısmının yalnızca çekme özelliğinden yararlandığını ve adımın %98’ini programladığını, bunun özellikle ilerlemeyi dakika başına programlamak zorunda olanlarda yaygın olduğunu yazmıştır. Bunlar farklı tutucular için üç ayrı uygulamadır, tek bir kural değildir.
+
+**Senkron tutucular.** Senkron kılavuz çekme bile kusursuz senkron değildir. İçinde küçük bir kompanzasyon bulunan tutucular kalan hataları ve kılavuzun adım toleransını karşılar; BILZ, DC Swiss, YG-1 ve CERATIZIT bunlarla daha uzun kılavuz ömrü ve daha iyi diş elde edildiğini söyler. BILZ, tutucusu için ±0,5 mm yay kompanzasyonu verir. OSG’nin bir denemesinde aynı helisel oluklu M6 kılavuz, S45C karbon çeliğinde 15 m/dak’da senkron ilerlemeyle 2.798, kompanzeli tutucuda 1.726 delik açmıştır.
+
+Haas’ın senkron kılavuz çekme için kendi kontrol listesi: iş milinin senkronlanıp hızlanabilmesi için iş parçasının en az 5 mm (0,200 inç) üstündeki bir R düzleminden başlayın; kılavuzu pozitif tahrikli bir tutucuda tutun; salgıyı düşük tutun, çünkü bazı kılavuzlar 0,03 mm’yi (0,001 inç) aşan salgıda kırılır.
+
+## Tork ve güç
+
+Alman kılavuz üreticisi LUBERO ve kılavuz çekme üniteleri ile iş milleri üreten SUHNER, kesme kılavuzunun torku için aynı tahmini basar:
+
+$$
+M_d = \frac{k_c \cdot P^2 \cdot d}{8000} \quad [\text{N·m}]
+$$
+
+Burada özgül kesme kuvveti kc N/mm², adım P ve anma çapı d mm cinsindendir. Kesme gücü tork ve devirden bulunur. İki kaynak da 9.500’e böler; kW, N·m ve dev/dak için tam sabit 60.000 / 2π = 9.549’dur ve %0,5 daha düşük değerler verir. Hesaplayıcı 9.549’u kullanır.
+
+$$
+P_c = \frac{M_d \cdot n}{9549} \quad [\text{kW}]
+$$
+
+<Figure caption="Seçilen malzemede kaba ISO dişleri için tork, logaritmik ölçekte, ve seçilen dişin devri, ilerlemesi ve gücü. Ezme kılavuzunda bant, Völkel’in kesme torkuna eklediği %40–50’yi gösterir. Dişi seçmek için bir sütuna tıklayın.">
+  <TapLoad locale="tr" />
+</Figure>
+
+Adım karesiyle girdiği için tork büyüklükle hızla artar: M10 × 1,5, M3 × 0,5’in yaklaşık 30 katı tork ister. Alaşımsız yapı çeliğinde (kc = 2.300 N/mm²) M10 × 1,5 için 2300 × 1,5² × 10 / 8000 = 6,5 N·m gerekir; 10 m/dak’da, yani 318 dev/dak’da bu, tezgâhın kayıplarından önce kılavuzda 0,22 kW eder.
+
+LUBERO’nun kılavuz çekme için kc değerleri:
+
+| İş malzemesi | Rm (N/mm²) | kc (N/mm²) |
+|---|---|---|
+| Alaşımsız yapı çeliği | ≤ 700 | 2.300 |
+| Otomat çeliği | ≤ 700 | 2.300 |
+| Yapı çeliği | 500–950 | 2.500 |
+| Islah çeliği, orta dayanım | 500–950 | 2.600 |
+| Nitrürleme çeliği, ıslah edilmiş | 950–1.400 | 3.600 |
+| Takım çeliği | 950–1.400 | 3.600 |
+| Östenitik paslanmaz ve aside dayanıklı çelik | 500–950 | 3.200 |
+| Gri dökme demir, 120–260 HB | 100–400 | 1.250 |
+| Alaşımlı gri dökme demir, 160–230 HB | 150–250 | 1.600 |
+| Temper döküm, 150–280 HB | 350–700 | 1.100 |
+| Alüminyum alaşımları, uzun talaşlı | ≤ 550 | 800 |
+| Alüminyum alaşımları, kısa talaşlı | ≤ 400 | 680 |
+| Bakır alaşımları, uzun talaşlı | 300–700 | 1.100 |
+| Bakır alaşımları, kısa talaşlı | ≤ 500 | 720 |
+
+## Kılavuzlar neden kırılır
+
+Kılavuz incedir, oluklarla zayıflamıştır ve kendi dişine kilitlenmiştir. Kılavuz üreticilerinin ve Haas’ın sorun giderme tabloları aynı nedenleri tekrar tekrar sayar:
+
+- **Kılavuz deliğin dibine çarpar.** Kör delikleri daha derin delin; Haas programlanan derinliğin en az 0,050 inç (1,3 mm) ötesini ister. ISCAR eksenel boşluklu ve kaydırmalı kavramalı bir tutucu önerir.
+- **Talaş sıkışır.** Kör delikte spiral uçlu kılavuz tipik örnektir (Haas). Tungaloy, kılavuzun sürekli kestiğini ve takımı tıkayabilecek kadar çok talaş çıkardığını hatırlatır; YG-1’in talaş sıkışmasına çaresi talaşı taşıyan bir kılavuz ya da ezme kılavuzudur.
+- **Delik çok küçüktür.** ISCAR küçük ön deliği kırılma nedenleri arasında sayar; YG-1 aşırı torka daha büyük bir matkapla karşılık verir. Yamawa, deliği 6,8 mm’den 6,9 mm’ye büyütmenin kesme hacmini %15 azalttığını bildirir.
+- **Eksen kaçıklığı ve salgı.** Kılavuz ile deliğin eksenleri çakışmalıdır (ISCAR); Haas 0,03 mm’nin üstündeki salgıda kılavuzların kırıldığını görmüştür.
+- **Yanlış çevrim.** Seco, CNC tezgâhta yanlış kılavuz çekme çevrimi seçmenin kılavuzu kırdığını, çünkü ilerleme ile iş mili dönüşünün o zaman senkron olmadığını belirtir.
+- **Diş çok derindir.** Haas: anma çapının bir buçuk katından sonra risk keskin biçimde artar.
+- **Sert malzemeler ve küçük kılavuzlar.** Tungaloy sert malzemelerde kılavuz üzerindeki yükün arttığını ve küçük çaplı kılavuzların kırılmaya özellikle yatkın olduğunu belirtir.
+- **Körelmiş kılavuz ve zayıf yağlama.** ISCAR körelmiş kılavuzu kırılma nedenleri arasında sayar ve genel işleme için kullanılan soğutma sıvısındaki yağ oranının kılavuz çekme için çoğu zaman düşük kaldığını belirtir.
+- **Yanlış kılavuz.** El kılavuzları CNC tezgâhlar için tasarlanmamıştır (Haas).
+
+Tezgâh başı kontrol listesi ve kör delik derinliği hesabı [kılavuz kırılması](/tr/problem-cozme/kilavuz-kirilmasi/) sayfasındadır.
+
+Dişin kendisi için [ISO metrik vida dişleri](/tr/teknik-resim-ve-toleranslar/iso-metrik-vida-disleri/), önündeki delik için [delme](/tr/prosesler/delme/) sayfasına bakın.

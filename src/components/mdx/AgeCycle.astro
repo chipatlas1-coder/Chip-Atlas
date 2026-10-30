@@ -1,0 +1,162 @@
+---
+/**
+ * Heat-treatment cycle for a precipitation-hardening alloy (or a solution anneal): temperature
+ * against time, time not to scale. Solution treatment band → quench → room temperature
+ * (natural ageing, optional) → one or two artificial ageing holds → temper. A row of insets above
+ * the plot shows the alloying atoms at three stages (schematic), each tied to its stage by a leader.
+ * All temperatures and times come from the article through props; nothing is computed here.
+ */
+interface Hold { lo: number; hi: number; time?: string }
+interface Props {
+  locale: 'en' | 'tr';
+  solution: Hold;
+  quench: string;
+  natural?: string;            // temper tag on the room-temperature segment, e.g. "T4"
+  ageing?: Hold[];             // one step (T6) or two (T73); omit for a solution anneal only
+  result?: string;             // temper after ageing, e.g. "T6"
+  micro?: [string, string, string];
+  aria: string;
+  yMax?: number;
+}
+const { locale, solution, quench, natural, ageing = [], result, micro, aria, yMax = 600 } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? { t: 'zaman (ölçeksiz) →', T: 'sıcaklık (°C)', sol: 'çözeltiye alma', q: 'su verme', rt: 'oda sıcaklığı', age: 'yapay yaşlandırma', s: ['1. adım', '2. adım'] }
+  : { t: 'time (not to scale) →', T: 'temperature (°C)', sol: 'solution treatment', q: 'quench', rt: 'room temperature', age: 'artificial ageing', s: ['step 1', 'step 2'] };
+const rng = (h: Hold) => `${h.lo}–${h.hi} °C`;
+const nA = ageing.length;
+
+function layout(narrow: boolean) {
+  const W = narrow ? 360 : 660;
+  const hasInsets = Boolean(micro);
+  const x0 = narrow ? 44 : 60, x1 = W - (narrow ? 8 : 16);
+  const yTop = (hasInsets ? (narrow ? 112 : 104) : 40) + 28, y0 = yTop + (narrow ? 200 : 210);
+  const H = y0 + 50;
+  const Y = (t: number) => y0 - (t / yMax) * (y0 - yTop);
+  const X = (k: number) => x0 + k * (x1 - x0);
+  const f = nA === 2
+    ? { h1: 0.07, s1: 0.27, q: 0.29, r1: 0.40, a0: 0.43, a1: 0.60, b0: 0.64, b1: 0.88, c: 0.92 }
+    : nA === 1
+      ? { h1: 0.08, s1: 0.32, q: 0.34, r1: 0.56, a0: 0.6, a1: 0.86, b0: 0.86, b1: 0.86, c: 0.9 }
+      : { h1: 0.15, s1: 0.62, q: 0.65, r1: 1, a0: 1, a1: 1, b0: 1, b1: 1, c: 1 };
+  const rt = 20, sMid = (solution.lo + solution.hi) / 2;
+  const pts: [number, number][] = [[X(0), Y(rt)], [X(f.h1), Y(sMid)], [X(f.s1), Y(sMid)], [X(f.q), Y(rt)], [X(f.r1), Y(rt)]];
+  if (nA >= 1) {
+    const m1 = (ageing[0].lo + ageing[0].hi) / 2;
+    pts.push([X(f.a0), Y(m1)], [X(f.a1), Y(m1)]);
+    if (nA === 2) { const m2 = (ageing[1].lo + ageing[1].hi) / 2; pts.push([X(f.b0), Y(m2)], [X(f.b1), Y(m2)]); }
+    pts.push([X(f.c), Y(rt)], [X(1), Y(rt)]);
+  }
+  const d = pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  // ageing holds as drawn
+  const holds = ageing.map((a, i) => ({ a, xa: i === 0 ? X(f.a0) : X(f.b0), xb: i === 0 ? X(f.a1) : X(f.b1) }));
+  return { narrow, W, H, x0, x1, yTop, y0, Y, X, f, d, holds, hasInsets };
+}
+const geo = [layout(false), layout(true)];
+const ticks = Array.from({ length: Math.floor(yMax / 100) + 1 }, (_, i) => i * 100);
+// schematic atom arrangements (fixed pseudo-random positions)
+let s = 3; const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+const dots = Array.from({ length: 26 }, () => [rnd() * 2 - 1, rnd() * 2 - 1, rnd() < 0.5 ? 0 : 1]).filter(([a, b]) => a * a + b * b < 0.7);
+const clusters = [[-0.42, -0.32, 0.6], [0.36, -0.4, -0.4], [0.02, 0.34, 0.2], [-0.42, 0.42, -0.9], [0.52, 0.24, 1.1], [-0.05, -0.62, 0.0]];
+---
+<div class="agecycle">
+  {geo.map((g) => {
+    const R = g.narrow ? 19 : 23, iy = g.narrow ? 30 : 32;
+    const stage = [
+      { xs: (g.X(g.f.h1) + g.X(g.f.s1)) / 2, ys: g.Y(solution.hi) - (g.narrow ? 34 : 36) },
+      { xs: (g.X(g.f.q) + g.X(g.f.r1)) / 2 + 6, ys: g.Y(20) - (nA === 1 && !g.narrow ? 24 : 6) },
+      ...(nA ? [{ xs: (g.holds[nA - 1].xa + g.holds[nA - 1].xb) / 2, ys: g.Y(ageing[nA - 1].hi) - (g.narrow ? 34 : 36) }] : []),
+    ];
+    const slots = stage.length === 3 ? [1 / 6, 1 / 2, 5 / 6] : [1 / 4, 3 / 4];
+    const insets = micro ? stage.map((st, k) => ({ ...st, x: g.x0 + slots[k] * (g.x1 - g.x0), label: micro[k], kind: k === 2 ? 'ppt' : 'ss' })) : [];
+    const ageTop = nA ? Math.min(...ageing.map((a) => g.Y(a.hi))) : 0;
+    return (
+      <svg viewBox={`0 0 ${g.W} ${g.H}`} role="img" aria-label={aria} class:list={['ac', g.narrow ? 'narrow' : 'wide']}>
+        {ticks.map((t) => (
+          <g>
+            <line x1={g.x0} x2={g.x1} y1={g.Y(t)} y2={g.Y(t)} class="grid" />
+            <text x={g.x0 - 7} y={g.Y(t) + 4} text-anchor="end" class="tick">{t}</text>
+          </g>
+        ))}
+        <line x1={g.x0} x2={g.x0} y1={g.yTop - 6} y2={g.y0} class="ax" />
+        <line x1={g.x0} x2={g.x1} y1={g.y0} y2={g.y0} class="ax" />
+        <text transform={`translate(${g.narrow ? 11 : 14} ${(g.yTop + g.y0) / 2}) rotate(-90)`} text-anchor="middle" class="lab">{L.T}</text>
+        <text x={g.x0} y={g.y0 + 42} class="lab mut">{L.t}</text>
+
+        {/* insets with leaders to their stage */}
+        {insets.map((m) => (
+          <g>
+            <path d={`M${m.x},${iy + R + 22} L${m.x},${iy + R + 30} L${m.xs},${m.ys - 6}`} class="lead" />
+            <g transform={`translate(${m.x} ${iy})`}>
+              <circle r={R} class="inset" />
+              {m.kind !== 'ppt'
+                ? dots.map(([a, b, k]) => <circle cx={a * R * 0.92} cy={b * R * 0.92} r={g.narrow ? 1.7 : 2.1} class={k ? 'atA' : 'atB'} />)
+                : clusters.map(([a, b, rot]) => <rect x={a * R - 4.5} y={b * R - 1.7} width="9" height="3.4" rx="1.3" class="ppt" transform={`rotate(${(rot as number) * 57.3} ${a * R} ${b * R})`} />)}
+              <text y={R + 15} text-anchor="middle" class="ilab">{m.label}</text>
+            </g>
+          </g>
+        ))}
+
+        {/* solution band: name and range above, time inside */}
+        <rect x={g.X(g.f.h1)} y={g.Y(solution.hi)} width={g.X(g.f.s1) - g.X(g.f.h1)} height={Math.max(2, g.Y(solution.lo) - g.Y(solution.hi))} class="band-s" />
+        <text x={Math.max((g.X(g.f.h1) + g.X(g.f.s1)) / 2, g.x0 + L.sol.length * 3.4 + 8)} y={g.Y(solution.hi) - 22} text-anchor="middle" class="lab">{L.sol}</text>
+        <text x={(g.X(g.f.h1) + g.X(g.f.s1)) / 2} y={g.Y(solution.hi) - 7} text-anchor="middle" class="val acc">{rng(solution)}</text>
+        {solution.time && <text x={(g.X(g.f.h1) + g.X(g.f.s1)) / 2} y={g.Y(solution.lo) + 17} text-anchor="middle" class="lab mut">{solution.time}</text>}
+
+        {/* ageing bands: values above, times below; name above the highest */}
+        {g.holds.map(({ a, xa, xb }, i) => (
+          <g>
+            <rect x={xa} y={g.Y(a.hi)} width={xb - xa} height={Math.max(2, g.Y(a.lo) - g.Y(a.hi))} class="band-a" />
+            <text x={(xa + xb) / 2} y={g.Y(a.hi) - 7} text-anchor="middle" class="val dat">{g.narrow ? `${a.lo}–${a.hi}` : rng(a)}</text>
+            {(a.time || nA === 2) && (g.narrow && nA === 2
+              ? <text x={(xa + xb) / 2} y={g.Y(a.lo) + 15} text-anchor="middle" class="lab mut"><tspan>{L.s[i]}</tspan>{a.time && <tspan x={(xa + xb) / 2} dy="13">{a.time}</tspan>}</text>
+              : <text x={(xa + xb) / 2} y={g.Y(a.lo) + 16} text-anchor="middle" class="lab mut">{nA === 2 ? `${L.s[i]}${a.time ? ` · ${a.time}` : ''}` : a.time}</text>)}
+          </g>
+        ))}
+        {nA > 0 && <text x={(g.holds[0].xa + g.holds[nA - 1].xb) / 2} y={ageTop - 22} text-anchor="middle" class="lab dat">{L.age}</text>}
+
+        <path d={g.d} class="glow" />
+        <path d={g.d} class="curve" />
+
+        {/* quench */}
+        <line x1={g.X(g.f.q) + 9} x2={g.X(g.f.q) + 9} y1={g.Y((solution.lo + solution.hi) / 2) + 16} y2={g.Y(20) - 12} class="qarrow" marker-end="url(#ca-arr-data)" />
+        <text x={g.X(g.f.q) + 16} y={g.Y(360)} class="lab dat">{L.q}</text>
+        <text x={g.X(g.f.q) + 16} y={g.Y(360) + 15} class="lab mut">{quench}</text>
+
+        {/* room temperature and temper tags */}
+        {nA === 1 && !g.narrow && <text x={g.X(g.f.q) + 17} y={g.Y(20) - 9} class="lab mut">{L.rt}</text>}
+        {natural && <g><rect x={(g.X(g.f.q) + g.X(g.f.r1)) / 2 - 18} y={g.y0 + 8} width="36" height="18" rx="9" class="tag" /><text x={(g.X(g.f.q) + g.X(g.f.r1)) / 2} y={g.y0 + 21} text-anchor="middle" class="tagt">{natural}</text></g>}
+        {result && <g><rect x={g.X(1) - 44} y={g.y0 + 8} width="44" height="18" rx="9" class="tag acc" /><text x={g.X(1) - 22} y={g.y0 + 21} text-anchor="middle" class="tagt">{result}</text></g>}
+      </svg>
+    );
+  })}
+</div>
+
+<style>
+  .agecycle { display: grid; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } }
+  .grid { stroke: var(--line); }
+  .ax { stroke: var(--ink-3); }
+  .tick { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); }
+  .lab { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-2); }
+  .val { font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; }
+  .narrow .lab, .narrow .val { font-size: 11px; }
+  .acc { fill: #e2601a; }
+  .dat { fill: #2a78d6; }
+  .mut { fill: var(--ink-3); }
+  .band-s { fill: color-mix(in oklab, #d4520f 22%, transparent); stroke: #d4520f; stroke-opacity: 0.6; }
+  .band-a { fill: color-mix(in oklab, #1e6fd6 22%, transparent); stroke: #1e6fd6; stroke-opacity: 0.6; }
+  .glow { fill: none; stroke: #1b1d1e; stroke-width: 7; stroke-opacity: 0.08; stroke-linejoin: round; }
+  .curve { fill: none; stroke: #1b1d1e; stroke-width: 2.2; stroke-linejoin: round; }
+  .qarrow { stroke: #1e6fd6; stroke-width: 1.6; stroke-dasharray: 4 3; }
+  .lead { fill: none; stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 2 3; }
+  .tag { fill: #ecf2f7; stroke: var(--line-strong); }
+  .tag.acc { fill: color-mix(in oklab, #d4520f 25%, #f9fbfe); stroke: #d4520f; }
+  .tagt { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; fill: var(--ink); }
+  .inset { fill: #ecf2f7; stroke: #a5aeb6; }
+  .atA { fill: #e2601a; }
+  .atB { fill: #2a78d6; }
+  .ppt { fill: #7a4fd0; }
+  .ilab { font-family: var(--font-mono); font-size: 10.5px; fill: var(--ink-2); }
+</style>

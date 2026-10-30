@@ -1,0 +1,117 @@
+---
+key: trochoidal-milling
+locale: en
+slug: trochoidal-milling
+title: 'Trochoidal milling'
+description: 'Opening a slot wider than the cutter in advancing loops, at a large depth and a small width of cut: why makers recommend it, the widths and depths they give, how much the engagement changes around the loop, radial chip thinning and the feed that makes up for it, what the machine and the CAM have to do, and the drawbacks.'
+section: 2
+subsection: milling
+order: 4
+updated: 2026-10-30
+tools: [milling]
+glance:
+  - value: '5–15 %'
+    label: 'Radial width of cut in trochoidal milling of titanium, as a share of the tool diameter (ISCAR)'
+  - value: '2–10 %'
+    label: 'Step-over by machine: 2 % of D on very agile machines, 10 % on less agile ones (YG-1 article)'
+  - value: '15–35 %'
+    label: 'How much smaller than the slot the cutter should be: at least 15 %, preferably 35 % (YG-1 article)'
+  - value: '× 1.67'
+    label: 'Feed needed at ae = 0.1 D to keep the chip as thick as fz: 1 ÷ sin AE with ISCAR’s sin AE = 0.6 (DAPRA gives 1.70)'
+sources:
+  - label: 'ISCAR, Machining Titanium, reference user guide, 05/2019 (flipview pp. 25, 27, 28, 46–48; printed pp. 23, 25, 26)'
+    url: https://iscar.com/Catalogs/flipview/reference-user-guides/machining_titanium_05_2019/files/basic-html/page46.html
+  - label: 'ISCAR, “A High Speed Trochoidal Slicer”, technical article'
+    url: https://www.iscar.com/newarticles.aspx/countryid/2/newarticleid/10802
+  - label: 'ISCAR, FAQ page (Turkish content; HEM definition)'
+    url: https://www.iscar.com/faq.aspx/countryid/20
+  - label: 'YÖK Açık Bilim, thesis “Trochoidal milling”, 2006 (advisor İ. Lazoğlu), Turkish abstract'
+    url: https://acikbilim.yok.gov.tr/handle/20.500.12812/171227
+  - label: 'MAPAL, OptiMill-Tro-Titan (SCM630): cutting data recommendations for trochoidal milling cutters'
+    url: https://shop.mapal.com/medias/sys_master/documents/hd8/h08/10185397796894/OptiMill-Tro-Titan_EN/OptiMill-Tro-Titan-EN.pdf
+  - label: 'T. Mueller, “Dynamic and Trochoidal Milling (2)”, 7 September 2022 (hosted at yg1.focuspointsap.com; names the YG-1 product lines V7Plus, TitaNox-Power, Alu-Power HPC)'
+    url: https://yg1.focuspointsap.com/dynamic-and-trochoidal-milling-2
+  - label: 'DAPRA, “Radial Chip Thinning – How to Max Out Your Milling Tool Feed Rate”'
+    url: https://www.dapra.com/articles/radial-chip-thinning
+  - label: 'M. Wagih, I. Maher, H. El-Hofy, J. Yan, M. A. Hassan, “Analysis and development of elliptical tool path in trochoidal milling”, CIRP Journal of Manufacturing Science and Technology 47 (2023) 168–183'
+    url: https://www.yan.mech.keio.ac.jp/wp-content/uploads/2024/09/CIRPJ2023-Trochoidal-milling-EJUST.pdf
+  - label: 'Autodesk, PowerMill Reference Help 2019, “Trochoidal pattern example”'
+    url: https://help.autodesk.com/cloudhelp/2019/ENU/PWRM-ReferenceHelp/files/GUID-3008F3C7-AD9F-4818-9FF7-E797D659763F.htm
+  - label: 'Autodesk, Fusion CAM help, “2D Adaptive Roughing milling strategy”'
+    url: https://help.autodesk.com/cloudhelp/ENU/Fusion-CAM/files/2D-ADAPTIVE-READ.htm
+  - label: 'HEIDENHAIN, TNC7 User’s Manual for Machining Cycles, 01/2022 (contents: Cycle 275 TROCHOIDAL SLOT)'
+    url: https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC7/81762x-16/zyklen_bearbeitung/1358775-20.pdf
+---
+import TrochoidSlot from '../../../components/mdx/TrochoidSlot.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+A slot can be milled with a cutter as wide as the slot, buried along its whole side, or with a smaller cutter that opens it in loops. ISCAR describes the second way: "In trochoidal milling, a rapidly rotated tool machines material by arc motion at a significant depth of cut and very small width of cut (usually, 5-15% of tool diameter d)." In the simplest form, in the words of a YG-1 article, the path is "repeating circles combined with a linear motion at a constant feed rate". Wagih and co-authors distinguish continuous and discontinuous paths; in the discontinuous one the tool "passes in a circular path and then advances a distance, defined as trochoidal step, s". ISCAR: "Commonly, the curve is a circular arc (semicircle)", and then the tool path "looks like the letter 'D'". Autodesk's PowerMill says its trochoidal pattern "Creates a pattern used to prevent full width cuts. This is useful for cutting slots and high speed machining." For the engagement angle and chip thickness in straight side milling, see [climb vs conventional milling](/processes/climb-vs-conventional-milling/).
+
+ISCAR says that a high-speed trochoidal roughing technique "can be an effective alternative to the common slot milling strategy", for titanium parts "with various slots and grooves" "and also pockets or cavities, especially those with relatively thin walls."
+
+## Why a small width of cut
+
+- **Heat and speed.** ISCAR: "Decreasing the width of cut reduces heat load on a cutting edge and allows increasing cutting speed." Wagih and co-authors write that the method "has been developed to extend the cutting tool life by reducing the cutting tool temperature."
+- **Forces and wear.** The same paper: "characterized by lower cutting temperature, tool wear, and cutting forces due to the lower engagement angle." ISCAR: "The low width of cut significantly diminishes the radial component of a cutting force".
+- **Even wear along the edge.** ISCAR: with a small radial engagement and a substantial depth of cut, "gradual, uniformly distributed wear along the whole cutting edge, thus increasing tool life". No maker figure for the gain in tool life was found.
+- **Many flutes, less power.** ISCAR: "The small angle of engagement AE both allows multi-flute tool design and ensures substantial increasing cutting speed Vc and feed per tooth fz", and the method "features a noticeable reduction in power consumption."
+
+ISCAR's worked example for blisk slots in Ti-6Al-4V ELI uses a Ø10 mm, 7-flute cutter at ap = 16 mm and ae = 1 mm and arrives at vc ≈ 107 m/min, n ≈ 3406 min⁻¹, fz ≈ 0.1 mm, vf ≈ 2384 mm/min and a removal rate Q ≈ 38.14 cm³/min. These are its calculated starting data, not test results; the arithmetic checks out (16 × 1 × 2384 ÷ 1000 = 38.1 cm³/min).
+
+## How much of the cutter is in the cut
+
+The engagement is not constant along a loop. MAPAL: "The feed and cutting width or contact angle are constantly changing during machining"; the Turkish abstract of a 2006 thesis on the method says the same of the radial depth of cut. The YG-1 article adds that the step-over would equal the radial engagement only if the cutter moved straight inside its D-shaped lane, which the author says is seldom the case. The figure works out the engagement for circular loops (a continuous trochoid).
+
+<Figure caption="Trochoidal slotting seen from above, with a cutter of D = 10 mm. The centre loops on a circle of radius (W − D)/2 that moves forward by the step s per loop; the lit arc is the part of the cutter’s edge in material that earlier positions have not removed. Below, that engagement angle over one loop, against 180° for a cutter buried in a plain slot. The engagement is this page’s own geometry (earlier cutter positions sampled numerically), not a maker’s figure; the readout converts the largest angle into the width of cut that gives the same angle along a straight wall, and gives the length the centre travels per millimetre of slot. The default slot is 15.5 mm, a cutter about 35 % smaller than the slot.">
+  <TrochoidSlot locale="en" w={1.55} s={0.1} />
+</Figure>
+
+Two things follow from the geometry. With circular loops the largest engagement is well above what the step alone suggests: at s = 1 mm on a Ø10 mm cutter in a 15.5 mm slot the figure gives about 61°, which along a straight wall would be ae ≈ 2.6 mm, not 1 mm. And for roughly half of each loop the cutter is in the cut, while the centre travels about 17 mm of path per millimetre of slot. The rest of the loop is what Wagih and co-authors call the cooling portion of the path, where the tool does not cut and the removal rate is less (see below). None of the makers says whether its ae is the step per loop or the largest engagement in the loop; ISCAR's example treats ae = 1 mm as a straight-wall width (AE = 36°).
+
+## Thin chips and the feed that makes up for them
+
+At a small width of cut the chip is thinner than the feed per tooth. ISCAR calls it "radial chip thinning" and gives, for peripheral milling, AE = arccos(1 − 2·ae/d) and a largest chip thickness hmax = 2·fz·√(d·ae − ae²)/d, which is fz·sin AE while AE stays below 90°. From its table for AE below 90°:
+
+| ae / d | 0.05 | 0.1 | 0.2 | 0.3 |
+|---|---|---|---|---|
+| AE | 25.8° | 36° (arccos 0.8 = 36.9°) | 53° | 66.4° |
+| sin AE | 0.436 | 0.6 | 0.8 | 0.916 |
+
+ISCAR's warning: "Maintaining the feed per tooth should ensure the required chip thickness and avoid critical chip thinning." Solving its formula for the feed gives the feed for a wanted chip thickness, fz = hmax ÷ sin AE while AE stays below 90° (this page's rearrangement). With its table, 1 ÷ sin AE is 1.67 at ae = 0.1 d and 2.29 at 0.05 d (this page's arithmetic). DAPRA gives nearly the same multipliers: 1.05 at 35 % width of cut, 1.70 at 10 %, and "130% productivity increase" at 5 %; without the correction "you will essentially be under-feeding your milling tool". The same relation for every width of cut is plotted on the [climb vs conventional milling](/processes/climb-vs-conventional-milling/) page. These formulas are for a straight wall; in a loop the angle changes all the time, which is why the figure reports the largest one (this page's reading).
+
+The cutting speed can be raised too. ISCAR's example multiplies the base speed of 65 m/min by Km = 1.1 (its Table 9) and Ke = 1.5 (its Table 10, at ae/d = 0.1, AE = 36°) to about 107 m/min; Table 10 itself was not read for this page. Take the speed for a real job from the tool maker.
+
+## What the makers give
+
+| Source | Width of cut ae | Depth ap | Context |
+|---|---|---|---|
+| ISCAR, Machining Titanium | "usually, 5-15% of tool diameter d"; example 1 mm on Ø10 | "significant depth of cut"; example 16 mm on Ø10 | trochoidal milling of titanium |
+| ISCAR, slicing article | "typically, up to 0.2 of a tool diameter" | "usually, no more than five-tool diameters" | peel milling, which ISCAR calls slicing |
+| MAPAL, OptiMill-Tro-Titan | "ae = depending on the workpiece material"; example 1.2 mm on Ø12 | "ap = max. 3xD"; example 30 mm on Ø12 | its own trochoidal cutter in TiAl6V4 |
+| YG-1 article | step-over 2 % of D on very agile machines, 10 % on less agile ones; 5 % to start | | depends on the machine |
+
+The bases differ: ISCAR's figure is for titanium, MAPAL ties the width of cut to the material and its own cutter, and the YG-1 article ties the step-over to the machine. For the slot itself the YG-1 article asks for a cutter "at least 15% - preferably 35% - smaller in diameter than the width of the slot." ISCAR adds that "the best results are reached when the milling cutters are mounted in hydraulic or heat shrink chucks". On tool design it writes that "When milling with a low width of cut, only one tooth engages the workpiece material at any given time." and "Optimizing a contact area along the tooth is an important factor for stable milling."
+
+## The machine and the program
+
+ISCAR: "The major challenges in trochoidal milling are machine tool control and intelligent path programming." The YG-1 article: "The applicable step-over values depend very much on the machine’s capability to accelerate and decelerate." Wagih and co-authors note that one of the path types they review "requires high machine tool dynamics, i.e., acceleration and jerk".
+
+In CAM the loop is a set of parameters. PowerMill's trochoidal pattern has a Stepover ("Enter the distance between consecutive trochoids"), a Width, a Radius for the arcs and a Direction, climb or conventional; it notes that the arc radius "does not have to be the same as the tool radius." Controls can have a cycle for it: HEIDENHAIN's TNC7 cycles manual lists Cycle 275 TROCHOIDAL SLOT among its SL cycles.
+
+## Trochoidal, peel, dynamic, adaptive
+
+The names overlap, and no source found sets out one scheme for all of them. ISCAR treats peel milling, which it also calls slicing, as large depth and small width of cut, and trochoidal milling, with a complicated tool path instead of a straight feed, as a method suited to it. The YG-1 article heads a section "Trochoidal Milling as subset of Dynamic Milling" and describes an advanced form with "D-shaped tool movements that try to optimize on the engagement angle (phi)." ISCAR's Turkish FAQ page defines HEM as a method using a large axial and a small radial depth of cut, the radial depth varying with the tool's engagement angle. Autodesk Fusion describes its 2D Adaptive Roughing (formerly 2D Adaptive Clearing) as a toolpath that "maintains a constant engagement between the tool and its surrounding material", because "Sudden changes in how much of the tool is engaged while cutting material around it can cause tool breakage."
+
+## Drawbacks
+
+- **No cutting in part of the loop.** Wagih and co-authors: in the cooling portion of the path "the tool does not perform any cutting, so the material removal rate is less". ISCAR, on the other hand: "Trochoidal tool trajectories minimize non-cutting time and optimize machine unit motions." Both can hold: a good path reduces a loss the loop always has.
+- **Discontinuous paths.** The same paper: "The discontinuity of the tool path results in higher surface roughness and lower dimensional accuracy".
+- **Overhang.** ISCAR: "Milling with high depths of cut increases the tool's overhang".
+
+<CheckList id="trochoid-before" locale="en" items={[
+  { icon: 'hole', title: 'Cutter and slot', check: 'The cutter diameter against the slot width.', fix: 'At least 15 %, preferably 35 % smaller than the slot (YG-1 article).', src: 'YG-1 article' },
+  { icon: 'depth', title: 'Width and depth of cut', check: 'ae and ap against the maker’s figures for the tool and material.', fix: 'For example ISCAR 5–15 % of D in titanium; MAPAL ap up to 3 × D for its cutter; ISCAR up to 5 × D for peel milling.', src: 'ISCAR; MAPAL' },
+  { icon: 'feed', title: 'Feed', check: 'Whether the feed per tooth was raised for the thin chip.', fix: 'Set fz from the chip thickness wanted: fz = hmax ÷ sin AE (from ISCAR’s hmax formula, AE < 90°); about 1.7 × at 10 % width of cut (DAPRA).', src: 'ISCAR; DAPRA' },
+  { icon: 'sync', title: 'Machine', check: 'How fast the machine accelerates and decelerates.', fix: 'Choose the step-over for the machine: 2 % of D on very agile machines, 10 % on less agile ones (YG-1 article).', src: 'YG-1 article; Wagih et al.' },
+  { icon: 'holder', title: 'Holder', check: 'How the cutter is held.', fix: 'Hydraulic or shrink-fit chuck for the best results (ISCAR).', src: 'ISCAR' },
+]} />

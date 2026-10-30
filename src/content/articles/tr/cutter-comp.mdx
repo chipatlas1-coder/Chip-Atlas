@@ -1,0 +1,114 @@
+---
+key: cutter-comp
+locale: tr
+slug: g40-g41-g42-takim-yaricap-telafisi
+title: 'G40, G41, G42: takım yarıçap telafisi'
+description: 'Parçanın konturunu programlayıp takımı yarıçapı kadar kaydırmayı kumandaya bırakmak: G41 sol, G42 sağ, G40 iptal; telafiyi açan ve kapatan hareket, dış köşeler ve küçük iç yaylar, ileriye bakma, geometri ve aşınma değerleri, CAM’deki telafi türleri ve tornada takım ucu yarıçap telafisi.'
+section: 9
+subsection: g-code-reference
+order: 2
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'G41 / G42'
+    label: 'Takım, ilerleme yönüne bakıldığında programlanan yolun solunda / sağında (Haas, LinuxCNC, Siemens, Yaskawa, MEB)'
+  - value: '≥ r'
+    label: 'Telafiyi açan doğrusal hareketin boyu: en az takım yarıçapı (LinuxCNC; Haas için Productivity)'
+  - value: '2 blok'
+    label: 'Haas çakışma denetimi için X ya da Y hareketi olan sonraki iki bloğa bakar (Productivity)'
+  - value: '349'
+    label: 'Telafi açıkken duran bir programda Haas alarmı (eski torna belgeleri): PROG STOP W/O CANCEL CUTTER COMP'
+sources:
+  - label: 'T.C. Millî Eğitim Bakanlığı, MEGEP, CNC Freze İşlemleri 1 (521MMI130), Ankara 2011'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/08111416_Cnc_Freze_YYlemleri_1.pdf
+  - label: 'T.C. Millî Eğitim Bakanlığı, MEGEP, CNC Tornada Programlama (521MMI121), Ankara 2012, Tablo 1.3'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/10121138_Cnc_Tornada_Programlama.pdf
+  - label: 'Balıkesir Üniversitesi, Makine Mühendisliği Bölümü, CNC Laboratuvar Deney Föyü (Türkçe terimler için)'
+    url: https://baunwebapi.balikesir.edu.tr/uploads/1772435735260.pdf
+  - label: 'LinuxCNC belgeleri, “Cutter Compensation”'
+    url: https://linuxcnc.org/docs/html/gcode/tool-compensation.html
+  - label: 'LinuxCNC belgeleri, “G-Codes” (G40, G41/G42, G41.1/G42.1)'
+    url: https://linuxcnc.org/docs/html/gcode/g-code.html
+  - label: 'Productivity Inc. (Haas Factory Outlet), Haas Mill Programming Manual, 06/26 revizyonu, s. 19–41'
+    url: https://productivity.com/wp-content/uploads/2025/10/Mill-Programming-2026.pdf
+  - label: 'Productivity Inc. (Haas Factory Outlet), Haas Mill Programming Manual, 05/25 revizyonu, s. 20–42'
+    url: https://www.productivity.com/wp-content/uploads/2025/05/Mill-Programming-2025.pdf
+  - label: 'Productivity Inc. (Haas Factory Outlet), Haas Lathe Programming Manual, 12/2024 revizyonu, s. 6, 23–24'
+    url: https://www.productivity.com/wp-content/uploads/2025/05/Lathe-Programming.pdf
+  - label: 'Productivity Inc. (Haas Factory Outlet), Haas Lathe Programming Training Manual, 8/2022 revizyonu'
+    url: https://www.productivity.com/wp-content/uploads/2022/08/Haas-Lathe-Programming-8-2022.pdf
+  - label: 'Haas Automation, Programming ST/TL, Haas torna serisi çalışma kitabı, 2015, s. 17–21 (Florida Üniversitesi’ndeki kopya)'
+    url: https://web.mae.ufl.edu/designlab/TA/Manuals/Haas%20SL-10%20Programming%20Workbook.pdf
+  - label: 'Siemens, SINUMERIK 840D/840Di, 810D/FM-NC Short Guide: Programming, 10.2000 baskısı, s. 3-32 – 3-37'
+    url: https://i.kontrolkalemi.com/2/Short_Guide_Programming.pdf
+  - label: 'Yaskawa America, Compass çevrim içi yardım, “G40, G41, G42: Tool Radius Offset”'
+    url: https://compass2.yaskawa.com/latest/YiCE_g40_g41_g42_tool_radius_offset.htm
+  - label: 'Autodesk, Fusion CAM yardımı, “Cutter Radius Compensation reference”'
+    url: https://help.autodesk.com/cloudhelp/ENU/Fusion-CAM/files/GUID89C78618-20FD-4A82-BFB4-BC66AFE417DD.htm
+  - label: 'camInstructor (imza “camInstructor Mike”, M. Wearne), “Mastercam Cutter Compensation”, blog, 1 Mart 2018 (bir Mastercam eğitmeni, CNC Software değil)'
+    url: https://blog.caminstructor.com/mastercam-cutter-compensation
+---
+import CutterComp from '../../../components/mdx/CutterComp.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Program parçayı tarif eder, ama bir freze çakısının merkezi parçadan bir yarıçap uzakta gitmelidir. Takım yarıçap telafisi bu kaydırmayı kumandaya bırakır: program konturu izler, takımın yarıçapı kumandanın belleğinde durur. MEB’in CNC freze modülü bunu şöyle tanımlar: "Takım yarıçap telafisi frezeleme esnasında takımın yarıçapı kadar kayması demektir." ve telafi miktarının "daha önce kontrol ünitesinin belleğine, H (Fanuc) veya D (sinumeric) adresleri ile saklanabilir" olduğunu yazar; Fanuc tarzı Haas kumandası ise D kullanır (Productivity), FANUC’un kendi kılavuzu bu sayfa için okunmadı. Productivity’nin Haas eğitim kılavuzuna göre bir G41 ya da G42 komutu, takım ofset tablosundan doğru değeri seçen bir D değeri içermelidir. D’nin anlamı kumandaya göre değişir: LinuxCNC’de isteğe bağlı bir takım numarasıdır, Siemens’te uzunluk telafisini (*length compensation*) de açan takım düzeltmesidir (*tool offset*). LinuxCNC programa telafinin kapalı olduğundan emin olmak için G40 ile başlamayı önerir. Telafinin üzerinde çalıştığı hareket kodları için [G00, G01, G02, G03](/tr/cnc-programlama/g00-g01-g02-g03-hareket-komutlari/) sayfasına bakın.
+
+## Sol mu, sağ mı
+
+Taraf, takımın arkasından, gittiği yöne bakılarak belirlenir. MEB modülüne göre "Kesici, profilin solundan giderek talaş alıyorsa G41 kodu kullanılır", sağından giderek talaş alıyorsa G42; tornalama modülünün tablosu G41’i "Kesici Takım Telafisi Yörüngenin Solunda", G42’yi "…Yörüngenin Sağında" diye adlandırır. LinuxCNC ve Siemens de aynısını söyler. G40 telafiyi kapatır: MEB’e göre "G40 kodu takım yarıçap telafisini iptal eder." İlerleme yönü ters çevrilince parçanın aynı tarafı öbür kodla gelir; bir dış kontur bir yönde G41, öbür yönde G42 ister.
+
+Productivity’nin 2026 tarihli Haas kılavuzu G41’i aynı yönlü (*climb*), G42’yi zıt yönlü (*conventional*) frezeleme diye etiketler; 2025 baskısı ikisini yalnızca yönle tanımlar. Bir Mastercam eğitmeni de tipik CNC işinde aynı yönlü kesmenin sola, yani G41’e denk geldiğini yazar (camInstructor). Bu eşleşme, saat yönünde (M03) dönen bir iş mili ve sağ el bir çakı için geçerlidir: konturun solundaki takımın dişleri kesme noktasında iş parçasının takıma göre hareketiyle aynı yönde gider. Bu koşul bu sayfanın çıkarımıdır; okunan kaynakların hiçbiri onu söylemez. İkisinin farkı [aynı ve zıt yönlü frezeleme](/tr/prosesler/ayni-ve-zit-yonlu-frezeleme/) sayfasındadır.
+
+<Figure caption="Programlanmış tek bir basamak profili ve seçilen koda göre hesaplanan takım merkezi yolu: program (paneldeki) konturu izler, kumanda merkezi bir yarıçap uzakta tutar. Aynı yönde G42 takımı malzeme tarafına geçirir. Dış köşe ya bir geçiş yayıyla ya da iki kaydırılmış doğru kesişene kadar uzatılarak kapatılır; R20’lik iç yaydan büyük bir yarıçap sığmaz. Giriş ve çıkış hareketleri kaydırıcıdaki en büyük takım yarıçapından, çıkış ayrıca çapından uzundur. Geometri bu sayfanın modeline göredir, belirli bir kumandaya göre değil.">
+  <CutterComp locale="tr" />
+</Figure>
+
+## Açmak ve kapatmak
+
+- **Doğrusal bir hareketle.** Productivity’ye göre telafi bir G02 ya da G03 yay hareketinde açılıp kapatılamaz; LinuxCNC, G40’tan hemen sonra programlanan bir G2/G3 yay hareketini hatalar arasında sayar. MEB modülüne göre de "G40, G41 ve G42 kodları G00 ve G01 ile aynı blokta yazılabilir. Ancak G02, G03 kodları ile birlikte kullanılamaz." Productivity’nin torna kılavuzu girişi G01 ya da G00 doğrusal hareketiyle kabul eder; freze kılavuzu bir G01 X,Y hareketi ister.
+- **En az bir yarıçap boyunda.** LinuxCNC’ye göre giriş hareketi en az takım yarıçapı kadar uzun olmalıdır; Productivity’ye göre de takım yarıçapına eşit ya da ondan büyük bir hareket gerekir, bir diş frezeleme notunda ise hareketin telafi edilen miktardan büyük olmasının yettiğini yazar. LinuxCNC girişin kullanılabilecek en büyük takım yarıçapına göre programlanmasını önerir.
+- **Girdiği gibi çıkmak.** Productivity’ye göre giriş ve çıkış hareketleri aynı kurallara uyar. LinuxCNC çıkışta daha katıdır: telafi açıksa sonraki hareket doğrusal ve takım çapından uzun olmalıdır.
+- **Siemens’te yaklaşma.** NORM ile takım kontur noktasına dik bir doğru boyunca doğrudan gider; KONT ile kontur noktasının çevresinden, köşelerde G450/G451 ile programlanan davranışa göre dolaşır.
+- **Açık bırakmamak.** Telafi açıkken durdurulan bir program Haas’ta "349 PROG STOP W/O CANCEL CUTTER COMP" alarmını verir (Haas çalışma kitabı; Productivity); Haas’a göre RESET ya da POWER OFF da telafiyi iptal eder. Bu numaralar eski Haas torna belgelerindendir.
+
+## Köşeler ve küçük yaylar
+
+Bir **dış köşede** kaydırılmış doğrular arasında boşluk kalır ve kumandalar onu iki yoldan biriyle kapatır. Siemens’te G450 geçiş yayıdır (*transition circle*): takım parça köşelerini takım yarıçaplı bir yay boyunca dolaşır; G451 kesişme noktasıdır (*intersection point*): takım köşede serbest keser. Haas’ta Setting 58 seçer: YASNAC kipinde tüm dış açıları bir dairesel hareket birleştirir; Fanuc kipinde kumanda 270°’ye kadar dış açıları keskin bir köşeyle, daha büyüklerini fazladan bir doğrusal hareketle birleştirir (Productivity, 2025 baskısı). Yaskawa’nın kumandası da bir birleştirme yayı (*blending arc*) ekleyebilir ya da doğruları kesişme noktasına kadar uzatabilir.
+
+Bir **iç köşede** kaydırılmış doğrular üst üste biner ve kumanda onları kırpmak ya da durmak zorundadır. LinuxCNC’de sonraki hareket bir iç köşe oluşturuyorsa, parçayı fazla kesmemek için hareket kısa kesilir. Productivity’ye göre Haas’ta programlanan yol fazla kesmeye yol açacaksa kumanda durur ve alarm verir; etkin D değerinden küçük yarıçaplı bir iç yayı işlemek de alarm doğurur. Siemens’te çarpışma denetimi (*collision detection*) CDON ve CDOF ile açılıp kapatılır; kumanda kritik işleme durumlarını algılayıp düzeltir.
+
+Bu durumları önceden görmek için kumanda ileriye bakar (*look-ahead*). Productivity’nin 2026 kılavuzuna göre Haas kumandası çakışmayı (*interference*) denetlemek için X ya da Y hareketi içeren sonraki iki bloğa bakar. Öteki kumandaların kaç blok saydığı ve aradaki hareketsiz blokların ne yaptığı bu sayfa için okunan kaynaklarda bulunamadı.
+
+## Geometri, aşınma, çap ya da yarıçap
+
+Haas’ta toplam telafi geometri ve aşınma (*wear*) değerlerinin toplamıdır; değer Setting 40’a göre çap ya da yarıçap olarak girilebilir, çap girilirse kaydırma girilen değerin yarısıdır (Productivity; bu cümle 2025 baskısından). LinuxCNC takım tablosunda takımın ölçülmüş çapını tutar; G41.1/G42.1 çapı bloğun kendisinde alır. Siemens’te takım düzeltmesi D çağrıldıktan sonra uzunluk telafisi kendiliğinden devreye girer.
+
+CAM sistemleri aynı seçimi beş ayarla sunar. Önce Fusion’ın, sonra Mastercam’in (bir eğitmenin anlattığı biçimde) adları:
+
+| Fusion | Mastercam | Program neyi içerir |
+|---|---|---|
+| In computer | Computer | Takım yarıçapı kadar kaydırılmış bir yol, G41/G42 yok; telafiyi seçilen takım çapına göre CAM hesaplar (Fusion) |
+| In control | Control | G41/G42 ile parçanın konturu; yarıçap ofset tablosuna girilir; telafi hesaplanmaz, G41/G42 kodları yazılır (Fusion) |
+| Wear | Wear | Kaydırılmış bir yol ve G41/G42; tablo yalnızca anma takımdan farkı tutar |
+| Inverse wear | Reverse wear | Wear gibi, farkın işareti ters; Reverse Wear yolun öbür tarafına telafi eder (camInstructor) |
+| Off | Off | Hiç telafi yok |
+
+Fusion kumanda ayarlarını yalnızca son pasolarda uygular (Fusion yardımı).
+
+## Düzlemler
+
+Telafi bir seferde bir düzlemde çalışır. Productivity’ye göre telafi 2B işlemede (G17) X ve Y’de, G141 ile 3B işlemede X, Y ve Z’de vardır. LinuxCNC’de XY ya da XZ düzlemi etkinken yapılabilir; YZ’de hata verir.
+
+## Tornada takım ucu yarıçap telafisi
+
+Takım ucu yarıçap telafisinin (*tool nose radius compensation*) nedeni, bir tornalama ucunun bir uç yarıçapı olması, ofsetlerin ise hayali bir noktayı ölçmesidir: Productivity’ye göre geometri ofsetleri hayali takım ucu (*imaginary tool tip*) denen bir noktada kesişir. Yalnızca X ya da Z boyunca kesmede genellikle gerekmez; koniklerde ve yaylarda ise eksik ya da fazla kesme olabilir (Productivity). Düzeltmeyi aynı kodlar yapar: Haas’a göre G41 takım ucu telafisi programlanan yolun solunda, G42 sağındadır; Productivity’ye göre olağan iç çap tornalama G41, alından aynaya doğru olağan dış çap tornalama G42 ister. MEB’in tornalama modülü bu kodları "Kesici Takım Telafisi" diye, Balıkesir Üniversitesi’nin deney föyü "Takım ucu (R) kompanzasyonu-sol" / "-sağ" diye adlandırır. Kumanda uç yarıçapının yönünü (*tip direction*) de bilmelidir; Productivity’ye göre bu 0 ile 9 arasında tek bir tam sayıyla kodlanır ve 0 belirli bir yön olmadığını gösterir.
+
+Giriş ve çıkış hareketleri takımın uç yarıçapına eşit ya da ondan büyük olmalıdır; X çapla programlandığı için X hareketlerinde bunun iki katı gerekir; fazla kısa bir hareket "369 TOOL TOO BIG" alarmını verir (Productivity). Productivity’nin torna kılavuzu telafiyi, onu yok sayan G74, G75, G76 ve G92 sabit çevrimlerinden (*canned cycle*) önce iptal ettirir.
+
+<CheckList id="cutter-comp" locale="tr" items={[
+  { icon: 'sync', title: 'Taraf', check: 'Bu ilerleme yönü için G41 mi, G42 mi.', fix: 'İlerleme yönüne bakıldığında yolun solu G41’dir (MEB, LinuxCNC, Siemens); bu yüzden yön ters çevrilince kod değişir.', src: 'MEB; LinuxCNC; Siemens' },
+  { icon: 'feed', title: 'Giriş ve çıkış', check: 'Telafiyi açan ve kapatan hareketler.', fix: 'Doğrusal, asla yay değil (LinuxCNC, Productivity); en az takım yarıçapı kadar, kullanılabilecek en büyük takıma göre (LinuxCNC); LinuxCNC’de G40’tan sonraki hareket çaptan uzun.', src: 'LinuxCNC; Productivity' },
+  { icon: 'edge', title: 'İç yaylar', check: 'Konturdaki en küçük iç yarıçap.', fix: 'Ofsetteki takım yarıçapından büyük olmalı; yoksa Haas kumandası alarm verir (Productivity). Doğrular arasındaki iç köşelerde LinuxCNC hareketi kısa keser.', src: 'Productivity; LinuxCNC' },
+  { icon: 'holder', title: 'Ofset girişi', check: 'Çap mı, yarıçap mı; geometri mi, aşınma mı.', fix: 'Değer girmeden önce kumanda ayarına (Haas Setting 40) ve CAM’deki telafi türüne bakın.', src: 'Productivity; Fusion' },
+  { icon: 'bottom', title: 'Bitiş', check: 'Sonda hâlâ açık telafi.', fix: 'Program durmadan önce doğrusal bir hareketle G40 ile iptal edin (Haas alarmı 349).', src: 'Haas; Productivity' },
+]} />

@@ -1,0 +1,132 @@
+---
+key: c45
+locale: en
+slug: c45
+title: 'C45 / C45E (Ck45) — 1.0503 / 1.1191'
+description: 'The medium-carbon quenched and tempered steel C45 and its variants C45E (formerly Ck45) and C45R: designations and equivalents, chemical composition, strength in the normalized and quenched-and-tempered condition, hardness, heat treatment, weldability and cutting data.'
+section: 6
+subsection: steels
+order: 1
+updated: 2026-10-11
+tools: [turning, milling]
+glance:
+  - value: '0.42–0.50'
+    unit: '% C'
+    label: 'Carbon content, EN ISO 683-1'
+  - value: '700–850'
+    unit: 'MPa'
+    label: 'Tensile strength, quenched and tempered, d ≤ 16 mm'
+  - value: '207'
+    unit: 'HB'
+    label: 'Maximum hardness, soft annealed (+A)'
+  - value: '1045 / S45C'
+    label: 'Approximate AISI and JIS equivalents'
+sources:
+  - label: 'EN ISO 683-1:2018, Heat-treatable steels — Part 1: Non-alloy steels for quenching and tempering (SIS catalogue page)'
+    url: https://www.sis.se/en/produkter/metallurgy/iron-and-steel-products/heattreatable-steels/ss-en-iso-683-12018
+  - label: 'DIN EN ISO 683-1:2018-09 (DIN Media; replaces EN 10083-1 and -2)'
+    url: https://www.dinmedia.de/de/norm/din-en-iso-683-1/291176752
+  - label: 'Saarstahl, Werkstoffdatenblatt C45 (1.0503)'
+    url: https://en.saarstahl.com/app/uploads/2024/03/20160401102929-0503_C45.pdf
+  - label: 'Saarstahl, Werkstoffdatenblatt C45E / C45R'
+    url: https://www.saarstahl.com/app/uploads/2024/03/20160226042521-1191_1201_C45E_C45R.pdf
+  - label: 'Deutsche Edelstahlwerke, Werkstoffdatenblatt 1.1191 / 1.1201 (C45E / C45R), 2011'
+    url: https://swisssteel-group.com/content-media/documents/Data-Sheets/Engineering-Steel/1.1191_1.1201_de.pdf
+  - label: 'thyssenkrupp Materials Schweiz, THYROQUENCH 1191 (C45E), 2021'
+    url: https://ucpcdn.thyssenkrupp.com/_binary/UCPthyssenkruppBAMXSchweiz/de/downloads/werkstoffdatenblaetter-baustahl/datenblatt-baustahl-thyroquench-1191/edelbau_1191.pdf
+  - label: 'Swiss Steel, C45E / C45R data sheet (EN ISO 683-1:2018)'
+    url: https://swisssteel-group.com/content-media/documents/Data-Sheets/Engineering-Steel/C45E-C45R_de.pdf
+  - label: 'Lucefin, technical card C45E (ISO 683-1:2018), 2024'
+    url: https://lucefin.com/wp-content/uploads/2025/01/ENG-C45E.pdf
+  - label: 'Ovako, Steel Navigator: C45'
+    url: https://steelnavigator.ovako.com/steel-grades/c45/
+  - label: 'MISUMI, material comparison table (JIS / AISI / DIN), for reference only'
+    url: https://sg.misumi-ec.com/tech-info/categories/technical_data/td01/a0203.html
+  - label: 'ISCAR, "Materials and Grades according to DIN/ISO 513 and VDI 3323" (material groups, kc1.1)'
+    url: https://www.iscar.com/lms/wp-content/uploads/2021/04/Materials-group.pdf
+  - label: 'Seco Tools, Milling catalogue 2025, "Workpiece materials — Classification" (distributor copy)'
+    url: https://maskin.sde.dk/wp-content/uploads/2025/03/GB-Milling-2025SN1-1.pdf
+---
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { c45Heat } from '../../../data/steel-charts';
+import StepChart from '../../../components/mdx/StepChart.astro';
+import JominyBand from '../../../components/mdx/JominyBand.astro';
+
+import { qtSeries } from '../../../data/steel-charts';
+
+C45 is a non-alloy, medium-carbon steel for quenching and tempering: more strength than a structural steel, without alloying elements. It is supplied normalized, soft-annealed, treated for shearability or quenched and tempered.
+
+## Designations
+
+| Name | Number | Note |
+|---|---|---|
+| C45 | 1.0503 | Base grade |
+| C45E | 1.1191 | Lower maximum P and S; formerly **Ck45** (DIN 17200) |
+| C45R | 1.1201 | Specified sulphur range 0.020–0.040 %; formerly Cm45 |
+
+Approximate equivalents: AISI/SAE **1045**, JIS **S45C**. Equivalent grades are never identical; check the composition and the properties of the standard you buy to.
+
+The governing standard is **EN ISO 683-1:2018**, which replaced EN 10083-1 and EN 10083-2 (2006). Many mill data sheets still cite EN 10083.
+
+## Chemical composition
+
+Heat analysis, % by mass, EN ISO 683-1:
+
+| C | Si | Mn | P max | S max | Cr max | Mo max | Ni max | Cr+Mo+Ni max | Cu max |
+|---|---|---|---|---|---|---|---|---|---|
+| 0.42–0.50 | 0.10–0.40 | 0.50–0.80 | 0.045 (C45) · 0.025 (C45E) | 0.045 (C45) · 0.035 (C45E) | 0.40 | 0.10 | 0.40 | 0.63 | 0.30 |
+
+C45R has S 0.020–0.040 %. The old EN 10083-2 gave silicon as max 0.40 % without a minimum; the 0.10 % minimum comes with EN ISO 683-1. For the maximum P of C45E, Lucefin prints 0.020 %, against 0.025 % in the other sheets.
+
+## Mechanical properties
+
+**Normalized (+N),** minimum values:
+
+| Diameter d (mm) | ReH (MPa) | Rm (MPa) | A (%) |
+|---|---|---|---|
+| ≤ 16 | 340 | 620 | 14 |
+| 16 < d ≤ 100 | 305 | 580 | 16 |
+| 100 < d ≤ 250 | 275 | 560 | 16 |
+
+**Quenched and tempered (+QT):**
+
+| Diameter d (mm) | Re min (MPa) | Rm (MPa) | A min (%) | Z min (%) |
+|---|---|---|---|---|
+| ≤ 16 | 490 | 700–850 | 14 | 35 |
+| 16 < d ≤ 40 | 430 | 650–800 | 16 | 40 |
+| 40 < d ≤ 100 | 370 | 630–780 | 17 | 45 |
+
+For C45E and C45R, Saarstahl, Deutsche Edelstahlwerke and thyssenkrupp give a minimum impact energy KV of 25 J in all three bands; Lucefin prints 15 J. The diameter is that of the heat-treated section, and strength falls as the bar gets thicker because C45 hardens only to a limited depth. Its hardenability band for C45E (thyssenkrupp, Lucefin) shows how fast: 55–62 HRC at 1.5 mm from the quenched end, 28–57 HRC at 5 mm, 22–32 HRC at 11 mm.
+
+<Figure caption="The hardenability band of C45E at the three distances quoted above: the hardness range a bar may show after quenching from one end. Within 11 mm of the quenched end the minimum falls from 55 to 22 HRC. Only the three quoted points are drawn.">
+  <JominyBand locale="en" />
+</Figure>
+
+<Figure caption="Quenched and tempered (+QT): minimum yield strength Re (line) and tensile strength range Rm (band) against the diameter of the heat-treated section, from the EN ISO 683-1 and EN ISO 683-2 values in the tables. C45 is listed only up to 100 mm. Hover a step to read it.">
+  <StepChart locale="en" series={qtSeries} xLabel="d" yLabel="Strength" xMax={250} yMax={1400} yTicks={[0, 200, 400, 600, 800, 1000, 1200, 1400]} xTicks={[0, 16, 40, 100, 160, 250]} lineLabel="Re min" bandLabel="Rm" aria="Step chart of Re and Rm against diameter for C45 and 42CrMo4, quenched and tempered" />
+</Figure>
+
+**Hardness:** soft-annealed (+A) max **207 HB**; treated for shearability (+S) max **255 HB**.
+
+## Heat treatment
+
+Temperatures in °C, as given by the steel makers:
+
+| Treatment | Range | Notes |
+|---|---|---|
+| Normalizing | 840–880 | DEW and Ovako give 840–870 |
+| Soft annealing | 650–710 | Saarstahl 680–710; DEW and Ovako 650–700 |
+| Hardening | 820–860 | Water or oil (Saarstahl). Lower in water than in oil: DEW 820–850 in water, 830–860 in oil; Ovako 820–850 and 840–870. thyssenkrupp gives 840–880 |
+| Tempering | 550–660 | For the +QT strengths above |
+
+<Figure caption="Heat treatment temperatures from the table above. The thick bar is the range this page uses; thin bars are the values individual makers print. Hover a bar to read it.">
+  <RangeChart locale="en" rows={c45Heat("en")} min={500} max={950} ticks={[500, 600, 700, 800, 900]} unit="°C" axisLabel="Temperature" aria="Heat treatment temperature ranges" />
+</Figure>
+
+## Weldability
+
+Deutsche Edelstahlwerke describes C45E and C45R as difficult to weld and advises against using them in welded structures. Lucefin, if welding cannot be avoided, gives a preheat of 250 °C and stress relieving at 550 °C after welding.
+
+## Machining
+
+C45 is a P-group material in ISO 513. For cutting-force calculations, ISCAR places annealed C45 in its group 2 (190 HB, kc1.1 = 1500 N/mm², mc = 0.22) and Seco uses C45E as the reference material of its group P4 (kc1.1 = 2000 N/mm², mc = 0.15). The two sets differ; read [cutting forces](/fundamentals/cutting-forces/) before mixing them. Ovako offers a calcium-treated "M-Steel" version intended to reduce tool wear and improve chip control.

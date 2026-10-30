@@ -1,0 +1,147 @@
+---
+key: taylor-tool-life
+locale: en
+slug: taylor-tool-life
+title: 'Taylor''s tool life equation'
+description: 'V · Tⁿ = C — what the exponent and the constant mean, how to find them from two tests, typical values for HSS, carbide and ceramics, and the tool life that gives the highest output or the lowest cost.'
+section: 1
+subsection: tool-life
+order: 1
+updated: 2026-10-11
+tools: []
+glance:
+  - value: '1907'
+    label: 'Taylor''s "On the Art of Cutting Metals" published'
+  - value: '0.228'
+    label: 'n from the two-test example'
+  - value: '40 → 26'
+    unit: 'min'
+    label: 'Tool life when speed rises 10 %, same example'
+  - value: '0.25'
+    label: 'Typical n for cemented carbide (Groover)'
+sources:
+  - label: 'F. W. Taylor, "On the Art of Cutting Metals", ASME, New York, 1907 (address of December 1906; also in Transactions of the ASME, vol. 28) — HathiTrust record'
+    url: https://catalog.hathitrust.org/Record/006563337
+  - label: 'King Saud University, lecture 2 part 2, "Tool wear and tool life" (Taylor equation, extended form, optimum tool life)'
+    url: https://faculty.ksu.edu.sa/sites/default/files/lecture-02-part-2-tool_wear_and_tool_life.pdf
+  - label: 'King Saud University, "Machining economics" slides after Kalpakjian & Schmid, Manufacturing Engineering and Technology'
+    url: https://faculty.ksu.edu.sa/sites/default/files/5_-_b_-_machining_economics_ams_apr04_16_0.pdf
+  - label: 'University of Padova, lecture on tool life after Kalpakjian & Schmid (typical n values)'
+    url: https://stem.elearning.unipd.it/mod/resource/view.php?id=314998
+  - label: 'ACS College of Engineering, Metal cutting module 3 (typical n values)'
+    url: https://www.acsce.edu.in/acsce/wp-content/uploads/2020/04/Metal-Cutting-Forming-Module-3.pdf
+  - label: 'Gaziantep University, lecture notes on tool wear and tool life'
+    url: https://akbis.gantep.edu.tr/yonetim/upload/files/26786-8194.pdf
+  - label: 'M. P. Groover, Fundamentals of Modern Manufacturing, representative n and C values, as reproduced in a chapter 22 solutions set'
+    url: https://pdfcoffee.com/ch22-pdf-free.html
+  - label: 'University of Tennessee MTRC, spindle speed and tool life paper (Taylor equation, n values)'
+    url: https://mtrc.utk.edu/wp-content/uploads/sites/45/2019/09/spindle_speed_tool_life.pdf
+  - label: 'Open Exam Prep, economics of machining (minimum-cost tool life, high-efficiency range)'
+    url: https://open-exam-prep.com/study-guides/in-cil-mt/paper-2-materials-manufacturing/economics-of-machining
+---
+import TaylorChart from '../../../components/mdx/TaylorChart.astro';
+import LineChart from '../../../components/mdx/LineChart.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { taylorExample, nSources, carbideLine } from '../../../data/figures';
+
+Frederick W. Taylor presented the results of years of cutting experiments to the American Society of Mechanical Engineers in December 1906; they were published in 1907 as "On the Art of Cutting Metals". His central finding still sets cutting speeds today: tool life falls steeply, and predictably, as cutting speed rises.
+
+## The equation
+
+$$
+V \cdot T^{\,n} = C
+$$
+
+- **V** is the cutting speed, in m/min.
+- **T** is the tool life, in minutes, until the chosen wear criterion is reached (for example VB = 0.3 mm; see [tool wear](/fundamentals/tool-wear/)).
+- **n** is an exponent that depends mainly on the tool material.
+- **C** is the cutting speed that gives a tool life of exactly one minute. It depends on the tool, the work material, the feed, the depth of cut and the wear criterion.
+
+Taking logarithms gives log V = log C − n · log T, a straight line on log–log axes with slope −n. A small n means a flat line: a small increase in speed costs a lot of tool life. A large n means the tool tolerates speed better.
+
+<Figure caption="Taylor lines on log–log axes. The grey lines use representative values for turning steel at f = 0.25 mm/rev and d = 2.5 mm, as given by Groover: HSS n = 0.125, C = 70 m/min; carbide n = 0.25, C = 500 m/min; ceramic n = 0.6, C = 3000 m/min. Set n, C and a speed to draw your own line.">
+  <TaylorChart locale="en" />
+</Figure>
+
+## Finding n and C from two tests
+
+Two tests at different speeds, run to the same wear criterion, define the line.
+
+$$
+n = \frac{\ln(V_1/V_2)}{\ln(T_2/T_1)} \qquad C = V_1 \cdot T_1^{\,n}
+$$
+
+**Example.** At V₁ = 250 m/min the tool reaches VB = 0.3 mm after T₁ = 15 min. At V₂ = 200 m/min it lasts T₂ = 40 min.
+
+- n = ln(250/200) / ln(40/15) = 0.2231 / 0.9808 ≈ 0.228
+- C = 250 · 15<sup>0.228</sup> ≈ 463 m/min
+
+Check: 463 / 40<sup>0.228</sup> ≈ 200 m/min. ✓
+
+With these values, a 10 % increase in speed from 200 to 220 m/min shortens tool life from 40 to about 26 minutes: T = (C/V)<sup>1/n</sup>.
+
+<Figure caption="The two tests of the example on log–log axes: the line through them is the Taylor line, slope −n = −0.228. Raising the speed from 200 to 220 m/min cuts the life from 40 to about 26 minutes.">
+  <LineChart locale="en" series={taylorExample().series.map((s) => ({ ...s, name: 'V · Tⁿ = C' }))} marks={[{ x: 15, y: 250, label: 'test 1' }, { x: 40, y: 200, label: 'test 2' }, { x: 26.1, y: 220, label: '+10 % speed' }]} xMin={1} xMax={100} yMin={100} yMax={600} xLog yLog xTicks={[1, 2, 5, 10, 20, 50, 100]} yTicks={[100, 200, 300, 400, 600]} xLabel="tool life T (min)" yLabel="cutting speed V (m/min)" xDec={1} yDec={0} aria="Taylor line from two tests" />
+</Figure>
+
+<Note kind="warn" title="Stay inside the tested range">
+The line is only a fit to the tests behind it. Outside that speed range, or with a different feed, depth of cut, work material batch or wear criterion, the same n and C no longer hold. Use more than two points if the decision matters.
+</Note>
+
+## Typical values of n
+
+| Tool material | Kalpakjian & Schmid | ACSCE module | Groover (turning steel) |
+|---|---|---|---|
+| High-speed steel | 0.08–0.2 | 0.1–0.18 | 0.125 (C = 70 m/min) |
+| Cast cobalt alloys | 0.1–0.15 | — | — |
+| Carbides | 0.2–0.5 (all carbides) | 0.2–0.25 uncoated; 0.3 TiC/TiN coated; 0.4 Al₂O₃ coated | 0.25, cemented carbide (C = 500 m/min) |
+| Ceramics | 0.5–0.7 | 0.4–0.7 | 0.6 (C = 3000 m/min) |
+
+The sources agree for HSS and ceramics. For carbides, Kalpakjian gives one wide range for all grades; the ACSCE module splits it by coating, and its coated values are the only ones we found. Groover's C values apply to turning steel at f = 0.25 mm/rev and d = 2.5 mm.
+
+<Figure caption="The values of n in the table, by source: bars are ranges, dots single values. Hover to read a value.">
+  <RangeChart locale="en" rows={nSources('en').rows} legend={nSources('en').legend} min={0} max={0.8} ticks={[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]} unit="" axisLabel="n" aria="Taylor exponent n by tool material" labelWidth={160} />
+</Figure>
+
+## The extended equation
+
+Feed and depth of cut also affect tool life. The extended form adds them with their own exponents:
+
+$$
+V \cdot T^{\,n} \cdot f^{\,x} \cdot d^{\,y} = C
+$$
+
+x and y are found by experiment, and different textbooks attach the letters to f and d the other way round. As with n and C, the exponents hold only for the tool, work material and range of conditions they were measured in.
+
+## Which tool life to aim for
+
+Running faster removes metal sooner but spends more edges and more time changing them. Two classic optima follow from the Taylor equation.
+
+**Maximum production rate** (shortest time per part), with T<sub>c</sub> the time to change an edge:
+
+$$
+T_{\max\,\text{prod}} = \left(\frac{1}{n}-1\right) T_c
+$$
+
+**Minimum cost per part**, with C<sub>t</sub> the cost of one cutting edge and C<sub>m</sub> the cost per minute of machine and operator:
+
+$$
+T_{\min\,\text{cost}} = \left(\frac{1}{n}-1\right)\left(T_c + \frac{C_t}{C_m}\right)
+$$
+
+The matching speed in each case is V = C / T<sup>n</sup>.
+
+**Example.** Carbide with n = 0.25 and C = 500 m/min. Changing an edge takes T<sub>c</sub> = 2 min, one edge costs C<sub>t</sub> = 3 currency units, and the machine with operator costs C<sub>m</sub> = 1 unit per minute.
+
+- T<sub>max prod</sub> = (1/0.25 − 1) · 2 = 6 min → V = 500 / 6<sup>0.25</sup> ≈ 319 m/min
+- T<sub>min cost</sub> = 3 · (2 + 3/1) = 15 min → V = 500 / 15<sup>0.25</sup> ≈ 254 m/min
+
+<Figure caption="The carbide line of the example (n = 0.25, C = 500 m/min) with the two optima: maximum production at 6 min and 319 m/min, minimum cost at 15 min and 254 m/min. The band between them is the high-efficiency range.">
+  <LineChart locale="en" series={carbideLine('en')} bands={[{ x0: 6, x1: 15, label: 'high-efficiency range' }]} marks={[{ x: 6, y: 319, label: 'max production' }, { x: 15, y: 254, label: 'min cost' }]} xMin={1} xMax={100} yMin={100} yMax={600} xLog yLog xTicks={[1, 2, 5, 10, 20, 50, 100]} yTicks={[100, 200, 300, 400, 600]} xLabel="tool life T (min)" yLabel="cutting speed V (m/min)" xDec={1} yDec={0} aria="Carbide Taylor line with the two optima" />
+</Figure>
+
+The speed for minimum cost is always lower than the speed for maximum production. The band between them is often called the high-efficiency range: slower than the lower bound wastes machine time, faster than the upper bound wastes tools without gaining output.
+
+<Note kind="key" title="What the formulas leave out">
+Both optima assume that only tool life changes with speed. Real limits often come first: spindle power, chip control, surface finish, or a tool-change interval tied to a pallet or a shift. Use the optimum speed as a starting point and check it against those limits.
+</Note>

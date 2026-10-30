@@ -1,0 +1,129 @@
+---
+/**
+ * The four classes of cutting fluid side by side (OSHA's scheme): a beaker of each in use, drawn schematically, with a
+ * part behind it to show how much one can see through it (milky, translucent, clear); drifting droplets for the
+ * emulsions (sizes schematic, smaller in the semi-synthetic); the oil share of the concentrate as OSHA states it; and
+ * below, the order from "lubrication rather than cooling" to "the best heat reduction". Click a class to highlight it.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? {
+      types: [
+        { k: 'neat', name: 'Saf kesme yağı', water: 'suyla seyreltilmez', oil: 'çoğunlukla mineral ya da bitkisel yağ', look: 'yağlı görünüm' },
+        { k: 'sol', name: 'Çözünür yağ (emülsiyon)', water: 'suyla karıştırılır', oil: 'konsantrede %30–85 baz yağ', look: 'sütsü beyaz' },
+        { k: 'semi', name: 'Yarı sentetik', water: 'suyla karıştırılır', oil: 'konsantrede örneğin %5–30 baz yağ', look: 'çoğu zaman yarı saydam' },
+        { k: 'syn', name: 'Sentetik', water: 'suyla karıştırılır', oil: 'petrol kökenli yağ içermez', look: 'saydam' },
+      ],
+      oilbar: 'Konsantredeki yağ (OSHA)', axL: 'soğutmadan çok yağlama', axR: 'en iyi ısı giderme', ax: 'yalnızca sıra: OSHA ve Lubrizol’e göre', schem: 'şematik; damla boyutları ölçekli değil', aria: 'Dört kesme sıvısı sınıfı: saf yağ, çözünür yağ, yarı sentetik ve sentetik' }
+  : {
+      types: [
+        { k: 'neat', name: 'Neat (straight) oil', water: 'not diluted with water', oil: 'mostly mineral or vegetable oil', look: 'oily appearance' },
+        { k: 'sol', name: 'Soluble oil (emulsion)', water: 'mixed with water', oil: '30–85 % base oil in the concentrate', look: 'milky white' },
+        { k: 'semi', name: 'Semi-synthetic', water: 'mixed with water', oil: 'e.g. 5–30 % base oil in the concentrate', look: 'often translucent' },
+        { k: 'syn', name: 'Synthetic', water: 'mixed with water', oil: 'no petroleum oil', look: 'transparent' },
+      ],
+      oilbar: 'Oil in the concentrate (OSHA)', axL: 'lubrication rather than cooling', axR: 'the best heat reduction', ax: 'order only, as OSHA and Lubrizol give it', schem: 'schematic; droplet sizes not to scale', aria: 'The four classes of cutting fluid: neat oil, soluble oil, semi-synthetic and synthetic' };
+const OIL: [number, number][] = [[0, 100], [30, 85], [5, 30], [0, 0]];
+const COL = ['#c98a1e', '#8a96a3', '#1e5fc4', '#13998a'];
+---
+<div class="ft" data-ft data-locale={locale} data-anim role="group" aria-label={T.aria}>
+  <div class="cards">
+    {T.types.map((t, i) => (
+      <button type="button" class="card" data-i={i} aria-pressed={String(i === 1)} style={`--c:${COL[i]}`}>
+        <svg viewBox="0 0 140 150" class="bk" data-bk={i} aria-hidden="true"></svg>
+        <span class="nm">{t.name}</span>
+        <span class="ln">{t.look}</span>
+        <span class="ln">{t.water}</span>
+        <span class="bar" aria-hidden="true"><span class={i === 0 ? 'fill stripe' : 'fill'} style={`left:${OIL[i][0]}%; width:${OIL[i][1] - OIL[i][0]}%`}></span></span>
+        <span class="ln sm">{t.oil}</span>
+      </button>
+    ))}
+  </div>
+  <p class="cap"><span>{T.oilbar}</span><span>{T.schem}</span></p>
+  <div class="axis" role="img" aria-label={`${T.ax}: ${T.axL} → ${T.axR}`}>
+    <span class="ax2">{T.ax}</span>
+    <span class="track">{T.types.map((t, i) => <span class="dot" data-m={i} style={`left:${4 + i * 30.67}%; --c:${COL[i]}`}>{i + 1}</span>)}</span>
+    <span class="ends"><span>{T.axL}</span><span>{T.axR}</span></span>
+  </div>
+</div>
+
+<style>
+  .ft { display: grid; gap: 0.7rem; }
+  .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; }
+  @media (max-width: 40rem) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .card { display: grid; gap: 0.25rem; align-content: start; text-align: left; font: inherit; padding: 0.55rem 0.6rem 0.7rem; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-raised); cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; }
+  .card[aria-pressed='true'] { border-color: var(--c); box-shadow: 0 0 0 2px color-mix(in oklab, var(--c) 35%, transparent); transform: translateY(-2px); }
+  .bk { width: 100%; height: auto; display: block; }
+  .nm { font: 600 0.9rem var(--font-sans); color: var(--ink); }
+  .ln { font-size: 0.78rem; color: var(--ink-2); line-height: 1.3; }
+  .ln.sm { font-size: 0.74rem; color: var(--ink-3); }
+  .bar { position: relative; height: 8px; border-radius: 4px; background: #e3e8ee; margin-top: 0.3rem; overflow: hidden; }
+  .fill { position: absolute; top: 0; bottom: 0; background: var(--c); border-radius: 4px; }
+  .fill.stripe { background: repeating-linear-gradient(135deg, var(--c) 0 5px, color-mix(in oklab, var(--c) 35%, #fff) 5px 10px); }
+  .cap { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin: 0; font-size: 0.75rem; color: var(--ink-3); }
+  .axis { display: grid; gap: 0.35rem; padding: 0.2rem 0 0; }
+  .axis .ax2 { justify-self: center; font: 600 0.72rem var(--font-mono); color: #5f6c79; }
+  .axis .track { position: relative; height: 8px; margin: 0.7rem 0.4rem; border-radius: 4px; background: linear-gradient(90deg, #c98a1e, #13998a); }
+  .axis .dot { position: absolute; top: 50%; width: 1.5rem; height: 1.5rem; margin: -0.75rem 0 0 -0.75rem; border-radius: 50%; background: #fff; border: 3px solid var(--c); display: grid; place-items: center; font: 700 0.7rem var(--font-mono); color: #152230; transition: transform 0.3s; }
+  .axis .dot.on { transform: scale(1.3); }
+  .axis .ends { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.8rem; color: var(--ink-2); }
+</style>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-ft]').forEach((root) => {
+    const uid = `ft-${root.dataset.locale}-${Math.random().toString(36).slice(2, 7)}`;
+    const cards = [...root.querySelectorAll<HTMLButtonElement>('.card')];
+    const marks = [...root.querySelectorAll<HTMLElement>('[data-m]')];
+    const select = (i: number) => { cards.forEach((c, k) => c.setAttribute('aria-pressed', String(k === i))); marks.forEach((m, k) => m.classList.toggle('on', k === i)); };
+    cards.forEach((c, i) => c.addEventListener('click', () => select(i)));
+    select(1);
+    // per class: liquid colour and opacity over the part behind, droplet radius range and count (schematic)
+    const LOOK = [
+      { fill: '#d9a441', op: 0.55, drops: 0, r: [0, 0], blur: 0 },
+      { fill: '#f4f2ec', op: 0.97, drops: 46, r: [2.2, 4.2], blur: 0 },
+      { fill: '#e8f0f8', op: 0.6, drops: 70, r: [0.8, 1.6], blur: 1.2 },
+      { fill: '#eef7f6', op: 0.22, drops: 0, r: [0, 0], blur: 0 },
+    ];
+    type D = { x: number; y: number; r: number; vx: number; vy: number };
+    const state: D[][] = LOOK.map((L) => Array.from({ length: L.drops }, () => ({ x: 36 + Math.random() * 68, y: 54 + Math.random() * 82, r: L.r[0] + Math.random() * (L.r[1] - L.r[0]), vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6 })));
+    const svgs = [...root.querySelectorAll<SVGSVGElement>('[data-bk]')];
+    const draw = () => {
+      svgs.forEach((svg, i) => {
+        const L = LOOK[i];
+        const drops = state[i].map((d) => `<circle cx="${d.x.toFixed(1)}" cy="${d.y.toFixed(1)}" r="${d.r.toFixed(2)}" fill="${i === 1 ? '#ffffff' : '#c9d9ea'}" stroke="${i === 1 ? '#d6d2c6' : 'none'}" stroke-width="0.6"/>`).join('');
+        svg.innerHTML = `
+          <defs><clipPath id="${uid}-c${i}"><path d="M30,40 L110,40 L106,136 Q105,142 99,142 L41,142 Q35,142 34,136 Z"/></clipPath>
+          <filter id="${uid}-f${i}"><feGaussianBlur stdDeviation="${L.blur}"/></filter>
+          <pattern id="${uid}-h${i}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#9aa6b2"/><line x1="0" y1="0" x2="0" y2="6" stroke="#7d8a97" stroke-width="2"/></pattern></defs>
+          <g clip-path="url(#${uid}-c${i})">
+            <rect x="0" y="0" width="140" height="150" fill="#ffffff"/>
+            <g ${L.blur ? `filter="url(#${uid}-f${i})"` : ''}>
+              <path d="M52,66 h36 v14 h-8 v42 h-20 v-42 h-8 z" fill="url(#${uid}-h${i})" stroke="#5f6c79" stroke-width="1.2"/>
+            </g>
+            <rect x="0" y="${i === 0 ? 52 : 50}" width="140" height="100" fill="${L.fill}" fill-opacity="${L.op}"/>
+            ${drops}
+            ${i === 0 ? '<path d="M38,58 C58,54 82,62 104,56" stroke="#fff" stroke-opacity="0.55" stroke-width="3" fill="none"/>' : ''}
+          </g>
+          <path d="M30,40 L110,40 L106,136 Q105,142 99,142 L41,142 Q35,142 34,136 Z" fill="none" stroke="#364554" stroke-width="2"/>
+          <path d="M26,40 L114,40" stroke="#364554" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="34" x2="106" y1="${i === 0 ? 52 : 50}" y2="${i === 0 ? 52 : 50}" stroke="${['#a8741a', '#c3c0b6', '#9fb7d4', '#a9d2cc'][i]}" stroke-width="1.4"/>`;
+      });
+    };
+    draw();
+    let last = 0;
+    const step = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      state.forEach((ds) => ds.forEach((d) => {
+        d.vx += (Math.random() - 0.5) * 30 * dt; d.vy += (Math.random() - 0.5) * 30 * dt;
+        d.vx *= 0.96; d.vy *= 0.96; d.x += d.vx * dt; d.y += d.vy * dt;
+        if (d.x < 36 || d.x > 104) d.vx = -d.vx, d.x = Math.min(104, Math.max(36, d.x));
+        if (d.y < 54 || d.y > 136) d.vy = -d.vy, d.y = Math.min(136, Math.max(54, d.y));
+      }));
+      draw(); requestAnimationFrame(step);
+    };
+    whenIn(root, () => { last = performance.now(); requestAnimationFrame(step); });
+  });
+</script>

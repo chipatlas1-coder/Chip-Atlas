@@ -1,0 +1,29 @@
+---
+/* One 404 page for both languages: a static host serves a single 404.html for every missing URL. */
+import Base from '../layouts/Base.astro';
+---
+<Base locale="en" title="Page not found — Sayfa bulunamadı" description="This page does not exist. Bu sayfa yok." path="/404/" altPath="/tr/" noindex>
+  <section class="sheet nf">
+    <p class="ref">404</p>
+    <div class="cols">
+      <div lang="en">
+        <h1 class="h1">Page not found</h1>
+        <p class="lead">This address does not lead to a page. It may have moved, or the link may be mistyped.</p>
+        <p><a class="btn" href="/">Go to the home page</a></p>
+      </div>
+      <div lang="tr">
+        <h2 class="h1">Sayfa bulunamadı</h2>
+        <p class="lead">Bu adreste bir sayfa yok. Sayfa taşınmış ya da bağlantı yanlış yazılmış olabilir.</p>
+        <p><a class="btn" href="/tr/">Ana sayfaya git</a></p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf { padding-block: 4rem 6rem; }
+  .cols { display: grid; gap: 2.5rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); margin-top: 1rem; }
+  .cols .h1 { margin: 0 0 0.6rem; }
+  .btn { display: inline-block; margin-top: 0.6rem; padding: 0.55rem 1rem; border-radius: 8px; background: var(--accent); color: #fff; text-decoration: none; font-weight: 600; }
+  .btn:hover { filter: brightness(1.08); }
+</style>

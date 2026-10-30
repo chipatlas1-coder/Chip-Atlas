@@ -1,0 +1,183 @@
+---
+key: cutting-forces
+locale: en
+slug: cutting-forces
+title: 'Cutting forces and specific cutting force'
+description: 'The three components of the cutting force, the Kienzle model kc = kc1.1 · h⁻ᵐᶜ, how to turn it into power and torque, and why kc1.1 values from different catalogues must never be mixed.'
+section: 1
+subsection: cutting-mechanics
+order: 1
+updated: 2026-10-11
+tools: [turning, milling, drilling]
+glance:
+  - value: '0.15–0.32'
+    label: 'Range of mc in the catalogue table'
+  - value: '+16 %'
+    label: 'Rise in kc when the chip thickness halves, mc = 0.22'
+  - value: '3.39'
+    unit: 'kW'
+    label: 'Worked example: C45, ap 2 mm, f 0.25 mm, vc 200 m/min'
+  - value: '≈ 1 %'
+    label: 'Power change per degree of rake angle (Sandvik Coromant)'
+sources:
+  - label: 'Wikipedia (de), "Zerspankraft" (force components, their directions; influence of the entering angle after Fritz/Schulze, Fertigungstechnik)'
+    url: https://de.wikipedia.org/wiki/Zerspankraft
+  - label: 'Wikipedia (de), "Spezifische Schnittkraft" (correction factors)'
+    url: https://de.wikipedia.org/wiki/Spezifische_Schnittkraft
+  - label: 'Wikipedia (en), "Cutting force (machining)"'
+    url: https://en.wikipedia.org/wiki/Cutting_force_(machining)
+  - label: 'O. Kienzle, "Die Bestimmung von Kräften und Leistungen an spanenden Werkzeugen und Werkzeugmaschinen", VDI-Z 94 (11/12), 299–305, 1952 (as cited by Astakhov 2022 and Velchev et al. 2011)'
+  - label: 'V. P. Astakhov, "Cutting Force Modeling: Genesis, State of the Art, and Development", in J. P. Davim (ed.), Mechanical and Industrial Engineering, Springer, 2022'
+    url: https://link.springer.com/chapter/10.1007/978-3-030-90487-6_2
+  - label: 'M. Janota, P. Kolář, M. Sulitka, "Operational Method for Identification of Specific Cutting Force During Milling", MM Science Journal, 2019, 3250–3257'
+    url: https://www.mmscience.eu/journal/issues/november-2019/articles/operational-method-for-identification-of-specific-cutting-force-during-milling/download
+  - label: 'Sandvik Coromant, metal cutting e-learning, formulas and definitions for turning, milling and drilling (metric)'
+    url: https://cdn.sandvik.coromant.com/files/sitecollectiondocuments/services/metal-cutting-e-learning/formulas-and-definitions/formulas-and-deinitions-for-turning-metric-enu.pdf
+  - label: 'Sandvik Coromant, Metalcutting Technical Guide, milling section (kc1 for hex = 1 mm; power changes about 1 % per degree of rake)'
+    url: https://dcngli4g50fhp.cloudfront.net/userfiles/ad/sandvik/documents/sandvik_5747275_catalog.pdf
+  - label: 'Sandvik Coromant, Deep hole machining — CoroDrill 428 information (kc1 by material group)'
+    url: http://cappmedia.sandvik.com/cor/d245w/information.pdf
+  - label: 'ISCAR, "Materials and Grades according to DIN/ISO 513 and VDI 3323" (kc1.1 and mc by material group)'
+    url: https://www.iscar.com/lms/wp-content/uploads/2021/04/Materials-group.pdf
+  - label: 'ISCAR, Turning catalogue (inch) 2022, p. 160 (material groups, kc1 and mc)'
+    url: https://iscar.com/Catalogs/publication-2022/english-1/Turning_catalog_INCH_2022_45/flipview_Turning_catalog_INCH_2022_P691-914/files/basic-html/page160.html
+  - label: 'ISCAR, technical article "Machining Calculations" (rake correction 1 − γ/100; kc1 refers to a rake angle of 0°)'
+    url: https://www.iscar.com/en-hq/technical-articles/year-2025/machining-calculations
+  - label: 'Machining Doctor, "Specific cutting force (kc, kc1)" (rake correction 1 − 0.01·γ)'
+    url: https://www.machiningdoctor.com/glossary/specific-cutting-force-kc-kc1
+  - label: 'Seco Tools, Milling catalogue 2025, "Workpiece materials — Classification" (SMG), pp. 908–919 (distributor copy)'
+    url: https://maskin.sde.dk/wp-content/uploads/2025/03/GB-Milling-2025SN1-1.pdf
+  - label: 'Mitsubishi Materials, turning formulas (net power)'
+    url: https://www.mmc-carbide.com/en_jp/technical_information/formula/co2/turning
+---
+import KienzleChart from '../../../components/mdx/KienzleChart.astro';
+import ForceChain from '../../../components/mdx/ForceChain.astro';
+
+The force on a cutting edge decides almost everything a machinist has to budget for: the spindle power, the torque, how far a slender part bends away from the tool, and whether an edge survives. It cannot be calculated from first principles with any useful accuracy, so practice relies on a simple empirical model and on measured coefficients. Using that model well is mostly a matter of knowing where its numbers come from.
+
+## Three components
+
+In turning, the resultant force on the tool is split into three components along the directions of the machine's motions.
+
+
+- **Fc, the main cutting force**, acts in the direction of the cutting speed. It is normally the largest of the three, and together with the cutting speed it sets the power and the spindle torque.
+- **Ff, the feed force**, acts along the feed axis; on the tool it opposes the feed motion. The feed motion is slow, so Ff takes very little power, but the feed drive has to deliver it.
+- **Fp, the passive force**, is perpendicular to the other two. There is no motion in its direction, so it does no work. It pushes the tool and the part apart, which matters for deflection on slender parts and for boring bars.
+
+The entering angle κr shares the load between Ff and Fp. According to the German Wikipedia article on cutting force, a larger κr raises Ff (to its maximum at 90°), lowers Fp, and lowers Fc slightly. Published numerical ratios between the components vary with the conditions, so this page does not quote one.
+
+## The Kienzle model
+
+The main cutting force is proportional to the chip cross-section, A = b · h. The factor between them is the **specific cutting force** kc, in N/mm²:
+
+$$
+F_c = k_c \cdot b \cdot h
+$$
+
+In turning, b = ap / sin κr and h = f · sin κr, so b · h = ap · f.
+
+kc is not a constant. Thin chips need more force per square millimetre than thick ones. Otto Kienzle described this in 1952 with a power law:
+
+$$
+k_c = k_{c1.1} \cdot h^{-m_c}
+$$
+
+- **kc1.1** is the specific cutting force for a chip 1 mm thick and 1 mm wide.
+- **mc** sets how fast kc rises as the chip gets thinner: plotted as log kc against log h, the line has the slope −mc. In the catalogue table below mc ranges from 0.15 to 0.32.
+
+Halving the chip thickness raises kc by a factor of 2<sup>mc</sup>: by 16 % for mc = 0.22, and by 19 % for mc = 0.25. The force itself still drops, because the chip section halves.
+
+Combined:
+
+$$
+F_c = k_{c1.1} \cdot b \cdot h^{\,1-m_c}
+$$
+
+The same form is used for the feed and passive forces, with their own coefficients kf1.1, mf and kp1.1, mp. Those are published far less often.
+
+## From force to power and torque
+
+The cutting power is the main cutting force times the cutting speed. Sandvik Coromant gives the net cutting power in turning as:
+
+$$
+P_c = \frac{v_c \cdot a_p \cdot f_n \cdot k_c}{60 \cdot 10^3}\ \text{kW}
+$$
+
+with vc in m/min, ap and fn in mm, and kc in N/mm². This is the power at the edge. Mitsubishi Materials gives the same expression divided by the machine efficiency η, which is the power the machine must deliver.
+
+**Example.** C45 steel, with ISCAR's coefficients kc1.1 = 1500 N/mm² and mc = 0.22. Feed fn = 0.25 mm, entering angle κr = 95°, depth of cut ap = 2 mm, cutting speed vc = 200 m/min, diameter 50 mm.
+
+- h = 0.25 · sin 95° = 0.249 mm
+- kc = 1500 · 0.249<sup>−0.22</sup> ≈ 2037 N/mm²
+- Fc = 2037 · 2 · 0.25 ≈ 1018 N
+- Pc = 200 · 2 · 0.25 · 2037 / 60 000 ≈ 3.39 kW
+- Torque at the spindle = Fc · D/2 ≈ 1018 N · 0.025 m ≈ 25.5 N·m
+
+<Figure caption="The same example as a chain. Each step uses the result of an earlier one (←) and the inputs marked by their colours; the numbers are calculated from the inputs, not typed in.">
+  <ForceChain locale="en" />
+</Figure>
+
+The [turning calculator](/tools/turning-calculator/) does the same calculation for any input.
+
+### Milling and drilling
+
+The model carries over with the chip thickness of each process. In milling, Sandvik Coromant uses the mean chip thickness hm and writes the power as Pc = ae · ap · vf · kc / (60 · 10⁶) kW, with vf in mm/min. For drilling, Sandvik's formula is Pc = vc · Dc · fn · kc / (240 · 10³) kW. See the [milling](/tools/milling-calculator/) and [drilling](/tools/drilling-calculator/) calculators.
+
+## Rake angle
+
+A more positive rake angle lowers the force. Sandvik Coromant's technical guide gives a rule of thumb: power consumption changes by about 1 % for each degree of change in rake angle. ISCAR and Machining Doctor build the same rule into the formula:
+
+$$
+k_c = k_{c1.1} \cdot h^{-m_c} \cdot \left(1 - \frac{\gamma}{100}\right)
+$$
+
+with γ in degrees. ISCAR states that its kc1 values refer to a rake angle of 0°. For other tables, the rake angle a published kc1.1 refers to depends on the source, and catalogues do not always print it.
+
+## Where kc1.1 comes from, and why sources disagree
+
+kc1.1 and mc are measured, not derived. Each tool maker publishes its own table, grouped by its own material classes. The values below are copied from three catalogues, with kc calculated at two chip thicknesses.
+
+| Material | Source and group | kc1.1 (N/mm²) | mc | kc at h = 0.1 mm | kc at h = 0.2 mm |
+|---|---|---|---|---|---|
+| C45 (medium-carbon steel) | ISCAR group 2, 190 HB | 1500 | 0.22 | 2489 | 2137 |
+| | Seco P4 (C45E) | 2000 | 0.15 | 2825 | 2546 |
+| | Sandvik P1.2, 125–225 HB | 1600 | — | — | — |
+| 42CrMo4 (low-alloy steel) | ISCAR group 6, annealed, 200 HB | 1775 | 0.24 | 3085 | 2612 |
+| | Seco P5 (42CrMo4) | 2020 | 0.18 | 3057 | 2699 |
+| | Sandvik P2.1, 150–260 HB | 1700 | — | — | — |
+| Austenitic stainless (304) | ISCAR group 14, 180 HB | 2150 | 0.20 | 3408 | 2966 |
+| | Seco M2 (X5CrNi18-10) | 1920 | 0.18 | 2906 | 2565 |
+| | Sandvik M1.0, 150–275 HB | 1950 | — | — | — |
+| Grey cast iron | ISCAR group 15, 180 HB | 1150 | 0.20 | 1823 | 1587 |
+| | Seco K1 (EN-GJL-250) | 930 | 0.32 | 1943 | 1557 |
+| | Sandvik K2.1, 150–220 HB | 890 | — | — | — |
+| Wrought aluminium, hardenable | ISCAR group 22, 100 HB | 800 | 0.25 | 1423 | 1196 |
+| Ti-6Al-4V | ISCAR group 37 | 2110 | 0.22 | 3502 | 3006 |
+| | Seco S12 (TiAl6V4) | 1500 | 0.24 | 2607 | 2207 |
+| | Sandvik S4.2, annealed | 1400 | — | — | — |
+| Inconel 718 | ISCAR groups 33–35 | 3300 | 0.24 | 5735 | 4856 |
+| | Seco S3 (Inconel 718) | 2530 | 0.21 | 4103 | 3547 |
+| | Sandvik S2.0 | 2650 | — | — | — |
+| Hardened steel, about 60 HRC | ISCAR group 39 | 4700 | — | — | — |
+| | Seco H7 (100Cr6, 56–64 HRC) | 2480 | 0.17 | 3668 | 3260 |
+
+<Figure caption="The specific cutting force kc = kc1.1 · h⁻ᵐᶜ for one material from two catalogues, on log–log axes, where each is a straight line of slope −mc. Values from the table above; the dashed lines mark h = 0.1 and 0.2 mm. Pick a material and hover to read both.">
+  <KienzleChart locale="en" />
+</Figure>
+
+Sandvik's CoroDrill 428 data give kc1 only, without mc, so kc cannot be calculated from that source alone. ISCAR likewise prints no mc for its hardened-material groups 38 to 41, and for Ti-6Al-4V its 2022 inch turning catalogue gives mc = 0.24 instead of 0.22. Seco prints no values for its aluminium groups.
+
+What the table shows:
+
+- **kc1.1 alone is misleading.** For C45, Seco's kc1.1 is a third higher than ISCAR's, yet at h = 0.2 mm the two give kc within 20 % of each other because their mc values differ. For grey cast iron, kc1.1 differs by about a quarter, but kc at h = 0.2 mm agrees within 2 %.
+- **At practical chip thickness the gap narrows, but not always far.** At h = 0.2 mm the two values agree within 4 % for 42CrMo4, but still differ by about 16 % for 304 and 19 % for C45.
+- **Difficult materials stay far apart.** At h = 0.2 mm ISCAR's values are about 1.4 times Seco's for Ti-6Al-4V and Inconel 718. For hardened steel ISCAR's kc1.1 is 1.9 times Seco's; without an mc from ISCAR, kc cannot be compared.
+- **Laboratory values scatter too.** A 2019 milling study on C45 (170 HB) identified kc1.1 between 1262 and 1713 N/mm², with mc between 0.31 and 0.47, depending on the method.
+
+<Note kind="warn" title="Never mix sources">
+kc1.1 and mc are fitted together to one set of measurements. Taking kc1.1 from one catalogue and mc from another produces a number that belongs to no material. Use one source for both, and state which.
+</Note>
+
+<Note kind="key" title="How accurate is a calculated cutting force?">
+Treat the result as an estimate for sizing a machine, a spindle or a fixture, with a margin. Tool wear alone raises the force noticeably; the German Wikipedia article on specific cutting force lists a correction factor of about 1.5 for a worn tool. For the difficult materials above, the choice of source changes the answer by about a third or more.
+</Note>

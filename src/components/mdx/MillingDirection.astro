@@ -1,0 +1,223 @@
+---
+/**
+ * Climb (down) vs conventional (up) milling, side view of peripheral milling.
+ * Cutter fixed, workpiece fed to the left. Engagement angle φe = arccos(1 − 2ae/D), measured from
+ * the point where the edge leaves the finished surface; chip thickness h = fz·sin φ (κr = 90°).
+ * The force arrow is the direction of the tangential cutting force on the work, averaged over the
+ * engagement and weighted by chip thickness: a direction, not a magnitude.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? { mode: 'Yöntem', climb: 'Aynı yönlü (aşağı, tırmanma)', conv: 'Zıt yönlü (yukarı, geleneksel)', ae: 'Radyal kavrama ae/D', phi: 'Kavrama açısı φe', entry: 'Girişte talaş h/fz', exit: 'Çıkışta talaş h/fz', hmax: 'En büyük talaş hex/fz', feed: 'iş parçası ilerlemesi', rot: 'dönüş', force: 'iş parçasına etkiyen kuvvet (yön)', chart: 'Kesme boyunca talaş kalınlığı h/fz', start: 'giriş', end: 'çıkış', play: 'Oynat', pause: 'Duraklat', aria: 'Aynı ve zıt yönlü frezelemede talaş kalınlığı ve kuvvet yönü' }
+  : { mode: 'Method', climb: 'Climb (down)', conv: 'Conventional (up)', ae: 'Radial engagement ae/D', phi: 'Engagement angle φe', entry: 'Chip at entry h/fz', exit: 'Chip at exit h/fz', hmax: 'Maximum chip hex/fz', feed: 'workpiece feed', rot: 'rotation', force: 'force on the work (direction)', chart: 'Chip thickness along the cut h/fz', start: 'entry', end: 'exit', play: 'Play', pause: 'Pause', aria: 'Chip thickness and force direction in climb and conventional milling' };
+const uid = `md-${locale}`;
+---
+<div class="md" data-md data-locale={locale} data-l={JSON.stringify(L)}>
+  <div class="controls">
+    <fieldset class="seg"><legend class="hint">{L.mode}</legend>
+      <label><input type="radio" name={`${uid}-m`} value="climb" checked data-m /> {L.climb}</label>
+      <label><input type="radio" name={`${uid}-m`} value="conv" data-m /> {L.conv}</label>
+    </fieldset>
+    <label class="field"><span>{L.ae} <output class="num" data-o="ae">{tr ? '0,30' : '0.30'}</output></span>
+      <input id={`${uid}-ae`} type="range" min="0.05" max="1" step="0.01" value="0.3" data-ae /></label>
+    <button type="button" class="btn small" data-play aria-pressed="true">{L.pause}</button>
+  </div>
+  <div class="views">
+    <svg viewBox="0 0 400 300" role="img" aria-label={L.aria} data-svg></svg>
+    <svg viewBox="0 0 300 300" role="img" aria-label={L.chart} data-chart></svg>
+  </div>
+  <dl class="read">
+    <div><dt>{L.phi}</dt><dd class="num" data-o="phi">—</dd></div>
+    <div><dt>{L.entry}</dt><dd class="num" data-o="entry">—</dd></div>
+    <div><dt>{L.exit}</dt><dd class="num" data-o="exit">—</dd></div>
+    <div><dt>{L.hmax}</dt><dd class="num" data-o="hmax">—</dd></div>
+  </dl>
+</div>
+
+<style>
+  .md { display: grid; gap: 0.75rem; }
+  .controls { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem 1.5rem; align-items: end; }
+  @media (max-width: 44rem) { .controls { grid-template-columns: 1fr; } }
+  .seg { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; font-size: 0.9rem; }
+  .seg legend { padding: 0; margin-bottom: 0.35rem; width: 100%; }
+  .seg label { display: inline-flex; gap: 0.4rem; align-items: center; }
+  .seg input { accent-color: var(--accent); }
+  .field > span { display: flex; gap: 0.35rem; font-size: 0.85rem; }
+  .field output { color: var(--data); }
+  .btn.small { padding: 0.35rem 0.8rem; font-size: 0.82rem; }
+  .views { display: grid; grid-template-columns: 4fr 3fr; gap: 0.75rem; }
+  @media (max-width: 44rem) { .views { grid-template-columns: 1fr; } }
+  .views svg { width: 100%; height: auto; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .read { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+  @media (max-width: 44rem) { .read { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .read dt { font-size: 0.78rem; color: var(--ink-3); }
+  .read dd { margin: 0; color: var(--data); font-size: 1.1rem; }
+</style>
+
+<script>
+  const DEG = Math.PI / 180;
+  document.querySelectorAll<HTMLElement>('[data-md]').forEach((root) => {
+    const L = JSON.parse(root.dataset.l!);
+    const tr = root.dataset.locale === 'tr';
+    const dec = (v: number, k = 2) => (tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+    const svg = root.querySelector('[data-svg]') as SVGSVGElement;
+    const chart = root.querySelector('[data-chart]') as SVGSVGElement;
+    const modes = Array.from(root.querySelectorAll<HTMLInputElement>('[data-m]'));
+    const ae = root.querySelector('[data-ae]') as HTMLInputElement;
+    const play = root.querySelector('[data-play]') as HTMLButtonElement;
+    const o = (k: string) => root.querySelector(`[data-o="${k}"]`) as HTMLElement;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let running = !reduced;
+    play.textContent = running ? L.pause : L.play;
+    play.setAttribute('aria-pressed', String(running));
+    let t0 = performance.now();
+
+    // Geometry (screen coordinates, y down). Cutter centre C, radius R.
+    const C = { x: 200, y: 110 }, R = 70;
+    // Point on the cutter at angle φ measured from the bottom (6 o'clock) towards the uncut side (right).
+    const P = (phi: number) => ({ x: C.x + R * Math.sin(phi), y: C.y + R * Math.cos(phi) });
+    let font = 'font-family="IBM Plex Mono, monospace" font-size="11.5"';
+    // Cutter outline with N teeth, tooth 0 tip at angle 0; dir +1 = rake faces lead clockwise (screen).
+    const NT = 8, Rg = R - 15;
+    const cutterPath = (dir: number) => {
+      const pts: string[] = [];
+      const pitch = (2 * Math.PI) / NT, land = 22 * DEG;
+      const rad = (a: number, r: number) => `${(C.x + r * Math.cos(a)).toFixed(1)},${(C.y + r * Math.sin(a)).toFixed(1)}`;
+      for (let k = 0; k < NT; k++) {
+        const th = k * pitch;
+        for (let i = 0; i <= 6; i++) { const t = i / 6; pts.push(rad(dir * (th - land + land * t), R - 6 + 6 * t * t)); }
+        pts.push(rad(dir * (th + 0.02), Rg));
+        const g = pitch - land;
+        for (let i = 1; i <= 8; i++) { const t = i / 8; pts.push(rad(dir * (th + 0.02 + (g - 0.02) * t), Rg + (R - 6 - Rg) * t * t)); }
+      }
+      return 'M' + pts.join(' L') + ' Z';
+    };
+    const cutCW = cutterPath(1), cutCCW = cutterPath(-1);
+
+    function state() {
+      const a = Number(ae.value);
+      const phiE = Math.acos(1 - 2 * a); // rad
+      const climb = modes.find((m) => m.checked)!.value === 'climb';
+      return { a, phiE, climb };
+    }
+
+    function draw(now: number) {
+      const { a, phiE, climb } = state();
+      // phones: keep the labels near 12 px on screen
+      const sc = (svg.clientWidth || 400) / 400;
+      font = `font-family="IBM Plex Mono, monospace" font-size="${Math.max(11.5, Math.min(15, 11.8 / sc)).toFixed(1)}"`;
+      const yNew = C.y + R; // finished surface
+      const yTop = yNew - 2 * R * a; // uncut surface
+      const parts: string[] = [];
+      parts.push(`<defs><marker id="md-ar-${tr ? 't' : 'e'}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>`);
+      const mk = `marker-end="url(#md-ar-${tr ? 't' : 'e'})"`;
+      // Workpiece: finished part on the left (below yNew), uncut stock on the right (below yTop)
+      parts.push(`<radialGradient id="md-disc-${tr ? 't' : 'e'}" cx="0.38" cy="0.32" r="0.8"><stop offset="0" stop-color="#ecf0f3"/><stop offset="0.45" stop-color="#c0c8cf"/><stop offset="1" stop-color="#7c868d"/></radialGradient>`);
+      parts.push(`<path d="M10 ${yNew} H${C.x} V${yTop} H390 V280 H10 Z" fill="#e7edf2"/>`);
+      for (let gy = yNew + 20; gy < 280; gy += 20) parts.push(`<line x1="10" y1="${gy}" x2="390" y2="${gy}" stroke="#9fa8b0" stroke-opacity="0.6"/>`);
+      parts.push(`<path d="M10 ${yNew} H${C.x} V${yTop} H390" fill="none" stroke="#2c3033" stroke-width="1.6"/>`);
+      // Material to be removed in this pass: under the cutter's sweep on the right
+      // Engagement arc coloured by chip thickness
+      const N = 40;
+      for (let i = 0; i < N; i++) {
+        const f0 = (i / N) * phiE, f1 = ((i + 1) / N) * phiE;
+        const h = Math.sin((f0 + f1) / 2);
+        const p0 = P(f0), p1 = P(f1);
+        parts.push(`<line x1="${p0.x.toFixed(1)}" y1="${p0.y.toFixed(1)}" x2="${p1.x.toFixed(1)}" y2="${p1.y.toFixed(1)}" stroke="var(--accent)" stroke-width="${(2 + 9 * h).toFixed(1)}" stroke-linecap="round" stroke-opacity="0.85"/>`);
+      }
+      // Cutter is drawn after the tooth position is known (below).
+      // Rotation arrow (top of cutter): climb = clockwise on screen, conventional = counter-clockwise
+      const rr = R + 14, aA = -150 * DEG, aB = -30 * DEG;
+      const s0 = { x: C.x + rr * Math.cos(climb ? aA : aB), y: C.y + rr * Math.sin(climb ? aA : aB) };
+      const s1 = { x: C.x + rr * Math.cos(climb ? aB : aA), y: C.y + rr * Math.sin(climb ? aB : aA) };
+      parts.push(`<path d="M${s0.x.toFixed(1)} ${s0.y.toFixed(1)} A${rr} ${rr} 0 0 ${climb ? 1 : 0} ${s1.x.toFixed(1)} ${s1.y.toFixed(1)}" fill="none" stroke="var(--ink-2)" stroke-width="1.5" ${mk}/>`);
+      parts.push(`<text x="${(C.x - rr * 0.87 - 6).toFixed(1)}" y="${(C.y - rr * 0.5).toFixed(1)}" ${font} fill="var(--ink-3)" text-anchor="end">${L.rot}</text>`);
+      // Animated tooth along the engagement arc, direction depends on the method
+      // The cutter turns continuously, one tooth pitch every 1.6 s; teeth inside the arc are marked.
+      const pitch = (2 * Math.PI) / NT;
+      const phase = running ? ((now - t0) / 1600) * pitch : 0.35 * pitch;
+      const dir = climb ? 1 : -1;
+      const rot = dir * phase;
+      parts.push(`<g transform="rotate(${((rot * 180) / Math.PI).toFixed(2)} ${C.x} ${C.y})"><path d="${climb ? cutCW : cutCCW}" fill="url(#md-disc-${tr ? 't' : 'e'})" stroke="#1b1d1e" stroke-width="1.4" stroke-linejoin="round"/><circle cx="${C.x}" cy="${C.y}" r="${Rg - 12}" fill="none" stroke="#a5aeb6"/><circle cx="${C.x}" cy="${C.y}" r="9" fill="#f9fbfe" stroke="#656e74"/></g>`);
+      for (let k = 0; k < NT; k++) {
+        let phi = Math.PI / 2 - (rot + k * pitch);
+        phi = Math.atan2(Math.sin(phi), Math.cos(phi));
+        if (phi >= 0 && phi <= phiE) { const q = P(phi); parts.push(`<circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="5.5" fill="var(--data)" stroke="#fbfdff" stroke-width="2"/>`); }
+      }
+      // Entry / exit labels
+      const pe = P(phiE), p0 = P(0);
+      const entry = climb ? pe : p0, exit = climb ? p0 : pe;
+      parts.push(`<text x="${(entry.x + 10).toFixed(1)}" y="${(entry.y - 8).toFixed(1)}" ${font} fill="var(--ink-2)">${L.start}</text>`);
+      parts.push(`<text x="${(exit.x + 10).toFixed(1)}" y="${(exit.y + 16).toFixed(1)}" ${font} fill="var(--ink-2)">${L.end}</text>`);
+      // Workpiece feed arrow (work moves left under a fixed cutter)
+      parts.push(`<line x1="330" y1="262" x2="250" y2="262" stroke="var(--ink-2)" stroke-width="1.5" ${mk}/>`);
+      parts.push(`<text x="390" y="252" ${font} fill="var(--ink-3)" text-anchor="end">${L.feed}</text>`);
+      // Tangential force on the work: along the edge velocity, averaged with weight h = sin φ
+      let fx = 0, fy = 0;
+      for (let i = 0; i <= 60; i++) {
+        const f = (i / 60) * phiE;
+        const w = Math.sin(f);
+        // velocity of the edge at angle f: clockwise on screen for climb
+        const vx = climb ? -Math.cos(f) : Math.cos(f);
+        const vy = climb ? Math.sin(f) : -Math.sin(f);
+        fx += w * vx; fy += w * vy;
+      }
+      const m = Math.hypot(fx, fy) || 1;
+      const fc = { x: C.x + R * 0.9, y: (yNew + yTop) / 2 + 40 };
+      const fe = { x: fc.x + (fx / m) * 52, y: fc.y + (fy / m) * 52 };
+      parts.push(`<line x1="${fc.x.toFixed(1)}" y1="${fc.y.toFixed(1)}" x2="${fe.x.toFixed(1)}" y2="${fe.y.toFixed(1)}" stroke="var(--color-spark-200)" stroke-width="3" ${mk}/>`);
+      parts.push(`<text x="16" y="24" ${font} fill="var(--color-spark-200)">→ ${L.force}</text>`);
+      svg.innerHTML = parts.join('');
+    }
+    // animate only while running and on screen
+    let visible = false, looping = false;
+    const loop = (ts: number) => { if (running && visible) { draw(ts); requestAnimationFrame(loop); } else looping = false; };
+    const kick = () => { if (running && visible && !looping) { looping = true; requestAnimationFrame(loop); } };
+    new IntersectionObserver((es) => { visible = es[0].isIntersecting; kick(); }).observe(root);
+
+    function drawChart() {
+      const { phiE, climb } = state();
+      const x0 = 40, x1 = 285, y0 = 250, y1 = 40;
+      const X = (u: number) => x0 + u * (x1 - x0);
+      const Y = (h: number) => y0 - h * (y0 - y1);
+      const parts: string[] = [];
+      const font = 'font-family="IBM Plex Mono, monospace" font-size="11.5"';
+      [0, 0.25, 0.5, 0.75, 1].forEach((v) => {
+        parts.push(`<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/>`);
+        parts.push(`<text x="${x0 - 6}" y="${Y(v) + 4}" ${font} fill="var(--ink-3)" text-anchor="end">${tr ? String(v).replace('.', ',') : v}</text>`);
+      });
+      let d = '';
+      for (let i = 0; i <= 80; i++) {
+        const u = i / 80; // fraction of the cut from entry to exit
+        const phi = climb ? phiE * (1 - u) : phiE * u;
+        d += `${i ? 'L' : 'M'}${X(u).toFixed(1)} ${Y(Math.sin(phi)).toFixed(1)}`;
+      }
+      parts.push(`<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>`);
+      parts.push(`<text x="${x0}" y="${y0 + 18}" ${font} fill="var(--ink-2)">${L.start}</text>`);
+      parts.push(`<text x="${x1}" y="${y0 + 18}" ${font} fill="var(--ink-2)" text-anchor="end">${L.end}</text>`);
+      parts.push(`<text x="${x0}" y="${y1 - 14}" ${font} fill="var(--ink-2)">${L.chart}</text>`);
+      chart.innerHTML = parts.join('');
+      o('ae').textContent = dec(Number(ae.value));
+      o('phi').textContent = dec(phiE / DEG, 1) + '°';
+      const hEntry = climb ? Math.sin(phiE) : 0, hExit = climb ? 0 : Math.sin(phiE);
+      o('entry').textContent = dec(Math.abs(hEntry) < 1e-9 ? 0 : hEntry);
+      o('exit').textContent = dec(Math.abs(hExit) < 1e-9 ? 0 : hExit);
+      o('hmax').textContent = dec(phiE >= Math.PI / 2 ? 1 : Math.sin(phiE));
+    }
+
+    function update() { drawChart(); if (!running) draw(performance.now()); }
+    modes.forEach((m) => m.addEventListener('change', update));
+    ae.addEventListener('input', update);
+    play.addEventListener('click', () => {
+      running = !running;
+      play.textContent = running ? L.pause : L.play;
+      play.setAttribute('aria-pressed', String(running));
+      t0 = performance.now();
+      if (running) kick(); else draw(performance.now());
+    });
+    drawChart();
+    draw(performance.now());
+  });
+</script>

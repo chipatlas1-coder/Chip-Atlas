@@ -1,0 +1,51 @@
+---
+/* Split section on one axis: above it a 7:24 steep-taper holder (contact on the taper only, a gap at the face),
+   below it an HSK hollow 1:10 taper (taper and face contact, clamped from inside). Schematic, gaps exaggerated. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { gap: 'boşluk', taper: 'yalnız koni', both: 'koni + alın', sk: '7:24 koni', hsk: 'HSK 1:10' }
+  : { gap: 'gap', taper: 'taper only', both: 'taper + face', sk: '7:24 steep taper', hsk: 'HSK 1:10' };
+const CY = 160, FACE = 228;
+const f = (n: number) => n.toFixed(1);
+// steep taper, upper half: bore radius 78 at the face, 7:24 on diameter, 150 long
+const sk = { R0: 78, slope: 7 / 48, L: 150 };
+const skR = (x: number) => sk.R0 - (FACE - x) * sk.slope;
+const G = 5;                                                       // face gap (exaggerated)
+const skSpindle = `M18,${CY - 30} L${FACE - sk.L},${CY - 30} L${FACE - sk.L},${f(CY - skR(FACE - sk.L))} L${FACE},${CY - sk.R0} L${FACE},${CY - 124} L18,${CY - 124} Z`;
+const skHolder = `M${FACE - sk.L + G},${CY} L${FACE - sk.L + G},${f(CY - skR(FACE - sk.L))} L${FACE + G},${CY - sk.R0} L${FACE + G},${CY - 112} L${FACE + 50 + G},${CY - 112} L${FACE + 50 + G},${CY - 52} L470,${CY - 52} L470,${CY} Z`;
+// HSK, lower half: bore radius 72 at the face, 1:10 on diameter, 60 long, hollow shank
+const hk = { R0: 72, slope: 1 / 20, L: 60 };
+const hkR = (x: number) => hk.R0 - (FACE - x) * hk.slope;
+const x0 = FACE - hk.L;
+const hkSpindle = `M18,${CY + 50} L${x0 - 6},${CY + 50} L${x0 - 6},${f(CY + hkR(x0 - 6))} L${FACE},${CY + hk.R0} L${FACE},${CY + 124} L18,${CY + 124} Z`;
+const hkHolder = `M${x0},${CY + 56} L${x0},${f(CY + hkR(x0))} L${FACE},${CY + hk.R0} L${FACE},${CY + 112} L${FACE + 46},${CY + 112} L${FACE + 46},${CY + 52} L470,${CY + 52} L470,${CY} L${FACE + 14},${CY} L${FACE + 14},${CY + 56} L${x0 + 24},${CY + 56} L${x0 + 24},${CY + 62} L${x0 + 14},${CY + 62} L${x0 + 8},${CY + 56} Z`;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <path class="hatch f" style="--i:0" d={skSpindle} stroke="#364554" stroke-width="1.5" />
+  <path class="hatch f" style="--i:0" d={hkSpindle} stroke="#364554" stroke-width="1.5" />
+  <path class="metal f" style="--i:1" d={skHolder} stroke="#364554" stroke-width="1.5" />
+  <path class="metal f" style="--i:1" d={hkHolder} stroke="#364554" stroke-width="1.5" />
+  <!-- pull stud behind the steep taper; fingers inside the hollow shank -->
+  <g class="f" style="--i:2" stroke="#364554" stroke-width="1.2">
+    <rect class="metal" x={FACE - sk.L + G - 40} y={CY - 10} width="40" height="10" />
+    <rect class="metal" x={FACE - sk.L + G - 54} y={CY - 16} width="15" height="16" rx="2" />
+    <path d={`M${x0 + 9},${CY + 46} L${x0 + 9},${CY + 52} L${x0 + 15},${CY + 60} L${x0 + 23},${CY + 60} L${x0 + 23},${CY + 46} Z`} fill="#c98a1e" stroke="#7a5a12" />
+  </g>
+  <!-- contacts -->
+  <g class="f" style="--i:3" fill="none" stroke-width="4" stroke-linecap="round">
+    <path d={`M${FACE - sk.L * 0.75 + G},${f(CY - skR(FACE - sk.L * 0.75))} L${FACE + G - 4},${f(CY - skR(FACE - 4))}`} stroke="#1e5fc4" />
+    <path d={`M${x0 + 4},${f(CY + hkR(x0 + 4))} L${FACE - 3},${f(CY + hkR(FACE - 3))}`} stroke="#1e5fc4" />
+    <path d={`M${FACE},${CY + 80} L${FACE},${CY + 110}`} stroke="#e2601a" />
+  </g>
+  <line class="c f" style="--i:1" x1="10" y1={CY} x2="476" y2={CY} />
+  <g class="lbl">
+    <text class="t-data t-sm" x={FACE + 64} y={CY - 76}>{T.sk}</text>
+    <text class="t-sm" x={FACE + 64} y={CY - 62}>{T.taper}</text>
+    <text class="t-sm" x={FACE - 10} y={CY - 134} text-anchor="end">{T.gap}</text>
+    <path d={`M${FACE - 6},${CY - 132} L${FACE + 2},${CY - 106}`} stroke="#5f6c79" fill="none" />
+    <text class="t-acc t-sm" x={FACE + 64} y={CY + 72}>{T.hsk}</text>
+    <text class="t-sm" x={FACE + 64} y={CY + 86}>{T.both}</text>
+  </g>
+</svg>

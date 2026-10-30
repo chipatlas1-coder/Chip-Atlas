@@ -1,0 +1,272 @@
+---
+import ToolShell from '../ToolShell.astro';
+import type { Locale } from '../../i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+
+const copy = tr
+  ? {
+      title: 'Tornalama hesaplayıcısı',
+      description: 'Tornalama için kesme hızı, devir, ilerleme hızı, talaş hacmi, talaş kalınlığı, kesme kuvveti (Kienzle), güç, tork ve kesme süresi; hepsi birbirine bağlı ve test edilmiş formüllerle.',
+      lead: 'Çapı ve kesme hızını (veya devri) gir; devir, ilerleme hızı, talaş hacmi ve kesme süresi anında gelir. Malzemenin Kienzle sabitlerini eklersen kuvvet, güç ve tork da hesaplanır.',
+      D: 'Çap D', mode: 'Hangisi biliniyor?', vc: 'Kesme hızı vc', n: 'Devir n', f: 'İlerleme f', ap: 'Talaş derinliği ap', L: 'Kesme boyu L', kr: 'Yanaşma açısı κr',
+      kc11: 'Özgül kesme kuvveti kc1.1', mc: 'Kienzle üssü mc',
+      kcHint: 'kc1.1 ve mc değerlerini malzeme sayfasından veya takım üreticisinin kataloğundan al. Yönlendirme için: alaşımsız ve düşük alaşımlı çeliklerde kc1.1 yaklaşık 1500–2100 N/mm², mc yaklaşık 0,2–0,3.',
+      res: { vc: 'Kesme hızı vc', n: 'Devir n', vf: 'İlerleme hızı vf', Q: 'Talaş hacmi Q', tc: 'Kesme süresi tc', h: 'Talaş kalınlığı h', kc: 'Özgül kesme kuvveti kc', Fc: 'Kesme kuvveti Fc', Pc: 'Kesme gücü Pc', Mc: 'Kesme torku Mc' },
+      group1: 'Kinematik', group2: 'Kuvvet ve güç (Kienzle)',
+      figureLabel: 'Tornalama kinematiği',
+      notes: [
+        'vc, kesilmemiş çap D üzerindeki hızdır; işlenmiş çap D − 2ap üzerinde hız orantılı olarak düşer. Alın tornalamada çap sürekli değiştiği için sabit yüzey hızı (G96) kullanılır.',
+        'Pc net kesme gücüdür. Tezgâh motoru için iş mili verimini (tipik olarak 0,7–0,9) böl; makine kataloğundaki güç eğrisini devirle birlikte kontrol et.',
+        'Kienzle modeli h = f·sin κr talaş kalınlığına dayanır; çok küçük h değerlerinde (< 0,05 mm) kenar yuvarlaklığı etkisiyle model sapma gösterir.',
+        'Kesme süresi yalnız talaş kaldırma süresidir; giriş-çıkış payı, hızlı hareketler ve takım değişimi dâhil değildir.',
+      ],
+    }
+  : {
+      title: 'Turning calculator',
+      description: 'Cutting speed, spindle speed, feed speed, removal rate, chip thickness, cutting force (Kienzle), power, torque and cutting time for turning, all linked and computed with tested formulae.',
+      lead: 'Enter the diameter and the cutting speed (or spindle speed); spindle speed, feed speed, removal rate and cutting time follow at once. Add the material’s Kienzle constants and force, power and torque are computed too.',
+      D: 'Diameter D', mode: 'Which one is known?', vc: 'Cutting speed vc', n: 'Spindle speed n', f: 'Feed f', ap: 'Depth of cut ap', L: 'Cut length L', kr: 'Entering angle κr',
+      kc11: 'Specific cutting force kc1.1', mc: 'Kienzle exponent mc',
+      kcHint: 'Take kc1.1 and mc from the material page or the tool maker’s catalogue. For orientation: unalloyed and low-alloy steels run about 1500–2100 N/mm² with mc around 0.2–0.3.',
+      res: { vc: 'Cutting speed vc', n: 'Spindle speed n', vf: 'Feed speed vf', Q: 'Removal rate Q', tc: 'Cutting time tc', h: 'Chip thickness h', kc: 'Specific cutting force kc', Fc: 'Cutting force Fc', Pc: 'Cutting power Pc', Mc: 'Cutting torque Mc' },
+      group1: 'Kinematics', group2: 'Force and power (Kienzle)',
+      figureLabel: 'Turning kinematics',
+      notes: [
+        'vc is the speed at the uncut diameter D; at the machined diameter D − 2ap it is proportionally lower. In facing the diameter changes continuously, which is why constant surface speed (G96) exists.',
+        'Pc is the net cutting power. For the machine motor divide by the spindle efficiency (typically 0.7–0.9) and check the power curve against the spindle speed in the machine catalogue.',
+        'The Kienzle model rests on the chip thickness h = f·sin κr; at very small h (below about 0.05 mm) edge rounding makes the model drift.',
+        'Cutting time covers chip removal only; approach, overrun, rapid moves and tool changes are not included.',
+      ],
+    };
+
+const sources = [
+  { label: 'Sandvik Coromant — General turning formulas and definitions', url: 'https://www.sandvik.coromant.com/en-gb/knowledge/machining-formulas-definitions/general-turning-formulas-definitions' },
+  { label: 'O. Kienzle, Die Bestimmung von Kräften und Leistungen an spanenden Werkzeugen und Werkzeugmaschinen, VDI-Z 94 (1952)' },
+  { label: 'Machinery’s Handbook, 31st ed., Industrial Press — Speeds and feeds, cutting power' },
+];
+---
+<ToolShell locale={locale} route="turning" title={copy.title} description={copy.description} lead={copy.lead} sectionN={7} sources={sources}>
+  <div class="tool-grid-2" data-turning data-locale={locale}>
+    <div class="panel inputs">
+      <label class="field">
+        <span>{copy.D} <span class="unit">mm</span></span>
+        <input type="number" min="0.1" step="0.1" value="40" data-in="D" />
+      </label>
+      <fieldset class="mode">
+        <legend class="hint">{copy.mode}</legend>
+        <label><input type="radio" name="mode" value="vc" checked data-mode /> vc</label>
+        <label><input type="radio" name="mode" value="n" data-mode /> n</label>
+      </fieldset>
+      <div class="two">
+        <label class="field">
+          <span>{copy.vc} <span class="unit">m/min</span></span>
+          <input type="number" min="1" step="1" value="180" data-in="vc" />
+        </label>
+        <label class="field">
+          <span>{copy.n} <span class="unit">rpm</span></span>
+          <input type="number" min="1" step="1" value="1432" data-in="n" disabled />
+        </label>
+      </div>
+      <div class="two">
+        <label class="field">
+          <span>{copy.f} <span class="unit">mm/rev</span></span>
+          <input type="number" min="0.01" step="0.01" value="0.25" data-in="f" />
+        </label>
+        <label class="field">
+          <span>{copy.ap} <span class="unit">mm</span></span>
+          <input type="number" min="0.01" step="0.1" value="2" data-in="ap" />
+        </label>
+      </div>
+      <div class="two">
+        <label class="field">
+          <span>{copy.L} <span class="unit">mm</span></span>
+          <input type="number" min="0" step="1" value="120" data-in="L" />
+        </label>
+        <label class="field">
+          <span>{copy.kr} <span class="unit">°</span></span>
+          <input type="number" min="5" max="120" step="1" value="95" data-in="kr" />
+        </label>
+      </div>
+      <div class="two">
+        <label class="field">
+          <span>{copy.kc11} <span class="unit">N/mm²</span></span>
+          <input type="number" min="100" step="10" placeholder="kc1.1" data-in="kc11" />
+        </label>
+        <label class="field">
+          <span>{copy.mc}</span>
+          <input type="number" min="0" max="1" step="0.01" placeholder="mc" data-in="mc" />
+        </label>
+      </div>
+      <p class="hint">{copy.kcHint}</p>
+    </div>
+
+    <div class="stack">
+      <div class="figure">
+        <svg data-figure viewBox="0 0 640 330" role="img" aria-label={copy.figureLabel}></svg>
+      </div>
+      <div class="panel results">
+        <h2 class="h3">{copy.group1}</h2>
+        <div class="results-grid">
+          <div class="readout"><span class="value"><span data-out="vc">—</span><small>m/min</small></span><span class="label">{copy.res.vc}</span></div>
+          <div class="readout"><span class="value"><span data-out="n">—</span><small>rpm</small></span><span class="label">{copy.res.n}</span></div>
+          <div class="readout"><span class="value"><span data-out="vf">—</span><small>mm/min</small></span><span class="label">{copy.res.vf}</span></div>
+          <div class="readout"><span class="value"><span data-out="Q">—</span><small>cm³/min</small></span><span class="label">{copy.res.Q}</span></div>
+          <div class="readout"><span class="value"><span data-out="tc">—</span><small>min</small></span><span class="label">{copy.res.tc}</span></div>
+          <div class="readout"><span class="value"><span data-out="h">—</span><small>mm</small></span><span class="label">{copy.res.h}</span></div>
+        </div>
+        <h2 class="h3">{copy.group2}</h2>
+        <div class="results-grid">
+          <div class="readout"><span class="value"><span data-out="kc">—</span><small>N/mm²</small></span><span class="label">{copy.res.kc}</span></div>
+          <div class="readout"><span class="value"><span data-out="Fc">—</span><small>N</small></span><span class="label">{copy.res.Fc}</span></div>
+          <div class="readout"><span class="value"><span data-out="Pc">—</span><small>kW</small></span><span class="label">{copy.res.Pc}</span></div>
+          <div class="readout"><span class="value"><span data-out="Mc">—</span><small>N·m</small></span><span class="label">{copy.res.Mc}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Fragment slot="formulae">
+    <div class="formula-grid">
+      <div class="formula"><math display="block"><mrow><msub><mi>v</mi><mi>c</mi></msub><mo>=</mo><mfrac><mrow><mi>π</mi><mo>·</mo><mi>D</mi><mo>·</mo><mi>n</mi></mrow><mn>1000</mn></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><mi>n</mi><mo>=</mo><mfrac><mrow><msub><mi>v</mi><mi>c</mi></msub><mo>·</mo><mn>1000</mn></mrow><mrow><mi>π</mi><mo>·</mo><mi>D</mi></mrow></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>v</mi><mi>f</mi></msub><mo>=</mo><mi>f</mi><mo>·</mo><mi>n</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><mi>Q</mi><mo>=</mo><msub><mi>v</mi><mi>c</mi></msub><mo>·</mo><msub><mi>a</mi><mi>p</mi></msub><mo>·</mo><mi>f</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>t</mi><mi>c</mi></msub><mo>=</mo><mfrac><mi>L</mi><mrow><mi>f</mi><mo>·</mo><mi>n</mi></mrow></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><mi>h</mi><mo>=</mo><mi>f</mi><mo>·</mo><mi>sin</mi><msub><mi>κ</mi><mi>r</mi></msub></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>k</mi><mi>c</mi></msub><mo>=</mo><msub><mi>k</mi><mrow><mi>c</mi><mn>1.1</mn></mrow></msub><mo>·</mo><msup><mi>h</mi><mrow><mo>−</mo><msub><mi>m</mi><mi>c</mi></msub></mrow></msup></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>F</mi><mi>c</mi></msub><mo>=</mo><msub><mi>k</mi><mi>c</mi></msub><mo>·</mo><msub><mi>a</mi><mi>p</mi></msub><mo>·</mo><mi>f</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>P</mi><mi>c</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>F</mi><mi>c</mi></msub><mo>·</mo><msub><mi>v</mi><mi>c</mi></msub></mrow><mn>60000</mn></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>M</mi><mi>c</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>F</mi><mi>c</mi></msub><mo>·</mo><mi>D</mi></mrow><mn>2000</mn></mfrac></mrow></math></div>
+    </div>
+    <p class="hint">{tr ? 'Birimler: D mm, n rpm (dev/dak), vc m/min, f mm/rev (mm/dev), ap mm, L mm, kc N/mm², Fc N, Pc kW, Mc N·m.' : 'Units: D mm, n rpm, vc m/min, f mm/rev, ap mm, L mm, kc N/mm², Fc N, Pc kW, Mc N·m.'}</p>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <ul>
+      {copy.notes.map((note) => <li>{note}</li>)}
+    </ul>
+  </Fragment>
+</ToolShell>
+
+<style>
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .mode { display: flex; gap: 1.25rem; align-items: center; border: 0; padding: 0; }
+  .mode legend { padding: 0; margin-bottom: 0.35rem; }
+  .mode label { display: inline-flex; gap: 0.4rem; align-items: center; font-family: var(--font-mono); }
+  .mode input { accent-color: var(--accent); }
+  .stack { display: grid; gap: 1rem; }
+  .results .h3 { margin-top: 0.5rem; font-weight: 500; color: var(--ink-2); }
+  .formula-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  @media (min-width: 48rem) { .formula-grid { grid-template-columns: repeat(3, 1fr); } }
+  input:disabled { opacity: 0.5; }
+</style>
+
+<script>
+  import { cuttingSpeed, spindleSpeed, removalRate, chipThickness, specificCuttingForce, cuttingForce, cuttingPower, cuttingTorque, cuttingTime, feedSpeed, fmt } from '../../lib/calc.js';
+
+  const root = document.querySelector('[data-turning]') as HTMLElement;
+  const locale = root.dataset.locale || 'en';
+  const get = (key: string) => root.querySelector(`[data-in="${key}"]`) as HTMLInputElement;
+  const inputs = ['D', 'vc', 'n', 'f', 'ap', 'L', 'kr', 'kc11', 'mc'].map(get);
+  const modes = Array.from(root.querySelectorAll<HTMLInputElement>('[data-mode]'));
+  const svg = root.querySelector('[data-figure]') as SVGSVGElement;
+  const loc = (v: string) => (locale === 'tr' ? v.replace('.', ',') : v);
+  const set = (key: string, v: number, digits = 3) => { const el = root.querySelector(`[data-out="${key}"]`); if (el) el.textContent = Number.isFinite(v) ? loc(fmt(v, digits)) : '—'; };
+  const val = (key: string) => Number(get(key).value);
+
+  function render() {
+    const mode = modes.find((m) => m.checked)?.value ?? 'vc';
+    get('vc').disabled = mode !== 'vc';
+    get('n').disabled = mode !== 'n';
+    const D = val('D'), f = val('f'), ap = val('ap'), L = val('L'), kr = val('kr') || 90;
+    let vc: number, n: number;
+    if (mode === 'vc') { vc = val('vc'); n = spindleSpeed(vc, D); get('n').value = String(Math.round(n)); }
+    else { n = val('n'); vc = cuttingSpeed(D, n); get('vc').value = String(Math.round(vc)); }
+    const vf = feedSpeed(f, n);
+    const Q = removalRate(vc, ap, f);
+    const tc = cuttingTime(L, f, n);
+    const h = chipThickness(f, kr);
+    set('vc', vc); set('n', n, 4); set('vf', vf, 4); set('Q', Q); set('tc', tc); set('h', h);
+    const kc11 = val('kc11'), mc = val('mc');
+    if (kc11 > 0 && get('mc').value !== '') {
+      const kc = specificCuttingForce(kc11, mc, h);
+      const Fc = cuttingForce(kc, ap, f);
+      set('kc', kc, 4); set('Fc', Fc, 4); set('Pc', cuttingPower(Fc, vc)); set('Mc', cuttingTorque(Fc, D));
+    } else {
+      ['kc', 'Fc', 'Pc', 'Mc'].forEach((k) => set(k, NaN));
+    }
+    draw(D, ap, f, kr, vc, n);
+  }
+
+  function draw(D: number, ap: number, f: number, kr: number, vc: number, n: number) {
+    // Plan view (looking down on the lathe): the workpiece axis runs left-right,
+    // the chuck is at the left, the tool feeds toward the chuck (to the left).
+    const font = 'font-family="IBM Plex Mono, monospace" font-size="13"';
+    const parts: string[] = [];
+    const axisY = 150;
+    const xChuck = 40, xEnd = 420, xTool = 250;
+    const scale = Math.min(100 / D, 6); // D ≤ 200 px tall
+    const R = (D / 2) * scale;
+    const apPx = Math.max(ap * scale, 2);
+    const r = R - apPx;
+    // Chuck jaws (schematic)
+    parts.push(`<rect x="${xChuck - 22}" y="${axisY - R - 26}" width="22" height="${2 * R + 52}" fill="color-mix(in oklab, var(--color-steel-500) 18%, transparent)" stroke="var(--ink-3)"/>`);
+    // Workpiece: the tool feeds toward the chuck, so the uncut part (radius R)
+    // lies between the chuck and the tool, the machined part (radius r) to the right.
+    parts.push(`<path d="M${xChuck} ${axisY - R} H${xTool} V${axisY - r} H${xEnd} V${axisY + r} H${xTool} V${axisY + R} H${xChuck} Z" fill="color-mix(in oklab, var(--color-steel-500) 12%, transparent)" stroke="var(--color-steel-500)" stroke-width="2"/>`);
+    parts.push(`<line x1="${xChuck - 30}" y1="${axisY}" x2="${xEnd + 30}" y2="${axisY}" stroke="var(--ink-3)" stroke-dasharray="12 5 3 5"/>`);
+    // Layer still to be removed (all round), dashed.
+    parts.push(`<path d="M${xChuck} ${axisY - R} H${xTool} V${axisY - r} H${xChuck} Z M${xChuck} ${axisY + R} H${xTool} V${axisY + r} H${xChuck} Z" fill="color-mix(in oklab, var(--accent) 10%, transparent)" stroke="var(--ink-3)" stroke-dasharray="2 3"/>`);
+    // Tool: 80° rhombic insert with its nose at the shoulder, main edge at κr to the feed direction.
+    const nose = [xTool, axisY - R - 0.5] as const; // nose on the uncut surface, at the step
+    const krRad = (kr * Math.PI) / 180;
+    const L = 38;
+    // Feed direction is −x. The main cutting edge leaves the nose at angle κr from the feed direction.
+    const edgeEnd = [nose[0] - L * Math.cos(krRad), nose[1] - L * Math.sin(krRad)];
+    // Minor edge: 80° insert → minor edge at (180 − κr − 80)° on the other side.
+    const minor = ((180 - kr - 80) * Math.PI) / 180;
+    const minorEnd = [nose[0] + L * Math.cos(minor), nose[1] - L * Math.sin(minor)];
+    const back = [edgeEnd[0] + (minorEnd[0] - nose[0]), edgeEnd[1] + (minorEnd[1] - nose[1])];
+    parts.push(`<path d="M${nose[0]} ${nose[1]} L${edgeEnd[0]} ${edgeEnd[1]} L${back[0]} ${back[1]} L${minorEnd[0]} ${minorEnd[1]} Z" fill="color-mix(in oklab, var(--accent) 18%, transparent)" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round"/>`);
+    parts.push(`<circle cx="${nose[0]}" cy="${nose[1]}" r="3" fill="var(--accent)"/>`);
+    // κr angle arc between the feed direction (−x) and the main edge.
+    const arcR = 26;
+    const a0 = Math.PI, a1 = Math.PI + krRad;
+    const p0 = [nose[0] + arcR * Math.cos(a0), nose[1] + arcR * Math.sin(a0)];
+    const p1 = [nose[0] + arcR * Math.cos(a1), nose[1] + arcR * Math.sin(a1)];
+    parts.push(`<line x1="${nose[0]}" y1="${nose[1]}" x2="${nose[0] - 60}" y2="${nose[1]}" stroke="var(--ink-3)" stroke-dasharray="3 3"/>`);
+    parts.push(`<path d="M${p0[0]} ${p0[1]} A${arcR} ${arcR} 0 ${kr > 180 ? 1 : 0} 1 ${p1[0]} ${p1[1]}" fill="none" stroke="var(--ink-2)"/>`);
+    parts.push(`<text x="${nose[0] - 40}" y="${nose[1] - 30}" ${font} fill="var(--ink-2)" text-anchor="end">κr ${kr}°</text>`);
+    // Feed arrow (tool moves toward the chuck).
+    const fy = axisY - R - 70;
+    parts.push(`<line x1="${xTool + 40}" y1="${fy}" x2="${xTool - 40}" y2="${fy}" stroke="var(--accent)" stroke-width="1.5"/>`);
+    parts.push(`<path d="M${xTool - 40} ${fy} l10 -5 v10 z" fill="var(--accent)"/>`);
+    parts.push(`<text x="${xTool + 48}" y="${fy + 4}" ${font} fill="var(--accent)">f ${loc(String(f))} mm/rev</text>`);
+    // Rotation and vc at the free end.
+    parts.push(`<path d="M${xEnd + 14} ${axisY + R + 6} A${R + 6} ${R + 6} 0 0 0 ${xEnd + 14} ${axisY - R - 6}" fill="none" stroke="var(--data)" stroke-width="1.5"/>`);
+    parts.push(`<path d="M${xEnd + 14} ${axisY - R - 6} l-6 10 l10 -1 z" fill="var(--data)"/>`);
+    // labels clear of the rotation arc, which bulges out to xEnd + 14 + R + 6
+    const xLab = xEnd + 30 + R;
+    parts.push(`<text x="${xLab}" y="${axisY - 4}" ${font} fill="var(--data)">n ${loc(fmt(n, 4))} rpm</text>`);
+    parts.push(`<text x="${xLab}" y="${axisY + 14}" ${font} fill="var(--data)">vc ${loc(fmt(vc, 3))} m/min</text>`);
+    // Dimensions: D on the uncut part, machined diameter at the free end, ap at the step.
+    parts.push(`<line x1="${xChuck + 36}" y1="${axisY - R}" x2="${xChuck + 36}" y2="${axisY + R}" stroke="var(--ink-2)"/>`);
+    parts.push(`<text x="${xChuck + 44}" y="${axisY - 10}" ${font} fill="var(--ink-2)">D ${loc(String(D))}</text>`);
+    parts.push(`<line x1="${xEnd - 24}" y1="${axisY - r}" x2="${xEnd - 24}" y2="${axisY + r}" stroke="var(--ink-3)"/>`);
+    parts.push(`<text x="${xEnd - 32}" y="${axisY + r - 10}" ${font} fill="var(--ink-3)" text-anchor="end">D−2ap ${loc(String(Math.round((D - 2 * ap) * 100) / 100))}</text>`);
+    parts.push(`<line x1="${xTool - 70}" y1="${axisY - R}" x2="${xTool - 70}" y2="${axisY - r}" stroke="var(--accent)"/>`);
+    parts.push(`<line x1="${xTool - 76}" y1="${axisY - R}" x2="${xTool - 64}" y2="${axisY - R}" stroke="var(--accent)"/>`);
+    parts.push(`<line x1="${xTool - 76}" y1="${axisY - r}" x2="${xTool - 64}" y2="${axisY - r}" stroke="var(--accent)"/>`);
+    parts.push(`<text x="${xTool - 82}" y="${axisY - R - 10}" ${font} fill="var(--accent)" text-anchor="end">ap ${loc(String(ap))}</text>`);
+    parts.push(`<text x="24" y="292" ${font} fill="var(--data)">vc = π · ${loc(String(D))} · ${loc(fmt(n, 4))} / 1000 = ${loc(fmt(vc, 3))} m/min</text>`);
+    parts.push(`<text x="24" y="314" ${font} fill="var(--ink-3)">${locale === 'tr' ? 'üst görünüş · ayna solda, takım aynaya doğru ilerler · mm' : 'plan view · chuck at left, tool feeds toward the chuck · mm'}</text>`);
+    svg.innerHTML = parts.join('');
+  }
+
+  inputs.forEach((el) => el.addEventListener('input', render));
+  modes.forEach((m) => m.addEventListener('change', render));
+  render();
+</script>

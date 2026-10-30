@@ -1,0 +1,121 @@
+---
+/**
+ * Built-up edge, schematic and animated. An orthogonal cut: the work slides right under a fixed tool, the chip runs
+ * up the rake face. At low cutting speed a lump of work material builds up on the rake face at the edge, grows, and
+ * breaks off; fragments can stay on the machined surface (İTÜ/Groover, PMPA); while it sits there it cuts a little
+ * deeper than the edge (Mitsubishi), so the surface behind the tool is uneven. At a high enough speed no lump forms
+ * and the surface stays smooth. The speed slider has no numbers: the threshold depends on the material (see the page).
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { speed: 'Kesme hızı', low: 'düşük', high: 'yüksek', bue: 'yığıntı', chip: 'talaş', tool: 'takım', surf: 'işlenmiş yüzey', frag: 'kopan parçalar', calm: 'yığıntı yok: düzgün yüzey', aria: 'Yığıntı talaşın oluşup koptuğu dik kesme, şematik' }
+  : { speed: 'Cutting speed', low: 'low', high: 'high', bue: 'built-up edge', chip: 'chip', tool: 'tool', surf: 'machined surface', frag: 'fragments', calm: 'no built-up edge: smooth surface', aria: 'Orthogonal cut in which a built-up edge forms and breaks off, schematic' };
+---
+<div class="bu" data-bu data-locale={locale} data-anim>
+  <svg class="sc" viewBox="0 0 640 300" role="img" aria-label={T.aria} data-sc></svg>
+  <label class="field"><span>{T.speed} <output data-o="s">—</output></span><input type="range" min="0" max="1" step="0.01" value="0.25" data-i="s" /><span class="ends"><span>{T.low}</span><span>{T.high}</span></span></label>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .bu { display: grid; gap: 0.7rem; }
+  .sc { width: 100%; height: auto; display: block; }
+  .field { display: grid; gap: 0.3rem; max-width: 34rem; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .ends { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--ink-3); }
+  .bu :global(.tx) { font: 12px var(--font-mono); fill: #364554; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+  .bu.narrow :global(.tx) { font-size: 19px; }
+</style>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-bu]').forEach((root) => {
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const sc = q<SVGSVGElement>('[data-sc]');
+    const inp = q<HTMLInputElement>('[data-i="s"]');
+    const f = (n: number) => n.toFixed(1);
+    const EX = 300, EY = 170, H = 30;                  // edge; uncut thickness
+    const rad = (d: number) => (d * Math.PI) / 180;
+    const g = 6, a = 7;
+    const rd = [Math.cos(rad(90 - g)), Math.sin(rad(90 - g))];   // up the rake face (maths y up)
+    const nd = [-rd[1], rd[0]];                                      // into the chip side
+    const S = (x: number, y: number) => `${f(EX + x)},${f(EY - y)}`;
+    // surface history behind the edge: depth below the nominal cut line, scrolled with the work
+    const N = 170, hist: number[] = new Array(N).fill(0);
+    let size = 0, t = 0, last = 0, acc = 0, stuck: { x: number; s: number }[] = [];
+    const speed = () => +inp.value;
+    const draw = () => {
+      const v = speed();
+      const nar = root.classList.contains('narrow');
+      // work: uncut layer on the left, surface behind the edge from the history (1 px per step, 2.3 px per unit depth)
+      let surf = `M${EX},${EY}`;
+      for (let i = 0; i < N; i++) surf += ` L${f(EX + 4 + i * 2)},${f(EY + hist[i] * 2.3)}`;
+      const work = `M0,${EY - H} L${EX - 1},${EY - H} L${EX},${EY} ${surf.slice(surf.indexOf('L'))} L640,${f(EY + hist[N - 1] * 2.3)} L640,300 L0,300 Z`;
+      const L = 175, rk = [L * rd[0], L * rd[1]], fk = [L * Math.cos(rad(a)), L * Math.sin(rad(a))];
+      const tool = `M${S(0, 0)} L${S(rk[0], rk[1])} L${S(340, rk[1])} L${S(340, fk[1])} L${S(fk[0], fk[1])} Z`;
+      const thick = H * 1.9, B = [120 * rd[0], 120 * rd[1]];
+      const C = [B[0] + thick * nd[0], B[1] + thick * nd[1]], D = [-thick * 0.62, H];
+      const chip = `M${S(-1, 1)} L${S(B[0], B[1])} Q${S(B[0] + 26 * rd[0] + 30 * nd[0], B[1] + 26 * rd[1] + 30 * nd[1])} ${S(C[0], C[1])} L${S(D[0], D[1])} Z`;
+      let stripes = '';
+      const sp = 0.4 + v * 1.6;
+      for (let k = 0; k < 6; k++) { const u = 0.1 + 0.8 * ((t * sp * 0.5 + k / 6) % 1); stripes += `<line x1="${f(EX + B[0] * u)}" y1="${f(EY - B[1] * u)}" x2="${f(EX + B[0] * u + 0.7 * thick * nd[0])}" y2="${f(EY - B[1] * u - 0.7 * thick * nd[1])}" stroke="#a35a1f" stroke-width="1.2" opacity="0.45"/>`; }
+      // the built-up edge: a lump on the rake face at the edge, reaching a little ahead of and below the edge
+      let lump = '';
+      if (size > 0.02) {
+        const hgt = 50 * size, out = 21 * size, low = 4 * size;
+        lump = `<path d="M${S(0, 0)} L${S(hgt * rd[0], hgt * rd[1])} Q${S(hgt * 0.7 * rd[0] + out * 1.3 * nd[0], hgt * 0.7 * rd[1] + out * 1.3 * nd[1])} ${S(-out, -low * 0.4)} L${S(-out * 0.6, -low)} Z" fill="#aab6c2" stroke="#4f5f6e" stroke-width="1.5"/>`;
+      }
+      let frags = '';
+      for (const p of stuck) frags += `<ellipse cx="${f(p.x)}" cy="${f(EY + 2)}" rx="${f(4 + 6 * p.s)}" ry="${f(2 + 2 * p.s)}" fill="#b9c3cc" stroke="#6b7a88"/>`;
+      let marks = '';
+      for (let k = 0; k < 9; k++) { const x = ((k * 72 + t * (40 + v * 160)) % 650 + 650) % 650 - 20; marks += `<line x1="${f(x)}" y1="${EY + 52}" x2="${f(x + 26)}" y2="${EY + 52}" stroke="#d3dae2" stroke-width="2"/>`; }
+      const calm = v > 0.72 && size < 0.02;
+      sc.innerHTML = `
+        <path d="${work}" fill="url(#ca-metal-h)"/>${marks}
+        <path d="${chip}" fill="#e0a35f" stroke="#a35a1f" stroke-width="1.2"/>${stripes}
+        ${lump}
+        <path d="${tool}" fill="url(#ca-carbide)" stroke="#364554" stroke-width="1.6"/>
+        ${frags}
+        <text x="${f(EX - 120)}" y="${f(EY - H - 70)}" class="tx" style="fill:#a35a1f">${T.chip}</text>
+        <text x="${f(EX + 150)}" y="${f(EY - 120)}" class="tx" style="fill:#fff;stroke:none">${T.tool}</text>
+        <text x="${nar ? 632 : f(EX + 190)}" y="${f(nar && stuck.length && !calm ? EY + 84 : EY + 40)}" class="tx"${nar ? ' text-anchor="end"' : ''}>${T.surf}</text>
+        ${size > 0.25 ? `<line x1="${f(EX - 10)}" y1="${f(EY - 10)}" x2="${f(EX - 60)}" y2="${f(EY + 26)}" stroke="#6b7a88"/><text x="${f(EX - 64)}" y="${f(EY + 40)}" class="tx" text-anchor="end">${T.bue}</text>` : ''}
+        ${!stuck.length ? '' : nar ? (stuck[0].x > EX + 30 && stuck[0].x < 630 && !calm ? `<line x1="${f(stuck[0].x)}" y1="${f(EY + 6)}" x2="${f(Math.min(stuck[0].x, 552))}" y2="${f(EY + 22)}" stroke="#6b7a88"/><text x="${f(Math.min(stuck[0].x, 552))}" y="${f(EY + 40)}" class="tx" text-anchor="middle">${T.frag}</text>` : '') : (stuck[0].x > EX + 110 && stuck[0].x < 520 ? `<text x="${f(stuck[0].x + 12)}" y="${f(EY - 7)}" class="tx">${T.frag}</text>` : '')}
+        ${calm ? `<text x="${nar ? 632 : f(EX + 60)}" y="${f(nar ? EY + 84 : EY + 74)}" class="tx" style="fill:#0f7a6e"${nar ? ' text-anchor="end"' : ''}>${T.calm}</text>` : ''}`;
+      q('[data-o="s"]').textContent = v < 0.35 ? T.low : v > 0.72 ? T.high : '…';
+    };
+    const tick = (dt: number) => {
+      const v = speed();
+      t += dt;
+      // growth: fast at low speed, none above the threshold; break-off at a size that falls with speed
+      const grow = v > 0.72 ? -1.5 : (0.75 - v) * 0.9;
+      const cap = 1 - v * 0.6;
+      size = Math.max(0, size + grow * dt);
+      if (size >= cap && v <= 0.72) { stuck.push({ x: EX + 6, s: size * 0.6 }); size = size * 0.12; }
+      const vw = 40 + v * 160;                                    // px/s of work motion
+      stuck = stuck.map((p) => ({ ...p, x: p.x + vw * dt })).filter((p) => p.x < 660);
+      acc += vw * dt;
+      while (acc >= 2) { acc -= 2; hist.pop(); hist.unshift(size > 0.02 ? 4 * size * (0.7 + 0.3 * Math.sin(t * 9)) : 0); }
+    };
+    // still picture (reduced motion, no script timing): a lump, an uneven surface and fragments at low speed; nothing at high speed
+    const still = () => {
+      const lo = speed() <= 0.72; size = lo ? 0.6 : 0;
+      for (let i = 0; i < N; i++) hist[i] = lo ? 1.5 + Math.sin(i * 0.4) * 0.8 : 0;
+      stuck = lo ? [{ x: EX + 215, s: 0.4 }, { x: EX + 110, s: 0.3 }, { x: EX + 40, s: 0.35 }] : [];
+      draw();
+    };
+    inp.addEventListener('input', () => { if (!document.documentElement.classList.contains('anim')) still(); else draw(); });
+    const fit = () => { const w = sc.getBoundingClientRect().width, was = root.classList.contains('narrow'); root.classList.toggle('narrow', w > 0 && w < 480); if (was !== root.classList.contains('narrow')) draw(); };
+    new ResizeObserver(fit).observe(sc);
+    still(); fit();
+    let visible = false;
+    new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+    const step = (now: number) => { const dt = Math.min(0.05, (now - last) / 1000); last = now; if (visible) { tick(dt); draw(); } requestAnimationFrame(step); };
+    whenIn(root, () => { last = performance.now(); requestAnimationFrame(step); });
+  });
+</script>

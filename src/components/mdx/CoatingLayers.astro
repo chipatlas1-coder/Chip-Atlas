@@ -1,0 +1,119 @@
+---
+/**
+ * A coated carbide edge in section, magnified: the coating grows on the substrate layer by layer (a deposition
+ * animation). CVD: TiCN → Al2O3 → TiN, 5–20 µm in total, about 1000 °C, a honed edge, tensile residual stress with
+ * cracks. PVD: one TiAlN layer, thinner, a lower process temperature, a sharp edge, compressive residual stress.
+ * A slider sets the total thickness inside the range the sources give for each process. Only the layer order, the
+ * thickness ranges and the temperatures are sourced: the share of each layer, the edge radii (not to the coating's
+ * scale) and the colours other than TiN gold are schematic.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { modes: { cvd: 'CVD', pvd: 'PVD' }, sub: 'karbür', temp: 'işlem sıcaklığı', thick: 'kaplama kalınlığı', wear: 'aşınma direnci', tough: 'tokluk', tens: 'çekme yönünde artık gerilme, çatlaklar', comp: 'basınç yönünde artık gerilme', honed: 'yuvarlatılmış kenar', sharp: 'keskin kenar', share: 'katman payları şematik', aria: 'Kaplamalı bir karbür kenarın büyütülmüş kesiti: CVD ve PVD katmanları birikir; kalınlık kaydırıcıyla değişir' }
+  : { modes: { cvd: 'CVD', pvd: 'PVD' }, sub: 'carbide', temp: 'process temperature', thick: 'coating thickness', wear: 'wear resistance', tough: 'toughness', tens: 'tensile residual stress, cracks', comp: 'compressive residual stress', honed: 'honed edge', sharp: 'sharp edge', share: 'layer shares schematic', aria: 'Magnified section of a coated carbide edge: CVD and PVD layers deposit; the slider changes the thickness' };
+---
+<div class="coat" data-coat data-locale={locale} data-anim>
+  <div class="seg" data-g="m">{(['cvd', 'pvd'] as const).map((k, i) => <button type="button" data-v={k} aria-pressed={String(i === 0)}>{T.modes[k]}</button>)}</div>
+  <div class="stats"><span>{T.temp}: <b class="hot" data-o="temp">—</b></span><span>{T.thick}: <b data-o="th">—</b></span></div>
+  <ul class="lg" data-lg></ul>
+  <svg class="sc" viewBox="0 40 640 290" role="img" aria-label={T.aria} data-sc></svg>
+  <label class="field"><span>{T.thick} <output data-o="t">—</output></span><input type="range" min="0" max="1" step="0.01" value="0.5" data-i="t" /></label>
+  <div class="trade" aria-hidden="true"><span>{T.tough}</span><div class="bar"><i data-tb></i></div><span>{T.wear}</span></div>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .coat { display: grid; gap: 0.7rem; }
+  .seg { display: flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1 1 8rem; font: inherit; font-size: 0.86rem; padding: 0.4rem 0.5rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.3rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .sc { width: 100%; height: auto; display: block; }
+  .stats { display: flex; flex-wrap: wrap; gap: 0.2rem 1.4rem; font: 0.82rem var(--font-mono); color: var(--ink-2); }
+  .stats b { color: var(--data); font-weight: 600; white-space: nowrap; } .stats b.hot { color: #c94f0c; }
+  .lg { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; list-style: none; margin: 0; padding: 0; font: 0.78rem var(--font-mono); color: var(--ink-2); }
+  .lg :global(li) { display: inline-flex; align-items: center; gap: 0.4rem; transition: opacity 0.3s; }
+  .lg :global(i) { width: 1rem; height: 0.7rem; border-radius: 2px; display: inline-block; }
+  .lg :global(.note) { color: var(--ink-3); }
+  .trade { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.6rem; max-width: 30rem; font: 0.78rem var(--font-mono); color: var(--ink-2); }
+  .trade .bar { position: relative; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #13998a, #e2601a); }
+  .trade .bar i { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #fff; border: 3px solid #364554; }
+  .field { display: grid; gap: 0.3rem; max-width: 30rem; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .coat :global(.tx) { font: 12px var(--font-mono); fill: #364554; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+  .coat.narrow :global(.tx) { font-size: 22px; }
+  .trade[hidden] { display: none; }
+</style>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  // sourced: layer order, thickness range, process temperature; schematic: the share of each layer and the colours
+  // (except TiN, gold)
+  const CFG = {
+    cvd: { temp: '≈ 1000 °C · MT-CVD ≈ 700–950 °C', range: [5, 20], layers: [['TiCN', 0.45, '#7c8ea3'], ['Al₂O₃', 0.4, '#3b3f4a'], ['TiN', 0.15, '#d8a93a']], R: 30 },
+    pvd: { temp: '< 500 °C', range: [1, 8], layers: [['TiAlN', 1, '#6d5a8c']], R: 4 },
+  } as const;
+  document.querySelectorAll<HTMLElement>('[data-coat]').forEach((root) => {
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const sc = root.querySelector('[data-sc]') as SVGSVGElement;
+    const inp = root.querySelector('[data-i="t"]') as HTMLInputElement;
+    const f = (n: number) => n.toFixed(1);
+    let mode: 'cvd' | 'pvd' = 'cvd', t = 1, last = 0, visible = false;
+    const UM = 5;                                                   // px per µm, for the coating only
+    const narrow = () => root.classList.contains('narrow');
+    const draw = () => {
+      const c = CFG[mode], nw = narrow();
+      const total = Math.round(c.range[0] + (c.range[1] - c.range[0]) * +inp.value);
+      const EX = 380, EY = 178, R = c.R;
+      // substrate: rake face on top, edge (honed or sharp), flank down to the right
+      let s = `<path d="M30,${EY} L${EX - R},${EY} A${R},${R} 0 0 1 ${EX},${EY + R} L${EX + 34},322 L30,322 Z" fill="url(#ca-carbide)" stroke="#364554" stroke-width="1.5"/>`;
+      s += `<text x="56" y="300" class="tx">${T.sub}</text>`;
+      // the layers grow in turn while t runs 0…1
+      let acc = 0, base = 0;
+      c.layers.forEach(([name, share, col], i) => {
+        const start = acc; acc += share;
+        const k = Math.max(0, Math.min(1, (t - start) / share));
+        const th = total * share;
+        const d0 = base * UM, d1 = (base + th * k) * UM;
+        if (k > 0) {
+          const out = `M30,${f(EY - d1)} L${f(EX - R)},${f(EY - d1)} A${f(R + d1)},${f(R + d1)} 0 0 1 ${f(EX + d1)},${f(EY + R)} L${f(EX + 34 + d1)},322`;
+          const back = `L${f(EX + 34 + d0)},322 L${f(EX + d0)},${f(EY + R)} A${f(R + d0)},${f(R + d0)} 0 0 0 ${f(EX - R)},${f(EY - d0)} L30,${f(EY - d0)} Z`;
+          s += `<path d="${out} ${back}" fill="${col}" opacity="0.95"/>`;
+          if (k < 0.999 && t < 1) for (let j = 0; j < 16; j++) { const px = 40 + ((j * 97 + Math.floor(t * 900) * 13) % 330), fall = (t * 40 + j * 0.37) % 1; s += `<circle cx="${f(px)}" cy="${f(64 + fall * (EY - d1 - 66))}" r="2.6" fill="${col}"/>`; }
+        }
+        base += th * k;
+      });
+      // residual stress once the coating is complete: CVD cracks through the coating, PVD arrows squeezing it
+      if (t >= 1) {
+        const D = total * UM;
+        if (mode === 'cvd') for (const x of [80, 150, 225, 300]) s += `<path d="M${x},${f(EY - D)} l3,${f(D * 0.35)} l-4,${f(D * 0.3)} l2,${f(D * 0.25)}" fill="none" stroke="#c2413b" stroke-width="1.6"/>`;
+        else for (const x of [110, 250]) { const y = EY - D - 12; s += `<path d="M${x - 34},${f(y)} h22 M${x + 34},${f(y)} h-22" stroke="#13998a" stroke-width="2.6"/><path d="M${x - 8},${f(y)} l-8,-5 v10 z M${x + 8},${f(y)} l8,-5 v10 z" fill="#13998a"/>`; }
+        // stress label just above the coating (the stress is in the coating), edge label beside the flank
+        s += `<text x="40" y="${f(EY - D - (mode === 'cvd' ? 12 : 30))}" class="tx" style="fill:${mode === 'cvd' ? '#b23a34' : '#0f7a6e'}">${mode === 'cvd' ? T.tens : T.comp}</text>`;
+        s += `<text x="${nw ? 630 : 636}" y="${nw ? EY + 128 : EY + 70}" class="tx" text-anchor="end">${mode === 'cvd' ? T.honed : T.sharp}</text>`;
+      }
+      // scale bar (coating only)
+      s += `<line x1="240" y1="306" x2="${240 + 10 * UM}" y2="306" stroke="#1f2933" stroke-width="2.5"/><text x="240" y="296" class="tx">10 µm</text>`;
+      sc.innerHTML = s;
+      (root.querySelector('[data-o="t"]') as HTMLElement).textContent = `${total} µm`;
+      (root.querySelector('[data-o="temp"]') as HTMLElement).textContent = c.temp;
+      (root.querySelector('[data-o="th"]') as HTMLElement).textContent = `${total} µm (${c.range[0]}–${c.range[1]} µm)`;
+      (root.querySelector('.trade') as HTMLElement).hidden = mode !== 'cvd';
+      (root.querySelector('[data-tb]') as HTMLElement).style.left = `${((total - c.range[0]) / (c.range[1] - c.range[0])) * 100}%`;
+      const lg = root.querySelector('[data-lg]') as HTMLElement, key = mode + (t >= 1 ? 1 : 0);
+      if (lg.dataset.k !== key) { lg.dataset.k = key; lg.innerHTML = c.layers.map(([n, , col]) => `<li><i style="background:${col}"></i>${n}</li>`).join('') + (mode === 'cvd' ? `<li class="note">${T.share}</li>` : ''); }
+    };
+    root.querySelectorAll<HTMLButtonElement>('[data-g="m"] button').forEach((b, _, all) => b.addEventListener('click', () => { mode = b.dataset.v as 'cvd' | 'pvd'; all.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); t = document.documentElement.classList.contains('anim') ? 0 : 1; draw(); }));
+    inp.addEventListener('input', draw);
+    const fit = () => { const w = sc.getBoundingClientRect().width, was = narrow(); root.classList.toggle('narrow', w > 0 && w < 480); if (was !== narrow()) draw(); };
+    new ResizeObserver(fit).observe(sc);
+    draw(); fit();
+    new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+    const step = (now: number) => { const dt = Math.min(0.05, (now - last) / 1000); last = now; if (visible && t < 1) { t = Math.min(1, t + dt / 4); draw(); } requestAnimationFrame(step); };
+    whenIn(root, () => { last = performance.now(); t = 0; requestAnimationFrame(step); });
+  });
+</script>

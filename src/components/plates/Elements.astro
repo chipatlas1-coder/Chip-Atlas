@@ -1,0 +1,15 @@
+---
+/** Row of periodic-table style tiles: element symbol, atomic number, composition limit in %. */
+interface Props { items: { el: string; z: number; v: string }[]; x: number; y: number; i0?: number }
+const { items, x, y, i0 = 2 } = Astro.props;
+const W = 101, H = 86, G = 11;
+---
+{items.map((t, k) => (
+  <g transform={`translate(${x + k * (W + G)} ${y})`}>
+    <rect class="f" style={`--i:${i0 + k}`} width={W} height={H} rx="5" fill="#f5f9fd" stroke="#cdd5db" />
+    <rect class="d" style={`--i:${i0 + k}`} pathLength="1" width={W} height={H} rx="5" fill="none" stroke="#a5aeb6" />
+    <text class="t-sm f" style={`--i:${i0 + k}`} x="10" y="17">{t.z}</text>
+    <text class="f" style={`--i:${i0 + k}; font-family: var(--font-sans); font-weight: 600; font-size: 32px; fill: #1b1d1e`} x="10" y="54">{t.el}</text>
+    <text class="t-data f" style={`--i:${i0 + k + 1}; font-size: 12px`} x="10" y="75">{t.v}</text>
+  </g>
+))}

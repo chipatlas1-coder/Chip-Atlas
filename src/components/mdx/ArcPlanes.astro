@@ -1,0 +1,78 @@
+---
+/**
+ * The three planes G17 / G18 / G19, each drawn as seen from the positive end of the axis square to it, with the
+ * G02 (clockwise) and G03 (counter-clockwise) directions. Right-handed axes: X × Y = Z, Z × X = Y, Y × Z = X, so
+ * the third axis always points at the viewer. A dot runs round each arc in its direction.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { seen: (a: string) => `+${a} ucundan bakış`, cw: 'G02 saat ibresi yönünde', ccw: 'G03 saat ibresine ters yönde', aria: 'G17, G18 ve G19 düzlemleri, her biri dik eksenin artı ucundan bakılarak; G02 saat ibresi yönünde, G03 ters yönde', turn: 'tornalama düzlemi' }
+  : { seen: (a: string) => `seen from +${a}`, cw: 'G02 clockwise', ccw: 'G03 counter-clockwise', aria: 'Planes G17, G18 and G19, each seen from the positive end of the axis square to it; G02 clockwise, G03 counter-clockwise', turn: 'turning plane' };
+const P = [
+  { g: 'G17', h: 'X', v: 'Y', n: 'Z', note: '' },
+  { g: 'G18', h: 'Z', v: 'X', n: 'Y', note: T.turn },
+  { g: 'G19', h: 'Y', v: 'Z', n: 'X', note: '' },
+];
+const c = 104, r1 = 58, r2 = 36;
+// arcs drawn as 300° sweeps so the arrowhead shows the direction
+const arcCW = `M${c},${c - r1} A${r1},${r1} 0 1,1 ${(c - r1 * Math.sin(Math.PI / 3)).toFixed(1)},${(c - r1 * Math.cos(Math.PI / 3)).toFixed(1)}`;
+const arcCCW = `M${c},${c - r2} A${r2},${r2} 0 1,0 ${(c + r2 * Math.sin(Math.PI / 3)).toFixed(1)},${(c - r2 * Math.cos(Math.PI / 3)).toFixed(1)}`;
+---
+<div class="ap" data-anim role="img" aria-label={T.aria}>
+  {P.map((p, i) => (
+    <figure class="pl" style={`--i:${i}`}>
+      <svg viewBox="0 0 208 220" aria-hidden="true">
+        <defs>
+          <marker id={`ap-cw-${locale}-${i}`} viewBox="0 0 10 10" refX="7" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,1 L10,5 L0,9 z" fill="#8b52c9" /></marker>
+          <marker id={`ap-ccw-${locale}-${i}`} viewBox="0 0 10 10" refX="7" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,1 L10,5 L0,9 z" fill="#13998a" /></marker>
+        </defs>
+        <rect x="6" y="6" width="196" height="196" rx="12" fill="#fbfcfd" stroke="#dfe5eb" />
+        <line x1="22" y1={c} x2="190" y2={c} stroke="#364554" stroke-width="1.4" marker-end="url(#ca-arr)" />
+        <line x1={c} y1="186" x2={c} y2="18" stroke="#364554" stroke-width="1.4" marker-end="url(#ca-arr)" />
+        <text x="188" y={c - 8} class="ax" text-anchor="end">+{p.h}</text>
+        <text x={c + 8} y="26" class="ax">+{p.v}</text>
+        <circle cx={c} cy={c} r="7" fill="#fff" stroke="#152230" stroke-width="1.4" /><circle cx={c} cy={c} r="2.2" fill="#152230" />
+        <text x={c + 10} y={c + 18} class="ax n">+{p.n}</text>
+        <path class="arc d1" pathLength="1" d={arcCW} fill="none" stroke="#8b52c9" stroke-width="3.2" stroke-linecap="round" marker-end={`url(#ap-cw-${locale}-${i})`} />
+        <path class="arc d2" pathLength="1" d={arcCCW} fill="none" stroke="#13998a" stroke-width="3.2" stroke-linecap="round" marker-end={`url(#ap-ccw-${locale}-${i})`} />
+        <g class="run cw" style={`transform-origin:${c}px ${c}px`}><circle cx={c} cy={c - r1} r="5" fill="#8b52c9" stroke="#fff" stroke-width="1.5" /></g>
+        <g class="run ccw" style={`transform-origin:${c}px ${c}px`}><circle cx={c} cy={c - r2} r="5" fill="#13998a" stroke="#fff" stroke-width="1.5" /></g>
+        <text x="104" y="214" class="cap" text-anchor="middle">{T.seen(p.n)}</text>
+      </svg>
+      <figcaption><b>{p.g}</b> {p.h}{p.v} {p.note && <em>· {p.note}</em>}</figcaption>
+    </figure>
+  ))}
+  <ul class="legend" aria-hidden="true"><li><span class="sw c"></span>{T.cw}</li><li><span class="sw a"></span>{T.ccw}</li></ul>
+</div>
+
+<style>
+  .ap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; }
+  @media (max-width: 36rem) { .ap { grid-template-columns: 1fr 1fr; } }
+  .pl { margin: 0; display: grid; gap: 0.3rem; }
+  .pl svg { width: 100%; height: auto; display: block; }
+  .pl figcaption { text-align: center; font-size: 0.85rem; color: var(--ink-2); }
+  .pl figcaption b { font-family: var(--font-mono); color: var(--ink); }
+  .pl figcaption em { font-style: normal; color: var(--ink-3); }
+  .ax { font: 600 12px var(--font-mono); fill: #364554; }
+  .ax.n { fill: #1e5fc4; }
+  .cap { font: 11px var(--font-sans); fill: var(--ink-3); }
+  .legend { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin: 0; padding: 0; list-style: none; font-size: 0.8rem; color: var(--ink-2); }
+  .legend li { display: flex; align-items: center; gap: 0.4rem; margin: 0; }
+  .legend li::before { content: none !important; }
+  .legend .sw { display: inline-block; width: 1.4rem; border-top: 3px solid; border-radius: 2px; }
+  .legend .sw.c { border-color: #8b52c9; }
+  .legend .sw.a { border-color: #13998a; }
+  .run { transform-box: view-box; }
+  :global(html.anim) .ap[data-anim]:not([data-in]) .arc { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  :global(html.anim) .ap[data-anim]:not([data-in]) .run { opacity: 0; }
+  :global(html.anim) .ap[data-anim][data-in] .arc { stroke-dasharray: 1; animation: ap-draw 1s cubic-bezier(0.55, 0.05, 0.25, 1) backwards; animation-delay: calc(0.15s + var(--i, 0) * 0.25s); }
+  :global(html.anim) .ap[data-anim][data-in] .d2 { animation-delay: calc(0.45s + var(--i, 0) * 0.25s); }
+  :global(html.anim) .ap[data-anim][data-in] .run { animation: ap-fade 0.4s 1.4s backwards, ap-cw 4s 1.4s linear infinite; }
+  :global(html.anim) .ap[data-anim][data-in] .run.ccw { animation: ap-fade 0.4s 1.4s backwards, ap-ccw 3s 1.4s linear infinite; }
+  @keyframes ap-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes ap-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ap-cw { to { transform: rotate(360deg); } }
+  @keyframes ap-ccw { to { transform: rotate(-360deg); } }
+</style>

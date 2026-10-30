@@ -1,0 +1,117 @@
+---
+import Base from '../layouts/Base.astro';
+import ToolPreview from './ToolPreview.astro';
+import { href, routes, t, type Locale } from '../i18n';
+import { tools, flagshipTools, kindLabel, type ToolKind } from '../data/tools';
+import { sections, sectionPath } from '../data/sections';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const ui = t(locale);
+const tr = locale === 'tr';
+
+const copy = tr
+  ? {
+      title: 'Araçlar Merkezi',
+      description: 'Talaşlı imalat için 75 kod çözücü, hesaplayıcı, simülatör, teşhis sihirbazı ve 3D model. Her formül test edilmiş, her tablo kaynaklı.',
+      lead: 'Yetmiş beş araç, tek yerde. Yayında olanlar hemen çalışır; haritalanmış olanlar bölüm sırasına göre gelir ve her biri ait olduğu sayfaya gömülür.',
+      liveTitle: 'Yayında',
+      allTitle: 'Tam liste',
+      cols: { n: '#', tool: 'Araç', kind: 'Tür', section: 'Bölüm', priority: 'Öncelik', status: 'Durum' },
+    }
+  : {
+      title: 'Tools Hub',
+      description: '75 decoders, calculators, simulators, diagnostic wizards and 3D models for machining. Every formula tested, every table sourced.',
+      lead: 'Seventy-five tools in one place. The live ones work now; the charted ones arrive section by section, each embedded in the page it belongs to.',
+      liveTitle: 'Live now',
+      allTitle: 'The full list',
+      cols: { n: '#', tool: 'Tool', kind: 'Type', section: 'Section', priority: 'Priority', status: 'Status' },
+    };
+
+const kinds: ToolKind[] = ['decoder', 'calculator', 'simulator', 'wizard', 'model3d', 'data'];
+const sectionOf = (n: number) => sections.find((sec) => sec.n === n)!;
+const statusLabel = (status: string) => (status === 'live' ? ui.status.live : status === 'review' ? ui.status.review : ui.status.planned);
+---
+<Base locale={locale} title={copy.title} description={copy.description} path={routes.tools[locale]} altPath={routes.tools[tr ? 'en' : 'tr']}>
+  <section class="sheet head">
+    <p class="ref">18 · {tr ? 'Araçlar Merkezi' : 'Tools Hub'}</p>
+    <h1 class="h1">{copy.title}</h1>
+    <p class="lead">{copy.lead}</p>
+  </section>
+
+  <section class="sheet live">
+    <h2 class="h3 sub">{copy.liveTitle}</h2>
+    <div class="tool-grid">
+      {flagshipTools.map((tool) => (
+        <a class="tool panel" href={href(routes[tool.route!][locale])}>
+          <ToolPreview route={tool.route!} />
+          <div class="tool-text">
+            <span class="mark mark-live">{ui.status.live}</span>
+            <h3 class="h3">{tool.name[locale]}</h3>
+            <p>{tool.blurb![locale]}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="sheet all">
+    <h2 class="h3 sub">{copy.allTitle}</h2>
+    {kinds.map((kind) => {
+      const group = tools.filter((tool) => tool.kind === kind);
+      return (
+        <div class="group">
+          <h3 class="kind">{kindLabel[kind][locale]} <span class="num muted">{group.length}</span></h3>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="num">{copy.cols.n}</th>
+                  <th>{copy.cols.tool}</th>
+                  <th>{copy.cols.section}</th>
+                  <th class="num">{copy.cols.priority}</th>
+                  <th>{copy.cols.status}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {group.map((tool) => {
+                  const sec = sectionOf(tool.section);
+                  return (
+                    <tr>
+                      <td class="num">{tool.id}</td>
+                      <td>
+                        {tool.status === 'live' && tool.route
+                          ? <a class="inline" href={href(routes[tool.route][locale])}>{tool.name[locale]}</a>
+                          : tool.name[locale]}
+                      </td>
+                      <td><a class="seclink" href={href(sectionPath(locale, sec))}><span class="num muted">{String(sec.n).padStart(2, '0')}</span> {sec.name[locale]}</a></td>
+                      <td class="num">{tool.priority}</td>
+                      <td><span class={`mark ${tool.status === 'live' ? 'mark-live' : tool.status === 'review' ? 'mark-review' : ''}`}>{statusLabel(tool.status)}</span></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    })}
+  </section>
+</Base>
+
+<style>
+  .head { padding-block: 3rem 1rem; display: grid; gap: 0.75rem; }
+  .live { padding-block: 2rem; }
+  .sub { color: var(--ink-2); font-weight: 500; margin-bottom: 1rem; }
+  .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  @media (max-width: 60rem) { .tool-grid { grid-template-columns: 1fr; } }
+  .tool { display: grid; grid-template-rows: auto 1fr; overflow: hidden; transition: border-color 150ms; }
+  .tool:hover { border-color: var(--ink-3); }
+  .tool-text { padding: 1.1rem 1.2rem 1.3rem; display: grid; gap: 0.5rem; align-content: start; }
+  .tool-text p { color: var(--ink-2); font-size: 0.95rem; }
+  .all { padding-block: 2rem 1rem; }
+  .group { margin-bottom: 2.5rem; }
+  .kind { font-weight: 500; margin-bottom: 0.5rem; }
+  .kind .num { margin-left: 0.4rem; font-size: 0.85rem; }
+  .seclink:hover { color: var(--accent); }
+</style>

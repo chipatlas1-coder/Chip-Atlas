@@ -1,0 +1,152 @@
+---
+key: climb-vs-conventional-milling
+locale: tr
+slug: ayni-ve-zit-yonlu-frezeleme
+title: 'Aynı yönlü ve zıt yönlü frezeleme'
+description: 'Freze dönüş yönünün ilerlemeye göre neden önemli olduğu: girişte ve çıkışta talaş kalınlığı, iş parçasını çeken ya da kaldıran kuvvetler, tezgâh boşluğu, yüzey kalitesi, zıt yönlü frezelemenin hâlâ daha iyi olduğu durumlar ve alın frezesinin nereye konacağı.'
+section: 2
+subsection: milling
+order: 2
+updated: 2026-10-11
+tools: [milling]
+glance:
+  - value: 'kalından inceye'
+    label: 'Aynı yönlü frezelemede girişten çıkışa talaş'
+  - value: '60°'
+    label: 'ae = 0,25 D''de kavrama açısı φe'
+  - value: '%20–50'
+    label: 'Alın frezesi çapının kesme genişliğinden fazlası (Sandvik Coromant)'
+  - value: '7 kata kadar'
+    label: 'Yuvarlanarak girişle takım ömrü, Inconel 718 (yalnızca Sandvik Coromant)'
+sources:
+  - label: 'Sandvik Coromant, "Down milling vs. up milling" (MSC Industrial Supply''da yeniden yayımlandı)'
+    url: https://www.mscdirect.com/knowledge-center/articles/down-milling-vs-milling
+  - label: 'Sandvik Coromant, "Toolpath tips and tricks for metal cutting", Manufacturing Engineering (SME), Kasım 2021'
+    url: https://www.sme.org/technologies/articles/2021/october/toolpath-tips-and-tricks-for-metal-cutting/
+  - label: 'Sandvik Coromant, ipucu filmi "Cutter position in milling", 2024'
+    url: https://videos.sandvik.coromant.com/tips-film-cutter-position-in
+  - label: 'Seco Tools, "Controlling mechanical loads in milling operations"'
+    url: https://www.secotools.com/article/controlling_mechanical_loads_in_milling_operations
+  - label: 'Kennametal, "Technical information: cutter pitch" (MSC üzerinden), 2017'
+    url: https://www.mscdirect.com/betterMRO/msc-generate-pdf/3381
+  - label: 'ISCAR, Threading Handbook, "Climb milling vs. conventional milling"'
+    url: https://iscar.com/Catalogs/flipview/reference-user-guides/Threading_Handbook/files/basic-html/page193.html
+  - label: 'ISCAR, Machining Titanium rehberi 2019, s. 25–26 (kavrama açısı ve talaş kalınlığı formülleri)'
+    url: https://iscar.com/Catalogs/flipview/reference-user-guides/machining_titanium_05_2019/files/basic-html/page25.html
+  - label: 'Mitsubishi Materials, e-öğrenme "Up and down cut milling"'
+    url: https://mmc-carbide.com/permanent/courses/73/up---down-cut-milling.html
+  - label: 'Mitsubishi Materials, e-öğrenme "Selecting the tool diameter and setting position"'
+    url: https://www.mmc-carbide.com/permanent/courses/73/selecting-the-tool-diamter---setting-position.html
+  - label: 'Ingersoll Cutting Tools (IMC), frezeleme teknik bölümü, s. 304–321'
+    url: https://ssl.ingersoll-imc.com/resources/pdf/0302_Milling_Tech.pdf
+  - label: 'Harvey Performance, "Climb milling vs. conventional milling", In The Loupe, 2017 (2023''te güncellendi)'
+    url: https://www.harveyperformance.com/in-the-loupe/conventional-vs-climb-milling/
+  - label: 'DMG MORI, "Grundlagen der Fertigungstechnik", 2022'
+    url: https://de.industryarena.com/dmgmori/blog/grundlagen-der-fertigungstechnik--20186.html
+  - label: 'Wikipedia (de), "Fräsen" (Gleichlauf- ve Gegenlauffräsen; Fachkunde Metall, Europa-Lehrmittel''e atıfla)'
+    url: https://de.wikipedia.org/wiki/Fr%C3%A4sen
+  - label: 'S. Kalpakjian, S. R. Schmid, Manufacturing Engineering and Technology (SI), 6. baskı, bölüm 24 — ders slaytları, King Saud Üniversitesi'
+    url: https://faculty.ksu.edu.sa/sites/default/files/06%20-%20Milling%20%28AMS%20Nov15_25%29_0.pdf
+  - label: 'M. Vural (İTÜ), EUT 231 Üretim Yöntemleri, talaşlı imalat yöntemleri (Türkçe terimler)'
+    url: https://ntmyo.gaziantep.edu.tr/files/dosyalar/ch22-talasli-imalat-yontemleri.pdf
+  - label: 'Canadian Metalworking, "About face milling", 2023 (ISCAR ve Kyocera''nın kavrama ifadeleri)'
+    url: https://cimindustry.com/canadianmetalworking/article/cuttingtools/about-face-milling
+---
+import MillingDirection from '../../../components/mdx/MillingDirection.astro';
+import ClimbBacklash from '../../../components/mdx/ClimbBacklash.astro';
+import LineChart from '../../../components/mdx/LineChart.astro';
+import { hexCurve } from '../../../data/figures';
+
+Her frezeleme kesmesi, değiştirmesi kolay ama sonucu çok önemli bir seçimle başlar: freze ilerlemeyle aynı yönde mi dönüyor, ters yönde mi? Cevap, her dişin işe kalın bir talaşla mı girdiğini yoksa sıfır kalınlıkta kayarak mı başladığını, kuvvetlerin parçayı tablaya mı bastırdığını yoksa kaldırmaya mı çalıştığını belirler.
+
+## İki yön
+
+- **Aynı yönlü frezelemede** (aşağı frezeleme), freze temas noktasında ilerlemeyle aynı yönde döner. Her talaş kalın başlar, ince biter.
+- **Zıt yönlü frezelemede** (yukarı frezeleme), freze temas noktasında ilerlemeye karşı döner. Her talaş sıfır kalınlıkta başlar, kalın biter.
+
+Almanca metinler bunlara *Gleichlauffräsen* ve *Gegenlauffräsen* der. Türkçe ders notlarında aynı yönlü frezeleme için *aşağı (tırmanma) frezeleme*, zıt yönlü frezeleme için *yukarı (geleneksel) frezeleme* adları da kullanılır.
+
+<Figure caption="Yandan görülen çevresel frezeleme; freze sabit, iş parçası sola ilerliyor. Turuncu bant kavrama yayıdır; genişliği talaş kalınlığı h = fz · sin φ ile birlikte artar. Büyük ok, kavrama boyunca ortalaması alınmış teğetsel kesme kuvvetinin iş parçasındaki yönüdür.">
+  <MillingDirection locale="tr" />
+</Figure>
+
+## Girişteki talaş neden önemli
+
+Zıt yönlü frezelemede kenar, iş parçasıyla talaş kalınlığının sıfır olduğu yerde buluşur. Hemen kesemez: malzemeye zorla girer ve sürtünür; bu da sürtünme ve ısı üretir. Ayrıca bir önceki dişin pekleştirdiği yüzeyin üzerinden kayar. Sandvik Coromant, Mitsubishi, Kennametal, Ingersoll ve Harvey Performance bu giriş sürtünmesini ve sonucunu, yani kısalan takım ömrünü anlatır. Çıkışta talaş en kalın ve en sıcak hâlindedir; Sandvik bunun kenarda yüksek çekme gerilmesine yol açtığını ve talaşın kenara yapışabildiğini belirtir.
+
+Aynı yönlü frezelemede kenar işe tam talaş kalınlığıyla girer ve sıfırla çıkar; yani ilk andan itibaren keser. Kennametal ve Harvey, ısının daha büyük kısmının bu durumda talaşa geçtiğini belirtir. Sandvik Coromant bunu frezelemenin altın kuralı olarak özetler: **kalından inceye**.
+
+Bedeli girişte daha ağır bir darbedir. Seco, tam kalınlıkta girişin kenara ağır bir mekanik yük bindirdiğini, ama yaygın takım malzemelerinin buna genellikle dayandığını belirtir.
+
+## Kuvvetler ve tezgâh boşluğu
+
+İki yön iş parçasını farklı yönlere iter:
+
+- **Zıt yönlü frezeleme** iş parçasını tabladan kaldırma eğilimindedir ve bileşkesi ilerlemeye karşı yönelir. Bağlama kaldırmaya karşı koymalıdır.
+- **Aynı yönlü frezeleme** iş parçasını ilerleme yönünde çeker ve tablaya ya da bağlamaya bastırır. Bağlama çekmeye karşı koymalıdır.
+
+Aynı yönlü frezelemenin boşluksuz bir ilerleme tahriki istemesinin nedeni bu çekmedir. Vida ile somun arasında boşluk varsa freze, Mitsubishi'nin ve Almanca Wikipedia'nın anlattığı gibi iş parçasını boşluk kadar ileri doğru sarsarak çekebilir; Harvey Performance bunun kırılmaya yol açabileceği konusunda uyarır. Zıt yönlü frezeleme tablayı vidaya doğru iter; eski tezgâhlarda geleneksel yöntem olmasının nedeni budur. Almanca Wikipedia, Fachkunde Metall'e atıfla, boşluksuz ve rijit bilyalı vidaları aynı yönlü frezelemeye uygun tahrik olarak gösterir.
+
+<Figure caption="Vida döner ve somunu, dolayısıyla tablayı sola sürer. Zıt yönlü frezelemede iş parçasına etkiyen kuvvet ilerlemeye karşıdır ve somunu tahrik eden yanaklara bastırır. Aynı yönlü frezelemede kuvvet ilerleme yönündedir: vida ile somun arasında boşluk varsa tabla, somun karşı yanaklara dayanana kadar öne kaçabilir. Büyütülmüş ayrıntı somun dişini kesit olarak gösterir; boşluk abartılı çizilmiştir.">
+  <ClimbBacklash locale="tr" />
+</Figure>
+
+## Yüzey kalitesi
+
+Harvey Performance, ISCAR, DMG MORI ve Almanca Wikipedia, aynı yönlü frezelemenin genellikle daha iyi yüzey verdiğinde hemfikirdir. Zıt yönlü frezelemede talaşlar frezenin önüne düşme eğilimindedir ve yeniden kesilebilir; bu da yüzeyi bozar.
+
+## Öneri ve istisnaları
+
+İncelenen bütün takım üreticileri varsayılan yöntem olarak aynı yönlü frezelemeyi önerir. Sandvik Coromant onu tezgâh, bağlama ve iş parçası izin verdiği her durumda her zaman tercih edilen yöntem olarak tanımlar; Seco, Kennametal, ISCAR, Ingersoll ve Harvey de kendi sözleriyle aynısını söyler.
+
+Zıt yönlü frezeleme birkaç durumda daha iyi seçim olmaya devam eder:
+
+| Durum | Neden | Kaynaklar |
+|---|---|---|
+| İlerleme tahrikinde boşluk olan tezgâh | Freze tablayı kesmeye çekebilir | Harvey, ISCAR, Ingersoll, Wikipedia (de) |
+| Tufal, döküm kabuğu, alevle kesilmiş ya da sert yüzeyler | Kenar sert kabuğa tam talaş kalınlığında çarpmak yerine kabuğun altından, daha temiz malzemede girer | Harvey, ISCAR, Ingersoll, Kalpakjian, Wikipedia (de) |
+| Kaldırılacak talaş payında büyük değişimler | Sandvik Coromant önerir | Sandvik |
+| Isıya dayanıklı alaşımlarda seramik uçlar | Seramikler girişteki darbeye duyarlıdır; kademeli giriş onları korur | Sandvik, Seco |
+| Zayıf bağlamalar, ince cidarlar | Seco ve Sandvik bazı durumlar için önerir | Seco, Sandvik |
+
+<Note kind="warn" title="Kaynakların ayrıştığı yerler">
+**İnce parçalar:** Seco ve Sandvik ince cidarları zıt yönlü frezeleme gerekçesi olarak sayarken, Kalpakjian'ın ders malzemesi aynı yönlü frezelemenin aşağı doğru kuvvetini ince parçalar için bir avantaj sayar. **Tırlama:** Harvey, tırlayan ya da yırtılan malzemeler için zıt yönlü frezelemeyi önerir; Almanca Wikipedia ve DMG MORI ise zıt yönlü frezelemeyi titreşime daha yatkın yöntem olarak tanımlar. Parça üzerinde deneyin.
+</Note>
+
+## Alın frezeleme: freze nereye konmalı
+
+Alın frezelemede freze genellikle merkezinin her iki yanında kavrar; bu yüzden her pasonun bir kısmı aynı yönlü, bir kısmı zıt yönlüdür. Frezenin konumu girişte ve çıkışta talaş kalınlığını belirler.
+
+- **Çap.** Sandvik Coromant, freze çapının kesme genişliğinden %20 ila %50 büyük olmasını önerir. Videosunda en iyi konumu yaklaşık %70 radyal kavrama olarak verir; Canadian Metalworking'de aktarılan ISCAR çapın %70 ila %80'ini, Mitsubishi iş parçası genişliğinin 1,2 ila 1,3 katı bir çap önerir.
+- **Merkez dışı.** Sandvik Coromant ve Seco, frezenin iş parçasının merkez çizgisine konmamasını önerir: merkezi konum aynı ve zıt yönlü kuvvetleri karıştırır, çıkışta kalın bir talaş verir ve titreşim riskini artırır. Mitsubishi ise tersine, frezenin merkezini iş parçasının ortasına yakın koymayı en uygun konum olarak tanımlar. Üreticiler burada ayrışır.
+- **Kesmeye yuvarlanarak girin.** Sandvik Coromant, talaş girişte kalın ve çıkışta ince olsun diye yuvarlanan (yay biçimli) bir takım yoluyla girmeyi önerir. Bu teknikle 46 HRC'deki Inconel 718'de yedi kata kadar daha uzun takım ömrü bildirir; bu rakam yalnızca Sandvik'e aittir.
+
+## Formüller
+
+D çaplı bir freze ae radyal kavramada çalışırken kavrama açısı, kesme yolunun bitmiş yüzeye teğet olduğu noktadan ölçülerek:
+
+$$
+\varphi_e = \arccos\!\left(1 - \frac{2\,a_e}{D}\right)
+$$
+
+diş başına ilerleme fz ve yanaşma açısı κr ile φ açısındaki talaş kalınlığı:
+
+$$
+h(\varphi) = f_z \cdot \sin\varphi \cdot \sin\kappa_r
+$$
+
+ae < D/2 için en büyük talaş kalınlığı bu yüzden:
+
+$$
+h_{ex} = f_z \cdot \sin\kappa_r \cdot 2\sqrt{\frac{a_e}{D}\left(1 - \frac{a_e}{D}\right)}
+$$
+
+ae ≥ D/2 olduğunda ise fz · sin κr'ye eşittir.
+
+**Örnek.** ae = 0,25 D'de φe = arccos(0,5) = 60° ve hex = 2√(0,25 · 0,75) · fz · sin κr ≈ 0,87 · fz · sin κr olur: talaş, diş başına ilerlemeye hiç ulaşmaz.
+
+<Figure caption="En büyük talaş kalınlığının fz · sin κr'ye oranı, ae/D'ye göre. ae = D/2'ye kadar talaş diş başına ilerlemeye ulaşmaz; ae = 0,25 D'de oran 0,87'dir. Okumak için üzerine gelin.">
+  <LineChart locale="tr" series={hexCurve('tr')} marks={[{ x: 0.25, y: 0.866, label: '0,87', place: 'se' }, { x: 0.5, y: 1, label: 'ae = D/2' }]} xMin={0} xMax={1} yMin={0} yMax={1.1} xTicks={[0, 0.1, 0.25, 0.5, 0.75, 1]} yTicks={[0, 0.2, 0.4, 0.6, 0.8, 1]} xLabel="ae / D" yLabel="hex / (fz · sin κr)" endLabels={false} xDec={2} yDec={2} aria="Radyal kavramaya göre en büyük talaş kalınlığı" />
+</Figure>
+
+Dönüş yönü bu sayıları değiştirmez; kenarın talaşın kalın ucuyla önce mi yoksa sonra mı buluştuğunu belirler. [Frezeleme hesaplayıcısı](/tr/araclar/frezeleme-hesaplayicisi/), hedef bir talaş kalınlığı için ilerlemeyi aynı formüllerle belirler.

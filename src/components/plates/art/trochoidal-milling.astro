@@ -1,0 +1,45 @@
+---
+/* Trochoidal milling, plan view. A slot wider than the cutter, the centre path drawn as advancing loops, the cutter at
+   the front of its loop with the short engaged arc lit, the step per loop dimensioned. Geometry from lib/trochoid.ts. */
+import { centre, engagementLoop } from '../../../lib/trochoid';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr ? { step: 'adım', eng: 'kavrayan yay' } : { step: 'step', eng: 'engaged arc' };
+const D = 10, W = 15.5, s = 1.2, r = (W - D) / 2, k = 12.5, x0 = 70, yc = 162;
+const X = (x: number) => x0 + x * k, Y = (y: number) => yc - y * k;
+const loops = 16;
+let path = '';
+for (let i = 0; i <= (loops - 0.8) * 90; i++) { const p = centre((i / 90) * 2 * Math.PI, s, r); path += `${i ? 'L' : 'M'}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`; }
+// swept slot up to the current position
+const tNow = (loops - 1 + 0.2) * 2 * Math.PI;
+let swept = '';
+for (let i = 0; i <= 600; i++) { const p = centre((i / 600) * tNow, s, r); swept += `${i ? 'L' : 'M'}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`; }
+const c = centre(tNow, s, r), R = D / 2;
+const E = engagementLoop(D, W, s);
+const arc = E.arcs[Math.round(0.2 * E.arcs.length)];
+const a0 = (arc.from * Math.PI) / 180, a1 = (arc.to * Math.PI) / 180;
+const P0 = [X(c.x + R * Math.cos(a0)), Y(c.y + R * Math.sin(a0))], P1 = [X(c.x + R * Math.cos(a1)), Y(c.y + R * Math.sin(a1))];
+const arcD = `M${P0[0].toFixed(1)},${P0[1].toFixed(1)} A${R * k},${R * k} 0 ${a1 - a0 > Math.PI ? 1 : 0} 0 ${P1[0].toFixed(1)},${P1[1].toFixed(1)}`;
+const xa = X(centre(Math.PI / 2 + (loops - 3) * 2 * Math.PI, s, r).x), xb = X(centre(Math.PI / 2 + (loops - 2) * 2 * Math.PI, s, r).x);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs><clipPath id="trpl-clip"><rect x="20" y={Y(W / 2) - 30} width="440" height={W * k + 60} /></clipPath></defs>
+  <rect class="hatch f" style="--i:0" x="20" y={Y(W / 2) - 30} width="440" height={W * k + 60} />
+  <g clip-path="url(#trpl-clip)" class="f" style="--i:1">
+    <rect x="20" y={Y(W / 2)} width={X(0) - 20} height={W * k} fill="#f7f9fb" />
+    <path d={swept} fill="none" stroke="#f7f9fb" stroke-width={D * k} stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+  <path class="o2 d" style="--i:2" pathLength="1" d={`M20,${Y(W / 2)} L${X(s * (loops - 1.5))},${Y(W / 2)} M20,${Y(-W / 2)} L${X(s * (loops - 1))},${Y(-W / 2)}`} />
+  <path class="b d" style="--i:3" pathLength="1" d={path} stroke-width="1.4" opacity="0.75" clip-path="url(#trpl-clip)" />
+  <circle class="f" style="--i:5" cx={X(c.x)} cy={Y(c.y)} r={R * k} fill="#c9d1da" fill-opacity="0.9" stroke="#364554" stroke-width="1.6" />
+  <g class="spin" style="--spin: 1.6s">
+    {[0, 90, 180, 270].map((a) => <line x1={X(c.x)} y1={Y(c.y)} x2={X(c.x) + R * k * 0.9 * Math.cos((a * Math.PI) / 180)} y2={Y(c.y) + R * k * 0.9 * Math.sin((a * Math.PI) / 180)} stroke="#5f6c79" stroke-width="2.4" />)}
+  </g>
+  <path class="d" style="--i:6" pathLength="1" d={arcD} fill="none" stroke="#e2601a" stroke-width="6" stroke-linecap="round" />
+  <line class="f" style="--i:7" x1={xa} x2={xb} y1={Y(-W / 2) + 18} y2={Y(-W / 2) + 18} stroke="#13998a" stroke-width="1.4" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+  <g class="lbl">
+    <text class="t-data t-sm" x={(xa + xb) / 2} y={Y(-W / 2) + 34} text-anchor="middle">{T.step}</text>
+    <text class="t-acc t-sm" x={P1[0] + 8} y={Y(W / 2) - 12} text-anchor="middle">{T.eng}</text>
+  </g>
+</svg>

@@ -1,0 +1,65 @@
+---
+/**
+ * Face-mill pitch: the same body with few, more and the most inserts, and a differential pitch with unequal
+ * spacing. Each with what Sandvik Coromant's Milling tools 2025 guide says it is for. The cutters turn while in view.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const C = tr
+  ? [
+      { n: 5, name: 'Az kesici ağızlı (-L)', text: 'Zor koşullarda ilk seçim; sınırlı güç ve kararlılık, uzun takım boyları, tam kanal, büyük talaş boşluğu isteyen uzun talaşlı ISO N malzemeler.' },
+      { n: 8, name: 'Orta sayıda ağızlı (-M)', text: 'Ortalama koşullarda ilk seçim; ISO P, M ve S malzemelerde kaba işlemede iyi talaş boşluğu.' },
+      { n: 12, name: 'En çok ağızlı (-H)', text: 'Kararlı koşullarda ilk seçim; kısa talaşlı ya da ısıya dayanıklı malzemeler için ideal; küçük ae’de her zaman birden çok diş kesmede.' },
+      { n: 7, name: 'Değişken adımlı', text: 'Dişler gövdenin çevresinde eşit olmayan aralıklarla dizilir; harmonik titreşimleri bozar; özellikle geniş kesmede ve uzun sarkmalarda yararlı.', diff: true },
+    ]
+  : [
+      { n: 5, name: 'Coarse pitch (-L)', text: 'First choice for difficult conditions; limited power and stability, long tool assemblies, full slotting, long-chipping ISO N materials that need a large chip pocket.' },
+      { n: 8, name: 'Close pitch (-M)', text: 'First choice for average conditions; good chip space for roughing in ISO P, M and S materials.' },
+      { n: 12, name: 'Extra-close pitch (-H)', text: 'First choice for stable conditions; ideal for short-chipping or heat-resistant materials; at low ae more than one tooth is always in the cut.' },
+      { n: 7, name: 'Differential pitch', text: 'Unequal spacing of the teeth round the cutter; breaks up harmonic vibrations; especially useful with a large width of cut and long overhangs.', diff: true },
+    ];
+const f1 = (v: number) => v.toFixed(1);
+const angles = (n: number, diff?: boolean) => {
+  if (!diff) return Array.from({ length: n }, (_, i) => (i * 360) / n);
+  const gaps = [46, 56, 50, 58, 48, 54, 48];             // unequal, sums to 360
+  let a = 0; return gaps.map((g) => { const v = a; a += g; return v; });
+};
+---
+<div class="cp" data-anim>
+  {C.map((c, i) => (
+    <div class="cell" style={`--d:${i * 0.12}s`}>
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <g class="turn" style={`animation-duration:${6 + i}s`}>
+          <circle cx="60" cy="60" r="48" class="bodyc" />
+          {angles(c.n, c.diff).map((a) => {
+            const r = (a * Math.PI) / 180, x = 60 + 41 * Math.cos(r), y = 60 + 41 * Math.sin(r);
+            return <g><path d={`M${f1(60 + 30 * Math.cos(r - 0.18))},${f1(60 + 30 * Math.sin(r - 0.18))} L${f1(60 + 49 * Math.cos(r - 0.1))},${f1(60 + 49 * Math.sin(r - 0.1))} L${f1(60 + 49 * Math.cos(r + 0.08))},${f1(60 + 49 * Math.sin(r + 0.08))} Z`} class="pocket" /><rect x={f1(x - 5)} y={f1(y - 5)} width="10" height="10" rx="1.5" class="insr" transform={`rotate(${f1(a + 45)} ${f1(x)} ${f1(y)})`} /></g>;
+          })}
+          <circle cx="60" cy="60" r="12" class="hub" />
+        </g>
+      </svg>
+      <p class="nm">{c.name}</p>
+      <p class="tx">{c.text}</p>
+    </div>
+  ))}
+</div>
+
+<style>
+  .cp { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+  @media (max-width: 48rem) { .cp { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .cell { display: grid; gap: 0.35rem; align-content: start; }
+  .cell svg { width: 100%; max-width: 9rem; height: auto; justify-self: center; }
+  .bodyc { fill: #dfe5ea; stroke: #364554; stroke-width: 1.4; }
+  .pocket { fill: #ffffff; stroke: #9aa6b2; stroke-width: 0.8; }
+  .insr { fill: url(#ca-coat); stroke: #8a6420; stroke-width: 0.8; }
+  .hub { fill: #fff; stroke: #5f6c79; stroke-width: 1.2; }
+  .nm { margin: 0; font-weight: 600; font-size: 0.92rem; color: var(--ink); }
+  .nm .num { font-weight: 400; color: var(--ink-3); font-size: 0.8rem; }
+  .tx { margin: 0; font-size: 0.85rem; line-height: 1.45; color: var(--ink-2); }
+  .turn { transform-box: fill-box; transform-origin: center; }
+  :global(html.anim) .cp[data-in] .turn { animation: cp-turn linear infinite; }
+  @keyframes cp-turn { to { transform: rotate(360deg); } }
+  :global(html.anim) .cp:not([data-in]) .cell { opacity: 0; }
+  :global(html.anim) .cp[data-in] .cell { animation: ca-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: var(--d); }
+</style>

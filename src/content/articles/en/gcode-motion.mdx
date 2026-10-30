@@ -1,0 +1,146 @@
+---
+key: gcode-motion
+locale: en
+slug: g00-g01-g02-g03-motion-commands
+title: 'G00, G01, G02, G03: the motion commands'
+description: 'The four motion codes of a CNC program: rapid positioning, straight feed and circular arcs. How the arc direction and the plane are defined, the arc centre by I J K or by radius R, absolute and incremental coordinates and the lathe exceptions, feed modes and dwell, modal codes, how FANUC, Haas, Siemens, HEIDENHAIN and LinuxCNC differ, and the mistakes the sources warn about. With a program played line by line.'
+section: 9
+subsection: g-code-reference
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'G00–G03'
+    label: 'One modal group: a motion code stays in force until another one replaces it (FANUC, Haas)'
+  - value: 'I J K'
+    label: 'Measured from the arc start point to its centre (Haas, NIST, MEB)'
+  - value: 'R < 0'
+    label: 'A negative radius gives the arc of more than 180° (Haas, NIST)'
+  - value: 'ISO 6983-1'
+    label: 'The program format standard; the 2009 edition was confirmed in 2025 (ISO)'
+sources:
+  - label: 'Productivity Inc (Haas Factory Outlet), HAAS Mill Programming Manual, rev. 06/26, pp. 9, 15–18, 24, 34–35, 83–84 (training manual using Haas Automation content with permission)'
+    url: https://productivity.com/wp-content/uploads/2025/10/Mill-Programming-2026.pdf
+  - label: 'Productivity Inc (Haas Factory Outlet), Haas Lathe Programming Manual, rev. 12/2024, pp. 8–14, 25–26, 55, 68'
+    url: https://www.productivity.com/wp-content/uploads/2025/05/Lathe-Programming.pdf
+  - label: 'FANUC, User’s Manual (For Lathe System) B-64304EN-1/01, explanatory notes and G-code list, pp. 16–19 (read in a third-party copy, so no link is given)'
+  - label: 'FANUC Corp. (M. Ito, H. Minami), US 10,444,728 B2, “Numerical controller performing positioning for avoiding interference with workpiece”'
+    url: https://patents.google.com/patent/US10444728B2/en
+  - label: 'T. R. Kramer, F. M. Proctor, E. Messina, The NIST RS274/NGC Interpreter – Version 3, NISTIR 6556, NIST, 2000'
+    url: https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir6556.pdf
+  - label: 'LinuxCNC documentation, “G-Codes”'
+    url: https://www.linuxcnc.org/docs/html/gcode/g-code.html
+  - label: 'ISO 6983-1:2009, Automation systems and integration — Numerical control of machines — Program format and definitions of address words — Part 1 (catalogue page)'
+    url: https://committee.iso.org/standard/34608.html
+  - label: 'Siemens, SINUMERIK Handbook: G codes & M codes (turning), C101'
+    url: https://assets.new.siemens.com/siemens/assets/api/uuid:a27afac9-4273-43a7-bd63-ab4867e1805c/2-C101-G-codes-M-codes.pdf
+  - label: 'Siemens, SINUMERIK 840D sl/840D/840Di/810D Fundamentals, Programming Manual, edition 08/2005 (contents and chapter 1)'
+    url: https://cache.industry.siemens.com/dl/files/233/108869233/att_825441/v1/PG_0805_en.pdf
+  - label: 'DR. JOHANNES HEIDENHAIN GmbH, TNC 410 User’s Manual, Conversational Programming, 6/2001'
+    url: https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC400/286060-xx/bhb/309_740-25.pdf
+  - label: 'CIMCO, CIMCO Edit v8 documentation, “Exercises – Turning – Circular Interpolation”'
+    url: https://www.cimco.com/docs/cimco_edit/v8/en/ExercisesTurningOSCircularInterpolation.html
+  - label: 'L. Hillyard, Support for CNC, Mt. Hood Community College, “G00, G01 (Code Practice)”, CC BY 4.0'
+    url: https://mhcc.pressbooks.pub/supportcnc/?p=143
+  - label: 'T.C. Millî Eğitim Bakanlığı, MEGEP, CNC Tornada Programlama (521MMI121), Ankara 2012'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/10121138_Cnc_Tornada_Programlama.pdf
+---
+import GcodePlayer from '../../../components/mdx/GcodePlayer.astro';
+import ArcPlanes from '../../../components/mdx/ArcPlanes.astro';
+
+A CNC program moves the tool mainly with four words: G00 for a rapid move to position, G01 for a straight cut at a feed rate, G02 and G03 for arcs. All four sit in one group of the FANUC G-code list, group 01, as they do in the Haas list (the Haas wording here comes from the Haas Factory Outlet training manuals), and a code of that group stays in force until another one replaces it. The ISO standard for the program format and its address words is ISO 6983-1, "Data format for positioning, line motion and contouring control systems"; its second edition, from 2009, replaced the 1982 one and was confirmed again in 2025. In the United States the language was standardised as RS274; NIST wrote in 2000 that "The most recent standard version of RS274 is RS274-D, which was completed in 1979."
+
+| Code | What it does | In the makers’ words |
+|---|---|---|
+| G00 | Rapid positioning | FANUC: positioning (rapid traverse); Siemens: "G00 Rapid Traverse" |
+| G01 | Straight line at the feed rate | Haas: "G01 moves the axes at a commanded feedrate and is primarily used for cutting." |
+| G02 | Arc, clockwise | Haas: "G02 (clockwise) and G03 (counterclockwise) command circular cutting moves." |
+| G03 | Arc, counter-clockwise | FANUC: circular or helical interpolation CW (G02) and CCW (G03) |
+
+<Figure caption="A program written for this page, in millimetres, played line by line: a rapid, a straight feed, a counter-clockwise arc by I J, a straight feed, a clockwise arc by R, and a rapid back. On an arc line the centre and the line from the start point to it (the I J vector) are drawn. Switch the rapid path to “axis by axis” to see the bend a control makes when each axis runs at its own rapid rate, with equal rates assumed here. Not a program for a machine: it has no tool, spindle or Z moves.">
+  <GcodePlayer locale="en" unit="mm"
+    lines={['G90 G17', 'G00 X0 Y-10', 'G01 X40 Y-10 F200', 'G03 X60 Y10 I0 J20', 'G01 Y40', 'G02 X40 Y60 R20', 'G00 X0 Y0']}
+    notes={[
+      'G90: coordinates are absolute, measured from the program zero. G17: arcs in the XY plane.',
+      'G00: rapid to X0 Y−10 at the machine’s rapid rate. F does not apply.',
+      'G01: straight to X40 at F200 (mm/min under G94). F stays in force for the lines that follow.',
+      'G03: counter-clockwise to X60 Y10. The centre is the start point plus I0 J20, so at X40 Y10; radius 20.',
+      'G01: no X, so X stays at 60; straight up to Y40.',
+      'G02: clockwise to X40 Y60 with R20. R is positive, so the control takes the arc of 180° or less; the centre is at X60 Y60.',
+      'G00: rapid back to the start. Depending on the control the path may not be straight.',
+    ]} />
+</Figure>
+
+## G00: fast, and not always straight
+
+G00 moves at the machine's rapid rate, not at the programmed feed. What path it takes depends on the control. Haas: "Generally, rapid motion will not be in a straight line", and all axes "will not necessarily complete their motions at the same time." A FANUC patent describes the same: "if respective axes do not move in synchronization as in a cutting command, a moving path does not become a straight line", and it names both kinds, linear interpolation positioning along the straight path from start to end and non-linear interpolation positioning. The NIST RS274/NGC interpreter, by contrast, produces "coordinated linear motion to the destination point at the current traverse rate", and LinuxCNC follows it but notes that the path "can be rounded at direction changes". The Turkish MEB module calls G00 a straight ("doğrusal") rapid move. Haas adds that the control waits until every axis has finished before it starts the next line.
+
+So the rule is the Mt. Hood Community College one: "never rapid to or from a position too close to the workpiece." A rapid that bends can cut a corner the programmer did not expect; the FANUC patent's own words are "a tool and a workpiece may interfere with each other." The college text, warning against assuming the rapid path is a straight line, puts it more bluntly: "This is a crash waiting to happen."
+
+## G01, feed and dwell
+
+G01 is the cutting move, and it needs a feed: without F, the college text warns, "most machines will throw an error." F is modal, so it "may be specified in a previous block" (Haas). Its unit is set by another group. On mills, on Siemens controls and on FANUC controls with G-code system B or C, G94 gives feed per minute and G95 feed per revolution (FANUC, Haas, Siemens); Haas also has inverse-time feed, G93, which needs an F "on every line." On FANUC lathes with G-code system A and on Haas lathes, the same pair is G98 (per minute) and G99 (per revolution); the MEB module gives the units as mm/dak for G98 and mm/dv for G99. On mills, G98 and G99 mean something else: the return level of a canned cycle.
+
+G04 is a dwell: the axes stand still for a time, and the code acts only in its own block. The time is given in seconds by LinuxCNC and NIST, with P in seconds, and Siemens writes "Dwell Time in seconds G04 F1." The MEB module also counts the dwell in seconds but writes P without a decimal point, in thousandths: its example gives the same 2.5 s dwell as G04 X2.5 and as G04 P2500. So check how your control reads P before relying on it.
+
+## G02 and G03: direction and plane
+
+Clockwise needs a point of view. LinuxCNC defines it: "The direction (CW, CCW) is as viewed from the positive end of the axis about which the circular motion occurs"; NIST says the same for the XY plane, "as viewed from the positive Z-axis". The plane is chosen by G17 (XY), G18 (ZX) and G19 (YZ), in the FANUC, Haas, Siemens and LinuxCNC lists alike. G18 is the turning plane ("XZ plane - Turning G18", Siemens), and an arc must lie in the active plane: Haas writes that circular interpolation "must use the correct plane (G17–G19)."
+
+<Figure caption="The three planes, each drawn as seen from the positive end of the axis square to it, which then points at the viewer; the dot runs round each arc in its direction. This is the definition LinuxCNC gives (NIST gives the same for the XY plane). On a lathe, check the direction in the machine’s own manual: Haas draws its G02 axis definitions separately for turret lathes and table lathes.">
+  <ArcPlanes locale="en" />
+</Figure>
+
+## The arc centre: I J K or R
+
+There are two ways to say where the arc's centre is. With I, J and K: "I, J, and K define the relative distances from the start point to the arc center" (Haas); NIST, LinuxCNC, CIMCO and the MEB module ("Yay başlangıcından yay merkezine X ekseninde artışlı (eklemeli) uzaklık") say the same. If only one of I or K is given, Haas's lathe manual takes the other as zero. Only this method can cut a full circle: Haas writes that "omitting the endpoint and specifying only I, J, or K produces a complete circle." LinuxCNC can also take the centre as absolute coordinates, switched by G90.1 and G91.1; the default is incremental.
+
+With R, the control works out the centre itself, and the sign picks between the two arcs that fit: "A positive R value is used for arcs of 180° or less, while a negative R value is used for arcs greater than 180°" (Haas); NIST gives the same rule. R has two limits. Haas: "To cut a full circle, the I, J, K method must be used; an R value cannot produce a complete circle." And near those cases R is inaccurate; NIST puts it memorably: "Nearly full circles are outrageously bad, semicircles (and nearly so) are only very bad." LinuxCNC calls centre-format arcs "more accurate than radius format arcs". In one block, use one or the other: "When I and K are used, R may not be used" (Haas). Siemens writes the radius as CR= and also offers an arc through an intermediate point, CIP.
+
+<Figure caption="The G02/G03 example from the Haas Factory Outlet mill programming manual (method 1, in inches), played line by line: a half circle counter-clockwise by I J. It is a teaching fragment, as printed: there is no spindle start, plane or offset line, so it is not a program to run as it stands.">
+  <GcodePlayer locale="en" unit="in"
+    lines={['%', 'T01 M06 ;', 'G00 X4. Y2. ;', 'G01 F20.0 Z-0.1 ;', 'G03 F20.0 I-2.0 J0. X0. Y2. ;', 'M30 ;', '%']}
+    notes={[
+      '% marks the beginning of the program (Haas).',
+      'T01 M06: the tool changer loads tool 1 into the spindle.',
+      'G00: rapid to X4 Y2, the start of the arc (drawn here from X0 Y0; the manual does not say where the tool starts).',
+      'G01: feed down to Z−0.1 at F20, 20 inches per minute. The plan view does not show Z.',
+      'G03: counter-clockwise to X0 Y2. The centre is the start plus I−2 J0, so at X2 Y2: a half circle of radius 2 through X2 Y4.',
+      'M30 ends the program and moves the cursor to the top of the program.',
+      '% marks the end of the program.',
+    ]} />
+</Figure>
+
+## Absolute and incremental
+
+G90 makes coordinates absolute, G91 incremental. Haas: "With G90, commanded positions are interpreted relative to the origin of the active coordinate system"; with G91 they count from the present position. Siemens: "Incremental dimensions refer to the positional data for the previous point." The MEB module uses mutlak and artışlı ölçülendirme for the two.
+
+Lathes are the exception. On a FANUC lathe with G-code system A, absolute or incremental "is specified not by a G code (G90/G91)" but by the address: X and Z are absolute, U and W incremental. Haas lathes work the same way ("Incremental programming is possible if U or W is specified in place of X or Z"), and so does the MEB module ("Fanuc kontrollü tezgahlarda X için (U) , Z için (W) kullanılır."). On these lathes G90 is not absolute programming at all but a turning cycle (FANUC system A; Haas). On FANUC lathes with G-code system B or C, whether the control starts in G90 or G91 is set by parameter No. 3402#3.
+
+## Modal and one-shot codes
+
+"The G code is effective until another G code of the same group is specified" (FANUC). That is a modal code. A one-shot code "is effective only in the block in which it is specified" (FANUC), such as the dwell. Haas puts the modal rule in practice terms: "a block with G00 causes all following blocks to be rapid motions", until another motion code comes. Codes from different groups can share a line, as in G90 G17 above; FANUC: "Multiple G codes can be specified in the same block if each G code belongs to a different group." Two codes from the same group are handled differently. Haas: "You cannot place two G-codes from the same group in a program block", and NIST says the same; FANUC's lathe manual instead says that then "only the last G code specified is valid".
+
+## How the controls differ
+
+| | FANUC | Haas | Siemens SINUMERIK | HEIDENHAIN (conversational) | LinuxCNC |
+|---|---|---|---|---|---|
+| Rapid | G00; straight or not, by type | G00, "Generally … not … in a straight line" | G0, with RTLION and RTLIOF | FMAX as the feed | G0, coordinated |
+| Straight line | G01 | G01 | G1 | L | G1 |
+| Arc | G02 / G03 | G02 / G03 with I J K or R | G2 / G3 with I J K or CR=; CIP | C around a centre CC; CR with a radius; CT tangential | G2 / G3 with I J K or R |
+| Direction | G02 CW, G03 CCW | same | same | DR– clockwise, DR+ counter-clockwise | same |
+| Incremental | G91 (systems B and C) or U W (system A) | G91 on mills, U W on lathes | G91 | not covered here | G91 |
+| Feed mode | G94 / G95 (B, C), G98 / G99 (A) | G93 / G94 / G95 mill, G98 / G99 lathe | G94 mm/min, G95 mm/rev | not covered here | G93 / G94 / G95 |
+
+The HEIDENHAIN TNC 410 manual notes that besides its conversational language "It is also possible to program in ISO format or DNC mode."
+
+## Mistakes the sources warn about
+
+- **A rapid too close to the part.** The path may not be straight (Haas, FANUC); never rapid to or from a position close to the workpiece (Mt. Hood Community College).
+- **A motion code left in force.** Motion codes are modal: after an arc, CIMCO notes, the G02 or G03 "must be cancelled if the next movement is linear with a G01 or G00".
+- **An arc in the wrong plane.** It must use the correct plane, G17 to G19 (Haas).
+- **R for a full circle, or near a semicircle.** A full circle needs I J K (Haas); radius arcs near 180° and near 360° are inaccurate (NIST, LinuxCNC).
+- **I K and R together.** Not allowed in one block (Haas).
+- **No feed on a G01.** If no F is in the block or earlier in the program, most machines stop with an error (Mt. Hood Community College); with G93, F is needed on every line (Haas).
+- **The decimal point.** "Be aware of the decimal point!" (Mt. Hood Community College). In the MEB dwell example, X2.5 and P2500 are the same 2.5 s.
+- **G90 on a lathe.** On FANUC system A and Haas lathes it is a turning cycle, not absolute programming.

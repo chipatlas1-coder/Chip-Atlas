@@ -1,0 +1,85 @@
+---
+/** The three cutting-force components in external turning, oblique view. */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? { fc: 'Fc esas kesme kuvveti', ff: 'Ff ilerleme kuvveti', fp: 'Fp pasif kuvvet', feed: 'ilerleme', rot: 'dönüş', aria: 'Tornalamada kesme kuvveti bileşenleri' }
+  : { fc: 'Fc main cutting force', ff: 'Ff feed force', fp: 'Fp passive force', feed: 'feed', rot: 'rotation', aria: 'Cutting force components in turning' };
+// Oblique projection: x along the workpiece axis, z up, y toward the viewer drawn down-left.
+const P = (x: number, y: number, z: number) => [320 + x - y * 0.55, 190 - z + y * 0.35];
+const R = 70;
+const ring = (x: number) => {
+  let d = '';
+  for (let i = 0; i <= 64; i++) {
+    const t = (i / 64) * Math.PI * 2;
+    const [px, py] = P(x, R * Math.sin(t), R * Math.cos(t));
+    d += (i ? 'L' : 'M') + px.toFixed(1) + ' ' + py.toFixed(1);
+  }
+  return d;
+};
+const [ax0, ay0] = P(-240, 0, 0), [ax1, ay1] = P(220, 0, 0);
+// Cutting point: front of the workpiece, at centre height (y = R toward the viewer, z = 0).
+const tip = P(40, R, 0);
+const arrow = (from: number[], to: number[], cls: string) =>
+  `<line x1="${from[0].toFixed(1)}" y1="${from[1].toFixed(1)}" x2="${to[0].toFixed(1)}" y2="${to[1].toFixed(1)}" class="${cls}" marker-end="url(#fa-${cls})"/>`;
+const fc = arrow(tip, P(40, R, -95), 'fc');
+const ff = arrow(tip, P(130, R, 0), 'ff');
+const fp = arrow(tip, P(40, R + 120, 0), 'fp');
+// Tool shank coming toward the viewer
+const t0 = P(40, R, 0), t1 = P(60, R + 30, 6), t2 = P(30, R + 160, 6), t3 = P(-10, R + 160, 6), t4 = P(10, R + 26, 6);
+const tool = `M${t0.join(' ')} L${t1.join(' ')} L${t2.join(' ')} L${t3.join(' ')} L${t4.join(' ')} Z`;
+const feedA = [P(-20, R + 40, 40), P(-90, R + 40, 40)];
+// Rotation of the work: the surface at the cutting point (front, y = +R) moves down, which is why Fc on the tool points down.
+const rotArc = (() => {
+  const Rr = R + 26;
+  let d = '';
+  for (let i = 0; i <= 24; i++) {
+    const t = ((20 + (i / 24) * 55) * Math.PI) / 180;
+    const [px, py] = P(160, Rr * Math.sin(t), Rr * Math.cos(t));
+    d += (i ? 'L' : 'M') + px.toFixed(1) + ' ' + py.toFixed(1);
+  }
+  return d;
+})();
+const rotLabel = P(160, (R + 26) * Math.sin(Math.PI / 9), (R + 26) * Math.cos(Math.PI / 9));
+---
+<svg viewBox="0 0 640 380" role="img" aria-label={L.aria} class="forces">
+  <defs>
+    {['fc', 'ff', 'fp', 'fd'].map((k) => (
+      <marker id={`fa-${k}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" class={`head-${k}`} />
+      </marker>
+    ))}
+  </defs>
+  <path d={ring(-200) + ' ' + ring(160)} class="work" />
+  <path d={`M${P(-200, 0, R).join(' ')} L${P(160, 0, R).join(' ')} M${P(-200, 0, -R).join(' ')} L${P(160, 0, -R).join(' ')}`} class="work" />
+  <line x1={ax0} y1={ay0} x2={ax1} y2={ay1} class="axis" />
+  <path d={tool} class="tool" />
+  <g set:html={fc + ff + fp} />
+  <path d={rotArc} class="fd" fill="none" marker-end="url(#fa-fd)" />
+  <text x={rotLabel[0] + 10} y={rotLabel[1] - 4} class="t muted">{L.rot}</text>
+  <line x1={feedA[0][0]} y1={feedA[0][1]} x2={feedA[1][0]} y2={feedA[1][1]} class="fd" marker-end="url(#fa-fd)" />
+  <text x={(feedA[0][0] + feedA[1][0]) / 2} y={feedA[1][1] - 10} class="t muted" text-anchor="middle">{L.feed}</text>
+  <text x={P(40, R, -95)[0] + 10} y={P(40, R, -95)[1]} class="t c-fc">{L.fc}</text>
+  <text x={P(130, R, 0)[0] + 8} y={P(130, R, 0)[1] + 4} class="t c-ff">{L.ff}</text>
+  <text x={P(40, R + 120, 0)[0] - 10} y={P(40, R + 120, 0)[1] + 18} class="t c-fp" text-anchor="end">{L.fp}</text>
+</svg>
+
+<style>
+  .forces :global(.work) { fill: none; stroke: var(--color-steel-500); stroke-width: 1.5; }
+  .forces :global(.axis) { stroke: var(--ink-3); stroke-dasharray: 12 5 3 5; }
+  .forces :global(.tool) { fill: var(--bg-panel); stroke: var(--ink-2); stroke-width: 1.5; }
+  .forces :global(.fc) { stroke: var(--accent); stroke-width: 3; }
+  .forces :global(.ff) { stroke: var(--data); stroke-width: 3; }
+  .forces :global(.fp) { stroke: var(--color-spark-200); stroke-width: 3; }
+  .forces :global(.fd) { stroke: var(--ink-3); stroke-width: 1.5; }
+  .forces :global(.head-fc) { fill: var(--accent); }
+  .forces :global(.head-ff) { fill: var(--data); }
+  .forces :global(.head-fp) { fill: var(--color-spark-200); }
+  .forces :global(.head-fd) { fill: var(--ink-3); }
+  .forces :global(.t) { font-family: var(--font-mono); font-size: 13px; }
+  .forces :global(.muted) { fill: var(--ink-3); }
+  .forces :global(.c-fc) { fill: var(--accent); }
+  .forces :global(.c-ff) { fill: var(--data); }
+  .forces :global(.c-fp) { fill: var(--color-spark-200); }
+</style>

@@ -1,0 +1,148 @@
+---
+/**
+ * Stability lobe diagram for an example system (single degree of freedom; see src/lib/chatter.ts):
+ * limiting depth of cut against spindle speed, the stable area below the boundary, the lobes N = 0, 1, 2 …
+ * and the pocket speeds 60·fn / (z·(N + 1)). Two sliders set the spindle speed and the depth; the point turns
+ * red above the boundary. "Nearest pocket" moves it to the top of the closest stable pocket.
+ * Example values only: the boundary of a real machine comes from a measured frequency response (tap test).
+ */
+import { type Sys } from '../../lib/chatter';
+import { drawLobes, lobeGeom, type LRange } from '../../lib/chatter-draw';
+interface Props { locale: 'en' | 'tr'; fn?: number; k?: number; zeta?: number; Ks?: number; z?: number; n0?: number; b0?: number }
+const { locale, fn = 120, k = 2e7, zeta = 0.03, Ks = 2000, z = 1, n0 = 3000, b0 = 1.2 } = Astro.props;
+const RG: LRange = { nMin: 500, nMax: 4500, bMax: 4, ticks: [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500], ticksNarrow: [500, 1500, 2500, 3500, 4500] };
+const tr = locale === 'tr';
+const S: Sys = { fn, k, zeta, Ks: Ks * 1e6, z, mu: 1 };
+const T = tr
+  ? { x: 'iş mili devri n (dev/dak)', y: 'kritik kesme derinliği b (mm)', stable: 'kararlı', chatter: 'tırlama', n: 'Devir n', b: 'Kesme derinliği', ft: 'Devir başına dalga (fc · 60 / n)', lim: 'Bu devirde sınır', pocket: 'En yakın kararlı cep', go: 'Cebe git', crit: 'her devirde kararlı', lobe: 'lob', rpm: 'dev/dak', hz: 'Hz', mm: 'mm', aria: 'Kararlılık diyagramı: örnek bir sistem için iş mili devrine karşı sınır kesme derinliği; sınırın altı kararlı, üstü tırlama' }
+  : { x: 'spindle speed n (rpm)', y: 'limiting depth of cut b (mm)', stable: 'stable', chatter: 'chatter', n: 'Spindle speed n', b: 'Depth of cut', ft: 'Waves per revolution (fc · 60 / n)', lim: 'Limit at this speed', pocket: 'Nearest stable pocket', go: 'Go to pocket', crit: 'stable at every speed', lobe: 'lobe', rpm: 'rpm', hz: 'Hz', mm: 'mm', aria: 'Stability lobe diagram: limiting depth of cut against spindle speed for an example system; below the boundary is stable, above it chatters' };
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+const grp = (v: number) => (tr ? v.toLocaleString('tr-TR') : v.toLocaleString('en-US'));
+const Dw = drawLobes(S, RG, false, T, dec, grp, n0, b0, `sl-cw-${locale}`), Dn = drawLobes(S, RG, true, T, dec, grp, n0, b0, `sl-cn-${locale}`);
+const sysData = JSON.stringify({ fn, k, zeta, Ks: Ks * 1e6, z, mu: 1, w: lobeGeom(false, RG), n: lobeGeom(true, RG) });
+---
+<div class="sl" data-sl data-locale={locale} data-anim>
+  <svg viewBox={`0 0 ${Dw.W} ${Dw.H}`} role="img" aria-label={T.aria} class="plot wide" data-v="w" set:html={Dw.svg} />
+  <svg viewBox={`0 0 ${Dn.W} ${Dn.H}`} role="img" aria-label={T.aria} class="plot narrow" data-v="n" set:html={Dn.svg} />
+  <div class="ctl">
+    <label class="field"><span>{T.n} <output data-o="n">{grp(n0)}</output> {T.rpm}</span><input type="range" min={RG.nMin} max={RG.nMax} step="5" value={n0} data-i="n" /></label>
+    <label class="field"><span>{T.b} <output data-o="b">{dec(b0.toFixed(2))}</output> {T.mm}</span><input type="range" min="0.1" max="3.2" step="0.05" value={b0} data-i="b" /></label>
+    <button type="button" class="go" data-go>{T.go}</button>
+  </div>
+  <dl class="read">
+    <div class="big"><dt></dt><dd><span class="pill" data-o="st">{T.chatter}</span></dd></div>
+    <div><dt>{T.ft}</dt><dd class="num" data-o="ft">—</dd></div>
+    <div><dt>{T.lim}</dt><dd class="num" data-o="lim">—</dd></div>
+    <div><dt>{T.pocket}</dt><dd class="num" data-o="pk">—</dd></div>
+  </dl>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+  <script type="application/json" data-sys set:html={sysData} />
+</div>
+
+<style>
+  .sl { display: grid; gap: 0.8rem; }
+  .plot { width: 100%; height: auto; display: block; }
+  .plot.narrow { display: none; }
+  @media (max-width: 40rem) { .plot.wide { display: none; } .plot.narrow { display: block; } }
+  .sl :global(.tk.n), .sl :global(.critl.n) { font-size: 10px; }
+  .sl :global(.axl.n) { font-size: 11px; }
+  .sl :global(.zl.n) { font-size: 12px; }
+  .sl :global(.un) { fill: #fbe7e4; }
+  .sl :global(.st) { fill: #e2f4f1; }
+  .sl :global(.gl) { stroke: #ffffff; stroke-opacity: 0.8; stroke-width: 1; }
+  .sl :global(.lobe) { fill: none; stroke: #9aa6b2; stroke-width: 1; stroke-dasharray: 3 3; }
+  .sl :global(.bd) { fill: none; stroke: #152230; stroke-width: 2.4; stroke-linejoin: round; }
+  :global(html.anim) .sl:not([data-in]) :global(.bd) { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  :global(html.anim) .sl[data-in] :global(.bd) { stroke-dasharray: 1; animation: sl-draw 1.6s cubic-bezier(0.3, 0.7, 0.2, 1) both; }
+  @keyframes sl-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  .sl :global(.crit) { stroke: #13998a; stroke-width: 1.4; stroke-dasharray: 6 4; }
+  .sl :global(.critl) { font: 11px var(--font-mono); fill: #0f7a6e; paint-order: stroke; stroke: #e2f4f1; stroke-width: 3px; }
+  .sl :global(.pk) { stroke: #13998a; stroke-width: 1; stroke-opacity: 0.55; stroke-dasharray: 2 4; }
+  .sl :global(.pkl) { font: 10.5px var(--font-mono); fill: #0f7a6e; }
+  .sl :global(.ax) { stroke: #5f6c79; stroke-width: 1; }
+  .sl :global(.tk) { font: 11px var(--font-mono); fill: var(--ink-3); }
+  .sl :global(.axl) { font: 12px var(--font-sans); fill: var(--ink-2); }
+  .sl :global(.zl) { font: 600 13px var(--font-sans); letter-spacing: 0.02em; }
+  .sl :global(.un-t) { fill: #b23a34; }
+  .sl :global(.st-t) { fill: #0f7a6e; }
+  .sl :global(.guide) { stroke: #5f6c79; stroke-width: 1; stroke-dasharray: 3 3; }
+  .sl :global(.pt) { fill: #c2413b; stroke: #fff; stroke-width: 2; transition: fill 0.2s; }
+  .sl :global(.halo) { fill: #c2413b; fill-opacity: 0.18; transition: fill 0.2s; }
+  .sl[data-ok] :global(.pt), .sl[data-ok] :global(.halo) { fill: #13998a; }
+  :global(html.anim) .sl[data-in] :global(.halo) { animation: sl-pulse 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes sl-pulse { 50% { transform: scale(1.5); fill-opacity: 0.05; } }
+  .ctl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 0.8rem 1rem; align-items: end; }
+  @media (max-width: 40rem) { .ctl { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .go { font: inherit; font-size: 0.85rem; padding: 0.45rem 0.9rem; border-radius: 8px; border: 1px solid #13998a; color: #0f7a6e; background: #e2f4f1; cursor: pointer; min-height: 2.3rem; }
+  .go:hover { background: #cdebe6; }
+  .go:focus-visible { outline: 2px solid #13998a; outline-offset: 2px; }
+  .read { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 0.75rem 1.2rem; margin: 0; align-items: end; }
+  @media (max-width: 40rem) { .read { grid-template-columns: 1fr 1fr; } }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; color: var(--ink); font-size: 0.95rem; }
+  .pill { display: inline-block; padding: 0.25rem 0.8rem; border-radius: 999px; font: 600 0.95rem var(--font-sans); color: #fff; background: #c2413b; transition: background 0.2s; }
+  .sl[data-ok] .pill { background: #13998a; }
+</style>
+
+<script>
+  import { lobe, boundary, pocketRpm } from '../../lib/chatter';
+  document.querySelectorAll<HTMLElement>('[data-sl]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const P = JSON.parse((root.querySelector('[data-sys]') as HTMLElement).textContent || '{}');
+    const lobes = Array.from({ length: 16 }, (_, N) => lobe(N, P, 4 * P.fn, 900));
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const nIn = q<HTMLInputElement>('[data-i="n"]'), bIn = q<HTMLInputElement>('[data-i="b"]');
+    const views = (['w', 'n'] as const).map((k) => ({ el: q(`[data-v="${k}"]`), g: P[k] }));
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const grp = (v: number) => (tr ? Math.round(v).toLocaleString('tr-TR') : Math.round(v).toLocaleString('en-US'));
+    // top of each stable pocket: the highest boundary point just above 60·fn/(z·(N+1))
+    const tops = Array.from({ length: 16 }, (_, N) => {
+      const p = pocketRpm(N, P); let best = 0, bn = p;
+      const pNext = N > 0 ? pocketRpm(N - 1, P) : Infinity, hi = Math.min(p * 1.12, (p + pNext) / 2);   // stay inside this pocket
+      for (let n = p; n < hi; n += Math.max(2, p / 2000)) { const b = boundary(n, lobes).b; if (b > best) { best = b; bn = n; } }
+      return { N, n: bn, b: best };
+    }).filter((t) => t.n >= P.w.nMin && t.n <= P.w.nMax);
+    const update = () => {
+      const n = Number(nIn.value), b = Number(bIn.value);
+      const bd = boundary(n, lobes), lim = bd.b, ok = b < lim;
+      views.forEach(({ el, g }) => {
+        const x = (g.X0 + ((g.X1 - g.X0) * (n - g.nMin)) / (g.nMax - g.nMin)).toFixed(1);
+        const y = (g.Y0 - ((g.Y0 - g.Y1) * Math.min(b, g.bMax)) / g.bMax).toFixed(1);
+        ['c', 'halo'].forEach((k) => { const c = el.querySelector(`[data-g="${k}"]`)!; c.setAttribute('cx', x); c.setAttribute('cy', y); });
+        const v = el.querySelector('[data-g="v"]')!; v.setAttribute('x1', x); v.setAttribute('x2', x); v.setAttribute('y2', y);
+      });
+      root.toggleAttribute('data-ok', ok);
+      q('[data-o="n"]').textContent = grp(n);
+      q('[data-o="b"]').textContent = dec(b.toFixed(2));
+      q('[data-o="st"]').textContent = ok ? T.stable : T.chatter;
+      // the chatter frequency the boundary is set by at this speed, counted in waves per revolution: N + ε/2π
+      q('[data-o="ft"]').textContent = Number.isFinite(bd.fc) ? `${dec(((bd.fc * 60) / (n * P.z)).toFixed(2))} · fc ≈ ${grp(bd.fc)} ${T.hz}` : '—';
+      q('[data-o="lim"]').textContent = `${dec(Math.min(lim, 99).toFixed(2))} ${T.mm}`;
+      // the closest pocket deep enough for this depth of cut, else the closest one
+      const deep = tops.filter((t) => t.b > b * 1.05), pool = deep.length ? deep : tops;
+      const near = pool.reduce((a, t) => (Math.abs(t.n - n) < Math.abs(a.n - n) ? t : a), pool[0]);
+      q('[data-o="pk"]').textContent = `${grp(near.n)} ${T.rpm} (N=${near.N}, ${dec(near.b.toFixed(1))} ${T.mm})`;
+      return near;
+    };
+    let raf = 0;
+    const glide = (to: number) => {
+      cancelAnimationFrame(raf);
+      const from = Number(nIn.value), t0 = performance.now(), ms = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 900;
+      const step = (now: number) => {
+        const k = ms ? Math.min(1, (now - t0) / ms) : 1, e = 1 - (1 - k) ** 3;
+        nIn.value = String(Math.round(from + (to - from) * e)); update();
+        if (k < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+    nIn.addEventListener('input', update);
+    bIn.addEventListener('input', update);
+    q('[data-go]').addEventListener('click', () => { const near = update(); glide(Math.round(near.n)); });
+    update();
+  });
+</script>

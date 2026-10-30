@@ -1,0 +1,154 @@
+---
+key: face-milling
+locale: en
+slug: face-milling
+title: 'Face milling'
+description: 'What face milling is and which edges do what; the entering angle and what it does to the chip, the forces, burrs and breakout, maker by maker and with their different angle conventions; cutter diameter against the width of cut and where to put the cutter; pitch; wiper inserts and spindle tilt; cutting power from Mitsubishi’s worked example; and the common faults with their remedies.'
+section: 2
+subsection: milling
+order: 3
+updated: 2026-10-30
+tools: [milling]
+glance:
+  - value: '1.2–1.5 × ae'
+    label: 'Cutter diameter against the width of cut, maker by maker (Mitsubishi, Sumitomo, Ingersoll)'
+  - value: '0.707 × fz'
+    label: 'Chip thickness with a 45° cutter (Kennametal)'
+  - value: 'bs > fn'
+    label: 'The wiper flat must be longer than the feed per revolution (Ingersoll, Mitsubishi)'
+  - value: '1.68 kW'
+    label: 'Cutting power in Mitsubishi’s worked example, Ø250 cutter in tool steel'
+sources:
+  - label: 'Sandvik Coromant, Milling tools 2025 (digital catalogue), selection guide pp. 4–7'
+    url: https://epublications.sandvik.coromant.com/frontend/catalogs/1157651/1/pdf/complete.pdf
+  - label: 'Mitsubishi Materials, e-learning course 73 “Advanced Face Milling” (diameter and position, corner angle, engage angles, contact points, number of teeth, accuracy, troubleshooting)'
+    url: https://www.mmc-carbide.com/permanent/courses/73/index.html
+  - label: 'Mitsubishi Materials, e-learning course 83 “Basic Milling”: face milling, cutting conditions'
+    url: https://www.mmc-carbide.com/permanent/courses/83/face-milling.html
+  - label: 'Mitsubishi Materials, “Function of Tool Features for Face Milling”: cutting-edge angle'
+    url: https://www.mmc-carbide.com/us/technical_information/tec_rotating_tools/technical/tec_milling_function_cutting_edge_angle
+  - label: 'Mitsubishi Materials, “Function of Tool Features for Face Milling”: finished surface (wipers)'
+    url: https://www.mmc-carbide.com/us/technical_information/tec_rotating_tools/technical/tec_milling_function_finish
+  - label: 'Mitsubishi Materials, finished surface (older site, wiper flat width and run-out)'
+    url: https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/information/f_shiagemen.html
+  - label: 'Mitsubishi Materials, cutting formula: milling power (formula, Kc table, worked example)'
+    url: https://www.mmc-carbide.com/us/technical_information/formula/tec_milling_power_formula
+  - label: 'Ingersoll Cutting Tool Co., milling catalogue, technical section, pp. 304–329'
+    url: https://ssl.ingersoll-imc.com/resources/pdf/0302_Milling_Tech.pdf
+  - label: 'Sumitomo Electric Carbide, 21-22 General Catalog, Technical Guidance “The Basics of Milling”, pp. N53–N56'
+    url: https://online.flippingbook.com/view/895750/1203/
+  - label: 'Kennametal, Tech Tip “45° vs 90° Face Milling”'
+    url: https://stage65.kennametal.com/ae/en/resources/technical-tips/milling/tech-tip--124---45--vs-90--face-milling.html
+  - label: 'Kennametal, video tech tip “Indexable Milling Lead Angle and Cutting Forces” (transcript, MSC Industrial Supply, 23 April 2024)'
+    url: https://www.mscdirect.com/betterMRO/metalworking/video-tech-tip-indexable-milling-lead-angle-and-cutting-forces
+  - label: 'Tungaloy, Report No. 385-US “DoOcto”, July 2026'
+    url: https://tungaloy.com/wpdata/wp-content/uploads/385-u_DoOcto.pdf
+  - label: 'Tungaloy, General Catalogue 2023–2024, milling cutters, p. H029'
+    url: https://tungaloy.com/wpdata/wp-content/uploads/GC_2023-2024_G_H_MillingCutter.pdf
+  - label: 'ISCAR, FAST FEED MILL brochure 2018 (inch), p. 9'
+    url: https://www.iscar.com/Catalogs/flipview/brochures/FAST_FEED_MILL_Brochure_2018_inch/files/basic-html/page9.html
+  - label: 'DIN Media, DIN 8589-3:2003-09 (record)'
+    url: https://www.dinmedia.de/en/standard/din-8589-3/65030320
+  - label: 'R. Luz, Grundkenntnisse der Metallbearbeitung, Teil D: Fräsen, 2nd ed. 2009, Christiani (sample pages)'
+    url: https://www.christiani.de/out/media/pdf/77347-leseprobe.pdf
+---
+import FaceKappa from '../../../components/mdx/FaceKappa.astro';
+import FaceMillPosition from '../../../components/mdx/FaceMillPosition.astro';
+import CutterPitch from '../../../components/mdx/CutterPitch.astro';
+import WiperFlat from '../../../components/mdx/WiperFlat.astro';
+
+Face milling cuts a flat surface with the teeth on the end of a cutter whose axis is square to that surface. "Face milling concepts are ideal for creating flat surfaces quickly and efficiently," Sandvik Coromant writes; Mitsubishi describes the face-milling cutter as one that "generally has a large diameter and many cutting edges (teeth)", so it can machine wide faces effectively. A German vocational textbook (Luz), following DIN 8589-3, distinguishes Umfangsfräsen (peripheral), Stirnfräsen (face) and Stirn-Umfangsfräsen (face and peripheral at once), and Planfräsen, milling a plane, in each of these forms.
+
+## Two families, two edges
+
+Mitsubishi divides face-milling cutters into two groups: plain milling cutters, whose lead angle is other than 90°, and shoulder milling cutters at 90°. The choice follows the part: a square shoulder needs the 90° cutter (Mitsubishi, Sandvik Coromant, and Kennametal, who lists "No 90-degree corner milling" among the drawbacks of a 45° cutter); otherwise Mitsubishi recommends a typical plain mill.
+
+On every tooth two edges share the work. The major edge, set at the entering angle, sets the chip; the minor edge, the face or wiper flat, makes the surface. Sumitomo states it in its own terms: the approach angle "Determines chip thickness and chip evacuation direction", the face cutting edge angle "Determines surface finish roughness". Mitsubishi adds that because "the minor cutting edges are set parallel to the face of a milling cutter", the finished surface should in theory hold its accuracy even when the run-out is poor.
+
+## Entering angle
+
+<Note kind="warn" title="Check which angle a catalogue means">
+Makers do not measure the angle from the same line. Sandvik Coromant gives the entering angle κr, 90° for a square-shoulder cutter, as on this site. Mitsubishi's Advanced Face Milling course (73) and Ingersoll give a corner or lead angle that is 0° for a square-shoulder cutter; Mitsubishi's Basic Milling course (83) and some of its web pages give κr ("KAPR", 90° for a shoulder cutter). Only 45° reads the same in both. Every value below is converted to κr.
+</Note>
+
+The entering angle decides how thick the chip is for a given feed per tooth. Sandvik Coromant: "Decreasing the approach angle reduces the chip thickness (hex) for a given feed rate (fz)." The geometry is h = fz · sin κr, the same law the [climb vs conventional](/processes/climb-vs-conventional-milling/) page gives with the engagement angle. Kennametal's table puts the chip of a 45° cutter at 0.707 × the feed, and Ingersoll writes that a 45° lead tool "reduces chip thickness about 30 percent" against a square-shoulder one. Mitsubishi's course gives a looser "approx. 75%" for 45°.
+
+The angle also turns the cutting force. "It's key to remember that cutting forces are always perpendicular to the lead angle," says Kennametal; with a 90° shoulder mill the forces come "directly perpendicular to the spindle". Sandvik Coromant describes the result for 90°, 45° and 10–15°: 90°, "Mostly radial cutting forces"; 45°, "Balanced radial and axial cutting forces"; 10–15°, "Mostly axial cutting forces", which also "increase the pressure on the workpiece." Ingersoll: reducing κr from 90° (increasing its lead from 0°) "lessens radial force slightly and increases axial force significantly."
+
+<Figure caption="The front tooth in a section through the cutter axis: the chip between this tooth’s edge and the previous one’s, fz apart, and the force drawn square to the major edge as Kennametal describes it, split into its radial and axial parts. Pick an angle: the chip thins as sin κr and widens as 1 / sin κr, and each preset shows what its makers say it is for. Section exaggerated; at 10–15° the depth of cut is drawn smaller, as such cutters run.">
+  <FaceKappa locale="en" />
+</Figure>
+
+What each angle is for, as the makers state it:
+
+- **90°.** Sandvik Coromant: for short tool assemblies, thin-walled components and unstable fixtures. Mitsubishi warns that with a square-shoulder cutter the back force works in the minus direction and "the workpiece will be pulled upwards", which can cause vibration and a poor finish where the clamping is weak.
+- **75°.** Mitsubishi: "Lead Angle 75° is recommended for face milling of work material with low rigidity such as thin work material." Sandvik Coromant recommends 90° for thin walls instead: the two disagree.
+- **45°.** Sandvik Coromant's "General purpose first choice", whose chip thinning "allows increased productivity" and which "Reduces vibration on long overhangs". Kennametal: "To achieve greater productivity and problem-free milling, use a lead angle cutter whenever possible." Mitsubishi notes that its back force is larger than with its 90° and 75° cutters (0° and 15° corner angle), so it is not suitable for thin-walled sections; Kennametal adds that the larger body can cause fixture clearance problems and the maximum depth of cut is reduced.
+- **10–15°, high feed.** Sandvik Coromant: "Generates thin chips, allowing for very high feed rates at small depths of cuts", for long tool assemblies and less stability. ISCAR, on its FF cutter: below the maximum depth "the chip is thinner; and therefore the programmed feed should be increased correspondingly", and that maximum depth "is equal to the insert radius".
+
+The angle also decides what happens at the edge of the part. On brittle material a larger lead (a smaller κr) lets the edge leave the work gradually: Ingersoll writes that edge breakout "can be significantly reduced or eliminated by use of increased lead angle", Mitsubishi calls 45° suitable for cast iron "as it prevents chipping of the workpiece", and Kennametal lists "Less breakout on workpiece corner." Burrs on ductile material go the other way: Mitsubishi's troubleshooting lists too large a lead among their causes, and Kennametal notes that a 45° cutter "Can cause chipping or burring on exit side of cutter rotation."
+
+## Cutter size and position
+
+The makers want the cutter wider than the cut, each by its own figure:
+
+| Maker | What it says | Dc / ae |
+|---|---|---|
+| Mitsubishi | "a tool with a diameter approx. 1.2～1.3 times that of the workpiece width should be selected" | 1.2–1.3 |
+| Sumitomo | "a cutting width 70 to 80% of the cutter diameter is considered appropriate" | 1.25–1.43 |
+| Ingersoll | "the cutter diameter should be 1-1/2 times the width of cut desired"; "two-thirds of the cutter diameter should engage the workpiece" | 1.5 |
+
+Sumitomo adds that its rule may not apply, given the rigidity of the machine or the work and the machine's power. A cutter only as wide as the cut is the one to avoid: Mitsubishi marks D = B as unfavourable because "surface finish can deteriorate and tool life can be reduced due to excessive rubbing", and Ingersoll writes "Avoid cutting with the full diameter of the tool."
+
+<Figure caption="The cutter over the work, plan view, turning clockwise seen from the spindle. The engaged arc splits into a conventional part (orange), where the chip grows from the entry, and a climb part (teal), where it thins towards the exit; the ribbon along it is as thick as the chip, h = fz · cos α · sin κr, with α the tooth’s angle from the feed direction. Change the diameter and the position (the offset stops where the cutter would no longer cover the width): at Dc = ae the teeth enter and leave with no chip at all and rub. The bars under the slider are the makers’ ratios.">
+  <FaceMillPosition locale="en" />
+</Figure>
+
+Position matters as much as size, and here the makers part ways. Mitsubishi calls a cutter centre close to the workpiece centre the most suitable; other makers advise against the centre line, as the [climb vs conventional milling](/processes/climb-vs-conventional-milling/) page sets out. On the entry they agree. Mitsubishi warns that with a large engage angle "the chip thickness at the point of entry could be less than the feed per tooth" and the edge is "exposed to high cutting forces leading to chipping and possible fracturing"; Sumitomo writes "The larger E is, the shorter the tool life" and gives two ways to change it: a larger cutter, or a shifted one. Mitsubishi adds that too small an engage angle also raises the load on the edge. Mitsubishi also prefers the edge to meet the work at its strong points: "The most desirable is U or V point contact"; contact at the weakest part of the edge, the S point, "should be avoided at all times". For tool life it prefers climb milling, where "the width of cut at the point of entry is the thickest". Ingersoll adds a simple step for interrupted cuts: "Reduce feed rates by 50 percent when entering or exiting a cut."
+
+## Pitch
+
+How many inserts a cutter carries sets its chip space and how many teeth share the cut. Sandvik Coromant sorts its face mills into three pitches and a differential one:
+
+<Figure caption="The same body with few, more and the most inserts, and with unequal spacing, each with what Sandvik Coromant’s Milling tools guide says it is for. Insert counts drawn for illustration.">
+  <CutterPitch locale="en" />
+</Figure>
+
+Ingersoll measures pitch per inch of diameter: coarse pitch tools "with 1 to 1-1/2 inserts per inch of diameter, allow for greater chip gullet space", medium pitch 2 to 3-1/2, fine pitch 4 or more, the fine ones "primarily for cast iron" but also good for shallow or narrow cuts. Whatever the pitch, "the cutter must have sufficient density to keep at least one insert in the cut at all times." Mitsubishi explains the trade: more teeth raise the table feed at the same feed per tooth, but "as the number of teeth increase so too does the cutting resistance", and with large depths of cut or weak clamping vibration can follow; more teeth are "very effective for machining cast iron where the cutting resistance is low." The makers agree on three points: a closer pitch for cast iron (Mitsubishi, Ingersoll) or, in Sandvik Coromant's words, short-chipping materials; fewer teeth when power, stability or overhang are short or against vibration (Sandvik Coromant, Mitsubishi, Sumitomo); and irregular or differential pitch against chatter (Sandvik Coromant, Tungaloy). Sumitomo lists an irregular-pitch cutter as a remedy for a poor finish.
+
+## Wipers and the finish
+
+The surface is made by the minor edges, and a wiper insert carries a longer flat to make it smoother. Two makers state the rule. Ingersoll: "The width of this flat must be greater than the advance per revolution to allow the cutting edges to overlap." Mitsubishi: "Wiper edge length has to be longer than the feed per revolution." Tungaloy gives a feed limit per revolution for its own wiper insert. Mitsubishi's standard wiper flat is .055 in, 1.4 mm, and its wipers are set to protrude .0012 to .004 in beyond the standard inserts. When a large cutter's feed per revolution is longer than the wiper edge, Mitsubishi uses two or three wipers, with their run-out eliminated; too long a wiper edge, it warns, "causes chattering".
+
+<Figure caption="The surface along the feed, heights schematic. The standard teeth leave a mark every fz; one wiper, set a little lower, passes once a revolution and leaves a flat of its width bs every fn. Slide the feed past bs = 1.4 mm, Mitsubishi’s standard flat: the flats stop overlapping and strips of the standard teeth’s marks remain between them.">
+  <WiperFlat locale="en" />
+</Figure>
+
+Two more things decide the finish. Run-out: "Cutting edge run-out accuracy of indexable inserts on the cutter body greatly affects the surface finish and tool life," and too much of it means "the surface finish will be poor and vibration and chipping of the inserts will occur" (Mitsubishi). And spindle tilt: Ingersoll writes that "the spindle should be tilted very slightly in the direction of feed" so that "The ‘heel’ or trailing edge of the cutter should clear the workpiece"; "Too much spindle tilt creates excessive ‘dish’ or scallops", and the tilt "is critical when using wipers."
+
+## Cutting power
+
+Mitsubishi gives the cutting power the machine must supply, machine efficiency η included, as
+
+$$
+P_c = \frac{a_p \cdot a_e \cdot v_f \cdot K_c}{60 \cdot 10^6 \cdot \eta} \quad \text{kW}
+$$
+
+with ap and ae in mm, the table feed vf in mm/min, the specific cutting force Kc in MPa and the machine efficiency η. Its worked example mills tool steel with a Ø250 mm cutter carrying 12 inserts at vc = 80 m/min: n = 1000 × 80 ÷ (3.14 × 250) = 101.9 min⁻¹; with vf = 280 mm/min the feed per tooth is 280 ÷ (12 × 101.9) = 0.229 mm (Mitsubishi prints 0.228); with ap = 2 mm, ae = 80 mm, Kc = 1800 MPa (its table value for this steel at fz 0.2) and η = 80 %, Pc = 2 × 80 × 280 × 1800 ÷ (60 × 10⁶ × 0.8) = 1.68 kW. Sumitomo gives rough values for Kc instead (steel 2,500 to 3,000 MPa, cast iron 1,500, aluminium 800) and a machine efficiency of about 0.75, so the two makers' estimates for steel differ. The [milling calculator](/tools/milling-calculator/) computes the power from Kienzle constants and the mean chip thickness instead of a fixed Kc, and gives the net power without η, so its figure is lower by that factor.
+
+For the feed itself, Ingersoll's general rule is that chip loads "should not be less than .004”", 0.10 mm.
+
+## Common faults
+
+The causes and remedies Mitsubishi's face-milling troubleshooting and Sumitomo's milling table give, with other makers' remedies where they agree, in short:
+
+| Fault | Likely causes | Remedies |
+|---|---|---|
+| Vibration | Unsuitable conditions; cutter diameter too large; cutting resistance too high; clamping too weak (Mitsubishi) | Reduce the conditions; a sharper edge; fewer teeth; stiffer clamping (Mitsubishi); enlarge the chip pocket (Sumitomo); a lead-angle cutter on long overhangs (Sandvik Coromant, Kennametal); differential pitch (Sandvik Coromant, Tungaloy) |
+| Poor finish | Wrong conditions; poor run-out; vibration (Mitsubishi) | A higher cutting speed; better run-out; a sharper edge; a wiper insert (Mitsubishi, Sumitomo); an irregular-pitch cutter (Sumitomo) |
+| Burrs | Chip too thick; diameter too large; edge not sharp; lead too large (Mitsubishi) | A higher speed; less feed or depth; a sharper cutter; a smaller lead (Mitsubishi); a burr-proof insert (Sumitomo) |
+| Breakout at the workpiece edge | Conditions; edge not sharp; lead too small; vibration (Mitsubishi) | Less feed or depth; a sharper edge; a larger lead (Mitsubishi, Ingersoll) |
+| Poor flatness | The work or the tool deflects; back force too high (Mitsubishi) | Less feed or depth; a sharper edge; a smaller lead; fewer teeth (Mitsubishi); not too much spindle tilt (Ingersoll) |
+| Chipped edges | Grade too hard; hone too small; contact at the S point; feed too high; vibration; backlash in the table feed (Mitsubishi) | A larger hone; less feed; prevent vibration; with backlash, conventional milling (Mitsubishi); half feed at entry and exit (Ingersoll) |
+
+None of the makers' cutting-data tables could be read cleanly enough to quote here, so there are no starting values on this page; take them from the catalogue of the cutter in use.

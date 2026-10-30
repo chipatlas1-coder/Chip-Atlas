@@ -1,0 +1,173 @@
+---
+/**
+ * Trochoidal slotting in plan view. The cutter (D = 10 mm) loops counter-clockwise on a circle of radius (W − D)/2 that
+ * advances by the step s per loop; the swept slot is drawn as it is cut and the cutter's edge in uncut material is
+ * lit. Below: the engagement angle over one loop, against a plain slot (180°). Readouts: largest engagement, the radial
+ * width of cut that gives the same angle in straight side milling, the share of the loop spent cutting, and how much
+ * path the centre travels per millimetre of slot. Geometry only; src/lib/trochoid.ts.
+ */
+interface Props { locale: 'en' | 'tr'; w?: number; s?: number }
+const { locale, w = 1.6, s = 0.1 } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { w: 'Kanal genişliği W', s: 'Döngü başına ilerleme adımı s', max: 'En büyük kavrama açısı', ae: 'Düz bir duvarda aynı açıyı veren genişlik', cut: 'Döngünün kesmede geçen kısmı', path: 'Kanalın 1 mm’si için merkez yolu', slot: 'düz kanal 180°', phase: 'döngü içindeki konum', eng: 'kavrama', mm: 'mm', aria: 'Trokoidal kanal frezelemenin üstten görünüşü: freze ilerleyen daireler çizerek kanalı açar', play: 'Oynat', pause: 'Durdur', of: 'D’nin' }
+  : { w: 'Slot width W', s: 'Step per loop s', max: 'Largest engagement angle', ae: 'Width of cut giving the same angle on a straight wall', cut: 'Share of the loop spent cutting', path: 'Centre path per 1 mm of slot', slot: 'plain slot 180°', phase: 'position in the loop', eng: 'engagement', mm: 'mm', aria: 'Trochoidal slotting seen from above: the cutter opens the slot in advancing loops', play: 'Play', pause: 'Pause', of: 'of D' };
+const num = (v: number, d = 1) => (tr ? v.toFixed(d).replace('.', ',') : v.toFixed(d));
+---
+<div class="ts" data-ts data-locale={locale} data-anim>
+  <svg class="plan" viewBox="0 0 640 260" role="img" aria-label={T.aria} data-plan></svg>
+  <div class="ctl">
+    <label class="field"><span>{T.w} <output data-o="w">{num(w * 10, 1)} {T.mm}</output></span><input type="range" min="1.2" max="2" step="0.05" value={w} data-i="w" /></label>
+    <label class="field"><span>{T.s} <output data-o="s">{num(s * 10, 1)} {T.mm}</output></span><input type="range" min="0.02" max="0.4" step="0.01" value={s} data-i="s" /></label>
+    <button type="button" class="pp" data-pp aria-pressed="true">{T.pause}</button>
+  </div>
+  <svg class="chart" viewBox="0 0 640 170" role="img" data-chart></svg>
+  <dl class="read">
+    <div><dt>{T.max}</dt><dd class="num" data-o="m">—</dd></div>
+    <div><dt>{T.ae}</dt><dd class="num" data-o="a">—</dd></div>
+    <div><dt>{T.cut}</dt><dd class="num" data-o="c">—</dd></div>
+    <div><dt>{T.path}</dt><dd class="num" data-o="p">—</dd></div>
+  </dl>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .ts { display: grid; gap: 0.8rem; }
+  .plan, .chart { width: 100%; height: auto; display: block; }
+  .ctl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 0.7rem 1.2rem; align-items: end; }
+  @media (max-width: 40rem) { .ctl { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .pp { font: inherit; font-size: 0.85rem; padding: 0.4rem 0.9rem; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.2rem; }
+  .read { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem 1rem; margin: 0; }
+  @media (max-width: 40rem) { .read { grid-template-columns: 1fr 1fr; } }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; font: 600 1.05rem var(--font-mono); color: var(--ink); }
+  .ts :global(.ax) { stroke: #9aa6b2; stroke-width: 1; }
+  .ts :global(.gl) { stroke: #e3e8ee; stroke-width: 1; }
+  .ts :global(.tx) { font: 11px var(--font-mono); fill: #364554; }
+  .ts :global(.tl) { font: 600 12px var(--font-sans); fill: #364554; }
+</style>
+
+<script>
+  import { engagementLoop, aeForAngle, centre, pathPerLoop } from '../../lib/trochoid';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-ts]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const I = (k: string) => q<HTMLInputElement>(`[data-i="${k}"]`);
+    const plan = q<SVGSVGElement>('[data-plan]'), chart = q<SVGSVGElement>('[data-chart]');
+    const uid = `ts-${root.dataset.locale}-${Math.random().toString(36).slice(2, 7)}`;
+    const dec = (v: number, d = 1) => (tr ? v.toFixed(d).replace('.', ',') : v.toFixed(d));
+    const pc = (v: number) => (tr ? `%${dec(v, 0)}` : `${dec(v, 0)} %`);
+    const D = 10;
+    let E: ReturnType<typeof engagementLoop>, W = 16, S = 1, r = 3, CW = 570;
+    let phase = 0, playing = true, visible = false, last = 0;
+    const K = 3;                                   // loops drawn behind the current one
+    // plan scale: the slot fills the height
+    let k = 1, x0 = 0, yc = 130;
+    const X = (x: number) => x0 + x * k, Y = (y: number) => yc - y * k;
+    let PW = 640;                                   // plan/chart width in viewBox units; narrower on phones
+    const layout = () => {
+      PW = root.clientWidth < 560 ? 400 : 640;
+      plan.setAttribute('viewBox', `0 0 ${PW} 260`); chart.setAttribute('viewBox', `0 0 ${PW} 170`);
+      CW = PW - 70;
+    };
+    const compute = () => {
+      W = +I('w').value * D; S = +I('s').value * D; r = (W - D) / 2;
+      E = engagementLoop(D, W, S);
+      k = Math.min(200 / W, 30);
+      x0 = PW * 0.625 - (r + D / 2 + S) * k;
+      const m = E.max, cut = E.deg.filter((d) => d > 0.5).length / E.deg.length;
+      const ae = aeForAngle(D, m);
+      q('[data-o="w"]').textContent = `${dec(W, 1)} ${T.mm}`;
+      q('[data-o="s"]').textContent = `${dec(S, 1)} ${T.mm}`;
+      q('[data-o="m"]').textContent = `${dec(m, 0)}°`;
+      q('[data-o="a"]').textContent = `≈ ${dec(ae / D, 2)} D · ${dec(ae, 1)}\u00a0${T.mm}`;
+      q('[data-o="c"]').textContent = pc(cut * 100);
+      q('[data-o="p"]').textContent = `${dec(pathPerLoop(D, W, S) / S, 0)} ${T.mm}`;
+      drawChart();
+    };
+    const pathD = (t0: number, t1: number) => {
+      const steps = Math.max(8, Math.ceil(((t1 - t0) / (2 * Math.PI)) * 90));
+      let d = '';
+      for (let i = 0; i <= steps; i++) { const p = centre(t0 + ((t1 - t0) * i) / steps, S, r); d += `${i ? 'L' : 'M'}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`; }
+      return d;
+    };
+    const drawPlan = () => {
+      const t = (K + phase) * 2 * Math.PI;           // current time: K loops already cut in view
+      const c = centre(t, S, r), R = D / 2;
+      const xs = X(centre(0, S, r).x);                // slot fully cut to the left of the first drawn loop's centre
+      const idx = Math.min(E.arcs.length - 1, Math.floor(phase * E.arcs.length));
+      const arc = E.arcs[idx];
+      let arcPath = '';
+      if (arc && arc.to - arc.from > 0.5) {
+        const a0 = (arc.from * Math.PI) / 180, a1 = (arc.to * Math.PI) / 180;
+        const p0 = { x: X(c.x + R * Math.cos(a0)), y: Y(c.y + R * Math.sin(a0)) }, p1 = { x: X(c.x + R * Math.cos(a1)), y: Y(c.y + R * Math.sin(a1)) };
+        const large = a1 - a0 > Math.PI ? 1 : 0;
+        // y is flipped on screen, so a counter-clockwise arc in the model is clockwise on screen (sweep 0)
+        arcPath = `<path d="M${p0.x.toFixed(1)},${p0.y.toFixed(1)} A${(R * k).toFixed(1)},${(R * k).toFixed(1)} 0 ${large} 0 ${p1.x.toFixed(1)},${p1.y.toFixed(1)}" fill="none" stroke="#e2601a" stroke-width="5" stroke-linecap="round"/>`;
+      }
+      const spin = (performance.now() / 12) % 360;
+      let flutes = '';
+      for (let f = 0; f < 4; f++) {
+        const a = ((spin + f * 90) * Math.PI) / 180;
+        flutes += `<line x1="${X(c.x).toFixed(1)}" y1="${Y(c.y).toFixed(1)}" x2="${X(c.x + R * 0.92 * Math.cos(-a)).toFixed(1)}" y2="${Y(c.y + R * 0.92 * Math.sin(-a)).toFixed(1)}" stroke="#5f6c79" stroke-width="2"/>`;
+      }
+      plan.innerHTML = `
+        <defs><pattern id="${uid}-h" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#dfe5eb"/><line x1="0" y1="0" x2="0" y2="8" stroke="#c3ccd5" stroke-width="2"/></pattern></defs>
+        <rect x="0" y="0" width="${PW}" height="260" fill="url(#${uid}-h)"/>
+        <rect x="0" y="${Y(W / 2).toFixed(1)}" width="${Math.max(0, xs).toFixed(1)}" height="${(W * k).toFixed(1)}" fill="#f7f9fb"/>
+        <path d="${pathD(0, t)}" fill="none" stroke="#f7f9fb" stroke-width="${(D * k).toFixed(1)}" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="${pathD(Math.max(0, t - 2 * Math.PI), t)}" fill="none" stroke="#1e5fc4" stroke-width="1.4" stroke-dasharray="4 4" opacity="0.8"/>
+        <circle cx="${X(c.x).toFixed(1)}" cy="${Y(c.y).toFixed(1)}" r="${(R * k).toFixed(1)}" fill="#c9d1da" fill-opacity="0.85" stroke="#364554" stroke-width="1.5"/>
+        ${flutes}
+        ${arcPath}
+        <line x1="${Math.max(26, X(-r - R - 4)).toFixed(1)}" x2="${Math.max(26, X(-r - R - 4)).toFixed(1)}" y1="${Y(W / 2).toFixed(1)}" y2="${Y(-W / 2).toFixed(1)}" stroke="#13998a" stroke-width="1.2" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)"/>
+        <text x="${(Math.max(26, X(-r - R - 4)) - 8).toFixed(1)}" y="${(yc + 4).toFixed(1)}" class="tx" text-anchor="end">W</text>`;
+    };
+    const CX = 46, CT = 14, CH = 120;
+    const cx = (u: number) => CX + u * CW, cy = (d: number) => CT + CH - (d / 180) * CH;
+    let chartBase = '';
+    const drawChart = () => {
+      let g = '';
+      for (const d of [0, 45, 90, 135, 180]) g += `<line x1="${CX}" x2="${CX + CW}" y1="${cy(d)}" y2="${cy(d)}" class="gl"/><text x="${CX - 6}" y="${cy(d) + 4}" class="tx" text-anchor="end">${d}°</text>`;
+      let p = '';
+      E.deg.forEach((d, i) => { p += `${i ? 'L' : 'M'}${cx(i / E.deg.length).toFixed(1)},${cy(d).toFixed(1)}`; });
+      const area = `${p}L${cx((E.deg.length - 1) / E.deg.length).toFixed(1)},${cy(0)}L${cx(0)},${cy(0)}Z`;
+      chartBase = `${g}
+        <line x1="${CX}" x2="${CX + CW}" y1="${cy(180)}" y2="${cy(180)}" stroke="#c2413b" stroke-width="1.4" stroke-dasharray="6 4"/>
+        <text x="${CX + CW}" y="${cy(180) + 14}" class="tx" text-anchor="end" style="fill:#b23a34">${T.slot}</text>
+        <path d="${area}" fill="#e2601a" fill-opacity="0.16"/>
+        <path d="${p}" fill="none" stroke="#e2601a" stroke-width="2.2" stroke-linejoin="round"/>
+        <line x1="${CX}" x2="${CX + CW}" y1="${cy(0)}" y2="${cy(0)}" class="ax"/>
+        <text x="${CX + CW / 2}" y="${CT + CH + 30}" class="tl" text-anchor="middle">${T.phase}</text>`;
+      drawMarker();
+    };
+    const drawMarker = () => {
+      const i = Math.min(E.deg.length - 1, Math.floor(phase * E.deg.length));
+      chart.innerHTML = `${chartBase}<line x1="${cx(phase)}" x2="${cx(phase)}" y1="${CT}" y2="${cy(0)}" stroke="#1e5fc4" stroke-width="1.2"/><circle cx="${cx(phase)}" cy="${cy(E.deg[i])}" r="4.5" fill="#1e5fc4" stroke="#fff" stroke-width="1.5"/>`;
+    };
+    const frame = (now: number) => {
+      if (playing && visible) { phase = (phase + Math.min(0.05, (now - last) / 1000) / 4) % 1; }
+      last = now;
+      drawPlan(); drawMarker();
+      requestAnimationFrame(frame);
+    };
+    ['w', 's'].forEach((key) => I(key).addEventListener('input', () => { compute(); drawPlan(); }));
+    let looping = false;
+    const start = () => { if (looping) return; looping = true; last = performance.now(); requestAnimationFrame(frame); };
+    const pp = q<HTMLButtonElement>('[data-pp]');
+    const setBtn = () => { pp.textContent = playing ? T.pause : T.play; pp.setAttribute('aria-pressed', String(playing)); };
+    pp.addEventListener('click', () => { playing = !playing; setBtn(); if (playing) start(); });
+    layout(); compute(); drawPlan();
+    new ResizeObserver(() => { const old = PW; layout(); if (PW !== old) { compute(); drawPlan(); } }).observe(root);
+    // without motion (reduced motion or no animation class) the figure starts still; Play runs it
+    if (!document.documentElement.classList.contains('anim')) { playing = false; setBtn(); }
+    new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+    whenIn(root, start);
+  });
+</script>

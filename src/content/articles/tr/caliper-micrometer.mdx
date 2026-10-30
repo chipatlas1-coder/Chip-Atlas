@@ -1,0 +1,91 @@
+---
+key: caliper-micrometer
+locale: tr
+slug: kumpas-ve-mikrometre
+title: 'Kumpas ve mikrometre okuma'
+description: 'Verniyer 1 mm’lik bir ölçeği nasıl 0,05 ya da 0,02 mm’ye çevirir, 0,5 mm’lik bir vida ile 50 tambur bölümü nasıl 0,01 mm verir; çözümlü örneklerle okuma adımları ve hassasiyetin neden doğruluk olmadığı: Abbe ilkesi, ölçme kuvveti, paralaks, sıcaklık, standartlar ve üreticilerin hata sınırları.'
+section: 10
+subsection: measuring-instruments
+order: 2
+updated: 2026-10-30
+tools: [micrometer]
+glance:
+  - value: '19 → 20'
+    label: 'Verniyerde 19 mm’nin 20’ye bölünmesi: 0,05 mm (MEB, NPL); 49’un 50’ye bölünmesi 0,02 mm verir'
+  - value: '0,5 / 50'
+    label: 'Mikrometrede 0,5 mm adım ve 50 tambur bölümü: bölüm başına 0,01 mm (MEB, NPL)'
+  - value: '20 °C'
+    label: 'Uzunluklar için referans sıcaklık (NPL)'
+  - value: '1/10'
+    label: 'Ölçü aletinin hassasiyeti toleransa göre, pratik kural olarak (Mahr, bir üreticinin köşesi)'
+sources:
+  - label: 'T.C. Millî Eğitim Bakanlığı, Ölçme ve Kontrol 10 Ders Materyali (S. B. Aydoğmuş), MTAL Makine ve Tasarım Teknolojisi, s. 16–57'
+    url: https://meslek.meb.gov.tr/upload/dersmateryali/pdf/MTT2024OK1016.pdf
+  - label: 'Ankara Üniversitesi Açık Ders, 1.2 Mikrometre ile uzunluk ölçümü (Hafta 2)'
+    url: https://acikders.ankara.edu.tr/pluginfile.php/1780/mod_resource/content/1/Hafta2.pdf
+  - label: 'Karadeniz Teknik Üniversitesi, fizik laboratuvarı deney föyü M-1, Uzunluk Ölçü Aletleri (Türkçe terimler için)'
+    url: https://www.ktu.edu.tr/dosyalar/fizik_veqKq.pdf
+  - label: 'Mahr, Mikrometre Micromar 40 A veri sayfası, malzeme no. 4134007 (Türkçe)'
+    url: https://metrology.mahr.com/tr/ueruen/datasheet/4134007-buegelmessschraube-micromar-40-a-18.pdf
+  - label: 'D. Flack, Callipers and Micrometers, Measurement Good Practice Guide No. 40, 2. sayı, National Physical Laboratory, 2014'
+    url: https://eprintspublications.npl.co.uk/2043/1/mgpg40.pdf
+  - label: 'Mitutoyo America, Mitutoyo Product Fundamentals: General, 2015'
+    url: https://www.mitutoyo.com/webfoo/wp-content/uploads/2119-Product-Fund.pdf
+  - label: 'Mitutoyo, Digimatic Outside Micrometers Series 293, katalog sayfası B-9 (Sumipol’de)'
+    url: https://www.sumipol.com/wp-content/uploads/2020/02/Digimatic-Outside-Micrometers-SERIES-293.pdf
+  - label: 'Mahr, Digital caliper MarCal 16 ER veri sayfası, ürün 4103012'
+    url: https://metrology.mahr.com/en-us/products/datasheet/4103012-digitaler-messschieber-marcal-16-er.pdf
+  - label: 'Mahr, Gaging Tips, “The rule of thumb, part 1”'
+    url: https://metrology.mahr.com/en-int/gaging-tips/detail/the-ruler-of-thumb-part-1
+  - label: 'KEYENCE, Measurement Fundamentals: Abbe principle'
+    url: https://keyence.com/ss/products/measure-sys/measurement-selection/basic/abbe-principle.jsp
+  - label: 'ISO 3611:2023, Design and metrological characteristics of micrometers for external measurements, 3. baskı (önizleme: önsöz ve içindekiler)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+3611-2023.pdf
+  - label: 'SIS, SS-EN ISO 13385-1:2019, Design and metrological characteristics of callipers (ürün sayfası)'
+    url: https://www.sis.se/en/produkter/metrology-and-measurement-physical-phenomena/linear-and-angular-measurements/measuring-instruments/ss-en-iso-13385-12019/
+---
+import VernierRead from '../../../components/mdx/VernierRead.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Kumpas ve mikrometre her talaşlı imalatçının okuduğu iki el aletidir ve ikisi de kaba bir ölçeği bir hileyle inceltir: kumpas biraz daha kısa ikinci bir ölçekle, mikrometre bir vidayla. Millî Eğitim Bakanlığı’nın ders materyali ve Birleşik Krallık’ın ulusal ölçüm laboratuvarı NPL’in iyi uygulama kılavuzu ikisini aynı biçimde anlatır; bu sayfa onları izler. Atölyedeki bir başka gündelik ölçüm olan sertliğin kendi sayfası vardır: [sertlik ölçme](/tr/metroloji/sertlik-olcme/).
+
+## Kumpas
+
+NPL kumpası bir ana ölçek, bir verniyer ölçeği, bir sabit ve bir hareketli çeneyle tanımlar; kumpas dış, iç ve derinlik ölçer. MEB’in deyişiyle ana cetvel ve verniyer sürgüsü; KTÜ’nün laboratuvar föyü derinlik için derinlik ölçme çubuğunu da sayar. İnce okumayı verniyer sağlar. MEB’e göre 1/20 kumpasın verniyeri "cetvel üzerindeki 19 milimetrelik kısım sürgü üzerinde 20 eşit parçaya bölünerek üretilir."; NPL de 20 verniyer bölümünün ana ölçekte 19 bölüm kapladığını yazar. Her verniyer bölümü böylece 0,95 mm, yani ana cetvelin bir milimetresinden 0,05 mm kısadır; n’inci verniyer çizgisi bir ana cetvel çizgisiyle çakışıyorsa verniyerin sıfırı önceki milimetrenin n × 0,05 mm ilerisindedir. Aynı biçimde 49 mm’nin 50’ye bölünmesi 0,02 mm, 9 mm’nin 10’a bölünmesi 0,1 mm verir (MEB); NPL 0,05 mm için 39 mm’de 20 bölümlü geniş bir verniyeri de sayar.
+
+Okuma üç adımdır, iki kaynakta da aynı: verniyerin sıfırının hemen solundaki ana cetvel değerini okuyun; bir ana cetvel çizgisiyle tam çakışan verniyer çizgisini bulun; ikisini toplayın. MEB’in örnekleri: 10 mm ve 0,05 mm’lik verniyerin dokuzuncu çizgisi 10,45 mm; 12 mm ve 0,02 mm’lik verniyerin 17’nci çizgisi 12,34 mm eder. NPL 0,02 mm’lik bir kumpasta 20 mm ile 0,64 mm’yi toplayarak 20,64 mm okur. Ölçmeden önce NPL çeneleri kapatıp sıfırı kontrol eder.
+
+<Figure caption="İki ölçek, aritmetiklerine göre çizilmiş: 19 mm’ye 20 bölümlü 0,05 mm’lik verniyer, 49 mm’ye 50 bölümlü 0,02 mm’lik verniyer ve 0,5 mm’lik vidalı, 50 tambur bölümlü bir mikrometre. Kumpasın genel görünüşü yuvarlak bir parçayı kavrar; büyütülmüş pencere çakışan çizgileri turuncu gösterir. Mikrometrede milimetre çizgileri referans çizgisinin (*index line*) üstünde, yarım milimetre çizgileri altındadır (NPL). Gösterge okumayı iki adım olarak yazar; ‘Başka bir değer’ rastgele bir değere gider.">
+  <VernierRead locale="tr" />
+</Figure>
+
+Saatli ve dijital kumpaslar aynı işi daha az okumayla yapar. NPL olağan hassasiyetleri verniyerli kumpaslar için 0,05 mm, saatli (*dial*) için 0,02 mm, dijital için 0,01 mm olarak verir; Mitutoyo küçük verniyerli kumpasların yerini büyük ölçüde saatli ya da elektronik kumpasların aldığını yazar.
+
+## Dış ölçü mikrometresi
+
+Mikrometre bir vidayı okur. MEB’e göre vida "0,5 mm adımlıdır" ve "Tambur çevresi 50 eşit parçaya bölünmüştür"; tambur bölümü böylece milimetrenin yüzde biridir (MEB; NPL). MEB’de kovan (sabit tambur) milimetre ölçeğini taşır; NPL’e göre milimetre çizgileri kovandaki yatay çizginin (MEB; NPL’de *index line*, burada referans çizgisi) üstünde, yarım milimetre çizgileri altındadır. Okumak için tambura en yakın görünen kovan çizgisinin değeri bulunur ve referans çizgisindeki tambur bölümü eklenir (NPL). MEB’in örneği: kovanda 5,50 mm ve 35 tambur bölümü 5,85 mm eder; Ankara Üniversitesi’nin laboratuvar notunda tambur kenarı 23,5 ile 24,0 mm arasındadır ve 21’inci bölüm çizgidedir, yani 23,71 mm. NPL üçüncü ondalığı çizginin kendisinden tahmin eder, çünkü tambur çizgisinin kalınlığı bir tambur bölümünün beşte biridir; bazı mikrometrelerde bunun yerine kovanda bir verniyer bulunur (NPL; Mitutoyo).
+
+Okumayı kendin denemek için [mikrometre okuma simülatörünü](/tr/araclar/mikrometre-okuma/) kullan; adım adım bir öğreticisi ve rastgele parçalarla bir testi var.
+
+Mikrometrede kumpasta olmayan bir şey vardır: sabit ölçme kuvveti sağlayan bir düzen. MEB bunu ayar vidası (cırcır) diye anar; NPL’e göre cırcır sınırına gelince kayar ve tıklar, okuma ilk tıkta alınmalıdır. Mitutoyo, dokunsal ve sesli geri bildirim veren ama genellikle iki el isteyen cırcırı, biraz yumuşak (*mushy*) bir hissi olan ve sesli geri bildirim vermeyen sürtünmeli tamburla (*friction thimble*) karşılaştırır. Önce sıfır gelir: tamburun sıfır çizgisi kovandaki referans çizgisiyle hizalı olmalıdır (NPL). Milin örse değemediği 25 mm’nin üstünde Mitutoyo sıfır açıklığını doğrulamak (kalibre etmek değil) için ayar standartları kullanır; Mahr’ın Türkçe veri sayfası da 175–200 mm’lik bir mikrometrenin kutusunda ayar standardını sayar ve sabit ölçme yüzeyine örs der (MEB bunu çene diye anar).
+
+## Hassasiyet doğruluk değildir
+
+Bir aletin gösterdiği en küçük adım, ne kadar doğru olduğunu pek söylemez. NPL 0,02 mm’lik bir kumpası yüzey düzlüğü, paralelliği ve dikliğiyle birlikte ele alır, 20,06 ile 20,12 mm arasında beş okuma yapar ve 0,035 mm’lik genişletilmiş belirsizliğe (*expanded uncertainty*) varır: hassasiyetin neredeyse iki katı. Üretici veri sayfaları da aynı farkı gösterir: Mahr, MarCal 16 ER dijital kumpasına 0,01 mm hassasiyet ve 0,03 mm hata sınırı verir; Mitutoyo, 0–25 mm’lik bir Digimatic mikrometreye 0,001 mm hassasiyet ve ±1 sayımlık nicemleme hatası (*quantizing error*) hariç ±2 µm doğruluk verir. İkisi de tek modeller için üretici değerleridir; Mahr’ın Türkçe veri sayfasındaki "Hata sınırı µm 7 µm" ise 175–200 mm’lik bir mikrometre içindir.
+
+Bu iki aletin standartları kumpaslar için ISO 13385-1:2019 (analog, yani verniyerli ya da saatli, ve dijital göstergeyi kapsar; SIS) ve mikrometreler için ISO 3611:2023’tür; ikincisinin üçüncü baskısı en büyük izin verilen hatalar (*maximum permissible errors*, MPE) için bir sınıflandırma sistemi ve ISO 14978:2018’e bir atıf eklemiştir. NPL 2014’te, ISO 14978’e göre bu tür alet standartlarının MPE için sayısal değer içermemesi gerektiğini ve değerlerin üretici veri sayfalarında verildiğini yazmıştır; 2023 sınıflandırmasının sayı içerip içermediği, bu sayfa için okunan bölümlerde görülmedi. Alet seçimi için Mahr’ın Gaging Tips köşesi bir pratik kural verir: ölçü aleti ölçülen toleransın yaklaşık onda birini çözebilmelidir.
+
+## Kullanımdaki hatalar
+
+- **Abbe ilkesi (*Abbe principle*).** NPL’e göre en yüksek doğruluk ancak ölçek ölçülen nesnenin ekseniyle aynı doğrultudayken elde edilir ve kumpasın yapısı Abbe ilkesine uymaz; KEYENCE dış ölçü mikrometrelerinin bu ilkeye uyduğunu ekler. NPL’in kumpas için önerisi: ölçümü gövdeye olabildiğince yakın yapmak.
+- **Kuvvet.** NPL’e göre mikrometrelerin aksine çoğu verniyerli kumpasta sabit ölçme kuvveti sağlayan bir düzen yoktur; fazla bastırılırsa sürgünün yaprak yayı (*leaf spring*) eğilir ve hareketli çene yatar.
+- **Paralaks.** Verniyerde görünen çakışma noktası bakış açısına göre biraz değişir; mikrometrede referans çizgisine tam yukarıdan bakılmalıdır (NPL).
+- **Sıcaklık.** NPL’e göre uzunluklar uluslararası kabul görmüş 20 °C’de belirlenir ve 100 mm’lik bir demir çubuğun boyu 10 °C’lik bir sıcaklık değişiminde 0,012 mm değişir. NPL, mikrometre ile parçanın oda sıcaklığına gelmesi için en az bir saat odada bekletilmesini, kumpasla parça arasındaki sıcaklık farkının da olabildiğince küçük tutulmasını ister; işlemeden yeni çıkmış sıcak parçanın ölçülmemesini söyler.
+
+<CheckList id="caliper-micrometer" locale="tr" items={[
+  { icon: 'sync', title: 'Sıfır', check: 'Çeneler ya da yüzeyler kapalıyken okuma.', fix: 'Ölçmeden önce çeneleri kapatıp sıfırı kontrol edin (NPL); mikrometrede tambur sıfırı referans çizgisinde; 25 mm’nin üstünde ayar standardıyla (Mitutoyo).', src: 'NPL; Mitutoyo' },
+  { icon: 'clamp', title: 'Kuvvet', check: 'Kumpasın ne kadar sıkı kapatıldığı; mikrometrenin nasıl çevrildiği.', fix: 'Kumpasta aşırı kuvvet yok; mikrometreyi cırcırın ilk tıkında okuyun (NPL).', src: 'NPL' },
+  { icon: 'align', title: 'Konum', check: 'Parçanın çenelerin neresinde durduğu.', fix: 'Kumpas gövdesine olabildiğince yakın (Abbe, NPL); gövde ölçülen boyuta paralel, yüzeyler parçaya düzgün temas etsin (NPL).', src: 'NPL' },
+  { icon: 'hard', title: 'Sıcaklık', check: 'Parçanın ve aletin sıcaklığı.', fix: 'Mikrometre ve parça en az bir saat odada beklesin; kumpasla parça arasındaki sıcaklık farkı olabildiğince küçük olsun; işlemeden sıcak çıkan parçayı ölçmeyin (NPL).', src: 'NPL' },
+  { icon: 'depth', title: 'Alet seçimi', check: 'Toleransa göre hassasiyet ve hata sınırı.', fix: 'Hassasiyet toleransın yaklaşık onda biri (Mahr); hassasiyete değil hata sınırına göre karar verin.', src: 'Mahr; NPL' },
+]} />

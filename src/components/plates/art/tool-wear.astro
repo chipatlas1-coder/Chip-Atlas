@@ -1,0 +1,98 @@
+---
+/* Corner of an 80° rhombic insert, built in 3D (X right, Y back, Z up) and drawn in parallel
+   projection with the corner toward the viewer. Main cutting edge on the right, minor edge on the
+   left, nose radius rε between them, 7° clearance on the flanks.
+   Wear: flank wear land VB under the main edge, crater KT on the rake face set back from the edge,
+   notch on the main edge at the depth-of-cut line. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? { rake: 'talaş yüzeyi', flank: 'ana serbest yüzey', crater: 'krater', notch: 'çentik', doc: 'kesme derinliği çizgisi', nose: 'uç yarıçapı', main: 'ana kesme kenarı' }
+  : { rake: 'rake face', flank: 'main flank', crater: 'crater', notch: 'notch', doc: 'depth-of-cut line', nose: 'nose radius', main: 'main cutting edge' };
+const cx = 232, cy = 204, k = 0.74;
+const P = (X: number, Y: number, Z: number) => [cx + X * k, cy + (Y * 0.52 - Z * 0.86) * k];
+const f1 = (p: number[]) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+const pth = (pts: number[][], close = true) => 'M' + pts.map((q) => f1(P(q[0], q[1], q[2] ?? 0))).join(' L') + (close ? ' Z' : '');
+const rad = (d: number) => (d * Math.PI) / 180;
+const m = [Math.sin(rad(40)), -Math.cos(rad(40))]; // main edge, right and back
+const s = [-Math.sin(rad(40)), -Math.cos(rad(40))]; // minor edge, left and back
+const nm = [Math.cos(rad(40)), Math.sin(rad(40))]; // outward normal of the main flank
+const ns = [-Math.cos(rad(40)), Math.sin(rad(40))]; // outward normal of the minor flank
+const re = 24, th = 62, cl = Math.tan(rad(7));
+const t = re / Math.tan(rad(40));
+const Cn = [0, -re / Math.sin(rad(40))];
+const at = (d: number[], k: number, o = [0, 0]) => [o[0] + d[0] * k, o[1] + d[1] * k];
+const T1 = at(m, t), T2 = at(s, t);
+const arc = (r: number, z: number) => {
+  const a1 = Math.atan2(T1[1] - Cn[1], T1[0] - Cn[0]), a2 = Math.atan2(T2[1] - Cn[1], T2[0] - Cn[0]);
+  // the front of the nose has positive Y relative to Cn: sweep from T2 through +Y to T1
+  const pts: number[][] = [];
+  for (let i = 0; i <= 18; i++) { const a = a2 - ((a2 - a1) * i) / 18; pts.push([Cn[0] + r * Math.cos(a), Cn[1] + r * Math.sin(a), z]); }
+  return pts;
+};
+const len = 560;
+const E1 = at(m, len), E2 = at(s, len);
+const zb = -th, inset = th * cl;
+const sh = (p: number[], n: number[], k: number) => [p[0] - n[0] * k, p[1] - n[1] * k];
+const top = [[E2[0], E2[1], 0], [T2[0], T2[1], 0], ...arc(re, 0), [T1[0], T1[1], 0], [E1[0], E1[1], 0], [E1[0], E1[1] - 600, 0], [E2[0], E2[1] - 600, 0]];
+const B1 = sh(T1, nm, inset), BE1 = sh(E1, nm, inset), B2 = sh(T2, ns, inset), BE2 = sh(E2, ns, inset);
+const mainFlank = [[T1[0], T1[1], 0], [E1[0], E1[1], 0], [BE1[0], BE1[1], zb], [B1[0], B1[1], zb]];
+const minorFlank = [[T2[0], T2[1], 0], [E2[0], E2[1], 0], [BE2[0], BE2[1], zb], [B2[0], B2[1], zb]];
+const noseFlank = [...arc(re, 0), ...arc(re - inset, zb).reverse()];
+// wear
+const vb = 21, sDoc = 236;
+const w0 = at(m, t + 8), w1 = at(m, sDoc - 9);
+const land = [[w0[0], w0[1], 0.2], [w1[0], w1[1], 0.2], [...sh(w1, nm, vb * cl), -vb], [...sh(w0, nm, vb * cl), -vb]];
+const n0 = at(m, sDoc - 9), n1 = at(m, sDoc + 9), nb = sh(at(m, sDoc + 2), nm, 30 * cl);
+const notch = [[n0[0], n0[1], 0.3], [n1[0], n1[1], 0.3], [nb[0], nb[1], -30]];
+const craterC = sh(at(m, 128), nm, 30);
+const ell = (a: number, b: number, z: number) => Array.from({ length: 48 }, (_, i) => { const u = (2 * Math.PI * i) / 48; return [craterC[0] + m[0] * a * Math.cos(u) - nm[0] * b * Math.sin(u), craterC[1] + m[1] * a * Math.cos(u) - nm[1] * b * Math.sin(u), z]; });
+const docA = at(m, sDoc), docB = sh(docA, nm, 120);
+const vbMid = at(m, 92);
+const vbA = P(vbMid[0], vbMid[1], -1), vbB = P(...sh(vbMid, nm, vb * cl), -vb + 1);
+const noseP = P(0, Cn[1] + re, 0);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id={`tw-rake-${locale}`} x1="0.2" y1="1" x2="0.5" y2="0">
+      <stop offset="0" stop-color="#bcc4cb" /><stop offset="1" stop-color="#838c94" />
+    </linearGradient>
+    <linearGradient id={`tw-flank-${locale}`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7e878f" /><stop offset="1" stop-color="#595e61" />
+    </linearGradient>
+    <radialGradient id={`tw-crater-${locale}`} cx="0.5" cy="0.45" r="0.55">
+      <stop offset="0" stop-color="#4c4e51" /><stop offset="0.65" stop-color="#5e6469" /><stop offset="1" stop-color="#939ca4" stop-opacity="0.6" />
+    </radialGradient>
+  </defs>
+  <path class="f" style="--i:0" d={pth(minorFlank)} fill="#e2e8ed" />
+  <path class="f" style="--i:0" d={pth(noseFlank)} fill="#c8d1d7" />
+  <path class="f" style="--i:1" d={pth(mainFlank)} fill={`url(#tw-flank-${locale})`} />
+  <path class="f" style="--i:1" d={pth(top)} fill={`url(#tw-rake-${locale})`} />
+  <path class="f" style="--i:3" d={pth(ell(84, 15, 0.3))} fill={`url(#tw-crater-${locale})`} />
+  <path class="f" style="--i:4" d={pth(land)} fill="#1e6fd6" fill-opacity="0.3" />
+  <path class="b d" style="--i:5" pathLength="1" d={pth([land[3], land[2]], false)} />
+  <path class="f" style="--i:5" d={pth(notch)} fill="#e2601a" fill-opacity="0.9" />
+  <path class="f" style="--i:6" d={pth([[docA[0], docA[1], 0.3], [docB[0], docB[1], 0.3]], false)} fill="none" stroke="#e7edf2" stroke-width="1.6" stroke-dasharray="6 5" />
+  <path class="o2 d" style="--i:2" pathLength="1" d={pth([[E2[0], E2[1], 0], [T2[0], T2[1], 0], ...arc(re, 0), [T1[0], T1[1], 0], [E1[0], E1[1], 0]], false)} />
+  <path class="o d" style="--i:3" pathLength="1" d={pth([[BE2[0], BE2[1], zb], [B2[0], B2[1], zb], ...arc(re - inset, zb), [B1[0], B1[1], zb], [BE1[0], BE1[1], zb]], false)} />
+  <path class="h f" style="--i:3" d={pth([[T1[0], T1[1], 0], [B1[0], B1[1], zb]], false)} />
+  <path class="h f" style="--i:3" d={pth([[T2[0], T2[1], 0], [B2[0], B2[1], zb]], false)} />
+  <g class="lbl">
+    <line class="h" x1={vbA[0]} y1={vbA[1]} x2={vbB[0]} y2={vbB[1]} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" stroke="#2a78d6" />
+    <text class="it t-data" x={vbB[0] + 8} y={vbB[1] + 6}>VB</text>
+    <text class="it lt" x={P(craterC[0], craterC[1], 0)[0] - 30} y={P(craterC[0], craterC[1], 0)[1] - 18}>KT</text>
+    <text class="lt" x={P(craterC[0], craterC[1], 0)[0] - 4} y={P(craterC[0], craterC[1], 0)[1] - 18}>{L.crater}</text>
+    <text class="t-acc" x={P(nb[0], nb[1], -30)[0] + 10} y={P(nb[0], nb[1], -30)[1] + 6}>{L.notch}</text>
+    <text class="t-sm lt" x={P(docB[0], docB[1], 0)[0] - 20} y={P(docB[0], docB[1], 0)[1] - 10}>{L.doc}</text>
+    <text class="lt" x={P(-150, -230, 0)[0]} y={P(-150, -230, 0)[1]}>{L.rake}</text>
+    <text x={P(...at(m, 170), -th)[0] + 4} y={P(...at(m, 170), -th)[1] + 24}>{L.flank}</text>
+    <line class="h" x1={noseP[0] - 6} y1={noseP[1] + 2} x2="128" y2="262" />
+    <text class="t-sm" x="40" y="278">{L.nose} r<tspan font-size="8" dy="3">ε</tspan></text>
+  </g>
+</svg>
+
+<style>
+  /* labels printed on the light rake face: dark ink, no halo */
+  :global(.plate) text.lt { fill: #f3f8fd; stroke: none; }
+</style>

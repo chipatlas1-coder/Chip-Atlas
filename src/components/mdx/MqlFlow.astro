@@ -1,0 +1,126 @@
+---
+/**
+ * Minimum quantity lubrication, schematic. Three ways the aerosol reaches the cut: an external nozzle; internal feed
+ * through the spindle and tool with the aerosol made in the tank (1-channel); internal feed with oil and air carried
+ * separately through the spindle and mixed as they leave it, directly in front of the tool (2-channel; DGUV, Schumski).
+ * Droplets animate along the chosen route. Below, a dosage slider over the DGUV range with the page's arithmetic: oil
+ * in 8 hours of cutting. Below ~520 px the labels are drawn larger (class 'narrow').
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { modes: { ext: 'Dıştan püskürmeli', one: 'İçten, tek kanal', two: 'İçten, iki kanal' }, tank: 'aerosol üreteci', tank2: 'yağ ve hava', air: 'hava', oil: 'yağ', mix: 'karışım', spindle: 'iş mili', work: 'iş parçası', nozzle: 'meme', rate: 'Yağ miktarı', shift: '8 saat kesmede', perh: 'ml/saat', ml: 'ml', note1: 'Aerosol tankta üretilir, iş milinden geçer (DGUV).', note2: 'Yağ ve hava iş milinden ayrı geçer, iş milinden çıkarken takımın hemen önünde karışır; tepki süresi yaklaşık 0,1 s (DGUV).', note0: 'Aerosol dışarıdan, kesme bölgesine püskürtülür.', aria: 'Minimum miktarda yağlamanın şeması: aerosolün kesme bölgesine üç yolu' }
+  : { modes: { ext: 'External nozzle', one: 'Internal, 1-channel', two: 'Internal, 2-channel' }, tank: 'aerosol generator', tank2: 'oil and air', air: 'air', oil: 'oil', mix: 'mixing', spindle: 'spindle', work: 'workpiece', nozzle: 'nozzle', rate: 'Oil quantity', shift: 'In 8 hours of cutting', perh: 'ml/h', ml: 'ml', note1: 'The aerosol is made in the tank and goes through the spindle (DGUV).', note2: 'Oil and air travel separately through the spindle and mix as they leave it, directly in front of the tool; response time about 0.1 s (DGUV).', note0: 'The aerosol is sprayed from outside onto the cutting zone.', aria: 'Minimum quantity lubrication, schematic: three routes for the aerosol to the cut' };
+---
+<div class="mq" data-mq data-locale={locale} data-anim>
+  <div class="seg" data-g="m">{(['ext', 'one', 'two'] as const).map((k, i) => <button type="button" data-v={k} aria-pressed={String(i === 1)}>{T.modes[k]}</button>)}</div>
+  <svg class="sc" viewBox="0 0 640 300" role="img" aria-label={T.aria} data-sc></svg>
+  <p class="note" data-o="n"></p>
+  <div class="row">
+    <label class="field"><span>{T.rate} <output data-o="r">20</output> {T.perh}</span><input type="range" min="5" max="50" step="1" value="20" data-i="r" /></label>
+    <div class="out"><span>{T.shift}</span><b data-o="s">160 {T.ml}</b></div>
+  </div>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .mq { display: grid; gap: 0.7rem; }
+  .seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1 1 9rem; font: inherit; font-size: 0.84rem; padding: 0.4rem 0.5rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.3rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .sc { width: 100%; height: auto; display: block; }
+  .note { margin: 0; font-size: 0.85rem; color: var(--ink-2); min-height: 1.3em; }
+  .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: end; }
+  .field { display: grid; gap: 0.3rem; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .out { display: grid; text-align: right; font-size: 0.78rem; color: var(--ink-3); }
+  .out b { font: 600 1.2rem var(--font-mono); color: #0f7a6e; }
+  .mq :global(.tx) { font: 11px var(--font-mono); fill: #364554; }
+  .mq.narrow :global(.tx) { font-size: 18px; }
+</style>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-mq]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const sc = q<SVGSVGElement>('[data-sc]');
+    let mode: 'ext' | 'one' | 'two' = 'one', t = 0, last = 0;
+    // geometry: tank at left, line along the top to the spindle, spindle down to the tool, workpiece below
+    const SX = 400, TOP = 40, TIP = 232;
+    const route1 = [[110, 112], [110, 70], [SX, 70], [SX, TIP]];
+    const lerpPath = (pts: number[][], u: number) => {
+      const seg: number[] = []; let L = 0;
+      for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); seg.push(d); L += d; }
+      let s = u * L;
+      for (let i = 0; i < seg.length; i++) { if (s <= seg[i]) { const k = s / seg[i]; return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * k, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * k]; } s -= seg[i]; }
+      return pts[pts.length - 1];
+    };
+    const base = () => `
+      <rect x="0" y="200" width="640" height="100" fill="url(#ca-metal-h)"/>
+      <path d="M${SX - 15},200 L${SX - 15},${TIP + 16} L${SX + 15},${TIP + 16} L${SX + 15},200 Z" fill="#f7f9fb" stroke="#5f6c79" stroke-width="1"/>
+      <rect x="${SX - 34}" y="${TOP - 10}" width="68" height="84" rx="6" fill="url(#ca-metal)" stroke="#5f6c79"/>
+      <path d="M${SX - 26},${TOP + 74} L${SX + 26},${TOP + 74} L${SX + 18},${TOP + 110} L${SX - 18},${TOP + 110} Z" fill="url(#ca-metal-h)" stroke="#5f6c79"/>
+      <rect x="${SX - 12}" y="${TOP + 110}" width="24" height="${TIP - TOP - 110}" rx="3" fill="url(#ca-carbide)" stroke="#5f6c79"/>
+      <path d="M${SX - 12},${TIP} L${SX},${TIP + 12} L${SX + 12},${TIP}" fill="url(#ca-carbide)" stroke="#5f6c79"/>
+      <text x="${SX + 44}" y="${TOP + 30}" class="tx">${T.spindle}</text>
+      <text x="${SX + 60}" y="272" class="tx">${T.work}</text>`;
+    const draw = () => {
+      let s = base();
+      const dots: string[] = [];
+      if (mode === 'ext') {
+        s += `<path d="M584,84 L584,100 L554,114" fill="none" stroke="#5f6c79" stroke-width="4" stroke-linejoin="round"/>`;
+        s += `<path d="M560,120 L470,190 L462,180 L548,108 Z" fill="#364554"/><text x="530" y="104" class="tx" text-anchor="end">${T.nozzle}</text>`;
+        s += `<rect x="548" y="44" width="72" height="40" rx="6" fill="#eef2f6" stroke="#5f6c79"/><text x="620" y="36" class="tx" text-anchor="end">${T.tank}</text>`;
+        for (let k = 0; k < 26; k++) {
+          const u = (t * 0.9 + k / 26) % 1, spread = (k % 5 - 2) * 3;
+          const x = 462 + (SX + 16 - 462) * u + spread * u, y = 192 + (204 - 192) * u + spread * u * 0.4;
+          dots.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(2.6 - u).toFixed(2)}" fill="#e3b23c" opacity="${(1 - u * 0.5).toFixed(2)}"/>`);
+        }
+      } else {
+        const two = mode === 'two';
+        s += `<rect x="60" y="112" width="100" height="64" rx="8" fill="#eef2f6" stroke="#5f6c79"/><text x="110" y="192" class="tx" text-anchor="middle">${two ? T.tank2 : T.tank}</text>`;
+        if (!two) {
+          s += `<path d="M110,112 L110,70 L${SX},70 L${SX},${TIP}" fill="none" stroke="#c3ccd5" stroke-width="7" stroke-linejoin="round"/>`;
+          for (let k = 0; k < 40; k++) { const u = (t * 0.5 + k / 40) % 1; const [x, y] = lerpPath(route1, u); dots.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.4" fill="#e3b23c"/>`); }
+          for (let k = 0; k < 10; k++) { const a = (t * 3 + k) % 6.28, r = 12 + (k % 3) * 6; dots.push(`<circle cx="${(110 + r * Math.cos(a) * 1.4).toFixed(1)}" cy="${(144 + r * Math.sin(a) * 0.8).toFixed(1)}" r="2" fill="#e3b23c" opacity="0.7"/>`); }
+        } else {
+          const NOSE = TOP + 74;                                  // spindle nose: the two media mix as they leave the spindle
+          s += `<path d="M${SX},${NOSE} L${SX},${TIP}" fill="none" stroke="#c3ccd5" stroke-width="7"/>`;
+          s += `<path d="M96,112 L96,62 L${SX - 5},62 L${SX - 5},${NOSE}" fill="none" stroke="#9fc0e6" stroke-width="5" stroke-linejoin="round"/>`;
+          s += `<path d="M124,112 L124,78 L${SX + 5},78 L${SX + 5},${NOSE}" fill="none" stroke="#e8c879" stroke-width="5" stroke-linejoin="round"/>`;
+          s += `<circle cx="${SX}" cy="${NOSE}" r="9" fill="none" stroke="#e3b23c" stroke-width="2" stroke-dasharray="3 3"/>`;
+          s += `<line x1="${SX + 10}" y1="${NOSE + 4}" x2="${SX + 40}" y2="${NOSE + 8}" stroke="#5f6c79" stroke-width="1"/>`;
+          s += `<text x="250" y="56" class="tx">${T.air}</text><text x="250" y="96" class="tx">${T.oil}</text><text x="${SX + 44}" y="${NOSE + 14}" class="tx">${T.mix}</text>`;
+          const rA = [[96, 112], [96, 62], [SX - 5, 62], [SX - 5, NOSE]], rO = [[124, 112], [124, 78], [SX + 5, 78], [SX + 5, NOSE]];
+          for (let k = 0; k < 30; k++) { const u = (t * 0.6 + k / 30) % 1; const [x, y] = lerpPath(rA, u); dots.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.8" fill="#1e5fc4" opacity="0.6"/>`); }
+          for (let k = 0; k < 14; k++) { const u = (t * 0.35 + k / 14) % 1; const [x, y] = lerpPath(rO, u); dots.push(`<rect x="${(x - 2).toFixed(1)}" y="${(y - 3).toFixed(1)}" width="4" height="6" rx="2" fill="#c98a1e"/>`); }
+          for (let k = 0; k < 18; k++) { const u = (t * 0.9 + k / 18) % 1; dots.push(`<circle cx="${(SX + (k % 3 - 1) * 2).toFixed(1)}" cy="${(NOSE + u * (TIP - NOSE)).toFixed(1)}" r="2.3" fill="#e3b23c"/>`); }
+        }
+        // spray out of the tip
+        for (let k = 0; k < 12; k++) { const u = (t * 1.5 + k / 12) % 1, a = Math.PI / 2 + (k % 5 - 2) * 0.35; dots.push(`<circle cx="${(SX + Math.cos(a) * 22 * u).toFixed(1)}" cy="${(TIP + 12 + Math.sin(a) * 8 * u).toFixed(1)}" r="${(2 - u).toFixed(2)}" fill="#e3b23c" opacity="${(1 - u).toFixed(2)}"/>`); }
+      }
+      sc.innerHTML = s + dots.join('');
+      q('[data-o="n"]').textContent = mode === 'ext' ? T.note0 : mode === 'one' ? T.note1 : T.note2;
+    };
+    const rate = () => {
+      const r = +q<HTMLInputElement>('[data-i="r"]').value;
+      q('[data-o="r"]').textContent = String(r);
+      q('[data-o="s"]').textContent = `${r * 8} ${T.ml}`;
+    };
+    root.querySelectorAll<HTMLButtonElement>('[data-g="m"] button').forEach((b, _, all) => b.addEventListener('click', () => { mode = b.dataset.v as typeof mode; all.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); }));
+    q('[data-i="r"]').addEventListener('input', rate);
+    const fit = () => root.classList.toggle('narrow', sc.getBoundingClientRect().width > 0 && sc.getBoundingClientRect().width < 520);
+    new ResizeObserver(fit).observe(sc);
+    rate(); draw(); fit();
+    let visible = false;
+    new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+    const step = (now: number) => { if (visible) { t += Math.min(0.05, (now - last) / 1000) * 0.5; draw(); } last = now; requestAnimationFrame(step); };
+    whenIn(root, () => { last = performance.now(); requestAnimationFrame(step); });
+  });
+</script>

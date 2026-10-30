@@ -1,0 +1,295 @@
+---
+import ArticleCard from './ArticleCard.astro';
+import Base from '../layouts/Base.astro';
+import ShaftHero from './ShaftHero.astro';
+import ToolPreview from './ToolPreview.astro';
+import Emblem from './Emblem.astro';
+import ProgressStrip from './ProgressStrip.astro';
+import { href, routes, t, type Locale } from '../i18n';
+import { sections, sectionPath, totalPages } from '../data/sections';
+import { flagshipTools, tools } from '../data/tools';
+import { articlesFor, articlePath } from '../lib/articles';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const ui = t(locale);
+const tr = locale === 'tr';
+const liveCount = tools.filter((tool) => tool.status === 'live').length;
+const articles = await articlesFor(locale);
+// a way in: the first page of each live section, then the second of each, up to eight
+const bySec = sections.map((sec) => articles.filter((a) => a.data.section === sec.n)).filter((l) => l.length);
+const picks: typeof articles = [];
+for (let k = 0; picks.length < 8 && bySec.some((l) => l.length > k); k++) for (const l of bySec) if (l[k] && picks.length < 8) picks.push(l[k]);
+const progress = sections.map((sec) => {
+  const segs = sec.subsections.map((sub) => ({
+    name: sub.name[locale],
+    pages: sub.pages,
+    live: articles.filter((a) => a.data.section === sec.n && a.data.subsection === sub.slug.en).length,
+  }));
+  return { segs, live: segs.reduce((a, b) => a + b.live, 0), planned: segs.reduce((a, b) => a + b.pages, 0) };
+});
+
+const copy = tr
+  ? {
+      title: 'Chip Atlas — Talaşlı İmalat Ansiklopedisi',
+      description: 'Talaşlı imalattaki her proses, takım, malzeme ve ölçüm; canlı 3D modeller, hesaplayıcılar ve kaynaklı tablolarla.',
+      headline: 'Talaşlı imalat ansiklopedisi.',
+      sub: 'Metal kesmedeki her proses, takım, malzeme ve ölçüm; canlı modeller, hesaplayıcılar ve kaynağı yazılı tablolarla anlatılır.',
+      heroNote: 'Ø40 mm şaft, 95° tutucuda CNMG 120408 uç. Devri ve ilerlemeyi değiştir; kesme hızı ve teorik pürüzlülük aynı anda hesaplanır.',
+      readouts: { vc: 'Kesme hızı vc', n: 'Devir n', vf: 'İlerleme hızı vf', ra: 'Teorik Ra' },
+      readTitle: 'Okumaya başla',
+      readLead: `${articles.length} sayfa yayında; her birinin sonunda kaynakları listelenir, inceleme bekleyen sayfalar işaretlidir. Aşağıda her bölümden birer sayfayla bir giriş yolu var; geri kalanı atlasta.`,
+      atlasTitle: '18 bölümde atlas',
+      atlasLead: `${totalPages} sayfa haritalandı. Her sayfa aynı sırayı izler: tanım, 3D model, mekanizma, formüller, tablolar, araç, sık hatalar, kaynaklar.`,
+      toolsTitle: 'Hesabı yapan araçlar',
+      toolsLead: `${liveCount} araç yayında. Yetmiş beşinin tamamı Araçlar Merkezi’nde haritalı; her biri ilgili sayfaya gömülü olarak gelir.`,
+      accuracyTitle: 'Doğruluk kuralı',
+      accuracy: [
+        'Her sayının yanında kaynağı yazar: standart, el kitabı veya üretici kataloğu.',
+        'Her formül otomatik testten geçer; bu sayfadaki hesaplayıcılar da dâhil.',
+        'Her tablo en az iki kaynakla çapraz kontrol edilir; inceleme bekleyen değerler işaretlidir.',
+      ],
+      phase: 'Faz',
+      liveOf: (l: number, p: number) => `Yayında ${l} / ${p} sayfa`,
+      stripLabel: (name: string, l: number, p: number) => `${name}: planlanan ${p} sayfanın ${l} tanesi yayında`,
+      priority: 'Öncelik',
+    }
+  : {
+      title: 'Chip Atlas — The Machining Encyclopedia',
+      description: 'Every process, tool, material and measurement in machining, explained with live 3D models, calculators and sourced tables.',
+      headline: 'The machining encyclopedia.',
+      sub: 'Every process, tool, material and measurement in metal cutting, explained with live models, calculators and tables that cite their sources.',
+      heroNote: 'Ø40 mm shaft, CNMG 120408 insert in a 95° holder. Change the spindle speed and feed; cutting speed and theoretical roughness follow.',
+      readouts: { vc: 'Cutting speed vc', n: 'Spindle speed n', vf: 'Feed speed vf', ra: 'Theoretical Ra' },
+      readTitle: 'Start reading',
+      readLead: `${articles.length} pages are live, each with its sources listed at the end; pages still under review are marked. Below is a way in, one page from each section; the atlas lists the rest.`,
+      atlasTitle: 'The atlas, in 18 sections',
+      atlasLead: `${totalPages} pages charted. Every page follows the same order: definition, 3D model, mechanism, formulae, tables, tool, common mistakes, sources.`,
+      toolsTitle: 'Tools that do the arithmetic',
+      toolsLead: `${liveCount} are live. All seventy-five are charted in the Tools Hub, and each one ships embedded in the page it belongs to.`,
+      accuracyTitle: 'The accuracy rule',
+      accuracy: [
+        'Every number carries its source: a standard, a handbook or a manufacturer catalogue.',
+        'Every formula runs through automated tests, including the calculators on this page.',
+        'Every table is cross-checked against at least two references; values still under review are marked.',
+      ],
+      phase: 'Phase',
+      liveOf: (l: number, p: number) => `Live ${l} / ${p} pages`,
+      stripLabel: (name: string, l: number, p: number) => `${name}: ${l} of ${p} planned pages live`,
+      priority: 'Priority',
+    };
+
+---
+<Base locale={locale} title={copy.title} description={copy.description} path={routes.home[locale]} altPath={routes.home[tr ? 'en' : 'tr']}>
+  <section class="hero sheet">
+    <div class="hero-copy">
+      <h1 class="display">{copy.headline}</h1>
+      <div class="temper" aria-hidden="true"></div>
+      <p class="lead">{copy.sub}</p>
+      <div class="actions">
+        <a class="btn btn-accent" href={href(routes.tools[locale])}>{ui.nav.tools}</a>
+        <a class="btn" href="#atlas">{ui.nav.atlas}</a>
+      </div>
+    </div>
+
+    <div class="hero-stage">
+      <ShaftHero locale={locale} />
+      <div class="readouts">
+        <div class="readout">
+          <span class="value"><span data-readout="vc">151</span><small>m/min</small></span>
+          <span class="label">{copy.readouts.vc}</span>
+        </div>
+        <div class="readout">
+          <span class="value"><span data-readout="n">1200</span><small>rpm</small></span>
+          <span class="label">{copy.readouts.n}</span>
+        </div>
+        <div class="readout">
+          <span class="value"><span data-readout="vf">240</span><small>mm/min</small></span>
+          <span class="label">{copy.readouts.vf}</span>
+        </div>
+        <div class="readout">
+          <span class="value"><span data-readout="ra">1.57</span><small>µm</small></span>
+          <span class="label">{copy.readouts.ra}</span>
+        </div>
+      </div>
+      <p class="hero-note">{copy.heroNote}</p>
+    </div>
+  </section>
+
+  <section class="sheet reading">
+    <div class="section-head">
+      <h2 class="h1">{copy.readTitle}</h2>
+      <p class="lead">{copy.readLead}</p>
+    </div>
+    <ul class="cards">
+      {picks.map((a) => (
+        <li class="reveal"><ArticleCard a={a} /></li>
+      ))}
+    </ul>
+  </section>
+
+  <section id="atlas" class="sheet atlas">
+    <div class="section-head">
+      <h2 class="h1">{copy.atlasTitle}</h2>
+      <p class="lead">{copy.atlasLead}</p>
+    </div>
+    <ol class="atlas-grid">
+      {sections.map((sec, i) => {
+        const pr = progress[i];
+        return (
+          <li class="reveal">
+            <a class="sec em-host" href={href(sectionPath(locale, sec))}>
+              <span class="tile"><Emblem n={sec.n} size="3.6rem" /></span>
+              <span class="n num">{String(sec.n).padStart(2, '0')}</span>
+              <span class="name">{sec.name[locale]}</span>
+              <span class="desc">{sec.lead[locale]}</span>
+              <span class="foot">
+                <ProgressStrip segs={pr.segs} label={copy.stripLabel(sec.name[locale], pr.live, pr.planned)} />
+                <span class="counts num"><span class:list={['dot', { on: pr.live > 0 }]} />{copy.liveOf(pr.live, pr.planned)}</span>
+                <span class="phase num">{copy.phase} {sec.priority}</span>
+              </span>
+            </a>
+          </li>
+        );
+      })}
+    </ol>
+  </section>
+
+  <section class="sheet tools-section">
+    <div class="section-head">
+      <h2 class="h1">{copy.toolsTitle}</h2>
+      <p class="lead">{copy.toolsLead}</p>
+    </div>
+    <div class="tool-grid">
+      {flagshipTools.slice(0, 6).map((tool) => (
+        <a class="tool panel" href={href(routes[tool.route!][locale])}>
+          <ToolPreview route={tool.route!} />
+          <div class="tool-text">
+            <span class="mark mark-live">{ui.status.live}</span>
+            <h3 class="h3">{tool.name[locale]}</h3>
+            <p>{tool.blurb![locale]}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+    <p class="hub-link"><a class="btn" href={href(routes.tools[locale])}>{ui.common.allTools} · {liveCount}/{tools.length}</a></p>
+  </section>
+
+  <section class="sheet accuracy">
+    <div class="section-head">
+      <h2 class="h2">{copy.accuracyTitle}</h2>
+    </div>
+    <ol class="rules">
+      {copy.accuracy.map((rule) => <li>{rule}</li>)}
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 2.5rem 3rem;
+    align-items: center;
+    padding-block: 3rem 4rem;
+    min-height: calc(100dvh - 3.5rem);
+  }
+  @media (max-width: 60rem) {
+    .hero { grid-template-columns: 1fr; padding-block: 2rem 3rem; min-height: 0; }
+  }
+  .hero-copy { display: grid; gap: 1.25rem; min-width: 0; }
+  /* sized to the 5/12 column so the longest word ("encyclopedia.", "ansiklopedisi.") never runs into the stage */
+  .hero-copy h1.display { font-size: clamp(2.6rem, 5.3vw, 5.4rem); }
+  .hero-copy .temper { height: 8px; width: min(100%, 26rem); border-radius: 4px; background: var(--temper); }
+  @media (prefers-reduced-motion: no-preference) { .hero-copy .temper { animation: temper-in 1.4s 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; } }
+  @keyframes temper-in { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  .readouts .readout { background: var(--bg-raised); border: 1px solid var(--line); border-top: 4px solid var(--rc); border-radius: 12px; padding: 0.8rem 0.9rem; }
+  .readouts .readout:nth-child(1) { --rc: var(--color-temper-blue); }
+  .readouts .readout:nth-child(2) { --rc: var(--color-spark-500); }
+  .readouts .readout:nth-child(3) { --rc: var(--color-temper-teal); }
+  .readouts .readout:nth-child(4) { --rc: var(--color-temper-purple); }
+  .readouts .readout .value { color: var(--ink); font-weight: 600; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; }
+  .hero-stage { display: grid; gap: 1rem; min-width: 0; }
+  .readouts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding-top: 0.25rem;
+  }
+  @media (max-width: 40rem) { .readouts { grid-template-columns: repeat(2, 1fr); } }
+  .hero-note { font-size: 0.85rem; color: var(--ink-3); max-width: none; }
+
+  .section-head { display: grid; gap: 0.75rem; margin-bottom: 2rem; }
+  .atlas { padding-block: 4rem 2rem; border-top: 1px solid var(--line); }
+
+  .reading { padding-block: 4rem 2rem; border-top: 1px solid var(--line); }
+  .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem 1.25rem; list-style: none; padding: 0; margin: 0; }
+  @media (max-width: 72rem) { .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 52rem) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 40rem) {
+    .cards { display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -1rem; padding: 0 1rem 0.75rem; scroll-padding-inline: 1rem; scrollbar-width: thin; }
+    .cards > li { flex: 0 0 78%; scroll-snap-align: start; }
+  }
+
+  .atlas-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; list-style: none; padding: 0; margin: 0; }
+  @media (max-width: 64rem) { .atlas-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 40rem) { .atlas-grid { grid-template-columns: 1fr; gap: 0.75rem; } }
+  .atlas-grid > li { display: grid; }
+  .sec {
+    position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto 1fr auto; gap: 0.35rem 1rem;
+    padding: 1.1rem 1.15rem 1rem; border: 1px solid var(--line); border-radius: 6px;
+    background: linear-gradient(160deg, color-mix(in oklab, var(--bg-raised) 100%, transparent), var(--bg) 85%);
+    transition: border-color 180ms, transform 180ms, box-shadow 180ms;
+  }
+  .sec:hover, .sec:focus-visible { border-color: var(--line-strong); transform: translateY(-2px); box-shadow: 0 10px 28px -16px #000; }
+  .tile {
+    grid-row: 1 / 3; display: grid; place-items: center; width: 4.6rem; height: 4.6rem; border-radius: 6px;
+    background: radial-gradient(80% 80% at 35% 30%, color-mix(in oklab, var(--color-metro-500) 12%, transparent), transparent 70%), var(--bg-sunk);
+    border: 1px solid var(--line); transition: border-color 180ms;
+  }
+  .sec:hover .tile { border-color: color-mix(in oklab, var(--accent) 45%, var(--line)); }
+  .n { justify-self: end; align-self: start; color: var(--ink-3); font-size: 0.8rem; grid-column: 2; grid-row: 1; }
+  .name { grid-column: 2; grid-row: 2; align-self: end; font-weight: 600; font-size: 1.12rem; line-height: 1.25; transition: color 150ms; }
+  .sec:hover .name { color: var(--accent); }
+  .desc {
+    grid-column: 1 / -1; margin-top: 0.55rem; color: var(--ink-2); font-size: 0.9rem; line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .foot { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 0.5rem 1rem; align-items: center; margin-top: 0.75rem; }
+  .foot :global(.strip) { grid-column: 1 / -1; }
+  .counts { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--ink-2); font-size: 0.76rem; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); }
+  .dot.on { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent); }
+  .phase { font-size: 0.7rem; color: var(--ink-3); border: 1px solid var(--line-strong); border-radius: 999px; padding: 0.1rem 0.5rem; }
+  @media (max-width: 40rem) {
+    .sec { grid-template-rows: auto auto auto; gap: 0.2rem 0.9rem; padding: 0.85rem 0.95rem 0.8rem; }
+    .tile { grid-row: 1 / 3; width: 3.6rem; height: 3.6rem; align-self: start; }
+    .tile :global(.em) { width: 2.9rem !important; height: 2.9rem !important; }
+    .n { position: absolute; right: 0.95rem; top: 0.85rem; grid-area: auto; }
+    .name { grid-row: 1; align-self: start; padding-right: 2rem; font-size: 1.05rem; }
+    .desc { grid-column: 2; grid-row: 2; margin-top: 0; font-size: 0.86rem; -webkit-line-clamp: 2; line-clamp: 2; }
+    .foot { margin-top: 0.6rem; }
+  }
+
+  .tools-section { padding-block: 4rem 2rem; border-top: 1px solid var(--line); }
+  .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  @media (max-width: 60rem) { .tool-grid { grid-template-columns: 1fr; } }
+  .tool { display: grid; grid-template-rows: auto 1fr; overflow: hidden; transition: border-color 150ms; }
+  .tool:hover { border-color: var(--ink-3); }
+  .tool-text { padding: 1.1rem 1.2rem 1.3rem; display: grid; gap: 0.5rem; align-content: start; }
+  .tool-text p { color: var(--ink-2); font-size: 0.95rem; }
+  .hub-link { margin-top: 1.5rem; }
+
+  .accuracy { padding-block: 4rem 1rem; border-top: 1px solid var(--line); }
+  .rules { display: grid; gap: 0.75rem; max-width: 64ch; counter-reset: rule; list-style: none; }
+  .rules li { position: relative; padding-left: 2.2rem; color: var(--ink-2); }
+  .rules li::before {
+    counter-increment: rule;
+    content: counter(rule);
+    position: absolute; left: 0; top: 0.1rem;
+    font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent);
+    width: 1.5rem; height: 1.5rem; border: 1px solid var(--line-strong); border-radius: 50%;
+    display: grid; place-items: center;
+  }
+</style>

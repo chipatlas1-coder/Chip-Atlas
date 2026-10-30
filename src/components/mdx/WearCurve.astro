@@ -1,0 +1,111 @@
+---
+/**
+ * Flank wear VB against cutting time: break-in, steady wear, accelerated wear; ISO 3685 criterion
+ * VB = 0.3 mm. Schematic curve (time without units): fast initial rise, linear middle, steep end.
+ * Steady wear reaches the criterion (t ≈ 0.70) before accelerated wear starts at t = 0.80.
+ * Wide layout: zone names in the bands and a flank sketch per zone whose land height is VB at that
+ * time on the same curve. Narrow layout: numerals in the bands, names in a list under the chart.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? { x: 'kesme süresi', y: 'serbest yüzey aşınması VB (mm)', z: ['alışma', 'kararlı aşınma', 'hızlanan aşınma'], crit: 'ISO 3685 kriteri: VB = 0,3 mm', critS: 'VB = 0,3 mm', T: 'takım ömrü T', aria: 'Takım aşınma eğrisi: VB kesme süresiyle üç bölgede artar; 0,3 mm kriterine ulaşılan an takım ömrüdür' }
+  : { x: 'cutting time', y: 'flank wear VB (mm)', z: ['break-in', 'steady wear', 'accelerated wear'], crit: 'ISO 3685 criterion: VB = 0.3 mm', critS: 'VB = 0.3 mm', T: 'tool life T', aria: 'Tool wear curve: VB rises with cutting time in three zones; the time at which it reaches the 0.3 mm criterion is the tool life' };
+const vb = (t: number) => 0.09 * (1 - Math.exp(-t / 0.05)) + 0.3 * t + (t > 0.8 ? 4.5 * (t - 0.8) ** 2 : 0);
+let tCrit = 0;
+for (let i = 0; i <= 4000; i++) { const t = (i / 4000) * 0.92; if (vb(t) >= 0.3) { tCrit = t; break; } }
+const zones = [[0, 0.12], [0.12, 0.8], [0.8, 0.92]] as const;
+const roman = ['I', 'II', 'III'];
+const fmt = (v: number) => (tr ? v.toFixed(1).replace('.', ',') : v.toFixed(1));
+const ticks = [0, 0.1, 0.2, 0.3, 0.4, 0.5];
+
+function layout(narrow: boolean) {
+  const W = narrow ? 360 : 640, H = narrow ? 300 : 360;
+  const x0 = narrow ? 40 : 70, x1 = W - (narrow ? 12 : 24), yTop = narrow ? 34 : 96, y0 = H - (narrow ? 40 : 44);
+  const X = (t: number) => x0 + (t / 0.92) * (x1 - x0);
+  const Y = (v: number) => y0 - (v / 0.5) * (y0 - yTop);
+  let d = '';
+  for (let i = 0; i <= 240; i++) { const t = (i / 240) * 0.92; d += (i ? 'L' : 'M') + X(t).toFixed(1) + ' ' + Y(vb(t)).toFixed(1); }
+  return { W, H, x0, x1, yTop, y0, X, Y, d };
+}
+const geo = [false, true].map((n) => ({ narrow: n, ...layout(n) }));
+// flank sketches (wide only): representative times in each zone
+const sketchT = [0.06, 0.46, 0.88];
+---
+<div class="wc">
+  {geo.map((g) => (
+    <svg viewBox={`0 0 ${g.W} ${g.H}`} role="img" aria-label={L.aria} class:list={['plot', g.narrow ? 'narrow' : 'wide']}>
+      {zones.map(([a, b], i) => i !== 1 && <rect x={g.X(a)} y={g.yTop} width={g.X(b) - g.X(a)} height={g.y0 - g.yTop} class="band" />)}
+      {ticks.map((v) => (
+        <g>
+          <line x1={g.x0} x2={g.x1} y1={g.Y(v)} y2={g.Y(v)} class="grid" />
+          <text x={g.x0 - 8} y={g.Y(v) + 4} text-anchor="end" class="tick">{fmt(v)}</text>
+        </g>
+      ))}
+      <line x1={g.x0} x2={g.x1} y1={g.y0} y2={g.y0} class="ax" />
+      <line x1={g.x0} x2={g.x0} y1={g.y0} y2={g.yTop - 6} class="ax" />
+      {g.narrow && zones.map(([a, b], i) => (
+        <text x={(g.X(a) + g.X(b)) / 2} y={g.yTop + 16} text-anchor="middle" class="zone">{roman[i]}</text>
+      ))}
+      <line x1={g.x0} x2={g.x1} y1={g.Y(0.3)} y2={g.Y(0.3)} class="crit" />
+      <text x={g.narrow ? g.x0 + 8 : g.X(0.12) + 10} y={g.Y(0.3) - 7} class="lab acc">{g.narrow ? L.critS : L.crit}</text>
+      <path d={g.d} class="glow" />
+      <path d={g.d} class="curve" />
+      <line x1={g.X(tCrit)} x2={g.X(tCrit)} y1={g.Y(0.3)} y2={g.y0} class="tline" />
+      <circle cx={g.X(tCrit)} cy={g.Y(0.3)} r="5" class="dot" />
+      <text x={g.X(tCrit)} y={g.y0 + 17} text-anchor="middle" class="lab acc">{g.narrow ? 'T' : L.T}</text>
+      <text x={g.x1} y={g.y0 + (g.narrow ? 32 : 34)} text-anchor="end" class="lab">{L.x} →</text>
+      {g.narrow
+        ? <text x={g.x0 - 4} y={g.yTop - 14} class="lab">{L.y}</text>
+        : <text transform={`translate(16 ${(g.yTop + g.y0) / 2}) rotate(-90)`} text-anchor="middle" class="lab">{L.y}</text>}
+      {!g.narrow && sketchT.map((t, i) => {
+        const cx = g.X(t), w = 44, hh = 26, top = 8;
+        const land = (vb(t) / 0.5) * 20;
+        const anchor = i === 2 ? 'end' : 'middle', tx = i === 2 ? Math.min(cx + w / 2, g.x1) : cx;
+        return (
+          <g class="sk">
+            <rect x={cx - w / 2} y={top} width={w} height={hh} rx="2" class="flank" />
+            <rect x={cx - w / 2} y={top} width={w} height={land} class="land" />
+            <line x1={cx - w / 2} x2={cx + w / 2} y1={top} y2={top} class="edge" />
+            {i === 1 && <text x={cx + w / 2 + 6} y={top + land / 2 + 4} class="lab small">VB</text>}
+            <text x={tx} y={top + hh + 17} text-anchor={anchor} class="zone"><tspan class="rn">{roman[i]}</tspan> {L.z[i]}</text>
+            <line x1={cx} x2={cx} y1={top + hh + 24} y2={g.Y(vb(t)) - 6} class="lead" />
+            <circle cx={cx} cy={g.Y(vb(t))} r="3" class="pt" />
+          </g>
+        );
+      })}
+    </svg>
+  ))}
+  <ol class="zones-key narrow">
+    {L.z.map((z, i) => <li><span class="num">{roman[i]}</span> {z}</li>)}
+  </ol>
+</div>
+
+<style>
+  .wc { display: grid; gap: 0.6rem; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } ol.narrow { display: flex; } }
+  .grid { stroke: var(--line); }
+  .ax { stroke: var(--ink-3); }
+  .band { fill: color-mix(in oklab, var(--color-steel-500) 7%, transparent); }
+  .crit { stroke: #d4520f; stroke-dasharray: 6 4; stroke-width: 1.4; }
+  .tline { stroke: #d4520f; stroke-dasharray: 2 3; }
+  .glow { fill: none; stroke: #1e6fd6; stroke-width: 8; stroke-opacity: 0.16; stroke-linecap: round; }
+  .curve { fill: none; stroke: #1e6fd6; stroke-width: 2.6; stroke-linecap: round; }
+  .dot { fill: #e2601a; stroke: #fbfdff; stroke-width: 2; }
+  .tick, .lab, .zone { font-family: var(--font-mono); font-size: 12px; fill: var(--ink-2); }
+  .tick { fill: var(--ink-3); font-size: 11.5px; }
+  .zone { fill: var(--ink-3); }
+  .zone .rn { fill: var(--ink-2); font-weight: 500; }
+  .lab.acc { fill: #e2601a; }
+  .lab.small { font-size: 11px; fill: #2a78d6; }
+  .narrow .tick, .narrow .lab, .narrow .zone { font-size: 12.5px; }
+  .flank { fill: url(#ca-face); stroke: #2c3033; stroke-width: 1; }
+  .land { fill: #1e6fd6; fill-opacity: 0.55; }
+  .edge { stroke: #1b1d1e; stroke-width: 2; }
+  .lead { stroke: var(--ink-3); stroke-dasharray: 2 3; }
+  .pt { fill: #1e6fd6; stroke: #fbfdff; stroke-width: 1.5; }
+  .zones-key { list-style: none; margin: 0; padding: 0; gap: 0.4rem 1.1rem; flex-wrap: wrap; font-size: 0.84rem; color: var(--ink-2); }
+  .zones-key .num { font-family: var(--font-mono); color: var(--ink-3); margin-right: 0.15rem; }
+</style>

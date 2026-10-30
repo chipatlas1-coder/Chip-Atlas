@@ -1,0 +1,142 @@
+---
+/**
+ * Ballbar plot. A circle of radius R is run counter-clockwise and clockwise; the deviation from the nominal radius,
+ * magnified, is drawn on a polar plot, the pen tracing it as the "machine" goes round. One error at a time, with its
+ * size on a slider; the readout is the peak-to-valley of each run. The drawn data are centred (mean radius removed, as
+ * Renishaw centres its data) and the scale in µm per division follows the size of the error (1, 2, 5, 10, 20 or 50), so
+ * a small squareness and a large servo mismatch both stay inside the four rings. Error models in src/lib/ballbar.ts
+ * (first-order, one error alone): the shapes, not a measured machine.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { errs: { back: 'Backlash, X ekseni', sq: 'Diklik (squareness)', scale: 'Ölçek farkı (scale mismatch), X', servo: 'Servo mismatch' }, size: 'Hatanın büyüklüğü', feed: 'İlerleme', fu: 'mm/dak', ccw: 'saat ibresine ters', cw: 'saat ibresi yönünde', pv: 'En büyük ile en küçük yarıçap farkı', nom: 'anma çemberi', div: 'µm/bölme', aria: 'Ballbar çizimi: anma çemberinden sapma, büyütülmüş, iki yönde', units: { back: 'µm', sq: 'µm/m', scale: 'µm/m', servo: 'ms' } }
+  : { errs: { back: 'Backlash, X', sq: 'Squareness', scale: 'Scale mismatch, X', servo: 'Servo mismatch' }, size: 'Size of the error', feed: 'Feed', fu: 'mm/min', ccw: 'counter-clockwise', cw: 'clockwise', pv: 'Largest minus smallest radius', nom: 'nominal circle', div: 'µm/div', aria: 'Ballbar plot: deviation from the nominal circle, magnified, in both directions', units: { back: 'µm', sq: 'µm/m', scale: 'µm/m', servo: 'ms' } };
+const ERRS = ['back', 'sq', 'scale', 'servo'] as const;
+---
+<div class="bb" data-bb data-locale={locale} data-anim>
+  <div class="seg" data-g="e">{ERRS.map((k, i) => <button type="button" data-v={k} aria-pressed={String(i === 0)}>{T.errs[k]}</button>)}</div>
+  <div class="top">
+    <svg class="plot" viewBox="0 0 364 364" role="img" aria-label={T.aria} data-plot></svg>
+    <div class="side">
+      <label class="field"><span>{T.size} <output data-o="s">—</output></span><input type="range" min="0" max="1" step="0.01" value="0.5" data-i="s" /></label>
+      <label class="field" data-feedrow hidden><span>{T.feed} <output data-o="f">1000</output> {T.fu}</span><input type="range" min="250" max="3000" step="50" value="1000" data-i="f" /></label>
+      <dl class="read">
+        <div><dt><span class="sw ccw"></span>{T.pv}, {T.ccw}</dt><dd class="num" data-o="a">—</dd></div>
+        <div><dt><span class="sw cw"></span>{T.pv}, {T.cw}</dt><dd class="num" data-o="b">—</dd></div>
+      </dl>
+      <p class="note" data-o="d"></p>
+    </div>
+  </div>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .bb { display: grid; gap: 0.8rem; }
+  .seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1 1 8rem; font: inherit; font-size: 0.82rem; padding: 0.4rem 0.5rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.3rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 1rem; align-items: center; }
+  @media (max-width: 40rem) { .top { grid-template-columns: 1fr; } }
+  .plot { width: 100%; height: auto; display: block; max-width: 26rem; margin: 0 auto; }
+  .side { display: grid; gap: 0.8rem; }
+  .field { display: grid; gap: 0.3rem; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .read { display: grid; gap: 0.5rem; margin: 0; }
+  .read dt { font-size: 0.78rem; color: var(--ink-3); display: flex; align-items: center; gap: 0.4rem; }
+  .read dd { margin: 0.1rem 0 0; font: 600 1.1rem var(--font-mono); color: var(--ink); }
+  .sw { width: 1.1rem; height: 3px; border-radius: 2px; display: inline-block; }
+  .sw.ccw { background: #c2413b; } .sw.cw { background: #1e5fc4; }
+  .note { margin: 0; font-size: 0.82rem; color: var(--ink-2); }
+  .bb :global(.tx) { font: 10.5px var(--font-mono); fill: #5f6c79; }
+  .bb :global(.tx.dv) { font-weight: 600; fill: #1e5fc4; }
+</style>
+
+<script>
+  import { squareness, scale, servo, backlash, spanOf } from '../../lib/ballbar';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-bb]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const I = (k: string) => q<HTMLInputElement>(`[data-i="${k}"]`);
+    const plot = q<SVGSVGElement>('[data-plot]');
+    const dec = (v: number, d = 1) => (tr ? v.toFixed(d).replace('.', ',') : v.toFixed(d));
+    const R = 100, C = 182, P = 120;                        // test radius 100 mm; plot radius 120 px
+    const STEPS = [1, 2, 5, 10, 20, 50];                    // µm per division; one division = 12 px, 4 rings each side
+    let DIV = 10, K = 12 / DIV, mean = { 1: 0, [-1]: 0 } as Record<number, number>;
+    let err: 'back' | 'sq' | 'scale' | 'servo' = 'back', prog = 1, anim = false;
+    // slider 0…1 maps to the error size
+    const MAX = { back: 20, sq: 100, scale: 100, servo: 4 } as const;   // µm, µm/m, µm/m, ms
+    const dev = (th: number, dir: 1 | -1) => {
+      const a = +I('s').value * MAX[err];
+      if (err === 'back') return backlash(a / 1000, 0, th, dir) * 1000;
+      if (err === 'sq') return squareness(R, a * 1e-6, th) * 1000;
+      if (err === 'scale') return scale(R, a * 1e-6, 0, th) * 1000;
+      return servo(R, +I('f').value, a / 1000, th, dir) * 1000;
+    };
+    // centre each run (remove its mean radius) and pick the scale so the larger run fits within ~3.3 divisions
+    const rescale = () => {
+      let m = 0;
+      for (const dir of [1, -1] as const) {
+        let sum = 0; const N = 360, v: number[] = [];
+        for (let i = 0; i < N; i++) { const x = dev((dir * 2 * Math.PI * i) / N, dir); v.push(x); sum += x; }
+        mean[dir] = sum / N;
+        for (const x of v) m = Math.max(m, Math.abs(x - mean[dir]));
+      }
+      DIV = STEPS.find((st) => m / st <= 3.3) ?? 50; K = 12 / DIV;
+    };
+    const rad = (th: number, dir: 1 | -1) => P + (dev(th, dir) - mean[dir]) * K;
+    const path = (dir: 1 | -1, upto: number) => {
+      const N = 720; let d = '';
+      for (let i = 0; i <= N * upto; i++) {
+        const th = dir === 1 ? (2 * Math.PI * i) / N : -(2 * Math.PI * i) / N;
+        const r = rad(th, dir);
+        d += `${i ? 'L' : 'M'}${(C + r * Math.cos(th)).toFixed(1)},${(C - r * Math.sin(th)).toFixed(1)}`;
+      }
+      return d;
+    };
+    const draw = () => {
+      let g = '';
+      for (let k = -4; k <= 4; k++) {
+        if (k === 0) continue;
+        g += `<circle cx="${C}" cy="${C}" r="${P + k * 12}" fill="none" stroke="#e3e8ee" stroke-width="1"/>`;
+      }
+      g += `<circle cx="${C}" cy="${C}" r="${P}" fill="none" stroke="#9aa6b2" stroke-width="1.2" stroke-dasharray="5 4"/>`;
+      g += `<line x1="${C - P - 54}" x2="${C + P + 54}" y1="${C}" y2="${C}" stroke="#d3dae2"/><line y1="${C - P - 54}" y2="${C + P + 54}" x1="${C}" x2="${C}" stroke="#d3dae2"/>`;
+      g += `<text x="${C + 6}" y="${C - P - 40}" class="tx">+Y</text><text x="${C + P + 40}" y="${C - 6}" class="tx">+X</text>`;
+      g += `<text x="${C}" y="${C + 4}" class="tx dv" text-anchor="middle">${DIV} ${T.div}</text>`;
+      const pen = (dir: 1 | -1) => { const th = dir * 2 * Math.PI * prog, r = rad(th, dir); return `<circle cx="${(C + r * Math.cos(th)).toFixed(1)}" cy="${(C - r * Math.sin(th)).toFixed(1)}" r="4" fill="${dir === 1 ? '#c2413b' : '#1e5fc4'}" stroke="#fff" stroke-width="1.5"/>`; };
+      plot.innerHTML = `${g}
+        <path d="${path(1, prog)}" fill="none" stroke="#c2413b" stroke-width="2" stroke-linejoin="round"/>
+        <path d="${path(-1, prog)}" fill="none" stroke="#1e5fc4" stroke-width="2" stroke-linejoin="round" stroke-dasharray="${err === 'sq' || err === 'scale' ? '6 4' : 'none'}"/>
+        ${prog < 1 ? pen(1) + pen(-1) : ''}`;
+    };
+    const update = () => {
+      const a = +I('s').value * MAX[err];
+      q('[data-o="s"]').textContent = `${dec(a, err === 'servo' ? 1 : 0)} ${T.units[err]}`;
+      q('[data-o="f"]').textContent = I('f').value;
+      (q('[data-feedrow]') as HTMLElement).hidden = err !== 'servo';
+      q('[data-o="a"]').textContent = `${dec(spanOf((t) => dev(t, 1)), 1)} µm`;
+      q('[data-o="b"]').textContent = `${dec(spanOf((t) => dev(t, -1)), 1)} µm`;
+      rescale();
+      if (!anim) draw();
+    };
+    root.querySelectorAll<HTMLButtonElement>('[data-g="e"] button').forEach((b, _, all) => b.addEventListener('click', () => { err = b.dataset.v as typeof err; all.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); run(); }));
+    ['s', 'f'].forEach((k) => I(k).addEventListener('input', update));
+    let raf = 0;
+    const run = () => {
+      update();
+      if (!document.documentElement.classList.contains('anim')) { prog = 1; draw(); return; }
+      cancelAnimationFrame(raf); anim = true; const t0 = performance.now();
+      const step = (now: number) => { prog = Math.min(1, (now - t0) / 2400); draw(); if (prog < 1) raf = requestAnimationFrame(step); else anim = false; };
+      raf = requestAnimationFrame(step);
+    };
+    update();
+    whenIn(root, run);
+  });
+</script>

@@ -1,0 +1,142 @@
+---
+key: bolt-property-classes
+locale: tr
+slug: civata-mukavemet-siniflari
+title: 'Cıvata mukavemet sınıfları — 8.8, 10.9, 12.9 ve diğerleri'
+description: 'Cıvata başındaki iki sayının anlamı, her ISO 898-1 sınıfının en küçük dayanımı, deneme yükü gerilmesi ve sertliği, cıvataların nasıl işaretlendiği ve somunlarla nasıl eşleştirildiği, A2-70 gibi paslanmaz sınıfların farkı.'
+section: 11
+subsection: threads-and-standard-parts
+order: 1
+updated: 2026-10-11
+tools: []
+glance:
+  - value: '800 / 640'
+    unit: 'MPa'
+    label: '8.8 sınıfı: anma çekme dayanımı ve akma dayanımı'
+  - value: '1040'
+    unit: 'MPa'
+    label: '10.9''un en küçük çekme dayanımı (anma 1000)'
+  - value: '33,6'
+    unit: 'kN'
+    label: '8.8 sınıfı M10 cıvatanın deneme yükü'
+  - value: '58,0'
+    unit: 'mm²'
+    label: 'M10''un gerilme kesiti As'
+sources:
+  - label: 'ISO 898-1:2013, Mechanical properties of fasteners made of carbon steel and alloy steel — Part 1, 5. baskı (katalog sayfası)'
+    url: https://www.iso.org/standard/60610.html
+  - label: 'ISO 898-1:2013 önizlemesi (ANSI webstore)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+898-1-2013.pdf
+  - label: 'Optimas, "Mechanical and physical properties of steel fasteners" (ISO 898-1 Tablo 3)'
+    url: https://optimas.com/technical-resources/mechanical-physical-properties-steel-fasteners/
+  - label: 'TorqBolt, ISO 898-1 mukavemet sınıfı tabloları'
+    url: https://TorqBolt.com/iso-898-1-bolting-fasteners-bolting-stud-bolts-screws-suppliers-manufacturers
+  - label: 'AMESweb, metrik cıvata sınıfları tablosu (ISO 898-1:2013''e göre)'
+    url: https://amesweb.info/Screws/metric-bolt-grades.aspx
+  - label: 'Optimas, "Chemical compositions of carbon and alloy steel bolts, screws and nuts" (12.9 üretim yolları ve uyarı notu)'
+    url: https://optimas.com/technical-resources/chemical-compositions-of-carbon-and-alloy-steel-bolts-screws-and-nuts/
+  - label: 'Wikipedia (de), "Festigkeitsklasse"'
+    url: https://de.wikipedia.org/wiki/Festigkeitsklasse
+  - label: 'Bossard, "Marking of fasteners"'
+    url: https://www.bossard.com/en/assembly-technology-expert/technical-information-and-tools/technical-resources/screws-bolts-nuts/marking-of-fasteners/
+  - label: 'Bossard, teknik broşür F-013, 2023'
+    url: https://media.bossard.com/-/media/bossard-group/website/documents/technical-resources/en/f-013-en.pdf
+  - label: 'travail-industrie.com, "Vis classe 8.8 / 10.9 / 12.9, inox A2-70 / A4-80 — marquage, résistance"'
+    url: https://travail-industrie.com/blog/article-titre/vis-classe-8-8-10-9-12-9-inox-a2-70-a4-80-marquage-resistance
+  - label: 'ISO 898-2:2022, Nuts with specified property classes, 4. baskı'
+    url: https://www.iso.org/standard/79349.html
+  - label: 'BSI, BS EN ISO 898-2:2022 kaydı (9 sınıfı kaldırıldı)'
+    url: https://knowledge.bsigroup.com/products/fasteners-mechanical-properties-of-fasteners-made-of-carbon-steel-and-alloy-steel-nuts-with-specified-property-classes
+  - label: 'Bossard, paslanmaz çelik bağlantı elemanları için ISO çelik grupları (ISO 3506-1)'
+    url: https://www.bossard.com/au-en/assembly-technology-expert/technical-information-and-tools/technical-resources/stainless-steel-fasteners/iso-designated-steel-groups
+  - label: 'Würth Industrie, DINO teknik bölüm (ISO 3506 mukavemet sınıfları)'
+    url: https://prueflabor.wuerth-industrie.com/web/media/en/pictures/wuerthindustrie/technikportal/dinokapitel/Kapitel_02_DINO_techn_Teil.pdf
+---
+import BoltClasses from '../../../components/mdx/BoltClasses.astro';
+import BoltCode from '../../../components/mdx/BoltCode.astro';
+
+Çelik bir cıvatanın başına basılan iki sayı, kısaltılmış (özet) bir dayanım şartnamesidir. Karbon çeliği ve alaşımlı çelikten yapılan cıvata, vida ve saplamaların mekanik özelliklerini belirleyen ISO 898-1'den gelirler. Güncel sürüm, aynı yıl bir teknik düzeltme (corrigendum) yayımlanan beşinci baskı ISO 898-1:2013'tür; ISO onu 2025'te onaylamıştır ve bir revizyon sürmektedir.
+
+## İki sayıyı okumak
+
+**8.8**'i ele alalım:
+
+- **İlk sayı × 100**, MPa cinsinden anma çekme dayanımıdır: 8 → 800 MPa.
+- **İkinci sayı**, anma akma dayanımının anma çekme dayanımına oranının on katıdır: .8 → 0,8.
+- Dolayısıyla ilk × ikinci × 10 anma akma dayanımını verir: 8 × 8 × 10 = 640 MPa.
+
+Aynı şekilde 10.9, 1000 MPa ve 900 MPa; 12.9 ise 1200 MPa ve 1080 MPa demektir.
+
+<Figure caption="Beş sınıf için gösterim parçalarına ayrılmış hâlde, cıvata başı işaretiyle. Çubuklar gösterimin anma değerlerini aşağıdaki tablonun en az değerleriyle karşılaştırır; 8.8 için d ≤ 16 mm satırı kullanılmıştır. Eşleşen somun sınıfı ISO 898-2'ye göredir.">
+  <BoltCode locale="tr" />
+</Figure>
+
+<Note kind="warn" title="Anma değerleriyle değil, en küçük değerlerle tasarlayın">
+Anma değerleri yalnızca gösterim sistemi için vardır. Standart **en küçük** değerleri belirler ve dayanım hesabında kullanılması gerekenler bunlardır. Örneğin 10.9 için en küçük çekme dayanımı 1040 MPa, en küçük akma 940 MPa'dır; ikisi de anma 1000 ve 900'den yüksektir.
+</Note>
+
+## Sınıflara göre en küçük özellikler
+
+<Figure caption="Mukavemet sınıflarına göre en küçük çekme dayanımı ve en küçük akma (alt akma ReL, %0,2 uzama sınırı Rp0,2 ya da tam boyutlu bağlantı elemanı için Rpf), ISO 898-1:2013.">
+  <BoltClasses locale="tr" />
+</Figure>
+
+| Sınıf | Rm anma (MPa) | Rm en küçük (MPa) | Akma en küçük (MPa) | Deneme yükü gerilmesi Sp (MPa) | Kopma uzaması A en küçük (%) | Sertlik (HV) |
+|---|---|---|---|---|---|---|
+| 4.6 | 400 | 400 | ReL 240 | 225 | 22 | 120–220 |
+| 4.8 | 400 | 420 | Rpf 340 | 310 | — | 130–220 |
+| 5.6 | 500 | 500 | ReL 300 | 280 | 20 | 155–220 |
+| 5.8 | 500 | 520 | Rpf 420 | 380 | — | 160–220 |
+| 6.8 | 600 | 600 | Rpf 480 | 440 | — | 190–250 |
+| 8.8, d ≤ 16 mm | 800 | 800 | Rp0,2 640 | 580 | 12 | 250–320 |
+| 8.8, d > 16 mm | 800 | 830 | Rp0,2 660 | 600 | 12 | 255–335 |
+| 9.8, yalnızca d ≤ 16 mm | 900 | 900 | Rp0,2 720 | 650 | 10 | 290–360 |
+| 10.9 | 1000 | 1040 | Rp0,2 940 | 830 | 9 | 320–380 |
+| 12.9 | 1200 | 1220 | Rp0,2 1100 | 970 | 8 | 385–435 |
+
+Tablo üzerine notlar:
+
+- Standart, 4.8, 5.8 ve 6.8 için Rpf değerlerini inceleme altında olarak işaretler ve yalnızca deneme yükü gerilmesi oranını hesaplamak için verir. İşlenmiş deney numunesinde ölçülen A yerine tam boyutlu bağlantı elemanının kopma uzaması Af'yi belirtir: 0,24; 0,22 ve 0,20.
+- 8.8'in iki satırı vardır: 16 mm'nin üstünde standart biraz daha yüksek en küçük değerler belirler. 9.8 yalnızca 16 mm'ye kadar tanımlıdır.
+- Bir cıvatanın **deneme yükü** Sp × A<sub>s</sub>'dir; A<sub>s</sub> dişin gerilme kesitidir. Cıvata bu yükü kalıcı uzama olmadan taşımalıdır. M10 normal diş için A<sub>s</sub> = 58,0 mm²'dir; dolayısıyla 8.8 bir cıvatanın deneme yükü 580 × 58,0 ≈ 33,6 kN, en küçük kopma yükü 800 × 58,0 ≈ 46,4 kN'dur.
+
+## 12.9'a iki yol
+
+ISO 898-1, 12.9 sınıfının aynı mekanik özelliklerle iki yoldan üretilmesine izin verir; tablolarında sınıf iki kez, biri altı çizili olarak yer alır. Yollardan biri alaşımlı çeliktir; su verilip 425 °C veya üzerinde menevişlenir. Diğeri bor, mangan, krom ya da molibden gibi katkılı karbon çeliğidir; su verilip 380 °C veya üzerinde menevişlenir.
+
+Standart ayrıca 12.9 sınıfı düşünülürken dikkatli olunmasını öğütler: üreticinin yeterliliği, kullanım koşulları ve sıkma yöntemi göz önüne alınmalıdır; ortam, hem kaplamasız hem kaplamalı bağlantı elemanlarında gerilmeli korozyon çatlamasına yol açabilir.
+
+## İşaretleme
+
+- Diş çapı 5 mm ve üzeri olan altıgen ve altı köşe yıldız (hexalobular) başlı cıvata ve vidalar, tüm sınıflarda **üretici tanıtım işaretini ve mukavemet sınıfını** taşımalıdır.
+- Nokta yazılmayabilir: "88" ve "109" geçerli işaretlerdir.
+- **08.8** ya da **010.9** gibi baştaki sıfır, taşıma kapasitesi düşürülmüş bir bağlantı elemanını gösterir: sınıfı için belirtilen yüklerin tamamını taşıyamayabilir.
+
+## Somunları eşleştirmek
+
+Somunlar, güncel sürümü ISO 898-2:2022 olan ISO 898-2'ye uyar. Mukavemet sınıfları 04, 05, 5, 6, 8, 10 ve 12'dir; 9 sınıfı kaldırılmıştır. Bir somunun sınıf numarası, taşımak için tasarlandığı en güçlü cıvata sınıfının ilk sayısıdır:
+
+| Cıvata | Somun |
+|---|---|
+| 5.8 | 5 |
+| 6.8 | 6 |
+| 8.8 | 8 |
+| 10.9 | 10 |
+| 12.9 | 12 |
+
+Daha yüksek sınıf bir somun, daha düşük sınıf bir somunun yerine kullanılabilir.
+
+## Paslanmaz çelik cıvatalar
+
+Paslanmaz bağlantı elemanları, güncel sürümü 2020 olan ISO 3506-1'e uyar ve farklı işaretlenir: çelik grubu ve türü, bir tire, ardından mukavemet sınıfı.
+
+- Harf yapıyı verir: **A** östenitik, **C** martensitik, **F** ferritik, **D** dubleks. Ardından gelen rakam grup içindeki alaşım tipidir.
+- Tireden sonraki iki rakam en küçük çekme dayanımının onda biridir.
+
+| İşaret | Anlamı | Rm en küçük (MPa) | Rp0,2 en küçük (MPa) |
+|---|---|---|---|
+| A2-70 | Östenitik (1.4301 tipi, Mo'suz), soğuk şekillendirilmiş | 700 | 450 |
+| A4-80 | %2–3 Mo'lu östenitik (1.4401 / 1.4404 tipi), aside dayanıklı | 800 | 600 |
+| A2-50, A4-50 | Östenitik, 50 sınıfı | 500 | 210 |
+
+Yani bir A2-70 cıvata 8.8 çelik cıvatadan zayıftır ve akması çekme dayanımının daha küçük bir payıdır (450/700 ≈ 0,64; 640/800 = 0,8'e karşı). Bağlantıyı yeniden hesaplamadan birini diğerinin yerine kullanmayın.

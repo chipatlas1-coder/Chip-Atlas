@@ -1,0 +1,119 @@
+---
+key: trochoidal-milling
+locale: tr
+slug: trokoidal-frezeleme
+title: 'Trokoidal frezeleme'
+description: 'Frezeden geniş bir kanalı büyük eksenel ve küçük radyal kesme derinliğiyle, ilerleyen döngülerle açmak: üreticiler neden önerir, hangi genişlik ve derinlikleri verir, kavrama açısı döngü boyunca ne kadar değişir, talaşın incelmesi ve bunu karşılayan ilerleme, tezgâhın ve CAM’in ne yapması gerekir ve sakıncaları.'
+section: 2
+subsection: milling
+order: 4
+updated: 2026-10-30
+tools: [milling]
+glance:
+  - value: '%5–15'
+    label: 'Titanyumun trokoidal frezelenmesinde radyal kesme derinliği, takım çapının yüzdesi olarak (ISCAR)'
+  - value: '%2–10'
+    label: 'Tezgâha göre adım (step-over): hızlanıp yavaşlaması çok çevik (agile) tezgâhlarda D’nin %2’si, daha az çeviklerde %10’u (YG-1 makalesi)'
+  - value: '%15–35'
+    label: 'Frezenin kanaldan ne kadar küçük olması gerektiği: en az %15, tercihen %35 (YG-1 makalesi)'
+  - value: '× 1,67'
+    label: 'ae = 0,1 D’de talaşı fz kalınlığında tutmak için gereken ilerleme: ISCAR’ın sin AE = 0,6 değeriyle 1 ÷ sin AE (DAPRA 1,70 verir)'
+sources:
+  - label: 'ISCAR, Machining Titanium, başvuru kılavuzu, 05/2019 (flipview s. 25, 27, 28, 46–48; basılı s. 23, 25, 26)'
+    url: https://iscar.com/Catalogs/flipview/reference-user-guides/machining_titanium_05_2019/files/basic-html/page46.html
+  - label: 'ISCAR, “A High Speed Trochoidal Slicer”, teknik makale'
+    url: https://www.iscar.com/newarticles.aspx/countryid/2/newarticleid/10802
+  - label: 'ISCAR, SSS sayfası (Türkçe içerikli; HEM tanımı)'
+    url: https://www.iscar.com/faq.aspx/countryid/20
+  - label: 'MAPAL, OptiMill-Tro-Titan (SCM630): trokoidal frezeler için kesme verisi önerileri'
+    url: https://shop.mapal.com/medias/sys_master/documents/hd8/h08/10185397796894/OptiMill-Tro-Titan_EN/OptiMill-Tro-Titan-EN.pdf
+  - label: 'T. Mueller, “Dynamic and Trochoidal Milling (2)”, 7 Eylül 2022 (yg1.focuspointsap.com’da; YG-1 ürün serilerini, V7Plus, TitaNox-Power, Alu-Power HPC, anar)'
+    url: https://yg1.focuspointsap.com/dynamic-and-trochoidal-milling-2
+  - label: 'DAPRA, “Radial Chip Thinning – How to Max Out Your Milling Tool Feed Rate”'
+    url: https://www.dapra.com/articles/radial-chip-thinning
+  - label: 'M. Wagih, I. Maher, H. El-Hofy, J. Yan, M. A. Hassan, “Analysis and development of elliptical tool path in trochoidal milling”, CIRP Journal of Manufacturing Science and Technology 47 (2023) 168–183'
+    url: https://www.yan.mech.keio.ac.jp/wp-content/uploads/2024/09/CIRPJ2023-Trochoidal-milling-EJUST.pdf
+  - label: 'Autodesk, PowerMill Reference Help 2019, “Trochoidal pattern example”'
+    url: https://help.autodesk.com/cloudhelp/2019/ENU/PWRM-ReferenceHelp/files/GUID-3008F3C7-AD9F-4818-9FF7-E797D659763F.htm
+  - label: 'Autodesk, Fusion CAM yardımı, “2D Adaptive Roughing milling strategy”'
+    url: https://help.autodesk.com/cloudhelp/ENU/Fusion-CAM/files/2D-ADAPTIVE-READ.htm
+  - label: 'HEIDENHAIN, TNC7 User’s Manual for Machining Cycles, 01/2022 (içindekiler: Cycle 275 TROCHOIDAL SLOT)'
+    url: https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC7/81762x-16/zyklen_bearbeitung/1358775-20.pdf
+  - label: 'YÖK Açık Bilim, “Trochoidal milling” tezi, 2006 (danışman İ. Lazoğlu), Türkçe özet'
+    url: https://acikbilim.yok.gov.tr/handle/20.500.12812/171227
+  - label: 'S. Yüksel, “Trokoidal takım yolu ile işleme için performans arttırıcı kesici takım tasarımı ve imalatı”, Marmara Üniversitesi, 2024 (Türkçe terim için)'
+    url: https://openaccess.marmara.edu.tr/entities/publication/50ab8367-1edd-452d-a87f-823f557099a1
+---
+import TrochoidSlot from '../../../components/mdx/TrochoidSlot.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Bir kanal, kanal genişliğinde bir frezeyle, bütün yan yüzeyi malzemeye gömülü olarak frezelenebilir; ya da daha küçük bir freze kanalı döngülerle açabilir. ISCAR ikinci yolu şöyle anlatır: trokoidal frezelemede hızla dönen bir takım, malzemeyi büyük bir kesme derinliğinde ve çok küçük bir kesme genişliğinde (radyal kesme derinliği ae; genellikle takım çapı d’nin %5–15’i) yay hareketiyle işler. En basit biçimi, bir YG-1 makalesinin deyişiyle, sabit bir ilerleme hızında doğrusal bir hareketle birleşen tekrarlanan dairelerdir. Wagih ve arkadaşları sürekli ve süreksiz yolları ayırır; süreksiz yolda takım dairesel bir yol izler, sonra trokoidal adım (*trochoidal step*) s denen bir mesafe ilerler. ISCAR’a göre eğri genellikle bir dairesel yaydır (yarım daire) ve takım yolu o zaman D harfine benzer. Autodesk PowerMill’in trokoidal deseni de tam genişlikte kesmeleri önlemek için kullanılır ve kanal kesme ile yüksek hızlı işleme için yararlıdır. Düz çevresel frezelemede kavrama açısı ve talaş kalınlığı için [aynı ve zıt yönlü frezeleme](/tr/prosesler/ayni-ve-zit-yonlu-frezeleme/) sayfasına bakın.
+
+ISCAR’a göre yüksek hızlı trokoidal kaba frezeleme olağan kanal frezeleme stratejisine etkili bir alternatif olabilir; çeşitli kanallar ve oluklar, ayrıca özellikle görece ince duvarlı cepler ya da boşluklar içeren titanyum parçalar için.
+
+## Neden küçük bir kesme genişliği
+
+- **Isı ve hız.** ISCAR: kesme genişliğini azaltmak kesici kenardaki ısı yükünü düşürür ve kesme hızının artırılmasına izin verir. Wagih ve arkadaşlarına göre yöntem, kesici takımın sıcaklığını düşürerek takım ömrünü uzatmak için geliştirilmiştir.
+- **Kuvvet ve aşınma.** Aynı makaleye göre yöntem, daha düşük kavrama açısı sayesinde daha düşük kesme sıcaklığı, takım aşınması ve kesme kuvvetleriyle öne çıkar. ISCAR: düşük kesme genişliği kesme kuvvetinin radyal bileşenini belirgin biçimde azaltır.
+- **Kenar boyunca düzgün aşınma.** ISCAR: küçük radyal kavrama ve büyük kesme derinliğiyle bütün kesici kenar boyunca kademeli, düzgün dağılmış aşınma, dolayısıyla daha uzun takım ömrü. Takım ömrü kazancı için bir üretici rakamı bulunamadı.
+- **Çok ağız, daha az güç.** ISCAR’a göre küçük kavrama açısı AE hem çok ağızlı takım tasarımına izin verir hem de kesme hızı Vc’nin ve diş başına ilerleme fz’nin belirgin biçimde artırılmasını sağlar; yöntem güç tüketiminde de fark edilir bir azalma getirir.
+
+ISCAR’ın Ti-6Al-4V ELI’de blisk kanalları için çözümlü örneği Ø10 mm, 7 ağızlı bir freze, ap = 16 mm ve ae = 1 mm kullanır ve vc ≈ 107 m/dak, n ≈ 3406 dev/dak, fz ≈ 0,1 mm, vf ≈ 2384 mm/dak ve Q ≈ 38,14 cm³/dak talaş kaldırma oranına varır. Bunlar deney sonucu değil, hesaplanmış başlangıç verileridir; aritmetik tutar (16 × 1 × 2384 ÷ 1000 = 38,1 cm³/dak).
+
+## Frezenin ne kadarı kesmede
+
+Kavrama bir döngü boyunca sabit kalmaz. MAPAL: işleme sırasında ilerleme ve kesme genişliği ya da temas açısı sürekli değişir; yöntem üzerine 2006 tarihli bir tezin Türkçe özeti de radyal kesme derinliğinin takım yolu boyunca sürekli değiştiğini yazar. YG-1 makalesi, adımın radyal kavramaya ancak freze D biçimli şeridinde düz ilerleseydi eşit olacağını, bunun da nadiren söz konusu olduğunu ekler. Şekil kavramayı dairesel döngüler (sürekli bir trokoid) için hesaplar.
+
+<Figure caption="Üstten görülen trokoidal kanal frezeleme, D = 10 mm’lik bir freze. Merkez, yarıçapı (W − D)/2 olan ve her döngüde s adımı kadar ilerleyen bir daire üzerinde döner; yanan yay, frezenin kesici kenarının önceki konumlarca alınmamış malzemedeki kısmıdır. Altta bu kavrama açısı bir döngü boyunca, gömülü freze ile düz kanaldaki 180° ile karşılaştırmalı. Kavrama bu sayfanın kendi geometrisidir (önceki freze konumları sayısal olarak örneklenir), bir üretici verisi değildir; göstergeler en büyük açıyı düz bir duvarda aynı açıyı veren kesme genişliğine çevirir ve kanalın her milimetresi için merkezin aldığı yolu verir. Varsayılan kanal 15,5 mm’dir; freze kanaldan yaklaşık %35 küçüktür.">
+  <TrochoidSlot locale="tr" w={1.55} s={0.1} />
+</Figure>
+
+Geometriden iki şey çıkar. Dairesel döngülerde en büyük kavrama, yalnızca adımın düşündüreceğinden belirgin biçimde büyüktür: 15,5 mm’lik kanalda Ø10 mm’lik frezeyle s = 1 mm’de şekil yaklaşık 61° verir; bu, düz bir duvarda 1 mm değil, ae ≈ 2,6 mm demektir. Freze her döngünün kabaca yarısında kesmededir ve merkez kanalın her milimetresi için yaklaşık 17 mm yol alır. Döngünün geri kalanı, Wagih ve arkadaşlarının yolun soğuma kısmı (*cooling portion*) dediği, takımın kesmediği ve talaş kaldırma oranının düştüğü bölümdür (aşağıya bakın). Üreticilerin hiçbiri ae değerinin döngü başına adım mı, döngüdeki en büyük kavrama mı olduğunu söylemez; ISCAR’ın örneği ae = 1 mm’yi düz duvar genişliği gibi ele alır (AE = 36°).
+
+## İnce talaş ve bunu karşılayan ilerleme
+
+Küçük bir kesme genişliğinde talaş, diş başına ilerlemeden incedir. ISCAR bu etkiyi *radial chip thinning* olarak adlandırır ve çevresel frezeleme için AE = arccos(1 − 2·ae/d) ile en büyük talaş kalınlığı hmax = 2·fz·√(d·ae − ae²)/d’yi verir; AE 90°’nin altında kaldıkça bu fz·sin AE’dir. AE’nin 90°’den küçük olduğu durumlar için verdiği tablodan:
+
+| ae / d | 0,05 | 0,1 | 0,2 | 0,3 |
+|---|---|---|---|---|
+| AE | 25,8° | 36° (arccos 0,8 = 36,9°) | 53° | 66,4° |
+| sin AE | 0,436 | 0,6 | 0,8 | 0,916 |
+
+ISCAR’ın uyarısı: diş başına ilerleme, gereken talaş kalınlığını sağlayacak ve kritik talaş incelmesini (*critical chip thinning*) önleyecek biçimde ayarlanmalıdır. ISCAR’ın formülü ilerlemeye göre çözülünce, istenen talaş kalınlığı için AE 90°’nin altındayken fz = hmax ÷ sin AE elde edilir (bu sayfanın düzenlemesi). Tablosuyla 1 ÷ sin AE, ae = 0,1 d’de 1,67, 0,05 d’de 2,29’dur (bu sayfanın hesabı). DAPRA hemen hemen aynı çarpanları verir: %35 kesme genişliğinde 1,05, %10’da 1,70 ve %5’te %130 verimlilik artışı; düzeltme yapılmazsa takım aslında eksik beslenir. Her kesme genişliği için aynı ilişkinin eğrisi [aynı ve zıt yönlü frezeleme](/tr/prosesler/ayni-ve-zit-yonlu-frezeleme/) sayfasındadır. Bu formüller düz bir duvar içindir; döngüde açı sürekli değişir, şeklin en büyük açıyı vermesinin nedeni budur (bu sayfanın yorumu).
+
+Kesme hızı da artırılabilir. ISCAR’ın örneği 65 m/dak’lık temel hızı Km = 1,1 (Tablo 9) ve Ke = 1,5 (Tablo 10; ae/d = 0,1, AE = 36°) ile çarparak yaklaşık 107 m/dak’ya çıkarır; Tablo 10’un kendisi bu sayfa için okunmadı. Gerçek bir iş için hızı takım üreticisinden alın.
+
+## Üreticilerin verdikleri
+
+| Kaynak | Radyal kesme derinliği ae | Eksenel kesme derinliği ap | Bağlam |
+|---|---|---|---|
+| ISCAR, Machining Titanium | genellikle takım çapı d’nin %5–15’i; örnek Ø10’da 1 mm | büyük kesme derinliği; örnek Ø10’da 16 mm | titanyumun trokoidal frezelenmesi |
+| ISCAR, *slicing* makalesi | tipik olarak takım çapının 0,2 katına kadar | genellikle beş takım çapından fazla değil | ISCAR’ın *slicing* dediği *peel milling* |
+| MAPAL, OptiMill-Tro-Titan | iş parçası malzemesine bağlı; örnek Ø12’de 1,2 mm | en çok 3 × D; örnek Ø12’de 30 mm | TiAl6V4’te kendi trokoidal frezesi |
+| YG-1 makalesi | adım çok çevik (*agile*) tezgâhlarda D’nin %2’si, daha az çeviklerde %10’u; başlangıç için %5 | | tezgâha bağlı |
+
+Dayanakları farklıdır: ISCAR’ın değeri titanyum içindir, MAPAL kesme genişliğini malzemeye ve kendi frezesine, YG-1 makalesi adımı tezgâha bağlar. Kanalın kendisi için YG-1 makalesi frezenin çapının kanal genişliğinden en az %15, tercihen %35 küçük olmasını ister. ISCAR, en iyi sonuçların frezeler hidrolik ya da *heat shrink* (*shrink fit*) mandrenlere bağlandığında alındığını ekler. Takım tasarımı bağlamında, düşük kesme genişliğinde herhangi bir anda iş parçasına yalnızca bir dişin girdiğini ve diş boyunca temas alanını iyileştirmenin kararlı frezeleme için önemli olduğunu yazar.
+
+## Tezgâh ve program
+
+ISCAR’a göre trokoidal frezelemenin başlıca zorlukları tezgâh kontrolü ve akıllı yol programlamadır. YG-1 makalesi: uygulanabilir adım değerleri büyük ölçüde tezgâhın hızlanma ve yavaşlama yeteneğine bağlıdır. Wagih ve arkadaşları, inceledikleri yol türlerinden birinin yüksek tezgâh dinamiği, yani ivme ve sarsıntı (*jerk*) gerektirdiğini belirtir.
+
+CAM’de döngü bir parametre takımıdır. PowerMill’in trokoidal deseninde ardışık trokoidler arasındaki uzaklık olan *Stepover*, bir *Width*, yaylar için bir *Radius* ve *Climb* ya da *Conventional* seçenekli bir *Direction* vardır; yay yarıçapının takım yarıçapıyla aynı olması gerekmediğini de belirtir. Kumandalarda bunun için çevrim bulunabilir: HEIDENHAIN’in TNC7 çevrim kılavuzu, SL çevrimleri arasında Cycle 275 TROCHOIDAL SLOT’u sayar.
+
+## Trokoidal, *peel*, dinamik, *adaptive*
+
+Adlar birbirine karışır ve bulunan hiçbir kaynak hepsi için tek bir şema vermez. ISCAR, *slicing* de dediği *peel milling*’i büyük derinlik ve küçük kesme genişliği olarak ele alır; doğrusal ilerleme yerine karmaşık bir takım yolu izleyen trokoidal frezelemeyi de buna uygun bir yöntem sayar. YG-1 makalesi bir bölümüne trokoidal frezelemeyi dinamik frezelemenin (*dynamic milling*) bir alt kümesi olarak başlık atar ve kavrama açısını iyileştirmeye çalışan D biçimli takım hareketleriyle gelişmiş bir biçim anlatır. ISCAR’ın Türkçe SSS sayfası HEM’i "büyük bir eksenel kesme derinliği ve küçük bir radyal kesme derinliği kullanan" bir yöntem olarak tanımlar; radyal derinlik için de "takımın kavrama açısına bağlı olarak değişir" der. Autodesk Fusion, *2D Adaptive Roughing* (eski adıyla *2D Adaptive Clearing*) stratejisini takımla çevresindeki malzeme arasında sabit bir kavrama tutan bir takım yolu olarak anlatır, çünkü kesme sırasında takımın ne kadarının kavradığındaki ani değişimler takımı kırabilir.
+
+## Sakıncalar
+
+- **Kesmeyen kısım.** Wagih ve arkadaşları: yolun soğuma kısmında takım hiç kesmez, bu yüzden talaş kaldırma oranı düşer. ISCAR ise trokoidal takım yollarının kesme dışı süreyi en aza indirdiğini ve tezgâh hareketlerini iyileştirdiğini yazar. İkisi birlikte doğru olabilir: iyi bir yol, döngünün her zaman taşıdığı bir kaybı azaltır.
+- **Süreksiz yollar.** Aynı makale: takım yolunun süreksizliği daha yüksek yüzey pürüzlülüğüne ve daha düşük boyut doğruluğuna yol açar.
+- **Sarkma.** ISCAR: büyük kesme derinlikleriyle frezeleme takımın sarkmasını artırır.
+
+<CheckList id="trochoid-before" locale="tr" items={[
+  { icon: 'hole', title: 'Freze ve kanal', check: 'Freze çapının kanal genişliğine göre durumu.', fix: 'Kanaldan en az %15, tercihen %35 küçük (YG-1 makalesi).', src: 'YG-1 makalesi' },
+  { icon: 'depth', title: 'Radyal ve eksenel derinlik', check: 'ae ve ap’nin takım ve malzeme için üretici değerlerine göre durumu.', fix: 'Örneğin titanyumda ISCAR D’nin %5–15’i; MAPAL kendi frezesi için ap en çok 3 × D; ISCAR peel milling için 5 × D’ye kadar.', src: 'ISCAR; MAPAL' },
+  { icon: 'feed', title: 'İlerleme', check: 'Diş başına ilerlemenin ince talaş için artırılıp artırılmadığı.', fix: 'fz’yi istenen talaş kalınlığından alın: fz = hmax ÷ sin AE (ISCAR’ın hmax formülünden, AE < 90°); %10 kesme genişliğinde yaklaşık 1,7 kat (DAPRA).', src: 'ISCAR; DAPRA' },
+  { icon: 'sync', title: 'Tezgâh', check: 'Tezgâhın ne kadar hızlı hızlanıp yavaşladığı.', fix: 'Adımı tezgâha göre seçin: çok çevik (agile) tezgâhlarda D’nin %2’si, daha az çeviklerde %10’u (YG-1 makalesi).', src: 'YG-1 makalesi; Wagih ve ark.' },
+  { icon: 'holder', title: 'Bağlama', check: 'Frezenin nasıl bağlandığı.', fix: 'En iyi sonuç için hidrolik ya da heat shrink mandren (ISCAR).', src: 'ISCAR' },
+]} />

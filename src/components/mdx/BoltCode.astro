@@ -1,0 +1,126 @@
+---
+/**
+ * Reading a property class (ISO 898-1): first number × 100 = nominal Rm; second number / 10 =
+ * nominal Re/Rm; first × second × 10 = nominal yield. The bars compare the nominal values with the
+ * minimum values of the article's table, and the matching nut class (ISO 898-2) is shown.
+ * 8.8 uses the d ≤ 16 mm row.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const C = [
+  { c: '5.8', a: 5, b: 8, rmMin: 520, reMin: 420, re: 'Rpf', nut: '5' },
+  { c: '6.8', a: 6, b: 8, rmMin: 600, reMin: 480, re: 'Rpf', nut: '6' },
+  { c: '8.8', a: 8, b: 8, rmMin: 800, reMin: 640, re: 'Rp0.2', nut: '8', note: tr ? 'd ≤ 16 mm satırı' : 'row d ≤ 16 mm' },
+  { c: '10.9', a: 10, b: 9, rmMin: 1040, reMin: 940, re: 'Rp0.2', nut: '10' },
+  { c: '12.9', a: 12, b: 9, rmMin: 1220, reMin: 1100, re: 'Rp0.2', nut: '12' },
+].map((k) => ({ ...k, rm: k.a * 100, ratio: k.b / 10, yNom: k.a * k.b * 10 }));
+const T = tr
+  ? { pick: 'Mukavemet sınıfı', first: 'birinci sayı × 100', second: 'ikinci sayı ÷ 10', prod: 'birinci × ikinci × 10', rm: 'anma çekme dayanımı Rm', ratio: 'akma / çekme oranı', yNom: 'anma akma dayanımı', nom: 'anma', min: 'en az (tasarımda kullanılır)', nut: 'Eşleşen somun sınıfı (ISO 898-2)', mark: 'üretici işareti' }
+  : { pick: 'Property class', first: 'first number × 100', second: 'second number ÷ 10', prod: 'first × second × 10', rm: 'nominal tensile strength Rm', ratio: 'ratio of yield to tensile', yNom: 'nominal yield strength', nom: 'nominal', min: 'minimum (use for design)', nut: 'Matching nut class (ISO 898-2)', mark: "maker's mark" };
+const cur = C[2];
+const MAX = 1300;
+const pc = (v: number) => (v / MAX) * 100;
+const dec = (v: number) => (tr ? String(v).replace('.', ',') : String(v));
+---
+<div class="bolt" data-bolt={JSON.stringify({ C, tr })}>
+  <div class="pick" role="radiogroup" aria-label={T.pick}>
+    {C.map((k) => <button type="button" role="radio" aria-checked={k.c === cur.c ? 'true' : 'false'} data-c={k.c}>{k.c}</button>)}
+  </div>
+  <div class="top">
+    <svg class="head" viewBox="0 0 120 120" aria-hidden="true">
+      <polygon points="60,6 106.8,33 106.8,87 60,114 13.2,87 13.2,33" class="hex" />
+      <circle cx="60" cy="60" r="44" class="chamfer" />
+      <text x="60" y="58" text-anchor="middle" class="stamp" data-o="stamp">{cur.c}</text>
+      <rect x="44" y="68" width="32" height="16" rx="2" class="mk" />
+    </svg>
+    <div class="code" aria-live="polite">
+      <div class="part"><span class="big" data-o="a">{cur.a}</span><span class="cap">{T.first}</span><span class="val"><b data-o="rm">{cur.rm}</b> MPa</span><span class="txt">{T.rm}</span></div>
+      <div class="part dot"><span class="big">.</span></div>
+      <div class="part"><span class="big b2" data-o="b">{cur.b}</span><span class="cap">{T.second}</span><span class="val"><b data-o="ratio">{dec(cur.ratio)}</b></span><span class="txt">{T.ratio}</span></div>
+      <div class="part prod"><span class="big eq">=</span><span class="cap">{T.prod}</span><span class="val"><b data-o="ynom">{cur.yNom}</b> MPa</span><span class="txt">{T.yNom}</span></div>
+    </div>
+  </div>
+  <div class="bars">
+    <div class="brow">
+      <span class="bl">Rm</span>
+      <div class="track"><span class="nom" data-o="rmbar" style={`width:${pc(cur.rm)}%`}></span><span class="min" data-o="rmmin" style={`left:${pc(cur.rmMin)}%`}></span></div>
+      <span class="bv"><span data-o="rmv">{cur.rm}</span> / <b data-o="rmminv">{cur.rmMin}</b> MPa</span>
+    </div>
+    <div class="brow">
+      <span class="bl" data-o="rel">{cur.re}</span>
+      <div class="track"><span class="nom y" data-o="rebar" style={`width:${pc(cur.yNom)}%`}></span><span class="min" data-o="remin" style={`left:${pc(cur.reMin)}%`}></span></div>
+      <span class="bv"><span data-o="rev">{cur.yNom}</span> / <b data-o="reminv">{cur.reMin}</b> MPa</span>
+    </div>
+    <div class="axis"><span>0</span><span style={`left:${pc(500)}%`}>500</span><span style={`left:${pc(1000)}%`}>1000</span></div>
+    <p class="key"><span><i class="k-nom"></i>{T.nom}</span><span><i class="k-min"></i>{T.min}</span><span class="note" data-o="note">{cur.note ?? ''}</span></p>
+  </div>
+  <p class="nutline">{T.nut}: <b data-o="nut">{cur.nut}</b></p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-bolt]').forEach((root) => {
+    const { C, tr } = JSON.parse(root.dataset.bolt!);
+    const o = (k: string) => root.querySelector(`[data-o="${k}"]`) as HTMLElement;
+    const pc = (v: number) => `${(v / 1300) * 100}%`;
+    const dec = (v: number) => (tr ? String(v).replace('.', ',') : String(v));
+    root.querySelectorAll<HTMLButtonElement>('.pick button').forEach((btn) => btn.addEventListener('click', () => {
+      const k = C.find((x: any) => x.c === btn.dataset.c);
+      o('stamp').textContent = k.c; o('a').textContent = String(k.a); o('b').textContent = String(k.b);
+      o('rm').textContent = String(k.rm); o('ratio').textContent = dec(k.ratio); o('ynom').textContent = String(k.yNom);
+      o('rmbar').style.width = pc(k.rm); o('rmmin').style.left = pc(k.rmMin); o('rmv').textContent = String(k.rm); o('rmminv').textContent = String(k.rmMin);
+      o('rebar').style.width = pc(k.yNom); o('remin').style.left = pc(k.reMin); o('rev').textContent = String(k.yNom); o('reminv').textContent = String(k.reMin);
+      o('rel').textContent = k.re; o('nut').textContent = k.nut; o('note').textContent = k.note ?? '';
+      root.querySelectorAll('.pick button').forEach((b) => b.setAttribute('aria-checked', String(b === btn)));
+    }));
+  });
+</script>
+
+<style>
+  .bolt { display: grid; gap: 1rem; padding: 1rem 1.1rem 0.9rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .pick button { font-family: var(--font-mono); font-size: 0.84rem; padding: 0.3rem 0.8rem; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink-2); transition: border-color 150ms, color 150ms, background-color 150ms; }
+  .pick button:hover { border-color: var(--ink-3); color: var(--ink); }
+  .pick button[aria-checked="true"] { border-color: var(--accent); color: var(--ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+  .top { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 1.4rem; align-items: center; }
+  .head { width: 100%; height: auto; }
+  @media (max-width: 40rem) { .top { grid-template-columns: minmax(0, 1fr); gap: 0.8rem; } .top .head { width: 5.5rem; } }
+  .hex { fill: url(#ca-metal); stroke: #1b1d1e; stroke-width: 1.2; stroke-linejoin: round; }
+  .chamfer { fill: none; stroke: #b1bac2; stroke-width: 1; }
+  .stamp { font-family: var(--font-mono); font-size: 21px; font-weight: 700; fill: #e7edf2; }
+  .mk { fill: none; stroke: #b1bac2; stroke-dasharray: 2 2; }
+  .mkt { font-family: var(--font-mono); font-size: 9px; fill: #b1bac2; }
+  .code { display: grid; grid-template-columns: auto auto auto minmax(0, 1fr); gap: 0 0.9rem; align-items: start; }
+  @media (max-width: 40rem) { .code { grid-template-columns: auto auto auto; } .prod { grid-column: 1 / -1; margin-top: 0.8rem; } }
+  .part { display: grid; gap: 0.25rem; min-width: 0; }
+  .big { font-family: var(--font-mono); font-size: clamp(2.4rem, 6vw, 3.2rem); line-height: 1; color: var(--ink); padding-bottom: 0.4rem; border-bottom: 2px solid var(--color-spark-400); }
+  .b2 { border-bottom-color: #1e6fd6; }
+  .dot .big { border-bottom-color: transparent; color: var(--ink-3); }
+  .eq { color: var(--ink-3); border-bottom-color: var(--line-strong); }
+  .cap { font-family: var(--font-sans); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-3); }
+  .val { font-family: var(--font-mono); font-size: 0.95rem; color: var(--ink-2); }
+  .val b { color: var(--ink); font-weight: 500; font-size: 1.1rem; }
+  .txt { font-family: var(--font-sans); font-size: 0.8rem; color: var(--ink-3); line-height: 1.3; }
+  .bars { display: grid; gap: 0.45rem; }
+  .brow { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) 8.6rem; gap: 0.7rem; align-items: center; }
+  @media (max-width: 40rem) { .brow { grid-template-columns: 3rem minmax(0, 1fr) 7.6rem; gap: 0.5rem; } .axis { margin: 0 8.1rem 0 3.5rem !important; } .bv { font-size: 0.72rem; } }
+  .bl { font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-2); }
+  .track { position: relative; height: 0.9rem; background: color-mix(in oklab, var(--ink) 5%, transparent); border-radius: 3px; }
+  .nom { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: color-mix(in oklab, #e2601a 55%, transparent); transition: width 350ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .nom.y { background: color-mix(in oklab, #1e6fd6 55%, transparent); }
+  .min { position: absolute; top: -0.25rem; bottom: -0.25rem; width: 2.5px; margin-left: -1.25px; background: var(--ink); border-radius: 1px; transition: left 350ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .bv { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-3); white-space: nowrap; }
+  .bv b { color: var(--ink); font-weight: 500; }
+  .axis { position: relative; height: 1rem; margin: 0 9.3rem 0 4.1rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-3); }
+  .axis span { position: absolute; transform: translateX(-50%); }
+  .axis span:first-child { left: 0; transform: none; }
+  .axis .u { right: 0; transform: none; }
+  .key { margin: 0.2rem 0 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; font-size: 0.76rem; color: var(--ink-3); max-width: none; }
+  .key span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .k-nom { width: 16px; height: 9px; border-radius: 2px; background: color-mix(in oklab, var(--ink) 30%, transparent); display: inline-block; }
+  .k-min { width: 2.5px; height: 13px; background: var(--ink); display: inline-block; }
+  .note { color: var(--ink-2); }
+  .nutline { margin: 0; font-size: 0.86rem; color: var(--ink-2); max-width: none; }
+  .nutline b { font-family: var(--font-mono); color: var(--ink); font-size: 1rem; }
+  @media (prefers-reduced-motion: reduce) { .nom, .min { transition: none; } }
+</style>

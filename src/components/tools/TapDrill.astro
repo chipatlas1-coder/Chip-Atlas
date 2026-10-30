@@ -1,0 +1,342 @@
+---
+import ToolShell from '../ToolShell.astro';
+import type { Locale } from '../../i18n';
+import { COARSE, FINE, threadData, designation } from '../../data/metric-threads.js';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const dec = (v: number, k = 3) => (tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+const num = (v: number) => (tr ? String(v).replace('.', ',') : String(v));
+const n3 = (v: number) => { const s = v >= 100 ? String(Math.round(v)) : v.toPrecision(3); return tr ? s.replace('.', ',') : s; };
+
+const copy = tr
+  ? {
+      title: 'Kılavuz deliği ve metrik diş ölçüleri',
+      description: 'ISO metrik vida dişleri için kılavuz matkap çapı (DIN 336 / ISO 2306), 6H iç diş küçük çap sınırları, bölüm dairesi çapı, diş dibi çapları ve gerilme kesiti; ölçekli diş profili çizimiyle.',
+      lead: 'Bir diş seç: kesme kılavuzu için matkap çapı, iç dişin 6H tolerans sınırları ve matkabın bu sınırların içinde kalıp kalmadığı anında gelir. Temel ölçüler ISO 724:2023 formülleriyle hesaplanır ve yayımlanmış tablolara karşı test edilmiştir.',
+      series: 'Seri', coarse: 'Normal (kaba) adım', fine: 'İnce adım', custom: 'Serbest',
+      size: 'Diş', d: 'Anma çapı d', P: 'Adım P',
+      drill: 'Kılavuz matkap çapı', drillStd: 'DIN 336 / ISO 2306 değeri', drillStdFine: 'DIN 336 değeri', drillCalc: 'd − P kuralıyla',
+      limits: '6H iç diş küçük çapı D1', inside: 'Matkap çapı 6H sınırları içinde', outside: 'Matkap çapı 6H sınırlarının dışında', noLimits: 'Bu adım için 6H toleransı bu araçta yok',
+      d2: 'Bölüm dairesi çapı d2 = D2', D1: 'İç diş temel küçük çapı D1', d3: 'Dış diş küçük çapı d3', Hh: 'Temel üçgen yüksekliği H', H1: 'Temel diş örtüşme derinliği H1 = 5H/8', As: 'Gerilme kesiti As',
+      single: 'tek kaynakla doğrulandı', bad: 'Geçerli bir çap ve adım gir (P < d/2).',
+      figure: 'ISO 68-1 temel profili, ölçekli: üstte somun, altta cıvata',
+      tableTitle: 'Normal adımlı metrik dişler', cols: ['Diş', 'P', 'Seçim', 'd2', 'D1', 'D1 en büyük (6H)', 'Matkap', 'As (mm²)'],
+      fineTitle: 'İnce adımlı seçilmiş ölçüler (ISO 262)', fcols: ['Diş', 'd2', 'D1', 'D1 en büyük (6H)', 'Matkap', 'As (mm²)'],
+      fineNote: 'Matkap: işaretsiz değerler Gühring\'in DIN 336 tablosundandır ve Engineering Toolbox ile uyuşur. † yalnızca Engineering Toolbox. * yayımlanmış değer bulunamadı, d − P ile hesaplandı.',
+      choiceNote: '1 = birinci seçim, 2 = ikinci seçim (ISO 261). † tek kaynakla doğrulandı.',
+    }
+  : {
+      title: 'Tap drill and metric thread dimensions',
+      description: 'Tap drill sizes (DIN 336 / ISO 2306), 6H internal minor diameter limits, pitch and minor diameters and tensile stress area for ISO metric screw threads, with a scaled thread profile.',
+      lead: 'Pick a thread: the drill for a cutting tap, the 6H limits of the internal thread and whether the drill falls inside them follow at once. Basic dimensions are computed with the ISO 724:2023 formulas and tested against published tables.',
+      series: 'Series', coarse: 'Coarse pitch', fine: 'Fine pitch', custom: 'Custom',
+      size: 'Thread', d: 'Nominal diameter d', P: 'Pitch P',
+      drill: 'Tap drill diameter', drillStd: 'DIN 336 / ISO 2306 value', drillStdFine: 'DIN 336 value', drillCalc: 'by the rule d − P',
+      limits: '6H internal minor diameter D1', inside: 'Drill lies inside the 6H limits', outside: 'Drill lies outside the 6H limits', noLimits: '6H tolerance for this pitch is not on file here',
+      d2: 'Pitch diameter d2 = D2', D1: 'Basic minor diameter of internal thread D1', d3: 'Minor diameter of external thread d3', Hh: 'Fundamental triangle height H', H1: 'Basic thread overlap H1 = 5H/8', As: 'Tensile stress area As',
+      single: 'confirmed by one source only', bad: 'Enter a valid diameter and pitch (P < d/2).',
+      figure: 'ISO 68-1 basic profile to scale: nut above, bolt below',
+      tableTitle: 'Coarse-pitch metric threads', cols: ['Thread', 'P', 'Choice', 'd2', 'D1', 'D1 max (6H)', 'Drill', 'As (mm²)'],
+      fineTitle: 'Selected fine-pitch sizes (ISO 262)', fcols: ['Thread', 'd2', 'D1', 'D1 max (6H)', 'Drill', 'As (mm²)'],
+      fineNote: 'Drill: unmarked values are from Gühring\'s DIN 336 table and agree with Engineering Toolbox. † Engineering Toolbox only. * no published value found; computed as d − P.',
+      choiceNote: '1 = first choice, 2 = second choice (ISO 261). † confirmed by one source only.',
+    };
+
+const sources = [
+  { label: 'ISO 68-1:2023, ISO general purpose screw threads — Basic and design profiles', url: 'https://www.iso.org/standard/85107.html' },
+  { label: 'ISO 724:2023, ISO general-purpose metric screw threads — Basic dimensions (sample pages with clause 5 formulas)', url: 'https://cdn.standards.iteh.ai/samples/85104/9815392ad8904c9aa23cf7727e7b1dde/ISO-724-2023.pdf' },
+  { label: 'ISO 261:1998, General plan (confirmed 2024)', url: 'https://www.iso.org/standard/4165.html' },
+  { label: 'ISO 262:2023, Selected sizes for screws, bolts and nuts', url: 'https://www.iso.org/standard/85105.html' },
+  { label: 'IS 4218-4:2001, identical to ISO 262:1998 (selected sizes, fine pitches)', url: 'https://law.resource.org/pub/in/bis/S01/is.4218.4.2001.pdf' },
+  { label: 'IS 1367-3:2002, identical to ISO 898-1:1999 (tensile stress areas)', url: 'https://law.resource.org/pub/in/bis/S01/is.1367.3.2002.pdf' },
+  { label: 'ISO 2306:1972, Drills for use prior to tapping screw threads (preview, Table 1)', url: 'https://webstore.ansi.org/preview-pages/ISO/preview_ISO+2306-1972.pdf' },
+  { label: 'Gühring (Hartner), core hole diameter poster, 2025 (DIN 336 tap drills, 6H limits)', url: 'https://www.hartner.de/wp-content/uploads/2025/07/HAR_Plakat_Kernlochdurchmesser_Bohren_2025_EN.pdf' },
+  { label: 'Ganter, technical information: threads (6H limits)', url: 'https://www.ganternorm.com/fileadmin/user_upload/downloads/technischer%20anhang/technical_information/13_gewinde.pdf' },
+  { label: 'CDE Fasteners, metric internal threads 6H', url: 'https://cdefasteners.com/sites/default/files/product-specs/metintthread.pdf' },
+  { label: 'GSR, threading tools guide (tap drill table to M64)', url: 'https://threadingtoolsguide.com/en/?p=7843' },
+  { label: 'Engineering Toolbox, metric threads and bolt stress areas (cross-check)', url: 'https://www.engineeringtoolbox.com/metric-threads-d_777.html' },
+];
+
+const coarseRows = COARSE.map((c) => ({ c, t: threadData(c.d, c.P)! }));
+const fineRows = FINE.map((f) => ({ f, t: threadData(f.d, f.P)! }));
+const coarseOpts = COARSE.map((c) => ({ v: `${c.d}|${c.P}`, label: designation(c.d, c.P, '×', tr ? ',' : '.') + ` × ${num(c.P)}` }));
+const fineOpts = FINE.map((f) => ({ v: `${f.d}|${f.P}`, label: designation(f.d, f.P, '×', tr ? ',' : '.') }));
+---
+<ToolShell locale={locale} route="tapdrill" title={copy.title} description={copy.description} lead={copy.lead} sectionN={7} sources={sources}>
+  <div class="tool-grid-2" data-tap data-locale={locale} data-copy={JSON.stringify(copy)} data-opts={JSON.stringify({ coarse: coarseOpts, fine: fineOpts })}>
+    <div class="panel inputs">
+      <fieldset class="seg">
+        <legend class="hint">{copy.series}</legend>
+        <label><input type="radio" name={`tap-series-${locale}`} value="coarse" checked data-series /> {copy.coarse}</label>
+        <label><input type="radio" name={`tap-series-${locale}`} value="fine" data-series /> {copy.fine}</label>
+        <label><input type="radio" name={`tap-series-${locale}`} value="custom" data-series /> {copy.custom}</label>
+      </fieldset>
+      <label class="field" data-pick>
+        <span>{copy.size}</span>
+        <select id={`tap-size-${locale}`} data-size></select>
+      </label>
+      <div class="two" data-customfields hidden>
+        <label class="field"><span>{copy.d} <span class="unit">mm</span></span><input id={`tap-d-${locale}`} type="number" min="1" step="any" value="10" data-d /></label>
+        <label class="field"><span>{copy.P} <span class="unit">mm</span></span><input id={`tap-P-${locale}`} type="number" min="0.2" step="any" value="1.5" data-p /></label>
+      </div>
+      <div class="big">
+        <span class="label">{copy.drill}</span>
+        <span class="value"><span data-out="drill">—</span><small>mm</small></span>
+        <span class="hint" data-out="drillHow"></span>
+      </div>
+      <div class="limits">
+        <span class="label">{copy.limits}</span>
+        <span class="num" data-out="limits">—</span>
+        <span class="check" data-out="check"></span>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="figure"><svg data-figure viewBox="0 0 640 330" role="img" aria-label={copy.figure}></svg></div>
+      <div class="panel results">
+        <dl class="dl">
+          <dt>{copy.d2}</dt><dd class="num" data-out="d2">—</dd>
+          <dt>{copy.D1}</dt><dd class="num" data-out="D1">—</dd>
+          <dt>{copy.d3}</dt><dd class="num" data-out="d3">—</dd>
+          <dt>{copy.Hh}</dt><dd class="num" data-out="H">—</dd>
+          <dt>{copy.H1}</dt><dd class="num" data-out="H1">—</dd>
+          <dt>{copy.As}</dt><dd class="num" data-out="As">—</dd>
+        </dl>
+        <p class="warn" data-bad hidden>{copy.bad}</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="tables">
+    <h2 class="h2">{copy.tableTitle}</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr>{copy.cols.map((c, i) => <th class={i ? 'num' : ''}>{c}</th>)}</tr></thead>
+        <tbody>
+          {coarseRows.map(({ c, t }) => (
+            <tr>
+              <td class="mono">{designation(c.d, c.P, '×', tr ? ',' : '.')}</td>
+              <td class="num">{num(c.P)}</td>
+              <td class="num">{c.choice}{c.choiceSingle ? '†' : ''}</td>
+              <td class="num">{dec(t.d2)}</td>
+              <td class="num">{dec(t.D1)}</td>
+              <td class="num">{t.minor6H ? dec(t.minor6H.max) : '—'}</td>
+              <td class="num strong">{dec(c.drill, 2)}{c.drillSingle ? '†' : ''}</td>
+              <td class="num">{n3(t.As)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint">{copy.choiceNote}</p>
+
+    <h2 class="h2">{copy.fineTitle}</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr>{copy.fcols.map((c, i) => <th class={i ? 'num' : ''}>{c}</th>)}</tr></thead>
+        <tbody>
+          {fineRows.map(({ f, t }) => (
+            <tr>
+              <td class="mono">{designation(f.d, f.P, '×', tr ? ',' : '.')}</td>
+              <td class="num">{dec(t.d2)}</td>
+              <td class="num">{dec(t.D1)}</td>
+              <td class="num">{t.minor6H ? dec(t.minor6H.max) : '—'}</td>
+              <td class="num strong">{dec(t.drill, 2)}{t.drillSingle ? '†' : ''}{t.drillStandard ? '' : '*'}</td>
+              <td class="num">{n3(t.As)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint">{copy.fineNote}</p>
+  </section>
+
+  <Fragment slot="formulae">
+    <div class="formula-grid">
+      <div class="formula"><math display="block"><mrow><mi>H</mi><mo>=</mo><mfrac><msqrt><mn>3</mn></msqrt><mn>2</mn></mfrac><mi>P</mi><mo>=</mo><mn>0{tr ? ',' : '.'}866025</mn><mi>P</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>d</mi><mn>2</mn></msub><mo>=</mo><mi>d</mi><mo>−</mo><mn>0{tr ? ',' : '.'}649519</mn><mi>P</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>D</mi><mn>1</mn></msub><mo>=</mo><mi>d</mi><mo>−</mo><mn>1{tr ? ',' : '.'}082532</mn><mi>P</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>d</mi><mn>3</mn></msub><mo>=</mo><mi>d</mi><mo>−</mo><mn>1{tr ? ',' : '.'}226869</mn><mi>P</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>A</mi><mi>s</mi></msub><mo>=</mo><mfrac><mi>π</mi><mn>4</mn></mfrac><msup><mrow><mo>(</mo><mfrac><mrow><msub><mi>d</mi><mn>2</mn></msub><mo>+</mo><msub><mi>d</mi><mn>3</mn></msub></mrow><mn>2</mn></mfrac><mo>)</mo></mrow><mn>2</mn></msup></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>D</mi><mtext>{tr ? 'matkap' : 'drill'}</mtext></msub><mo>≈</mo><mi>d</mi><mo>−</mo><mi>P</mi></mrow></math></div>
+    </div>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <ul>
+      {tr ? (
+        <>
+          <li>Matkap çapları kesme kılavuzları içindir. DIN 336 açıkça soğuk şekillendirme (ezme) kılavuzlarına uygulanmaz; ezme kılavuzu daha büyük bir delik ister ve yayımlanmış öneriler üreticiden üreticiye değişir.</li>
+          <li>ISO 2306'nın ilkesi: tolerans içinde kaldığı sürece delik ne kadar büyükse kılavuz çekme o kadar ekonomiktir. d − P kuralı 6H toleransı içinde bir delik verir: M3–M39 için standart matkaplar bandın %28 ile %58'i arasında kalır, çoğu bandın ortasının altındadır.</li>
+          <li>6H sınırları ISO 965-1'deki küçük çap toleransından (yalnızca adıma bağlı) hesaplanır; bu araç, toleransı yayımlanmış 6H tablolarından doğrulanan adımlar için sınır gösterir.</li>
+          <li>Değerler 20 °C'deki temel ölçülerdir. ISO 724 ölçüleri üç ondalığa yuvarlar; gerilme kesitleri ISO 898-1'deki gibi üç anlamlı basamakla verilir.</li>
+          <li>İnce adım listesi ISO 262:1998'in seçilmiş ölçüleridir; 2023 baskısının tablosu kontrol edilemedi.</li>
+        </>
+      ) : (
+        <>
+          <li>Drill sizes are for cutting taps. DIN 336 explicitly does not apply to cold-forming taps; a forming tap needs a larger hole, and published recommendations differ between makers.</li>
+          <li>The principle of ISO 2306: within the tolerance, the larger the hole, the more economical the tapping. The rule d − P gives a hole inside the 6H tolerance: for M3 to M39 the standard drills sit between 28 % and 58 % of the band, most of them below its middle.</li>
+          <li>The 6H limits come from the minor-diameter tolerance of ISO 965-1, which depends only on the pitch; this tool shows limits only for pitches whose tolerance was confirmed from published 6H tables.</li>
+          <li>Values are basic sizes at 20 °C. ISO 724 rounds dimensions to three decimals; stress areas are given to three significant figures, as in ISO 898-1.</li>
+          <li>The fine-pitch list follows the selected sizes of ISO 262:1998; the table of the 2023 edition could not be checked.</li>
+        </>
+      )}
+    </ul>
+  </Fragment>
+</ToolShell>
+
+<style>
+  .seg { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem; font-size: 0.92rem; }
+  .seg legend { padding: 0; margin-bottom: 0.4rem; width: 100%; }
+  .seg label { display: inline-flex; gap: 0.4rem; align-items: center; }
+  .seg input { accent-color: var(--accent); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .big { display: grid; gap: 0.25rem; padding-top: 0.75rem; border-top: 1px solid var(--line); }
+  .big .label, .limits .label { font-size: 0.82rem; color: var(--ink-3); }
+  .big .value { font-family: var(--font-mono); font-size: 2.4rem; color: var(--accent); line-height: 1.1; }
+  .big .value small { font-size: 0.95rem; color: var(--ink-3); margin-left: 0.35rem; }
+  .limits { display: grid; gap: 0.25rem; }
+  .limits .num { font-size: 1.15rem; color: var(--data); }
+  .check { font-size: 0.85rem; }
+  .check[data-ok="true"] { color: var(--color-metro-400); }
+  .check[data-ok="false"] { color: var(--color-spark-200); }
+  .stack { display: grid; gap: 1rem; min-width: 0; }
+  .dl { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem 1rem; font-size: 0.92rem; }
+  .dl dt { color: var(--ink-3); }
+  .dl dd { text-align: right; color: var(--ink); }
+  .tables { margin-top: 3rem; display: grid; gap: 1rem; }
+  .table td.mono { font-family: var(--font-mono); white-space: nowrap; }
+  .table td.strong { color: var(--accent); }
+  .formula-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  @media (min-width: 48rem) { .formula-grid { grid-template-columns: repeat(3, 1fr); } }
+</style>
+
+<script>
+  import { threadData, designation } from '../../data/metric-threads.js';
+
+  const root = document.querySelector('[data-tap]') as HTMLElement;
+  const locale = root.dataset.locale as 'en' | 'tr';
+  const tr = locale === 'tr';
+  const copy = JSON.parse(root.dataset.copy!);
+  const opts = JSON.parse(root.dataset.opts!);
+  const q = <T extends Element>(s: string) => root.querySelector(s) as T;
+  const series = Array.from(root.querySelectorAll<HTMLInputElement>('[data-series]'));
+  const size = q<HTMLSelectElement>('[data-size]');
+  const inD = q<HTMLInputElement>('[data-d]');
+  const inP = q<HTMLInputElement>('[data-p]');
+  const custom = q<HTMLElement>('[data-customfields]');
+  const pick = q<HTMLElement>('[data-pick]');
+  const svg = q<SVGSVGElement>('[data-figure]');
+  const out = (k: string) => q<HTMLElement>(`[data-out="${k}"]`);
+  const f3 = (v: number, k = 3) => (tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+  const n = (v: number) => (tr ? String(v).replace('.', ',') : String(v));
+  /** Three significant figures, keeping trailing zeros below 100 (58.0, 5.03). */
+  const n3 = (v: number) => { const s = v >= 100 ? String(Math.round(v)) : v.toPrecision(3); return tr ? s.replace('.', ',') : s; };
+
+  function fillSizes(kind: 'coarse' | 'fine', keep?: string) {
+    const list = opts[kind] as { v: string; label: string }[];
+    const def = kind === 'coarse' ? '10|1.5' : '10|1.25';
+    const sel = keep && list.some((o) => o.v === keep) ? keep : def;
+    size.innerHTML = list.map((o) => `<option value="${o.v}"${o.v === sel ? ' selected' : ''}>${o.label}</option>`).join('');
+  }
+
+  function current(): [number, number] {
+    const kind = series.find((s) => s.checked)!.value;
+    if (kind === 'custom') return [Number(String(inD.value).replace(',', '.')), Number(String(inP.value).replace(',', '.'))];
+    const [d, P] = size.value.split('|').map(Number);
+    return [d, P];
+  }
+
+  function render() {
+    const [d, P] = current();
+    const t = threadData(d, P);
+    q<HTMLElement>('[data-bad]').hidden = Boolean(t);
+    if (!t) {
+      ['drill', 'drillHow', 'limits', 'check', 'd2', 'D1', 'd3', 'H', 'H1', 'As'].forEach((k) => (out(k).textContent = '—'));
+      svg.innerHTML = '';
+      return;
+    }
+    out('drill').textContent = f3(t.drill, 2);
+    out('drillHow').textContent = (t.drillSource === 'coarse' ? copy.drillStd : t.drillSource === 'fine' ? copy.drillStdFine : copy.drillCalc) + (t.drillSingle ? ` · ${copy.single}` : '');
+    if (t.minor6H) {
+      out('limits').textContent = `${f3(t.minor6H.min)} … ${f3(t.minor6H.max)} mm`;
+      out('check').textContent = t.drillInLimits ? `✓ ${copy.inside}` : `✕ ${copy.outside}`;
+      out('check').dataset.ok = String(Boolean(t.drillInLimits));
+    } else {
+      out('limits').textContent = '—';
+      out('check').textContent = copy.noLimits;
+      out('check').dataset.ok = '';
+    }
+    out('d2').textContent = `${f3(t.d2)} mm`;
+    out('D1').textContent = `${f3(t.D1)} mm`;
+    out('d3').textContent = `${f3(t.d3)} mm`;
+    out('H').textContent = `${f3(t.H)} mm`;
+    out('H1').textContent = `${f3(t.H1)} mm`;
+    out('As').textContent = `${n3(t.As)} mm²`;
+    draw(t);
+  }
+
+  /** ISO 68-1 basic profile over three pitches; vertical scale equals horizontal scale. */
+  function draw(t: any) {
+    const font = 'font-family="IBM Plex Mono, monospace" font-size="15"';
+    const x0 = 80, span = 3, W = 430;
+    const s = W / (span * t.P);
+    const hp = 0.625 * t.H * s; // 5H/8 in px
+    const yTop = 120, yBot = yTop + hp; // major (d) at yTop, minor (D1) at yBot
+    const X = (u: number) => x0 + u * s;
+    const P = t.P;
+    // one pitch: crest flat P/8 at major, flank, root flat P/4 at minor, flank
+    const pts: [number, number][] = [];
+    for (let k = 0; k < span; k++) {
+      const u = k * P;
+      pts.push([X(u), yTop], [X(u + P / 8), yTop], [X(u + P / 8 + 0.3125 * P), yBot], [X(u + P / 8 + 0.3125 * P + P / 4), yBot]);
+    }
+    pts.push([X(span * P), yTop]);
+    const line = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('');
+    const parts: string[] = [];
+    parts.push(`<defs><pattern id="tap-hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--accent)" stroke-width="1.3" stroke-opacity="0.5"/></pattern></defs>`);
+    // nut (above the profile) and bolt (below)
+    parts.push(`<path d="${line} L${X(span * P)} ${yTop - 60} L${X(0)} ${yTop - 60} Z" fill="url(#tap-hatch)" stroke="none"/>`);
+    parts.push(`<path d="${line} L${X(span * P)} ${yBot + 60} L${X(0)} ${yBot + 60} Z" fill="color-mix(in oklab, var(--data) 22%, transparent)" stroke="none"/>`);
+    parts.push(`<path d="${line}" fill="none" stroke="var(--ink)" stroke-width="2"/>`);
+    // diameter lines
+    const yPitch = yTop + 0.375 * t.H * s; // pitch line: d2 = d − 2·(3H/8), i.e. 3H/8 below the major diameter
+    const lines = [
+      { y: yTop, label: `d = ${f3(t.d)}`, c: 'var(--ink-2)' },
+      { y: yPitch, label: `d2 = ${f3(t.d2)}`, c: 'var(--data)' },
+      { y: yBot, label: `D1 = ${f3(t.D1)}`, c: 'var(--accent)' },
+    ];
+    for (const l of lines) {
+      parts.push(`<line x1="${X(0) - 10}" y1="${l.y}" x2="${X(span * P) + 8}" y2="${l.y}" stroke="${l.c}" stroke-dasharray="5 4" stroke-width="1"/>`);
+      parts.push(`<text x="${X(span * P) + 14}" y="${l.y + 4}" ${font} fill="${l.c}">${l.label}</text>`);
+    }
+    // pitch dimension above
+    const yd = yTop - 30;
+    parts.push(`<line x1="${X(P / 16)}" y1="${yd}" x2="${X(P + P / 16)}" y2="${yd}" stroke="var(--ink-2)"/>`);
+    parts.push(`<line x1="${X(P / 16)}" y1="${yd - 6}" x2="${X(P / 16)}" y2="${yd + 6}" stroke="var(--ink-2)"/><line x1="${X(P + P / 16)}" y1="${yd - 6}" x2="${X(P + P / 16)}" y2="${yd + 6}" stroke="var(--ink-2)"/>`);
+    parts.push(`<text x="${X(P / 2 + P / 16)}" y="${yd - 8}" ${font} fill="var(--ink-2)" text-anchor="middle">P = ${n(P)}</text>`);
+    // 60° label in the second root
+    parts.push(`<text x="${X(P + P / 8 + 0.3125 * P + P / 8)}" y="${yBot + 22}" ${font} fill="var(--ink-3)" text-anchor="middle">60°</text>`);
+    // overlap depth H1
+    const xh = X(0) - 22;
+    parts.push(`<line x1="${xh}" y1="${yTop}" x2="${xh}" y2="${yBot}" stroke="var(--ink-3)"/><line x1="${xh - 5}" y1="${yTop}" x2="${xh + 5}" y2="${yTop}" stroke="var(--ink-3)"/><line x1="${xh - 5}" y1="${yBot}" x2="${xh + 5}" y2="${yBot}" stroke="var(--ink-3)"/>`);
+    parts.push(`<text x="${xh - 6}" y="${(yTop + yBot) / 2 + 4}" ${font} fill="var(--ink-3)" text-anchor="end">5H/8</text>`);
+    parts.push(`<text x="${X(0)}" y="${yTop - 72}" ${font} fill="var(--accent)">${tr ? 'somun' : 'nut'}</text>`);
+    parts.push(`<text x="${X(0)}" y="${yBot + 76}" ${font} fill="var(--data)">${tr ? 'cıvata' : 'bolt'}</text>`);
+    parts.push(`<text x="${X(span * P)}" y="${yBot + 76}" ${font} fill="var(--ink-3)" text-anchor="end">${designation(t.d, t.P, '×', tr ? ',' : '.')} · ${tr ? 'ölçekli' : 'to scale'}</text>`);
+    svg.innerHTML = parts.join('');
+  }
+
+  series.forEach((s) => s.addEventListener('change', () => {
+    const kind = series.find((x) => x.checked)!.value;
+    custom.hidden = kind !== 'custom';
+    pick.hidden = kind === 'custom';
+    if (kind !== 'custom') fillSizes(kind as 'coarse' | 'fine');
+    render();
+  }));
+  [size, inD, inP].forEach((el) => el.addEventListener('input', render));
+  fillSizes('coarse');
+  render();
+</script>

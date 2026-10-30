@@ -1,0 +1,167 @@
+---
+/**
+ * How a chip breaker works, in Tungaloy's four steps (article list), drawn in the orthogonal-cutting
+ * convention of the plates: tool on the right, work feeding into it from the left, chip flowing up
+ * the rake face. The insert has a land, a groove and a backwall. Schematic: the strain meter shows
+ * the order of the steps, not values.
+ *   1 sheared and lifted off   2 groove and wall curl the chip
+ *   3 tighter curl, larger bending strain   4 strain exceeds the fracture strain: the chip breaks
+ */
+type Pt = [number, number];
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? {
+      aria: 'Talaş kırıcının dört adımı',
+      steps: [['Malzeme kayarak', 'ayrılır ve kalkar'], ['Oluk ve duvar', 'talaşı kıvırır'], ['Kıvrım daralır,', 'şekil değişimi artar'], ['Kırılma sınırı aşılır,', 'talaş kırılır']],
+      meter: 'eğilme şekil değişimi', limit: 'kırılma', groove: 'oluk', wall: 'duvar', shear: 'kayma bölgesi',
+    }
+  : {
+      aria: 'The four steps of a chip breaker',
+      steps: [['Sheared and', 'lifted off the work'], ['Groove and wall', 'curl the chip'], ['Tighter curl,', 'larger bending strain'], ['Strain exceeds the', 'fracture strain: it breaks']],
+      meter: 'bending strain', limit: 'fracture', groove: 'groove', wall: 'wall', shear: 'shear zone',
+    };
+
+const deg = Math.PI / 180;
+const K = 1.7;                                          // drawing scale of the cutting zone
+const T: Pt = [132, 202];
+const alpha = 6 * deg, phi = 28 * deg, h = 4 * K;
+const hc = (h * Math.cos(phi - alpha)) / Math.sin(phi);
+const u: Pt = [Math.sin(alpha), -Math.cos(alpha)];      // up the rake face
+const n: Pt = [-Math.cos(alpha), -Math.sin(alpha)];     // out of the rake face, towards the chip
+const at = (s: number, t: number): Pt => [T[0] + K * (s * u[0] + t * n[0]), T[1] + K * (s * u[1] + t * n[1])];
+const S: Pt = [T[0] - h / Math.tan(phi), T[1] - h];
+const f = (p: Pt) => `${p[0].toFixed(2)},${p[1].toFixed(2)}`;
+
+// rake profile in (s, t): land, rounded groove, backwall, plateau
+const bez = (a: Pt, b: Pt, c: Pt, d: Pt, k = 12): Pt[] => Array.from({ length: k }, (_, i) => {
+  const q = (i + 1) / k, r = 1 - q;
+  return [r * r * r * a[0] + 3 * r * r * q * b[0] + 3 * r * q * q * c[0] + q * q * q * d[0], r * r * r * a[1] + 3 * r * r * q * b[1] + 3 * r * q * q * c[1] + q * q * q * d[1]] as Pt;
+});
+const st: Pt[] = [[0, 0], [4, 0],
+  ...bez([4, 0], [8, 0], [10, -6.5], [15, -6.5]),
+  ...bez([15, -6.5], [20, -6.5], [24, -5], [26, -2]),
+  ...bez([26, -2], [28, 1.5], [30, 6], [33, 6]),
+  [62, 6]];
+const rake = st.map(([s, t]) => at(s, t));
+const top = rake[rake.length - 1];
+const flankEnd: Pt = [212, T[1] - (212 - T[0]) * Math.tan(6 * deg)];
+const tool = `M${rake.map(f).join(' L')} L212,${top[1].toFixed(2)} L${f(flankEnd)} Z`;
+const work = `M8,${S[1]} L${f(S)} L${f(T)} L212,${T[1]} L212,238 L8,238 Z`;
+const workEdge = `M8,${S[1]} L${f(S)} L${f(T)} L212,${T[1]}`;
+
+// chip: contact side T → land end → over the groove to the wall top W, then a circular curl
+const L0 = at(4, 0), W = at(33, 6);
+const dl = Math.hypot(W[0] - L0[0], W[1] - L0[1]);
+const d1: Pt = [(W[0] - L0[0]) / dl, (W[1] - L0[1]) / dl];
+const n1: Pt = [d1[1], -d1[0]];
+const lineX = (p: Pt, d: Pt, q: Pt, e: Pt): Pt => {
+  const den = d[0] * e[1] - d[1] * e[0];
+  const tt = ((q[0] - p[0]) * e[1] - (q[1] - p[1]) * e[0]) / den;
+  return [p[0] + tt * d[0], p[1] + tt * d[1]];
+};
+const J = lineX([T[0] + hc * n[0], T[1] + hc * n[1]], u, [L0[0] + hc * n1[0], L0[1] + hc * n1[1]], d1);
+const curl = (Ro: number, th0: number, th1: number, k = 40) => {
+  const C: Pt = [W[0] + Ro * n1[0], W[1] + Ro * n1[1]];
+  const ring = (r: number) => Array.from({ length: k + 1 }, (_, i) => {
+    const th = (th0 + ((th1 - th0) * i) / k) * deg;
+    return [C[0] + r * (-Math.cos(th) * n1[0] + Math.sin(th) * d1[0]), C[1] + r * (-Math.cos(th) * n1[1] + Math.sin(th) * d1[1])] as Pt;
+  });
+  return { C, outer: ring(Ro), inner: ring(Ro - hc) };
+};
+const chipWithCurl = (Ro: number, sweep: number) => {
+  const c = curl(Ro, 0, sweep);
+  return `M${f(S)} L${f(T)} L${f(L0)} L${f(W)} L${c.outer.map(f).join(' L')} L${[...c.inner].reverse().map(f).join(' L')} L${f(J)} Z`;
+};
+// step 1: a short straight chip just lifted off the land
+const e1 = at(15, 0);
+const chip1 = `M${f(S)} L${f(T)} L${f(L0)} L${f(e1)} L${f([e1[0] + hc * n[0], e1[1] + hc * n[1]])} Z`;
+// steps 2 and 3
+const chip2 = chipWithCurl(22 * K, 120);
+const chip3 = chipWithCurl(15 * K, 235);
+// step 4: the curl breaks at 200°; the broken piece falls away
+const c4 = curl(15 * K, 0, 200), piece = curl(15 * K, 204, 300, 20);
+const chip4 = `M${f(S)} L${f(T)} L${f(L0)} L${f(W)} L${c4.outer.map(f).join(' L')} L${[...c4.inner].reverse().map(f).join(' L')} L${f(J)} Z`;
+const pc: Pt = [(piece.outer[10][0] + piece.inner[10][0]) / 2, (piece.outer[10][1] + piece.inner[10][1]) / 2];
+const rot = (p: Pt, a: number, dx: number, dy: number): Pt => { const r = a * deg; return [pc[0] + (p[0] - pc[0]) * Math.cos(r) - (p[1] - pc[1]) * Math.sin(r) + dx, pc[1] + (p[0] - pc[0]) * Math.sin(r) + (p[1] - pc[1]) * Math.cos(r) + dy]; };
+const pieceD = `M${piece.outer.map((p) => f(rot(p, -28, -20, 10))).join(' L')} L${[...piece.inner].reverse().map((p) => f(rot(p, -28, -20, 10))).join(' L')} Z`;
+const breakEnd = [c4.outer[c4.outer.length - 1], c4.inner[c4.inner.length - 1]];
+const crack = (() => {
+  const [a, b] = breakEnd, k = 5, pts: Pt[] = [];
+  for (let i = 0; i <= k; i++) { const q = i / k; const j = i % 2 ? 2.4 : -2.4; pts.push([a[0] + (b[0] - a[0]) * q + j * d1[0], a[1] + (b[1] - a[1]) * q + j * d1[1]]); }
+  return 'M' + pts.map(f).join(' L');
+})();
+
+const steps = [
+  { chip: chip1, strain: 0.06 },
+  { chip: chip2, strain: 0.36 },
+  { chip: chip3, strain: 0.7 },
+  { chip: chip4, strain: 0.94 },
+];
+const mx0 = 14, mx1 = 206, limit = 0.8;
+const groovePt = at(17, -6.5), wallPt = at(29.5, 3.6);
+---
+<ol class="chipbreaker" aria-label={L.aria}>
+  {steps.map((s, i) => (
+    <li>
+      <p class="cbh"><span class="bdg" aria-hidden="true">{i + 1}</span><span>{L.steps[i].join(' ')}</span></p>
+      <svg viewBox="0 44 220 202" role="img" aria-label={`${i + 1}. ${L.steps[i].join(' ')}`}>
+
+        <text x={mx0} y="58" class="mlab">{L.meter}</text>
+        <rect x={mx0} y="63" width={mx1 - mx0} height="6" rx="3" class="mbg" />
+        <rect x={mx0} y="63" width={(mx1 - mx0) * s.strain} height="6" rx="3" class:list={['mfill', { over: s.strain > limit }]} />
+        <line x1={mx0 + (mx1 - mx0) * limit} y1="59" x2={mx0 + (mx1 - mx0) * limit} y2="73" class="mlim" />
+        <text x={mx0 + (mx1 - mx0) * limit} y="84" class="mlab" text-anchor="middle">{L.limit}</text>
+
+        <path d={work} class="work" />
+        <g class="grain">{[214, 224, 234].map((y) => <line x1="10" y1={y} x2="210" y2={y} />)}</g>
+        <path d={workEdge} class="edge" />
+        <line x1={S[0]} y1={S[1]} x2={T[0]} y2={T[1]} class="shear" />
+        <path d={s.chip} fill="url(#ca-chip)" class="cedge" />
+        {i === 3 && <path d={pieceD} fill="url(#ca-chip)" class="cedge" />}
+        {i === 3 && <path d={crack} class="crack" />}
+        <path d={tool} fill="url(#ca-carbide)" class="tedge" />
+        {i === 0 && <line x1={at(8, 18)[0]} y1={at(8, 18)[1]} x2={at(30, 18)[0]} y2={at(30, 18)[1]} class="flow" marker-end="url(#ca-arr-ink)" />}
+        {i === 0 && <g class="call work-call"><line x1={(S[0] + T[0]) / 2 - 2} y1={(S[1] + T[1]) / 2 + 2} x2={tr ? 104 : 86} y2="222" /><text x="16" y="226">{L.shear}</text></g>}
+        {i === 1 && <g class="call">
+          <line x1={groovePt[0] + 1.5} y1={groovePt[1] + 1} x2="166" y2="184" /><text x="170" y="188">{L.groove}</text>
+          <line x1={wallPt[0] + 1.5} y1={wallPt[1]} x2="166" y2="150" /><text x="170" y="154">{L.wall}</text>
+        </g>}
+      </svg>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .chipbreaker { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; counter-reset: none; }
+  @media (max-width: 44rem) { .chipbreaker { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .chipbreaker li { margin: 0; padding: 0; display: grid; grid-template-rows: auto 1fr; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .cbh { margin: 0; padding: 0.6rem 0.7rem 0.1rem; display: flex; gap: 0.5rem; align-items: flex-start; font-size: 0.84rem; line-height: 1.3; color: var(--ink); max-width: none; }
+  .bdg { flex: none; display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border: 1.4px solid var(--color-spark-400); border-radius: 50%; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; color: var(--color-spark-400); }
+  .chipbreaker li::before { content: none; }
+  .chipbreaker svg { width: 100%; height: auto; display: block; align-self: end; }
+  .chipbreaker .mlab { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-3); }
+  .chipbreaker .mbg { fill: #ecf2f7; }
+  .chipbreaker .mfill { fill: #1e6fd6; }
+  .chipbreaker .mfill.over { fill: #e2601a; }
+  .chipbreaker .mlim { stroke: #1b1d1e; stroke-width: 1.2; }
+  .chipbreaker .work { fill: #e7edf2; }
+  .chipbreaker .grain line { stroke: #9fa8b0; stroke-width: 0.9; opacity: 0.6; }
+  .chipbreaker .edge { fill: none; stroke: #2c3033; stroke-width: 1.4; stroke-linejoin: round; }
+  .chipbreaker .shear { stroke: #e2601a; stroke-opacity: 0.4; stroke-width: 6; stroke-linecap: round; }
+  .chipbreaker .cedge { stroke: #1b1d1e; stroke-width: 1; stroke-linejoin: round; }
+  .chipbreaker .tedge { stroke: #1b1d1e; stroke-width: 1.4; stroke-linejoin: round; }
+  .chipbreaker .crack { fill: none; stroke: #e2601a; stroke-width: 1.6; stroke-linejoin: round; }
+  .chipbreaker .flow { stroke: #1b1d1e; stroke-width: 1.4; }
+  .chipbreaker .call line { stroke: #474e54; stroke-width: 0.9; }
+  .chipbreaker .work-call text { stroke: #e7edf2; }
+  .chipbreaker .call text { font-family: var(--font-mono); font-size: 10.5px; fill: var(--ink-2); paint-order: stroke; stroke: #e7edf2; stroke-width: 3px; }
+  @media (max-width: 44rem) { .chipbreaker .mlab { font-size: 12.5px; } .chipbreaker .call text { font-size: 12.5px; } }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .chipbreaker .mfill { transform-box: fill-box; transform-origin: left; animation: cb-grow linear both; animation-timeline: view(); animation-range: entry 20% cover 45%; }
+    }
+  }
+  @keyframes cb-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+</style>

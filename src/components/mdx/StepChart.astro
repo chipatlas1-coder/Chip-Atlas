@@ -1,0 +1,124 @@
+---
+/**
+ * Step chart for properties that change by size band (strength vs diameter or thickness).
+ * Each series: a step line (e.g. minimum yield strength) and an optional range band (e.g. Rm min–max).
+ * Hover or focus a step to read its values. Data come from the article's own tables.
+ */
+interface Step { from: number; to: number; y: number; lo?: number; hi?: number; dashed?: boolean }
+interface Series { name: string; color: string; steps: Step[]; bandName?: string; faint?: boolean; key?: string }
+interface Props {
+  locale: 'en' | 'tr';
+  series: Series[];
+  xLabel: string; yLabel: string; xMax: number; yMax: number; yTicks: number[]; xTicks: number[];
+  unit?: string; xUnit?: string; lineLabel?: string; bandLabel?: string; aria: string;
+}
+const { locale, series, xLabel, yLabel, xMax, yMax, yTicks, xTicks, unit = 'MPa', xUnit = 'mm', lineLabel = 'min', bandLabel = '', aria } = Astro.props;
+const tr = locale === 'tr';
+const n = (v: number) => (tr ? String(v).replace('.', ',') : String(v));
+/* Two layouts: wide, and narrow for phones. */
+function layout(narrow: boolean) {
+  const W = narrow ? 360 : 640, H = narrow ? 300 : 340, L = narrow ? 46 : 58, R = narrow ? 14 : 120, T = 22, B = 46;
+  const X = (v: number) => L + (v / xMax) * (W - L - R);
+  const Y = (v: number) => T + (1 - v / yMax) * (H - T - B);
+  const path = (s: Series) => s.steps.map((st, i) => `${i ? 'L' : 'M'}${X(st.from)},${Y(st.y)} L${X(st.to)},${Y(st.y)}`).join(' ');
+  const xl: number[] = [];
+  let last = -1e9;
+  xTicks.forEach((v) => { const px = X(v), w = n(v).length * 6.8; if (px - w / 2 > last + 6) { xl.push(v); last = px + w / 2; } });
+  // end labels (wide only), pushed apart so they never overlap
+  const ends = series.map((s, i) => { const last = s.steps[s.steps.length - 1]; return { i, x: X(last.to) + 8, y: Y(last.y) + 4 }; }).sort((a, b) => a.y - b.y);
+  for (let k = 1; k < ends.length; k++) if (ends[k].y - ends[k - 1].y < 14) ends[k].y = ends[k - 1].y + 14;
+  return { narrow, W, H, L, R, T, B, X, Y, path, xl, ends };
+}
+const G = [layout(false), layout(true)];
+---
+<div class="stepchart" data-stepchart>
+  <div class="legend" aria-hidden="true" hidden={series.length === 1}>
+    {series.map((s) => (
+      <>
+        <span class="key"><i class:list={['ln', { fa: s.faint }]} style={`background:${s.color}`}></i>{s.key ?? `${s.name} ${lineLabel}`}</span>
+        {s.steps.some((st) => st.lo !== undefined) && <span class="key"><i class="bx" style={`background:${s.color}`}></i>{s.name} {bandLabel}</span>}
+      </>
+    ))}
+  </div>
+  {G.map(({ narrow, W, H, L, R, T, B, X, Y, path, xl, ends }) => (
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class={narrow ? 'narrow' : 'wide'}>
+    {yTicks.map((v) => (
+      <g>
+        <line x1={L} y1={Y(v)} x2={W - R} y2={Y(v)} class="grid" />
+        <text x={L - 8} y={Y(v) + 4} text-anchor="end" class="tick">{n(v)}</text>
+      </g>
+    ))}
+    {xl.map((v) => <text x={X(v)} y={H - B + 18} text-anchor="middle" class="tick">{n(v)}</text>)}
+    <line x1={L} y1={Y(0)} x2={W - R} y2={Y(0)} class="axis" />
+    <text x={narrow ? 4 : L} y={T - 8} class="axlab">{yLabel} ({unit})</text>
+    <text x={W - R} y={H - 8} text-anchor="end" class="axlab">{xLabel} ({xUnit})</text>
+    {series.map((s) => s.steps.filter((st) => st.lo !== undefined).map((st) => (
+      <rect x={X(st.from) + 1} y={Y(st.hi!)} width={X(st.to) - X(st.from) - 2} height={Y(st.lo!) - Y(st.hi!)} rx="3" fill={s.color} fill-opacity="0.2" />
+    )))}
+    {series.map((s) => (
+      <path d={path(s)} fill="none" stroke={s.color} stroke-width={s.faint ? 1.5 : 2.4} stroke-opacity={s.faint ? 0.75 : 1} stroke-dasharray={s.faint ? '6 3' : undefined} stroke-linejoin="round" class="line" />
+    ))}
+    {series.map((s) => s.steps.filter((st) => st.dashed).map((st) => (
+      <line x1={X(st.from)} y1={Y(st.y)} x2={X(st.to)} y2={Y(st.y)} stroke="#fbfdff" stroke-width="2.6" stroke-dasharray="5 5" />
+    )))}
+    {!narrow && ends.map((e) => <text x={e.x} y={e.y} class:list={['dlab', { fa: series[e.i].faint }]}>{series[e.i].name}</text>)}
+    {series.map((s) => s.steps.map((st) => {
+      const label = `${s.name}, ${xLabel} ${n(st.from)}–${n(st.to)} ${xUnit}: ${lineLabel} ${n(st.y)} ${unit}` + (st.lo !== undefined ? `; ${bandLabel} ${n(st.lo)}–${n(st.hi!)} ${unit}` : '');
+      return (
+        <rect class="hit" x={X(st.from)} y={Math.min(Y(st.hi ?? st.y), Y(st.y)) - 14} width={X(st.to) - X(st.from)} height={Math.abs(Y(st.lo ?? st.y) - Y(st.hi ?? st.y)) + 28} tabindex="0" role="img" aria-label={label}
+          data-v={`${n(st.y)} ${unit}`} data-b={st.lo !== undefined ? `${bandLabel} ${n(st.lo)}–${n(st.hi!)} ${unit}` : ''} data-k={`${s.name}, ${n(st.from)}–${n(st.to)} ${xUnit}`} data-c={s.color} />
+      );
+    }))}
+  </svg>
+  ))}
+  <div class="tip" role="status" hidden><b data-tv></b><span data-tb></span><span data-tk></span></div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-stepchart]').forEach((root) => {
+    const tip = root.querySelector<HTMLElement>('.tip')!;
+    const show = (el: SVGRectElement) => {
+      (tip.querySelector('[data-tv]') as HTMLElement).textContent = el.dataset.v || '';
+      (tip.querySelector('[data-tb]') as HTMLElement).textContent = el.dataset.b || '';
+      (tip.querySelector('[data-tk]') as HTMLElement).textContent = el.dataset.k || '';
+      tip.style.setProperty('--c', el.dataset.c || '#fff');
+      const rb = root.getBoundingClientRect(), eb = el.getBoundingClientRect();
+      tip.hidden = false;
+      const x = Math.min(rb.width - tip.offsetWidth - 4, Math.max(4, eb.left - rb.left + eb.width / 2 - tip.offsetWidth / 2));
+      tip.style.left = `${x}px`;
+      tip.style.top = `${Math.max(0, eb.top - rb.top - tip.offsetHeight - 6)}px`;
+      root.querySelectorAll('.hit.on').forEach((h) => h.classList.remove('on'));
+      el.classList.add('on');
+    };
+    const hide = () => { tip.hidden = true; root.querySelectorAll('.hit.on').forEach((h) => h.classList.remove('on')); };
+    root.querySelectorAll<SVGRectElement>('.hit').forEach((h) => {
+      h.addEventListener('pointerenter', () => show(h));
+      h.addEventListener('focus', () => show(h));
+      h.addEventListener('blur', hide);
+    });
+    root.addEventListener('pointerleave', hide);
+  });
+</script>
+
+<style>
+  .stepchart { position: relative; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; font-size: 0.8rem; color: var(--ink-2); margin: 0.25rem 0 0.5rem 0.25rem; }
+  .key { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .ln { width: 16px; height: 2.5px; border-radius: 2px; display: inline-block; }
+  .bx { width: 12px; height: 12px; border-radius: 3px; display: inline-block; opacity: 0.35; }
+  svg { width: 100%; height: auto; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } .legend[hidden] { display: flex; } }
+  .grid { stroke: var(--line); stroke-width: 1; }
+  .axis { stroke: var(--line-strong); stroke-width: 1; }
+  .tick { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); }
+  .axlab { font-size: 11.5px; fill: var(--ink-3); }
+  .dlab { font-size: 12px; fill: var(--ink-2); font-weight: 500; }
+  .dlab.fa { fill: var(--ink-3); font-weight: 400; }
+  .ln.fa { opacity: 0.7; background-image: none; height: 1.5px; }
+  .hit { fill: transparent; cursor: crosshair; outline: none; }
+  .hit.on, .hit:focus-visible { fill: color-mix(in oklab, var(--ink) 7%, transparent); }
+  .tip { position: absolute; z-index: 2; pointer-events: none; display: grid; gap: 0.1rem; padding: 0.45rem 0.65rem; background: var(--bg-raised); border: 1px solid var(--line-strong); border-radius: 6px; font-size: 0.78rem; color: var(--ink-3); min-width: 9rem; box-shadow: 0 8px 24px -6px rgba(21, 34, 48, 0.22); }
+  .tip b { font-family: var(--font-mono); font-size: 0.95rem; color: var(--ink); font-weight: 500; display: flex; align-items: center; gap: 0.45rem; }
+  .tip b::before { content: ""; width: 12px; height: 2.5px; border-radius: 2px; background: var(--c); }
+</style>

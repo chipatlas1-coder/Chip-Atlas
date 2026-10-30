@@ -1,0 +1,79 @@
+---
+import Mark from './Mark.astro';
+import Social from './Social.astro';
+import { href, routes, t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  /** Path of this page in the other language, for the language switch. */
+  altPath: string;
+}
+const { locale, altPath } = Astro.props;
+const ui = t(locale);
+const other: Locale = locale === 'en' ? 'tr' : 'en';
+const atlasHref = href(locale === 'en' ? '/#atlas' : '/tr/#atlas');
+---
+<header class="site-header">
+  <div class="sheet bar">
+    <a class="brand" href={href(routes.home[locale])} aria-label={ui.siteName}>
+      <Mark size={26} />
+      <span class="wordmark">Chip Atlas</span>
+      <span class="tag">{ui.tagline}</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href={atlasHref}>{ui.nav.atlas}</a>
+      <a href={href(routes.tools[locale])}>{ui.nav.tools}</a>
+      <Social variant="header" />
+      <a href={href(altPath)} lang={other} hreflang={other} class="lang" title={ui.lang.switchTo}>{ui.lang.code}</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 40;
+    background: color-mix(in oklab, white 86%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 3.5rem;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+  .brand :global(svg) { flex: none; }
+  /* phones: the channel icons stay in the footer, so the brand and the menu keep their room */
+  @media (max-width: 26rem) { .nav :global(.social.header) { display: none; } }
+  .wordmark { font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+  .tag {
+    color: var(--ink-3);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tag::before { content: "·"; margin-right: 0.6rem; }
+  @media (max-width: 40rem) { .tag { display: none; } }
+  .nav { display: flex; align-items: center; gap: 1.25rem; font-size: 0.95rem; }
+  .nav a { padding: 0.35rem 0; border-bottom: 1px solid transparent; }
+  .nav a:hover { border-bottom-color: var(--ink-2); }
+  .lang {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    border: 1px solid var(--line-strong) !important;
+    border-radius: 3px;
+    padding: 0.3rem 0.55rem !important;
+  }
+  .lang:hover { border-color: var(--ink-2) !important; }
+</style>

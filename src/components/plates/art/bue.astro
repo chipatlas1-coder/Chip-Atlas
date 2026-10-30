@@ -1,0 +1,36 @@
+---
+/* Built-up edge: an orthogonal cut with a lump of work material welded at the edge, reaching a little below it, and
+   fragments left on the machined surface behind the tool. Schematic; the chip is plain orange (no heat tint), since
+   the page puts BUE in a cutting zone that is too cold. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr ? { bue: 'yığıntı', frag: 'parçacıklar' } : { bue: 'built-up edge', frag: 'fragments' };
+const EX = 236, EY = 196, H = 26;
+const rad = (d: number) => (d * Math.PI) / 180;
+const rd = [Math.cos(rad(84)), Math.sin(rad(84))], nd = [-rd[1], rd[0]];
+const S = (x: number, y: number) => `${(EX + x).toFixed(1)},${(EY - y).toFixed(1)}`;
+const tool = `M${S(0, 0)} L${S(180 * rd[0], 180 * rd[1])} L${S(260, 180 * rd[1])} L${S(260, 260 * Math.tan(rad(7)))} Z`;
+const thick = H * 1.9, B = [110 * rd[0], 110 * rd[1]], C = [B[0] + thick * nd[0], B[1] + thick * nd[1]], D = [-thick * 0.62, H];
+const chip = `M${S(-1, 1)} L${S(B[0], B[1])} Q${S(B[0] + 24 * rd[0] + 28 * nd[0], B[1] + 24 * rd[1] + 28 * nd[1])} ${S(C[0], C[1])} L${S(D[0], D[1])} Z`;
+const hgt = 44, out = 19, low = 4;
+const lump = `M${S(0, 0)} L${S(hgt * rd[0], hgt * rd[1])} Q${S(hgt * 0.7 * rd[0] + out * 1.3 * nd[0], hgt * 0.7 * rd[1] + out * 1.3 * nd[1])} ${S(-out, -low * 0.4)} L${S(-out * 0.6, -low)} Z`;
+let surf = `M${EX},${EY + 2}`;
+for (let i = 0; i <= 120; i++) surf += ` L${(EX + 2 + i * 2).toFixed(1)},${(EY + 2 + 3.5 * Math.abs(Math.sin(i * 0.33)) * (i % 17 < 9 ? 1 : 0.4)).toFixed(1)}`;
+const work = `M10,${EY - H} L${EX - 1},${EY - H} L${EX},${EY + 2} ${surf.slice(surf.indexOf('L'))} L476,${EY + 2} L476,300 L10,300 Z`;
+const frags = [292, 338, 401, 446];
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <path class="metal-h f" style="--i:0" d={work} />
+  <path class="f" style="--i:1" d={chip} fill="#e0a35f" stroke="#a35a1f" stroke-width="1.2" />
+  <path class="f" style="--i:2" d={lump} fill="#aab6c2" stroke="#4f5f6e" stroke-width="1.5" />
+  <path class="carbide f" style="--i:2" d={tool} stroke="#364554" stroke-width="1.6" />
+  <g class="f" style="--i:3">
+    {frags.map((x, i) => <ellipse cx={x} cy={EY + 3} rx={6 + (i % 2) * 3} ry="3" fill="#aab6c2" stroke="#4f5f6e" />)}
+  </g>
+  <g class="lbl">
+    <line x1={EX - 14} y1={EY - 8} x2={EX - 70} y2={EY + 36} stroke="#4f5f6e" />
+    <text class="t-ink t-sm" x={EX - 74} y={EY + 50} text-anchor="end">{T.bue}</text>
+    <text class="t-sm" x="330" y={EY + 28}>{T.frag}</text>
+  </g>
+</svg>

@@ -1,0 +1,113 @@
+---
+key: parting-off
+locale: tr
+slug: kesme-ve-kanal-acma
+title: 'Parça kesme ve kanal açma'
+description: 'Tornada bitmiş parçayı çubuktan kesmek ve kanal açmak: takımlar, kesme hızının merkezde neden bittiği, üreticilerin orada ilerlemeyi ne kadar düşürdüğü, nerede durulacağı, merkezde kalan çıkıntı, takım yüksekliği ve sarkma, dar kanalda talaş ve soğutma, geniş, derin ve alın kanallarının nasıl açılacağı.'
+section: 2
+subsection: turning
+order: 4
+updated: 2026-10-30
+tools: [turning]
+glance:
+  - value: '−%50 ile −%75'
+    label: 'Merkeze yakın ilerleme düşüşü, üretici üretici (Mitsubishi, Sumitomo, Sandvik Coromant röportajı)'
+  - value: '0 ile +0,2 mm'
+    label: 'Parça kesmede kesici takım yüksekliği (Sumitomo; Sandvik Coromant röportajı ±0,1 mm verir)'
+  - value: '8–10 × genişlik'
+    label: 'Önerilen bıçak sarkması (Sandvik Coromant uzmanı, röportaj)'
+  - value: '1–1,5 mm'
+    label: 'Geniş kanalda, sonda bir halka kalacaksa yana doğru ilerlemenin bitiş noktasından ne kadar önce durduğu; halka sonra dalarak alınır (Mitsubishi)'
+sources:
+  - label: 'Mitsubishi Materials, teknik bilgi, GY serisi: çok işlevli işleme ve parça kesme notları'
+    url: https://www.mmc-carbide.com/br/technical_information/tec_turning_tools/tec_grooving/guide/tec_grooving_gy_external_machining
+  - label: 'C. Koepfer, “Five process security tips when parting off”, Production Machining, 23 Mayıs 2014 (S. Lewis, Sandvik Coromant ile röportaj)'
+    url: https://productionmachining.com/articles/five-process-security-tips-when-parting-off
+  - label: 'Sandvik Coromant, “How to choose the right tool for parting and grooving”, katalog s. B2–B26 (bayi kopyası)'
+    url: https://docs.steinerelectric.com/Sandvik_5736826_Catalog.pdf
+  - label: 'ISCAR, “Parting from the Smallest to the Largest Diameter with ISCAR’s Square Blades”, 3375101, G 5/2019'
+    url: https://www.iscar.com/Catalogs/Publication/english_1/parting_4_productivity_3375101/parting_4_productivity_3375101.pdf
+  - label: 'ISCAR, “The evolution of parting and grooving tools”, MSC Knowledge Center, 2026'
+    url: https://www.mscdirect.com/knowledge-center/articles/the-evolution-of-parting-and-grooving-tools
+  - label: 'ISCAR, “Parting & Grooving”, yeni ürün duyurusu, 2019 (DirectIndustry)'
+    url: https://pdf.directindustry.com/pdf/iscar-tools/parting-grooving/5692-896865.html
+  - label: 'Paul Horn GmbH, “New parting-off geometry for high feed rates”, 26 Ocak 2021'
+    url: https://www.horn-group.com/news/news/detail-page/new-parting-off-geometry-for-high-feed-rates
+  - label: 'Tungaloy, GrooveLine kanal açma ve parça kesme takımı, Report No. 391-US'
+    url: https://tungaloy.com/wpdata/wp-content/uploads/391-u_TungCut.pdf
+  - label: 'Sumitomo Electric, General Catalog 2025-2026, Grooving Tools GND: önerilen kesme koşulları (F15)'
+    url: https://online.flippingbook.com/view/410142785/377
+  - label: 'Sumitomo Electric, General Catalog 2025-2026, Grooving Tools GND: önemli noktalar (F17)'
+    url: https://online.flippingbook.com/view/410142785/379
+  - label: 'T.C. Millî Eğitim Bakanlığı, CNC Tornalama Çevrimleri, Ankara 2015'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/10121311_Cnc_Tornalama_Cevrimleri.pdf
+  - label: 'E. Demirer, Y. Kayır, “AISI304 Paslanmaz Çeliğin Tornalamasında Kesici Takım Yükseklik Ayarının Kesme Kuvvetlerine Etkisinin Taguchi Ve ANOVA Yöntemiyle Analizi”, Gazi Mühendislik Bilimleri Dergisi 8(1), 2022 (Türkçe terim için)'
+    url: https://avesis.gazi.edu.tr/yayin/c84da596-6716-4df5-9430-ce6a9fee02c7/aisi304-paslanmaz-celigin-tornalamasinda-kesici-takim-yukseklik-ayarinin-kesme-kuvvetlerine-etkisinin-taguchi-ve-anova-yontemiyle-analizi
+---
+import PartingCut from '../../../components/mdx/PartingCut.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Parça kesme, bitmiş parçayı çubuktan eksene dik olarak merkeze doğru dalan dar bir bıçakla ayırır; kanal açma aynı tür takımla belli bir derinliğe kadar kanal açar. Sandvik Coromant bu aileyi parça kesme, kanal açma, profil işleme ve tornalama diye sayar; Tungaloy de geometrilerinden birinin dış, iç ve alın kanal açmayı ve yan tornalamayı (*side turning*) yapabildiğini yazar. MEB modülünde ikisi tek çevrimdir: G75 "dış çapta veya iç çapta kanal açma veya parça kesmekte kullanılır".
+
+Takımların çoğu, değiştirilebilir bir kesici uç taşıyan bıçaklardır; ISCAR’ın TANG-GRIP kare bıçakları (teğetsel bağlanan uçlar, *tangentially clamped inserts*) ve DO-GRIP bıçakları gibi. Tek ağızlı uçlar (Horn, Tungaloy) ya da çift taraflı uçlar (ISCAR) kullanılır; derin kanallar için Tungaloy, kanal derinliği uç boyu eksi 1,5 mm’den büyükse tek köşeli uç kullanılmasını ister. Ucun önü ilerlemeye ya diktir (nötr) ya da bir yana açılıdır (sağ ya da sol): Sandvik Coromant bunları N, R ve L diye kodlar ve *front angle* dediği açıyı verir, örneğin nötr bir uç için 0°. Mitsubishi bunu bir ödünleşim olarak verir: dolu çubukta merkezde bir çıkıntı kalıyor ya da boruda çapak oluşuyorsa sağ ya da sol bir uçla bunlar azaltılabilir; ama böyle bir uçla işleme, nötr bir uca göre daha az kararlı olma eğilimindedir. Bıçak ne kadar darsa çubuğun o kadar azı talaşa gider: ISCAR malzeme kaybını azaltma isteğinin kesme genişliğini en aza indirmeyi gerektirdiğini yazar; ürün sınırları da her genişliği bir en büyük çapla eşleştirir, örneğin 3 mm’lik uçla 120 mm çapa kadar kesme.
+
+## Merkeze kadar kesmek
+
+Kesme içeri girdikçe zorlaşır. ISCAR’a göre iş mili devri sabit kalırsa kesme hızı buna göre düşer ve merkezde sıfıra iner; modern CNC tezgâhlar ise devri çap küçüldükçe ayarlayabilir. [Tornalama işlemleri](/tr/prosesler/tornalama-islemleri/) sayfasının Siemens G96/LIMS örneğiyle gösterdiği gibi, iş mili o zaman programlanan sınırda kalır ve kesme hızı merkezde yine sıfıra iner. MEB modülü sınırı genel bir tornalama örneğinde şöyle yazar: "N10 G50 S2500; Ayna devrini 2500 dev/dk. ile sınırlandır." Mitsubishi sabit kesme hızıyla parça kesme için kendi sınırını önerir: kararlılık için iş mili devrinin en yüksek değerin %80’iyle sınırlanması. Parçanın fırlamaması için kesme bitmeden devrin düşürülmesini de önerir.
+
+Burada aktarılan üç üretici de merkezden önce ilerlemeyi düşürür; ne kadar düşürdüklerinde ayrışırlar:
+
+| Üretici | Merkeze yakın |
+|---|---|
+| Mitsubishi | Kesme kenarı merkeze yaklaşınca ilerlemeyi %50 azaltın. |
+| Sumitomo | Parça kesmede iş parçası merkezine yakın ilerlemeyi yaklaşık %30–50’ye indirin. |
+| Sandvik Coromant (röportaj) | Merkeze yaklaşık 2 mm (0,080 inç) kala ilerlemeyi %75’e varan oranda azaltın (programlanan ilerlemenin %25’ine kadar). |
+
+Mesafeyi yalnızca Sandvik röportajı verir. Sonra merkezden önce durun. Röportaj, takımın parçanın eksenine varmadan durdurulmasını önerir: parçanın ağırlığı onu sallar ve koparır; takım merkezi geçmişse kopan parçanın uca çarpıp ona zarar verme olasılığı daha yüksektir. Mitsubishi ters bir nedenle erken durur: gerekirse, parçanın kendi ağırlığıyla düşmemesi için ilerleme iş parçasının merkezine varmadan durdurulur. Merkezi geçmek isterseniz röportajdaki öneri, merkezden uç yarıçapı kadarından fazla ilerlememektir.
+
+<Figure caption="Parça kesme, çubuğun eksenden kesiti, hızlandırılmış: bıçak dalar, kanal her yanda derinleşir ve merkezde kalan kesit küçülür; yavaşlama noktasında ilerleme seçilen üreticinin düzeyine düşer, ilerleme merkezden önce durur ve parça ayrılır. Altta, kalan yarıçapa göre ilerleme. Yavaşlama mesafesini kaydırıcı belirler; yalnızca Sandvik röportajı bir mesafe verir (2 mm). Sandvik için şekil %75’in tamamını, Sumitomo için aralığın ortasını kullanır. İlerlemenin durduğu nokta (merkezden 0,4 mm önce) çizim için seçilmiştir; hiçbir kaynak bir değer vermez. Gösterilen kesme hızı Ø40 mm’lik bir çubukta 1200 dev/dak sabit devir ve 0,12 mm/dev programlanmış ilerleme içindir: örnek değerler.">
+  <PartingCut locale="tr" />
+</Figure>
+
+Merkezde kalan küçük çıkıntının bir adı var. ISCAR buna *pip* der ve her parça kesmede oluştuğunu yazar; Sumitomo *nib* der ve onu kesici takımın yüksekliğine bağlar: kesici kenarın yüksekliği ne kadar düşükse merkezde kalan *nib* o kadar büyük olur.
+
+## Takım yüksekliği ve sarkma
+
+Sumitomo iki ayar verir: kanal açmada kesici kenarın yüksekliği ±0 mm’ye olabildiğince yakın olmalıdır (±0,1 mm içinde olması önerilir); parça kesmede ise 0 ile +0,2 mm arasında. Sandvik Coromant röportajı parça kesme için tek bir değer verir: ±0,1 mm (0,004 inç) içinde. İkisi, kenarın merkezin altına inip inemeyeceğinde ayrışır. Röportaj etkileri de verir: takım merkezin ne kadar üstündeyse kesici kenarın altındaki boşluk o kadar azalır; merkezin altındaysa kesici kenardaki kesme kuvvetleri artar ve uç ufalanabilir. Türkçe bir çalışma (Demirer ve Kayır, Gazi Mühendislik Bilimleri Dergisi, 2022, tornalama üzerine) bu ayara kesici takım yükseklik ayarı der.
+
+Bıçak işin izin verdiği kadar az dışarı taşmalıdır. Sumitomo: tutucunun sarkması olabildiğince kısa olmalıdır. ISCAR: ince ve dışarı taşan bir takımın rijitliği düşüktür ve bu işlemenin kararlılığını olumsuz etkiler; kesilecek çap büyüdükçe sarkma da büyümek zorundadır. Sandvik röportajı bir sayı verir: önerilen sarkma genel olarak uç genişliğinin 8–10 katıdır. Horn, EH geometrisinin yüksek ilerlemelerinin kanal açma ve parça kesme için kararlı bir tezgâh gerektirdiğini ekler.
+
+## Dar bir kanalda talaş ve soğutma
+
+ISCAR’a göre talaş, derinleşen dar kanaldan kolayca atılabilmesi için düzgün akmalıdır; bu yüzden talaş yüzünde etkili bir talaş oluşturma ve kırma topolojisi yaratmak önemli bir zorluktur. Horn’a göre güvenilir talaş tahliyesi ve kontrolü özel talaş biçimiyle sağlanır. Genel olarak uzun ve dolanan talaş için [uzun talaş](/tr/problem-cozme/uzun-talas/) sayfasına bakın. Bir deliğin içinde yer daha da azdır: Sumitomo, iç çaplarda talaş tahliyesi için daha az yer olduğundan ML, GL ve GF talaş kırıcılarını önerir. Alın kanalı için önerilen kesme koşullarının alt sınırına yakın koşullar verir.
+
+Soğutma sıvısını kesmeye ulaştırmak zordur; ISCAR bu işlemlerin doğasının etkili soğutma vermeyi güçleştirdiğini ve soğutma ile yağlama etkisini azalttığını yazar. Bu yüzden üreticiler soğutmayı bıçağa ya da tutucuya yerleştirir: ISCAR kesme bölgesine yöneltilmiş, yüksek basınç seçenekli noktasal bir besleme sunar, Tungaloy da yüksek basınçlı soğutmaya uygun kanal açma tutucuları listeler.
+
+## Geniş, derin ya da alında kanallar
+
+- **Dar kanallar: birkaç dalma.** Mitsubishi dalmanın birkaç pasoda yapılmasını önerir; bu, talaşın uzamasını zorlaştırır ve duvar yüzeyinin hassasiyetini de artırır.
+- **Derin kanallar: gagalama.** MEB modülündeki G75 çevrimi "kısa aralıklarla (kademelerle) ilerlemeli, her kademe sonunda geri çekilmeli (gagalama) tarzda takım hareketleri ile" çalışır.
+- **Geniş: dalın, sonra yana doğru ilerleyin.** Uçtan geniş kanallar için Mitsubishi yana doğru ilerleyerek işleme (*cross-feed machining*) önerir; sonda bir halka kalacaksa yana ilerleme bitiş noktasından 1–1,5 mm önce durdurulur ve halka dalarak alınır. Talaşın bir duvarda sıkışmaması için duvardan önce durup kalanını dalarak alır; MS ya da MM talaş kırıcılarıyla hassas duvarlar için geri dönüşte tornalama (*back turning*) yapılmamasını söyler.
+- **Profil kopyalama.** Mitsubishi, üç boyutlu kopyalamaya imkân veren BM talaş kırıcılı uçlarla kesme derinliğinin (APMX) uç genişliğinden %40 az ayarlanmasını söyler.
+- **Alında: dıştan içe, ve takımı ilk kesme belirler.** Sumitomo tutucunun rijitliğini göz önüne alarak dıştan içe işlemeyi önerir ve tutucunun ilk kanalın dış çapına göre seçilmesini ister; Sandvik Coromant’ın tabloları her alın kanalı tutucusu için ilk kesmenin en küçük çapını verir, Tungaloy da øDmax’tan büyük çaplarda kanal açarken takımın iş parçasıyla çakışacağını uyarır.
+
+## Başlangıç değerleri
+
+İki üreticinin değerleri aynı genişlik ve malzemede karşılaştırılamadı; bu yüzden aşağıdakiler yayımlandığı gibi tek tek örneklerdir: iki yüksek ilerlemeli geometri (ISCAR TAG N3HF, Horn EH) ve ISCAR’ın genel bir parça kesme ucu (TAG N4C).
+
+| Üretici, geometri | İlerleme |
+|---|---|
+| ISCAR TAG N3HF | 0,25–0,35 mm/dev |
+| ISCAR TAG N4C | 0,10–0,30 mm/dev; IC20 kalitesinde %50 azaltılmalı |
+| Horn EH (S100 sistemi, 3 ve 4 mm uçlar) | 0,25–0,4 mm/dev; 0,3 mm/dev’den itibaren ilk 3–4 mm’de dalma ilerlemesi azaltılır |
+
+Gerçek bir işin başlangıç değerlerini kullanılan ucun kataloğundan alın.
+
+<CheckList id="parting-before" locale="tr" items={[
+  { icon: 'align', title: 'Kesici takım yüksekliği', check: 'Kesici kenarın iş mili eksenine göre yüksekliği.', fix: 'Parça kesme: 0 ile +0,2 mm (Sumitomo) ya da ±0,1 mm içinde (Sandvik Coromant röportajı); kanal açma: ±0,1 mm içinde (Sumitomo). Daha düşük bir kenar merkezde daha büyük bir nib bırakır (Sumitomo).', src: 'Sumitomo; Sandvik Coromant (röportaj)' },
+  { icon: 'overhang', title: 'Sarkma', check: 'Bıçağın tutucusundan ne kadar taştığı.', fix: 'Olabildiğince kısa (Sumitomo, ISCAR); uç genişliğinin yaklaşık 8–10 katı (Sandvik Coromant röportajı).', src: 'Sumitomo; ISCAR; Sandvik Coromant (röportaj)' },
+  { icon: 'speed', title: 'Devir sınırı', check: 'Sabit kesme hızı için programlanan devir sınırı.', fix: 'Bir sınır koyun; Mitsubishi parça kesmede en yüksek devrin %80’ini önerir.', src: 'Mitsubishi' },
+  { icon: 'feed', title: 'Merkeze yakın ilerleme', check: 'Programın merkezden önce ilerlemeyi yavaşlatıp yavaşlatmadığı.', fix: 'Düşürün: %50 (Mitsubishi), yaklaşık %30–50’ye (Sumitomo) ya da 2 mm kala %75’e varan oranda (Sandvik Coromant röportajı).', src: 'Mitsubishi; Sumitomo; Sandvik Coromant (röportaj)' },
+  { icon: 'depth', title: 'Bitiş noktası', check: 'İlerlemenin nerede durduğu.', fix: 'Merkezden önce durun (Sandvik Coromant röportajı; parçanın düşmemesi gerekiyorsa Mitsubishi); hiçbir zaman merkez artı uç yarıçapından fazla gitmeyin (röportaj).', src: 'Mitsubishi; Sandvik Coromant (röportaj)' },
+  { icon: 'coolant', title: 'Kesici kenarda soğutma', check: 'Soğutma sıvısının kesmeye ulaşıp ulaşmadığı.', fix: 'Soğutması kesme bölgesine yöneltilmiş, varsa yüksek basınçlı bir bıçak ya da tutucu kullanın (ISCAR, Tungaloy).', src: 'ISCAR; Tungaloy' },
+]} />

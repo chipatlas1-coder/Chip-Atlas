@@ -1,0 +1,121 @@
+---
+key: s355
+locale: tr
+slug: s355
+title: 'S355 (St 52-3) yapı çeliği'
+description: 'EN 10025-2''ye göre alaşımsız yapı çeliği S355: JR, J0, J2 ve K2 kalite sınıfları, eski St 52-3 ve St 44-2 ile ilişkisi, kimyasal bileşim, kalınlığa göre akma ve çekme dayanımı, darbe enerjisi, kaynak kabiliyeti — ve "St 52" borunun neden farklı bir çelik olduğu.'
+section: 6
+subsection: steels
+order: 3
+updated: 2026-10-11
+tools: [turning, milling]
+glance:
+  - value: '355'
+    unit: 'MPa'
+    label: 'En küçük akma dayanımı ReH, 16 mm''ye kadar'
+  - value: '470–630'
+    unit: 'MPa'
+    label: 'Çekme dayanımı Rm, 3 ile 100 mm arası'
+  - value: '27'
+    unit: 'J'
+    label: 'S355J2''nin −20 °C''de darbe enerjisi'
+  - value: '0,45'
+    label: '30 mm''ye kadar en büyük karbon eşdeğeri CEV'
+sources:
+  - label: 'EN 10025-2:2019, Hot rolled products of structural steels — Part 2 (SIS katalog sayfası)'
+    url: https://www.sis.se/en/produkter/metallurgy/iron-and-steel-products/heattreatable-steels/ss-en-10025-22019
+  - label: 'BSI, BS EN 10025-2:2019 (2004 baskısına göre değişiklikler)'
+    url: https://knowledge.bsigroup.com/products/hot-rolled-products-of-structural-steels-technical-delivery-conditions-for-non-alloy-structural-steels-1
+  - label: 'Ovako, Steel Navigator: S355 (EN 10025-2:2019)'
+    url: https://steelnavigator.ovako.com/steel-grades/s355/
+  - label: 'Ovako, Steel Navigator: S275JR'
+    url: https://steelnavigator.ovako.com/steel-grades/s275jr/
+  - label: 'Arvedi, EN 10025-2''ye göre alaşımsız yapı çelikleri'
+    url: https://www.arvedi.it/en/acciaieria/products/hot-rolled-steels/non-alloyed-structural-steels-as-per-en-10025-2/
+  - label: 'Liberty Steel, EN 10025-2 yapı çelikleri veri sayfası, 2024'
+    url: https://libertysteelgroup.com/uk/wp-content/uploads/sites/2/2024/12/LDL-EN10025-2-structural-Steels.pdf
+  - label: 'SIJ, SIQUAL 0577 / 0045 / 0553 (EN 10025-2)'
+    url: https://cms.sij.si/storage/38/SIQUAL-0577,-0045,-0553.pdf
+  - label: 'ArcelorMittal Industeel, S355J2 sac performans beyanı (EN 10025-2:2019), 2025'
+    url: https://industeel.arcelormittal.com/fichier/dopil_s355j2_1-0577-en
+  - label: 'ArcelorMittal, EN 10025 / DIN 17100 karşılık tablosu içeren profil kataloğu, 2026'
+    url: https://industry.arcelormittal.com/catalogue/H30/EN
+  - label: 'Meusburger, malzeme 1.0577 (S355J2)'
+    url: https://www.meusburger.com/PT/PT/material-grades/10577-structural-steel
+  - label: 'Roymech, EN 10025 çelik verileri (2004 baskısını yansıtır)'
+    url: https://roymech.org/Useful_Tables/Matter/Steel_Data/Steel-10025.html
+  - label: 'Murray Steel Products, S355 düşük karbonlu manganez çeliği'
+    url: https://Murraysteelproducts.com/download/file/185/S355%20Low%20Carbon%20Manganese%20Steel%20-%20Murray%20Steel%20Products.pdf
+  - label: 'Hansa-Flex, E355+N (1.0580) "ST52" hidrolik boru'
+    url: https://shop.hansa-flex.ch/en_GB/rohre/hydraulik-rohre/pr-10-2-st52/p/PR10-2ST52
+  - label: 'Marcegaglia, hidrolik silindirler için karbon çeliği borular (E355, EN 10305)'
+    url: https://www.carbonsteel.marcegaglia.com/wp-content/uploads/2021/02/Marcegaglia-Carbon-Steel-Tubes-catalogue-download-cylinder.pdf
+---
+import StepChart from '../../../components/mdx/StepChart.astro';
+import ImpactGrades from '../../../components/mdx/ImpactGrades.astro';
+
+import { s355Series } from '../../../data/steel-charts';
+
+S355, kaynaklı konstrüksiyonlar, çerçeveler ve makine parçaları için alaşımsız bir yapı çeliğidir ve ince kesitlerde en küçük akma dayanımı 355 MPa'dır. Eski Alman adı St 52-3 ile hâlâ yaygın olarak bilinir.
+
+## Kalite sınıfları
+
+S355'ten sonraki harfler darbe enerjisini ve deney sıcaklığını verir:
+
+| Kalite | Numara | Darbe enerjisi KV, en küçük |
+|---|---|---|
+| S355JR | 1.0045 | +20 °C'de 27 J |
+| S355J0 | 1.0553 | 0 °C'de 27 J |
+| S355J2 | 1.0577 | −20 °C'de 27 J |
+| S355K2 | 1.0596 | −20 °C'de 40 J |
+
+<Figure caption="Dört kalite sınıfı, en az Charpy darbe enerjisi ve bu enerjinin arandığı deney sıcaklığı olarak. J0 ve J2, JR ile aynı enerjiyi daha soğuk bir deneyde ister; K2 −20 °C'de daha fazlasını ister.">
+  <ImpactGrades locale="tr" />
+</Figure>
+
+S355J2+N'deki gibi addan sonra gelen "+N" bir teslim durumudur (normalize edilmiş ya da normalize haddelenmiş); çelik adının parçası değildir, numara 1.0577 olarak kalır. Geçerli standart **EN 10025-2:2019**'dur; 2004 baskısının yerini almıştır.
+
+## Eski adlar: St 52-3 ve St 44-2
+
+| Eski ad (DIN 17100) | Bugün |
+|---|---|
+| St 52-3 (1.0570) | S355J2G3 (1.0570, eski EN 10025) üzerinden **S355J2 (1.0577)**; ArcelorMittal, St 52-3 N'yi S355J2+N'ye, St 52-3 U'yu S355J0'a eşler |
+| St 44-2 | **S275JR** (1.0044) — bir S275 kalitesidir, S355 değil |
+
+<Note kind="warn" title="'St 52' boru S355 değildir">
+Hidrolikte "St 52" boru genellikle EN 10305-1 ya da -2'ye göre **E355** soğuk çekme hassas boru anlamına gelir (eski DIN 2391 St 52); örneğin E355+N, 1.0580. Bu, EN 10025-2'ye göre sac ve profil çeliği olan S355'ten farklı bir çelik ve standarttır; teslim durumları ve özellikleri kendine aittir. Yalnızca "St 52" demek yerine standardı belirtin.
+</Note>
+
+## Kimyasal bileşim
+
+En çok %, döküm analizi, EN 10025-2, 40 mm'ye kadar ürünler için:
+
+| Kalite | C | Si | Mn | P | S | N | Cu |
+|---|---|---|---|---|---|---|---|
+| S355JR | 0,24 | 0,55 | 1,60 | 0,035 | 0,035 | 0,012 | 0,55 |
+| S355J0 | 0,20 | 0,55 | 1,60 | 0,030 | 0,030 | 0,012 | 0,55 |
+| S355J2, K2 | 0,20 | 0,55 | 1,60 | 0,025 | 0,025 | — | 0,55 |
+
+40 mm'nin üstünde J0, J2 ve K2'nin karbon sınırı %0,22'ye çıkar; profillerde bazı üretici sayfaları %0,22'yi 30 mm'den itibaren uygular. Karbon eşdeğeri CEV 30 mm'ye kadar 0,45, 30 ile 150 mm arasında 0,47 ile sınırlıdır.
+
+## Mekanik özellikler
+
+En küçük akma dayanımı ReH kalınlıkla düşer:
+
+| Kalınlık t (mm) | ≤ 16 | 16–40 | 40–63 | 63–80 | 80–100 | 100–150 | 150–200 | 200–250 |
+|---|---|---|---|---|---|---|---|---|
+| **ReH en küçük (MPa)** | 355 | 345 | 335 | 325 | 315 | 295 | 285 | 275 |
+
+J2 ve K2, 265 MPa ile 400 mm'ye kadar devam eder. Çekme dayanımı Rm: 3 mm'nin altında 510–680 MPa, **3 ile 100 mm arasında 470–630 MPa**, 100 ile 400 mm arasında 450–600 MPa. En küçük kopma uzaması, boyuna, t ≥ 3 mm: 40 mm'ye kadar %22, 40 ile 63 mm arası %21, 63 ile 100 mm arası %20; enine değerler 2 puan düşüktür.
+
+<Figure caption="S355'in en küçük akma dayanımı ReH, anma kalınlığına göre (EN 10025-2, yukarıdaki tablodaki değerler). 250–400 mm arasındaki kesikli basamak yalnızca J2 ve K2 için geçerlidir.">
+  <StepChart locale="tr" series={s355Series} xLabel="t" yLabel="ReH" xMax={400} yMax={400} yTicks={[0, 100, 200, 300, 400]} xTicks={[0, 40, 100, 150, 200, 250, 400]} lineLabel="ReH en küçük" aria="S355'in kalınlığa göre en küçük akma dayanımı basamak grafiği" />
+</Figure>
+
+<Note kind="note" title="Bir uyuşmazlık">
+Liberty Steel'in veri sayfası 40–63 mm için 325 MPa basar. Ovako, SIJ ve Roymech 335 MPa verir; burada bu değer kullanılmıştır.
+</Note>
+
+## Kaynak kabiliyeti ve talaşlı işleme
+
+S355, düşük karbon içeriği ve CEV sınırı sayesinde iyi kaynak edilir. Talaşlı işlemede büyük ölçüde yumuşak bir çelik gibi davranır (Murray Steel Products); Meusburger, kaynak gerektirmeyen parçalar için 1.1730 gibi daha iyi işlenen bir çeliği önerir. ISO 513'te P grubuna girer.

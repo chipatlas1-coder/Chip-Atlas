@@ -1,0 +1,19 @@
+---
+/** Periodic-table style tiles with two composition limits each (two grades compared). */
+interface Props { items: { el: string; z: number; a: string; b: string }[]; names: [string, string]; x: number; y: number; i0?: number }
+const { items, names, x, y, i0 = 2 } = Astro.props;
+const W = 101, H = 96, G = 11;
+const vx = 14 + Math.max(names[0].length, names[1].length) * 5.6;
+---
+{items.map((t, k) => (
+  <g transform={`translate(${x + k * (W + G)} ${y})`}>
+    <rect class="f" style={`--i:${i0 + k}`} width={W} height={H} rx="5" fill="#f5f9fd" stroke="#cdd5db" />
+    <rect class="d" style={`--i:${i0 + k}`} pathLength="1" width={W} height={H} rx="5" fill="none" stroke="#a5aeb6" />
+    <text class="t-sm f" style={`--i:${i0 + k}`} x="10" y="17">{t.z}</text>
+    <text class="f" style={`--i:${i0 + k}; font-family: var(--font-sans); font-weight: 600; font-size: 30px; fill: #1b1d1e`} x="10" y="50">{t.el}</text>
+    <text class="f" style={`--i:${i0 + k + 1}; font-family: var(--font-mono); font-size: 9px; fill: #656e74`} x="10" y="68">{names[0]}</text>
+    <text class="t-data f" style={`--i:${i0 + k + 1}; font-size: 11px`} x={vx} y="68">{t.a}</text>
+    <text class="f" style={`--i:${i0 + k + 1}; font-family: var(--font-mono); font-size: 9px; fill: #656e74`} x="10" y="85">{names[1]}</text>
+    <text class="f" style={`--i:${i0 + k + 1}; font-family: var(--font-mono); font-size: 11px; fill: #e2601a`} x={vx} y="85">{t.b}</text>
+  </g>
+))}

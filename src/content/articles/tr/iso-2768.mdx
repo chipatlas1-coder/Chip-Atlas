@@ -1,0 +1,130 @@
+---
+key: iso-2768
+locale: tr
+slug: iso-2768-genel-toleranslar
+title: 'ISO 2768 genel toleranslar'
+description: 'Teknik resimde kendi toleransı olmayan her ölçüye uygulanan toleranslar. ISO 2768-1''in uzunluk, radyüs, pah ve açılar için f, m, c ve v tabloları, geri çekilen ISO 2768-2''nin H, K ve L sınıfları ve Bölüm 1''in yerini almak üzere olan yeni baskı.'
+section: 11
+subsection: dimensional-tolerances
+order: 2
+updated: 2026-10-11
+tools: [fits]
+glance:
+  - value: '4'
+    label: 'ISO 2768-1''deki tolerans sınıfı: f, m, c, v'
+  - value: '±0,2'
+    unit: 'mm'
+    label: 'm sınıfında 25 mm''lik bir uzunluk'
+  - value: '±0°30′'
+    label: 'Kısa kenarı 40 mm olan 45° pah, m sınıfı'
+  - value: '2021'
+    label: 'ISO 2768-2 geri çekildi, yerini ISO 22081 aldı'
+sources:
+  - label: 'ISO 2768-1:1989, katalog sayfası (yürürlükte; son gözden geçirme ve onay 2022)'
+    url: https://www.iso.org/standard/7748.html
+  - label: 'ISO 2768:2026 (2. baskı), "Tolerance limits for general specification of linear and angular sizes", katalog sayfası (aşama 60.00, yayım aşamasında)'
+    url: https://www.iso.org/standard/85741.html
+  - label: 'ISO 2768-2:1989, katalog sayfası (4 Şubat 2021''de geri çekildi)'
+    url: https://www.iso.org/standard/7749.html
+  - label: 'ISO 22081:2021, katalog sayfası'
+    url: https://www.iso.org/standard/72514.html
+  - label: 'Star Rapid, "General tolerances DIN ISO 2768" (PDF, 2023)'
+    url: https://cdn2.starrapid.com/wp-content/uploads/2023/09/General_Tolerances-DIN-ISO-2768.pdf
+  - label: 'AMESweb, ISO 2768 doğrusal ölçü toleransları'
+    url: https://amesweb.info/fits-tolerances/iso-2768-linear-dimensions-tolerances.aspx
+  - label: 'AMESweb, ISO 2768 açısal ölçü toleransları'
+    url: https://amesweb.info/fits-tolerances/iso-2768-angular-dimensions-tolerances.aspx
+  - label: 'Engineers Edge, ISO 2768''e göre genel geometrik toleranslar'
+    url: https://ns1.engineersedge.com/mechanical,045tolerances/general_iso_tolerance_.htm
+  - label: 'CAMCUT, açısal ölçüler için genel toleranslar'
+    url: https://www.camcut-group.com/en-us/support/instructions/measuring/general-tolerances/general-tolerances-for-angular-dimensions/
+---
+import Iso2768Lookup from '../../../components/mdx/Iso2768Lookup.astro';
+import LineChart from '../../../components/mdx/LineChart.astro';
+import { iso2768Linear, iso2768Angles } from '../../../data/figures';
+
+Teknik resimdeki ölçülerin çoğunun kendi toleransı yoktur. Yine de toleranslıdırlar: antet içinde ya da yakınında yer alan **ISO 2768-m** gibi bir not, tek bir genel tolerans tablosunu hepsine birden uygular. Resim okunaklı kalır ve ayrıca yazılmış dar toleranslar, önemli olanlar olarak öne çıkar.
+
+## Durum: değişmek üzere olan bir baskı
+
+<Note kind="warn" title="Resminizin hangi baskıya atıf yaptığını kontrol edin">
+- Aşağıdaki tabloların bulunduğu **ISO 2768-1:1989** hâlâ yürürlükte bir standarttır; ISO onu en son 2022'de onaylamıştır.
+- Halefi **ISO 2768 (2. baskı, 2026)**, "Tolerance limits for general specification of linear and angular sizes", 2 Haziran 2026'dan beri yayım aşamasındadır ve yayım tarihi Ekim 2026 olarak listelenmiştir. ISO 2768-1:1989'un yerini alacaktır. Bu sayfadaki değerlerden herhangi birini değiştirip değiştirmediği henüz kontrol edilemedi; metin erişilebilir olduğunda sayfa güncellenecektir.
+- H, K ve L sınıflarını içeren geometrik bölüm **ISO 2768-2:1989**, 4 Şubat 2021'de geri çekilmiş ve yerini ISO 22081:2021 almıştır. Sınıfları hâlâ birçok mevcut resimde görülür.
+</Note>
+
+## Genel toleransı bulun
+
+<Figure caption="ISO 2768-1:1989 arama aracı. Ölçü türünü ve resimde yazan sınıfı seçin.">
+  <Iso2768Lookup locale="tr" />
+</Figure>
+
+## Doğrusal ölçüler
+
+f (ince), m (orta), c (kaba) ve v (çok kaba) tolerans sınıfları için mm cinsinden izin verilen sapmalar:
+
+| Anma ölçüsü (mm) | f | m | c | v |
+|---|---|---|---|---|
+| 0,5'ten 3'e | ±0,05 | ±0,1 | ±0,2 | — |
+| 3'ün üstünden 6'ya | ±0,05 | ±0,1 | ±0,3 | ±0,5 |
+| 6'nın üstünden 30'a | ±0,1 | ±0,2 | ±0,5 | ±1 |
+| 30'un üstünden 120'ye | ±0,15 | ±0,3 | ±0,8 | ±1,5 |
+| 120'nin üstünden 400'e | ±0,2 | ±0,5 | ±1,2 | ±2,5 |
+| 400'ün üstünden 1000'e | ±0,3 | ±0,8 | ±2 | ±4 |
+| 1000'in üstünden 2000'e | ±0,5 | ±1,2 | ±3 | ±6 |
+| 2000'in üstünden 4000'e | — | ±2 | ±4 | ±8 |
+
+0,5 mm'nin altındaki ölçülerde sapma anma ölçüsünün yanına yazılır. Tire, o sınıf ve aralık için genel tolerans belirtilmediği anlamına gelir.
+
+**Örnek.** ISO 2768-m işaretli bir resimde 25 mm'lik bir uzunluk 24,8 ile 25,2 mm arasında olabilir. Aynı uzunluk f sınıfında 24,9 ile 25,1 mm arasında olabilir.
+
+<Figure caption="Tablo, logaritmik eksenlerde basamak çizgileri olarak. Her ölçü aralığında sapma f'den m'ye ve m'den c'ye 2 ila 3 kat, c'den v'ye 1,7 ila 2,1 kat büyür. Noktalar örneği işaretler; herhangi bir ölçüdeki sapmaları okumak için üzerine gelin.">
+  <LineChart locale="tr" series={iso2768Linear("tr")} marks={[{ x: 25, y: 0.2, label: "25 mm, m: ±0,2" }, { x: 25, y: 0.1, label: "f: ±0,1", place: "se" }]} xLog yLog xMin={0.5} xMax={4000} yMin={0.03} yMax={10} xTicks={[0.5, 3, 6, 30, 120, 400, 1000, 2000, 4000]} yTicks={[0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10]} xLabel="anma ölçüsü (mm)" yLabel="izin verilen sapma ± (mm)" endLabels={false} xDec={1} yDec={2} tipUnit=" mm" aria="f, m, c ve v sınıfları için anma ölçüsüne göre ISO 2768-1 doğrusal sapmalar" />
+</Figure>
+
+## Dış radyüsler ve pah yükseklikleri
+
+| Anma ölçüsü (mm) | f ve m | c ve v |
+|---|---|---|
+| 0,5'ten 3'e | ±0,2 | ±0,4 |
+| 3'ün üstünden 6'ya | ±0,5 | ±1 |
+| 6'nın üstü | ±1 | ±2 |
+
+## Açılar
+
+Açısal sapmalar, açının **kısa kenarının** mm cinsinden uzunluğuna bağlıdır:
+
+| Kısa kenar (mm) | f ve m | c | v |
+|---|---|---|---|
+| 10'a kadar | ±1° | ±1°30′ | ±3° |
+| 10'un üstünden 50'ye | ±0°30′ | ±1° | ±2° |
+| 50'nin üstünden 120'ye | ±0°20′ | ±0°30′ | ±1° |
+| 120'nin üstünden 400'e | ±0°10′ | ±0°15′ | ±0°30′ |
+| 400'ün üstü | ±0°5′ | ±0°10′ | ±0°20′ |
+
+**Örnek.** Kısa ayağı 40 mm olan 45°'lik bir pah açısı, m sınıfında 44°30′ ile 45°30′ arasında olabilir.
+
+<Figure caption="Açısal sapmalar kısa kenarın uzunluğuna göre; kenar uzadıkça izin verilen açı hatası küçülür. 400 mm üstü 1000 mm'ye kadar çizilmiştir. Nokta örneği işaretler.">
+  <LineChart locale="tr" series={iso2768Angles("tr")} marks={[{ x: 40, y: 30, label: "40 mm, m: ±0°30′" }]} xLog yLog xMin={1} xMax={1000} yMin={4} yMax={240} xTicks={[1, 10, 50, 120, 400, 1000]} yTicks={[5, 10, 20, 30, 60, 120, 180]} yTickText={["5′", "10′", "20′", "30′", "1°", "2°", "3°"]} xLabel="kısa kenar (mm)" yLabel="izin verilen sapma ±" endLabels={false} xDec={0} yDec={0} tipUnit="′" height={300} aria="Kısa kenar uzunluğuna göre ISO 2768-1 açısal sapmalar" />
+</Figure>
+
+## Doğrusallık ve düzlemsellik (geri çekilen ISO 2768-2)
+
+ISO 2768-2, H, K ve L olmak üzere üç sınıfta genel geometrik toleranslar ekliyordu. **ISO 2768-mK** gibi bir resim notu, Bölüm 1'in m sınıfını Bölüm 2'nin K sınıfıyla birleştirir. Doğrusallık ve düzlemsellik için, mm cinsinden anma uzunluğuna göre:
+
+| Anma uzunluğu (mm) | H | K | L |
+|---|---|---|---|
+| 10'a kadar | 0,02 | 0,05 | 0,1 |
+| 10'un üstünden 30'a | 0,05 | 0,1 | 0,2 |
+| 30'un üstünden 100'e | 0,1 | 0,2 | 0,4 |
+| 100'ün üstünden 300'e | 0,2 | 0,4 | 0,8 |
+| 300'ün üstünden 1000'e | 0,3 | 0,6 | 1,2 |
+| 1000'in üstünden 3000'e | 0,4 | 0,8 | 1,6 |
+
+Bölüm 2 ayrıca diklik, simetri ve dairesel salgı için de sınıflar veriyordu. Bölüm geri çekildiği için yeni resimler bunun yerine ISO 22081'e atıf yapmalıdır.
+
+## Genel toleransları iyi kullanmak
+
+- **Atölyenin zorlanmadan tutabileceği sınıfı seçin.** Genel toleranslar olağan atölye hassasiyetiyle sağlanacak biçimde düşünülmüştür; daha dar olan her şey ölçünün kendisine yazılmalıdır.
+- **İşlev için önemli her toleransı ayrıca yazın.** Geçmeler, rulman yatakları ve sızdırmazlık yüzeyleri kendi toleranslarını ister; bkz. [ISO 286 geçmeleri](/tr/araclar/iso-286-gecmeler/).
+- **Standardı ve sınıfı açıkça yazın.** Standart belirtilmeden yazılan "Genel toleranslar ±0,1" notu açıları, radyüsleri ve biçimi tanımsız bırakır.

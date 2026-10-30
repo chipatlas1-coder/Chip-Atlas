@@ -1,0 +1,394 @@
+---
+import ToolShell from '../ToolShell.astro';
+import type { Locale } from '../../i18n';
+import { HOLE_GRADES, SHAFT_GRADES, PREFERRED_FITS } from '../../data/iso286.js';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+
+const copy = tr
+  ? {
+      title: 'ISO 286 geçme hesaplayıcısı',
+      description: 'ISO 286 geçme hesaplayıcısı ve tolerans arama: 500 mm’ye kadar her çap için delik ve mil sapmaları, sınır ölçüler, en büyük ve en küçük boşluk veya sıkılık, geçme türü ve ölçekli tolerans bölgesi çizimi.',
+      lead: 'Nominal çapı ve delik/mil tolerans sınıflarını seç; sapmalar, sınır ölçüler ve geçmenin boşluklu, geçiş veya sıkı olduğu anında gelir. Değerler ISO 286-1:2010 kurallarıyla hesaplanır ve yayımlanmış ISO 286-2 tablolarına karşı test edilmiştir.',
+      D: 'Nominal ölçü D', hole: 'Delik', shaft: 'Mil', letter: 'Konum', grade: 'Kalite (IT)',
+      preferred: 'Tercih edilen geçmeler (delik esaslı)',
+      results: 'Geçme', holeDev: 'Delik sapmaları', shaftDev: 'Mil sapmaları',
+      ES: 'Üst sapma ES', EI: 'Alt sapma EI', es: 'Üst sapma es', ei: 'Alt sapma ei',
+      maxSize: 'En büyük ölçü', minSize: 'En küçük ölçü',
+      maxCl: 'En büyük boşluk', minCl: 'En küçük boşluk', maxInt: 'En büyük sıkılık', minInt: 'En küçük sıkılık',
+      types: { clearance: 'Boşluklu geçme', transition: 'Geçiş geçmesi', interference: 'Sıkı geçme' },
+      range: 'Ölçü aralığı', it: 'Tolerans',
+      outOfRange: 'Bu araç 0 < D ≤ 500 mm aralığını kapsar.',
+      figureLabel: 'Tolerans bölgeleri, sıfır çizgisine göre ölçekli',
+      lookupTitle: 'Tolerans arama',
+      lookupLead: 'Herhangi bir sınıfı yaz (ör. H7, js6, N9, u6). Büyük harf delik, küçük harf mildir.',
+      lookupLabel: 'Tolerans sınıfı',
+      lookupBad: 'Bu sınıf tanınmadı veya bu araçta sunulmuyor. Sunulan konumlar: delik C D E F G H JS K M N P R S U, mil c d e f g h js k m n p r s u.',
+      tableTitle: 'Bu çapta sık kullanılan sınıflar',
+      cols: { cls: 'Sınıf', upper: 'Üst sapma (µm)', lower: 'Alt sapma (µm)', max: 'En büyük (mm)', min: 'En küçük (mm)' },
+      notes: [
+        'Ölçü aralıkları "a’dan büyük, b dâhil" şeklindedir: 30 mm, 18–30 aralığına; 30,001 mm ise 30–50 aralığına girer.',
+        'JS ve js sınıfları tam olarak ±IT/2 gösterilir (ör. JS7 Ø25: ±10,5 µm); ISO 286-2 tabloları da böyle basar.',
+        'K, M, N delikleri IT8’e kadar, P–U delikleri IT7’ye kadar Δ = ITn − IT(n−1) düzeltmesiyle hesaplanır. ISO 286-1’deki özel durum uygulanır: M6, 250–315 mm’de ES = −9 µm.',
+        'Bir geçmenin türü çapa göre değişebilir: H7/p6, 3 mm’ye kadar geçiş geçmesi, daha büyük çaplarda sıkı geçmedir.',
+        'Ölçüler ISO 1’e göre 20 °C referans sıcaklığında geçerlidir. Sıkı geçmelerde montaj için ısıtma/soğutma gerekip gerekmediğini sıkılık ve malzemeye göre ayrıca hesapla.',
+      ],
+    }
+  : {
+      title: 'ISO 286 fit calculator',
+      description: 'ISO 286 fit calculator and tolerance lookup: hole and shaft deviations, limits of size, maximum and minimum clearance or interference, fit type and a tolerance-zone drawing to scale, for any size up to 500 mm.',
+      lead: 'Choose the nominal size and the hole and shaft tolerance classes; deviations, limits of size and whether the fit is clearance, transition or interference follow at once. Values are computed with the ISO 286-1:2010 rules and tested against published ISO 286-2 tables.',
+      D: 'Nominal size D', hole: 'Hole', shaft: 'Shaft', letter: 'Position', grade: 'Grade (IT)',
+      preferred: 'Preferred fits (hole basis)',
+      results: 'Fit', holeDev: 'Hole deviations', shaftDev: 'Shaft deviations',
+      ES: 'Upper deviation ES', EI: 'Lower deviation EI', es: 'Upper deviation es', ei: 'Lower deviation ei',
+      maxSize: 'Maximum size', minSize: 'Minimum size',
+      maxCl: 'Maximum clearance', minCl: 'Minimum clearance', maxInt: 'Maximum interference', minInt: 'Minimum interference',
+      types: { clearance: 'Clearance fit', transition: 'Transition fit', interference: 'Interference fit' },
+      range: 'Size range', it: 'Tolerance',
+      outOfRange: 'This tool covers 0 < D ≤ 500 mm.',
+      figureLabel: 'Tolerance zones to scale, relative to the zero line',
+      lookupTitle: 'Tolerance lookup',
+      lookupLead: 'Type any class (e.g. H7, js6, N9, u6). Capitals are holes, lower case are shafts.',
+      lookupLabel: 'Tolerance class',
+      lookupBad: 'Class not recognised or not offered here. Positions offered: holes C D E F G H JS K M N P R S U, shafts c d e f g h js k m n p r s u.',
+      tableTitle: 'Common classes at this size',
+      cols: { cls: 'Class', upper: 'Upper dev. (µm)', lower: 'Lower dev. (µm)', max: 'Max. (mm)', min: 'Min. (mm)' },
+      notes: [
+        'Size ranges run "over a up to and including b": 30 mm falls in 18–30, 30.001 mm in 30–50.',
+        'JS and js classes are shown as exactly ±IT/2 (e.g. JS7 at Ø25: ±10.5 µm), as the ISO 286-2 tables print them.',
+        'K, M and N holes up to IT8, and P to U holes up to IT7, carry the correction Δ = ITn − IT(n−1). The ISO 286-1 special case applies: M6 at 250–315 mm has ES = −9 µm.',
+        'A fit can change type with size: H7/p6 is a transition fit up to 3 mm and an interference fit above.',
+        'Sizes apply at the 20 °C reference temperature of ISO 1. For interference fits, check separately whether assembly needs heating or cooling for the interference and the materials involved.',
+      ],
+    };
+
+const sources = [
+  { label: 'ISO 286-1:2010 — Geometrical product specifications (GPS) — ISO code system for tolerances on linear sizes — Part 1', url: 'https://www.iso.org/standard/45975.html' },
+  { label: 'Wikipedia — IT Grade (standard tolerance table from ISO 286-1)', url: 'https://en.wikipedia.org/wiki/IT_Grade' },
+  { label: 'Machining Doctor — Tolerance charts for holes and shafts (ISO 286-1:2010), used as the test reference', url: 'https://www.machiningdoctor.com/calculators/tolerances/' },
+  { label: 'Emile Maurin — ISO tolerance tables (cross-check up to 250 mm)', url: 'https://composants.emile-maurin.fr/custom/docs/modele/31-52_e/tolerance-generale-iso-tolerance-ldoc1.pdf' },
+  { label: 'Simply Bearings — ISO 286-2 limits extract (cross-check of k, m, n, p, r, js, K, M, N, P, JS)', url: 'https://simplybearings.co.uk/shop/Info-Pages-ISO-Limits/c4746_4779/index.html' },
+  { label: 'AmesWeb — Preferred fits per ISO 286-1 and ANSI B4.2', url: 'https://amesweb.info/fits-tolerances/preferred-tolerances-table.aspx' },
+];
+
+const holeLetters = Object.keys(HOLE_GRADES);
+const shaftLetters = Object.keys(SHAFT_GRADES);
+---
+<ToolShell locale={locale} route="fits" title={copy.title} description={copy.description} lead={copy.lead} sectionN={11} sources={sources}>
+  <div class="tool-grid-2" data-fits data-locale={locale} data-grades={JSON.stringify({ hole: HOLE_GRADES, shaft: SHAFT_GRADES })} data-copy={JSON.stringify({ types: copy.types, maxCl: copy.maxCl, minCl: copy.minCl, maxInt: copy.maxInt, minInt: copy.minInt, outOfRange: copy.outOfRange, hole: copy.hole, shaft: copy.shaft })}>
+    <div class="panel inputs">
+      <label class="field">
+        <span>{copy.D} <span class="unit">mm</span></span>
+        <input id="fit-D" type="number" min="0.1" max="500" step="0.1" value="25" data-in="D" />
+      </label>
+      <div class="pair">
+        <p class="pair-title">{copy.hole}</p>
+        <div class="two">
+          <label class="field"><span>{copy.letter}</span>
+            <select id="fit-hole-letter" data-in="holeLetter">{holeLetters.map((l) => <option value={l} selected={l === 'H'}>{l}</option>)}</select>
+          </label>
+          <label class="field"><span>{copy.grade}</span>
+            <select id="fit-hole-grade" data-in="holeGrade"></select>
+          </label>
+        </div>
+      </div>
+      <div class="pair">
+        <p class="pair-title">{copy.shaft}</p>
+        <div class="two">
+          <label class="field"><span>{copy.letter}</span>
+            <select id="fit-shaft-letter" data-in="shaftLetter">{shaftLetters.map((l) => <option value={l} selected={l === 'g'}>{l}</option>)}</select>
+          </label>
+          <label class="field"><span>{copy.grade}</span>
+            <select id="fit-shaft-grade" data-in="shaftGrade"></select>
+          </label>
+        </div>
+      </div>
+      <div>
+        <p class="hint" style="margin-bottom:0.4rem">{copy.preferred}</p>
+        <div class="chips">
+          {PREFERRED_FITS.map((p) => (
+            <button type="button" class="chip" data-fit={`${p.hole}/${p.shaft}`} title={p[locale]}>{p.hole}/{p.shaft}</button>
+          ))}
+        </div>
+        <p class="hint fit-name" data-fit-name></p>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="figure">
+        <svg data-figure viewBox="0 0 640 360" role="img" aria-label={copy.figureLabel}></svg>
+      </div>
+      <div class="panel results">
+        <div class="type-row">
+          <span class="type-pill" data-out="type">—</span>
+          <span class="num muted" data-out="range"></span>
+        </div>
+        <div class="results-grid">
+          <div class="readout"><span class="value"><span data-out="big">—</span><small>µm</small></span><span class="label" data-out="bigLabel">—</span></div>
+          <div class="readout"><span class="value"><span data-out="small">—</span><small>µm</small></span><span class="label" data-out="smallLabel">—</span></div>
+        </div>
+        <div class="dev-grid">
+          <div>
+            <h2 class="h3" data-out="holeTitle">{copy.holeDev}</h2>
+            <dl class="dl">
+              <dt>{copy.ES}</dt><dd class="num" data-out="ES">—</dd>
+              <dt>{copy.EI}</dt><dd class="num" data-out="EI">—</dd>
+              <dt>{copy.maxSize}</dt><dd class="num" data-out="Hmax">—</dd>
+              <dt>{copy.minSize}</dt><dd class="num" data-out="Hmin">—</dd>
+              <dt>{copy.it}</dt><dd class="num" data-out="HIT">—</dd>
+            </dl>
+          </div>
+          <div>
+            <h2 class="h3" data-out="shaftTitle">{copy.shaftDev}</h2>
+            <dl class="dl">
+              <dt>{copy.es}</dt><dd class="num" data-out="es">—</dd>
+              <dt>{copy.ei}</dt><dd class="num" data-out="ei">—</dd>
+              <dt>{copy.maxSize}</dt><dd class="num" data-out="Smax">—</dd>
+              <dt>{copy.minSize}</dt><dd class="num" data-out="Smin">—</dd>
+              <dt>{copy.it}</dt><dd class="num" data-out="SIT">—</dd>
+            </dl>
+          </div>
+        </div>
+        <p class="warn" data-out-range hidden>{copy.outOfRange}</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="lookup" data-lookup data-locale={locale}>
+    <h2 class="h2">{copy.lookupTitle}</h2>
+    <p class="hint">{copy.lookupLead}</p>
+    <div class="lookup-row">
+      <label class="field"><span>{copy.lookupLabel}</span>
+        <input id="fit-lookup" type="text" value="N9" autocomplete="off" spellcheck="false" data-lookup-in />
+      </label>
+      <p class="lookup-out num" data-lookup-out></p>
+    </div>
+    <p class="warn" data-lookup-bad hidden>{copy.lookupBad}</p>
+
+    <h2 class="h2">{copy.tableTitle} <span class="num muted" data-table-size></span></h2>
+    <div class="table-wrap">
+      <table class="table" data-common>
+        <thead><tr><th>{copy.cols.cls}</th><th class="num">{copy.cols.upper}</th><th class="num">{copy.cols.lower}</th><th class="num">{copy.cols.max}</th><th class="num">{copy.cols.min}</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <Fragment slot="formulae">
+    <div class="formula-grid">
+      <div class="formula"><math display="block"><mrow><mi>E</mi><mi>S</mi><mo>=</mo><mi>E</mi><mi>I</mi><mo>+</mo><mi>I</mi><msub><mi>T</mi><mi>n</mi></msub></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><mi>e</mi><mi>s</mi><mo>=</mo><mi>e</mi><mi>i</mi><mo>+</mo><mi>I</mi><msub><mi>T</mi><mi>n</mi></msub></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>C</mi><mi>max</mi></msub><mo>=</mo><mi>E</mi><mi>S</mi><mo>−</mo><mi>e</mi><mi>i</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>C</mi><mi>min</mi></msub><mo>=</mo><mi>E</mi><mi>I</mi><mo>−</mo><mi>e</mi><mi>s</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><mi>Δ</mi><mo>=</mo><mi>I</mi><msub><mi>T</mi><mi>n</mi></msub><mo>−</mo><mi>I</mi><msub><mi>T</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><mi>E</mi><mi>S</mi><mo>=</mo><mo>−</mo><mi>e</mi><mi>i</mi><mo>+</mo><mi>Δ</mi></mrow></math></div>
+    </div>
+    <p class="hint">{tr
+      ? 'Negatif boşluk sıkılıktır. Cmin ≥ 0 ise boşluklu, Cmax ≤ 0 ise sıkı, aradaysa geçiş geçmesi. Son formül K, M, N (IT8’e kadar) ve P–U (IT7’ye kadar) deliklerinin üst sapmasıdır; ei aynı harfin mil temel sapmasıdır.'
+      : 'A negative clearance is an interference. Cmin ≥ 0 is a clearance fit, Cmax ≤ 0 an interference fit, anything between a transition fit. The last formula gives the upper deviation of K, M, N holes (up to IT8) and P to U holes (up to IT7), where ei is the shaft fundamental deviation of the same letter.'}</p>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <ul>
+      {copy.notes.map((note) => <li>{note}</li>)}
+    </ul>
+  </Fragment>
+</ToolShell>
+
+<style>
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .pair { display: grid; gap: 0.5rem; }
+  .pair-title { font-weight: 500; }
+  .stack { display: grid; gap: 1rem; min-width: 0; }
+  .fit-name { margin-top: 0.5rem; min-height: 1.3em; }
+  .type-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .type-pill { display: inline-flex; padding: 0.3rem 0.7rem; border-radius: 999px; font-weight: 500; font-size: 0.95rem; border: 1px solid var(--line-strong); }
+  .type-pill[data-type="clearance"] { color: var(--color-metro-400); border-color: var(--color-metro-600); background: color-mix(in oklab, var(--color-metro-500) 10%, transparent); }
+  .type-pill[data-type="transition"] { color: var(--color-spark-200); border-color: var(--color-spark-400); background: color-mix(in oklab, var(--color-spark-400) 10%, transparent); }
+  .type-pill[data-type="interference"] { color: var(--accent-ink); border-color: var(--accent); background: var(--accent); }
+  .results-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .dev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 30rem) { .dev-grid { grid-template-columns: 1fr; } }
+  .dev-grid .h3 { font-weight: 500; color: var(--ink-2); margin-bottom: 0.5rem; font-size: 1rem; }
+  .dl { display: grid; grid-template-columns: 1fr auto; gap: 0.3rem 1rem; font-size: 0.92rem; }
+  .dl dt { color: var(--ink-3); }
+  .dl dd { text-align: right; color: var(--ink); }
+  .lookup { margin-top: 3rem; display: grid; gap: 1rem; }
+  .lookup-row { display: grid; grid-template-columns: minmax(0, 14rem) 1fr; gap: 1.5rem; align-items: end; }
+  @media (max-width: 40rem) { .lookup-row { grid-template-columns: 1fr; } }
+  .lookup-out { color: var(--data); font-size: 1.05rem; padding-bottom: 0.6rem; }
+  .formula-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  @media (min-width: 48rem) { .formula-grid { grid-template-columns: repeat(3, 1fr); } }
+  [data-common] td.cls { font-family: var(--font-mono); }
+</style>
+
+<script>
+  import { fit, holeDeviations, shaftDeviations, itValue, parseClass, rangeLabel, PREFERRED_FITS } from '../../data/iso286.js';
+
+  const root = document.querySelector('[data-fits]') as HTMLElement;
+  const locale = (root.dataset.locale || 'en') as 'en' | 'tr';
+  const grades = JSON.parse(root.dataset.grades!);
+  const copy = JSON.parse(root.dataset.copy!);
+  const q = <T extends Element>(sel: string) => root.querySelector(sel) as T;
+  const inD = q<HTMLInputElement>('[data-in="D"]');
+  const hL = q<HTMLSelectElement>('[data-in="holeLetter"]');
+  const hG = q<HTMLSelectElement>('[data-in="holeGrade"]');
+  const sL = q<HTMLSelectElement>('[data-in="shaftLetter"]');
+  const sG = q<HTMLSelectElement>('[data-in="shaftGrade"]');
+  const svg = q<SVGSVGElement>('[data-figure]');
+  const out = (k: string) => root.querySelector(`[data-out="${k}"]`) as HTMLElement;
+  const dec = locale === 'tr' ? ',' : '.';
+  const minus = '−';
+
+  /** µm with sign: +21, 0, −7, ±10.5 */
+  const um = (v: number) => {
+    const s = (Math.abs(v) % 1 ? Math.abs(v).toFixed(1) : String(Math.abs(v))).replace('.', dec);
+    return v > 0 ? `+${s}` : v < 0 ? `${minus}${s}` : '0';
+  };
+  /** Limit of size in mm. Half-micrometre values need four decimals. */
+  const mm = (D: number, devUm: number) => {
+    const v = D + devUm / 1000;
+    const digits = Math.abs(devUm) % 1 ? 4 : 3;
+    return v.toFixed(digits).replace('.', dec);
+  };
+
+  function fillGrades(sel: HTMLSelectElement, list: number[], keep: number) {
+    const pick = list.includes(keep) ? keep : list.reduce((a, b) => (Math.abs(b - keep) < Math.abs(a - keep) ? b : a), list[0]);
+    sel.innerHTML = list.map((g) => `<option value="${g}"${g === pick ? ' selected' : ''}>${g}</option>`).join('');
+  }
+
+  function setFit(text: string) {
+    const [h, s] = text.split('/');
+    const ph = parseClass(h), ps = parseClass(s);
+    if (!ph || !ps) return;
+    hL.value = ph.letter; fillGrades(hG, grades.hole[ph.letter], ph.grade);
+    sL.value = ps.letter; fillGrades(sG, grades.shaft[ps.letter], ps.grade);
+    render();
+  }
+
+  function render() {
+    const D = Number(inD.value);
+    const hc = `${hL.value}${hG.value}`, sc = `${sL.value}${sG.value}`;
+    const r = rangeLabel(D);
+    const bad = q<HTMLElement>('[data-out-range]');
+    bad.hidden = Boolean(r);
+    const preset = PREFERRED_FITS.find((p) => p.hole === hc && p.shaft === sc);
+    q<HTMLElement>('[data-fit-name]').textContent = preset ? `${hc}/${sc}: ${preset[locale]}` : '';
+    root.querySelectorAll<HTMLButtonElement>('[data-fit]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.fit === `${hc}/${sc}`)));
+    const f = r ? fit(hc, sc, D) : null;
+    if (!f) {
+      ['type', 'big', 'small', 'ES', 'EI', 'es', 'ei', 'Hmax', 'Hmin', 'Smax', 'Smin', 'HIT', 'SIT'].forEach((k) => (out(k).textContent = '—'));
+      svg.innerHTML = '';
+      renderTable(D);
+      return;
+    }
+    out('type').textContent = copy.types[f.type];
+    out('type').dataset.type = f.type;
+    out('range').textContent = `${r!.from}–${r!.to} mm`;
+    out('holeTitle').textContent = `${copy.hole} ${hc}`;
+    out('shaftTitle').textContent = `${copy.shaft} ${sc}`;
+    // Headline numbers: clearance fits show max/min clearance, interference fits max/min interference,
+    // transition fits show max clearance and max interference.
+    if (f.type === 'clearance') {
+      out('big').textContent = um(f.maxClearance); out('bigLabel').textContent = copy.maxCl;
+      out('small').textContent = um(f.minClearance); out('smallLabel').textContent = copy.minCl;
+    } else if (f.type === 'interference') {
+      out('big').textContent = um(-f.minClearance); out('bigLabel').textContent = copy.maxInt;
+      out('small').textContent = um(-f.maxClearance); out('smallLabel').textContent = copy.minInt;
+    } else {
+      out('big').textContent = um(f.maxClearance); out('bigLabel').textContent = copy.maxCl;
+      out('small').textContent = um(-f.minClearance); out('smallLabel').textContent = copy.maxInt;
+    }
+    out('ES').textContent = um(f.hole.ES); out('EI').textContent = um(f.hole.EI);
+    out('es').textContent = um(f.shaft.es); out('ei').textContent = um(f.shaft.ei);
+    out('Hmax').textContent = mm(D, f.hole.ES); out('Hmin').textContent = mm(D, f.hole.EI);
+    out('Smax').textContent = mm(D, f.shaft.es); out('Smin').textContent = mm(D, f.shaft.ei);
+    out('HIT').textContent = `IT${hG.value} = ${String(itValue(Number(hG.value), D)).replace('.', dec)} µm`;
+    out('SIT').textContent = `IT${sG.value} = ${String(itValue(Number(sG.value), D)).replace('.', dec)} µm`;
+    draw(D, hc, sc, f);
+    renderTable(D);
+  }
+
+  function draw(D: number, hc: string, sc: string, f: any) {
+    const font = 'font-family="IBM Plex Mono, monospace" font-size="13"';
+    const vals = [0, f.hole.ES, f.hole.EI, f.shaft.es, f.shaft.ei];
+    const hi = Math.max(...vals), lo = Math.min(...vals);
+    const top = 56, bottom = 300;
+    const span = hi - lo || 1;
+    const y = (v: number) => top + ((hi - v) / span) * (bottom - top);
+    const parts: string[] = [];
+    parts.push(`<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="var(--accent)" stroke-width="1.5" stroke-opacity="0.55"/></pattern></defs>`);
+    // Zero line = nominal size
+    parts.push(`<line x1="46" y1="${y(0)}" x2="600" y2="${y(0)}" stroke="var(--ink-2)" stroke-width="1.5"/>`);
+    parts.push(`<text x="40" y="${y(0) + 4}" ${font} fill="var(--ink-2)" text-anchor="end">0</text>`);
+    parts.push(`<text x="600" y="${y(0) - 8}" ${font} fill="var(--ink-2)" text-anchor="end">Ø${String(D).replace('.', dec)}</text>`);
+    // Hole zone
+    const hx = 150, hw = 140;
+    parts.push(`<rect x="${hx}" y="${y(f.hole.ES)}" width="${hw}" height="${Math.max(y(f.hole.EI) - y(f.hole.ES), 1)}" fill="url(#hatch)" stroke="var(--accent)" stroke-width="1.5"/>`);
+    parts.push(`<text x="${hx + hw / 2}" y="${Math.min(y(f.hole.ES), y(f.shaft.es)) - 14}" ${font} fill="var(--accent)" text-anchor="middle">${hc}</text>`);
+    parts.push(`<text x="${hx - 10}" y="${y(f.hole.ES) + 4}" ${font} fill="var(--accent)" text-anchor="end">ES ${um(f.hole.ES)}</text>`.replace(`y="${y(f.hole.ES) + 4}"`, `y="${y(f.hole.ES) - 6}"`));
+    parts.push(`<text x="${hx - 10}" y="${y(f.hole.EI) + 4}" ${font} fill="var(--accent)" text-anchor="end">EI ${um(f.hole.EI)}</text>`.replace(`y="${y(f.hole.EI) + 4}"`, `y="${y(f.hole.EI) + 16}"`));
+    // Shaft zone
+    const sx = 350, sw = 140;
+    parts.push(`<rect x="${sx}" y="${y(f.shaft.es)}" width="${sw}" height="${Math.max(y(f.shaft.ei) - y(f.shaft.es), 1)}" fill="color-mix(in oklab, var(--data) 28%, transparent)" stroke="var(--data)" stroke-width="1.5"/>`);
+    parts.push(`<text x="${sx + sw / 2}" y="${Math.min(y(f.hole.ES), y(f.shaft.es)) - 14}" ${font} fill="var(--data)" text-anchor="middle">${sc}</text>`);
+    parts.push(`<text x="${sx + sw + 10}" y="${y(f.shaft.es) + 4}" ${font} fill="var(--data)">es ${um(f.shaft.es)}</text>`.replace(`y="${y(f.shaft.es) + 4}"`, `y="${y(f.shaft.es) - 6}"`));
+    parts.push(`<text x="${sx + sw + 10}" y="${y(f.shaft.ei) + 4}" ${font} fill="var(--data)">ei ${um(f.shaft.ei)}</text>`.replace(`y="${y(f.shaft.ei) + 4}"`, `y="${y(f.shaft.ei) + 16}"`));
+    // Clearance band between hole EI and shaft es, drawn between the zones
+    const cx = 320;
+    const y1 = y(f.hole.EI), y2 = y(f.shaft.es);
+    if (Math.abs(y1 - y2) > 2) {
+      parts.push(`<line x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2}" stroke="var(--ink-2)" stroke-dasharray="3 3"/>`);
+      parts.push(`<line x1="${hx + hw}" y1="${y1}" x2="${cx + 6}" y2="${y1}" stroke="var(--ink-3)" stroke-dasharray="2 3"/>`);
+      parts.push(`<line x1="${cx - 6}" y1="${y2}" x2="${sx}" y2="${y2}" stroke="var(--ink-3)" stroke-dasharray="2 3"/>`);
+      if (Math.abs(y1 - y2) > 18) parts.push(`<text x="${cx + 8}" y="${(y1 + y2) / 2 + 4}" ${font} fill="var(--ink-2)">${um(f.minClearance)}</text>`);
+    }
+    parts.push(`<text x="70" y="${bottom + 40}" ${font} fill="var(--ink-3)">µm · ${locale === 'tr' ? 'sıfır çizgisi = nominal ölçü' : 'zero line = nominal size'} · ${locale === 'tr' ? 'ölçekli' : 'to scale'}</text>`);
+    svg.innerHTML = parts.join('');
+  }
+
+  // ---- Lookup and common-classes table --------------------------------
+  const lookup = document.querySelector('[data-lookup]') as HTMLElement;
+  const lin = lookup.querySelector('[data-lookup-in]') as HTMLInputElement;
+  const lout = lookup.querySelector('[data-lookup-out]') as HTMLElement;
+  const lbad = lookup.querySelector('[data-lookup-bad]') as HTMLElement;
+  const tbody = lookup.querySelector('[data-common] tbody') as HTMLElement;
+  const COMMON = ['H6', 'H7', 'H8', 'H9', 'H11', 'F7', 'G7', 'JS7', 'K7', 'M7', 'N7', 'N9', 'P7', 'S7', 'c11', 'd9', 'e8', 'f7', 'g6', 'h6', 'h7', 'h9', 'js6', 'k6', 'm6', 'n6', 'p6', 'r6', 's6', 'u6'];
+
+  function devFor(cls: string, D: number) {
+    const p = parseClass(cls);
+    if (!p) return null;
+    if (p.kind === 'hole') { const d = holeDeviations(p.letter, p.grade, D); return d ? { up: d.ES, lo: d.EI } : null; }
+    const d = shaftDeviations(p.letter, p.grade, D); return d ? { up: d.es, lo: d.ei } : null;
+  }
+
+  function renderLookup() {
+    const D = Number(inD.value);
+    const dev = rangeLabel(D) ? devFor(lin.value.trim(), D) : null;
+    lbad.hidden = Boolean(dev) || !lin.value.trim();
+    lout.textContent = dev ? `Ø${String(D).replace('.', dec)} ${lin.value.trim()}: ${um(dev.up)} / ${um(dev.lo)} µm  →  ${mm(D, dev.lo)} … ${mm(D, dev.up)} mm` : '';
+  }
+
+  function renderTable(D: number) {
+    const ok = Boolean(rangeLabel(D));
+    (lookup.querySelector('[data-table-size]') as HTMLElement).textContent = ok ? `Ø${String(D).replace('.', dec)}` : '';
+    tbody.innerHTML = ok ? COMMON.map((cls) => {
+      const d = devFor(cls, D)!;
+      return `<tr><td class="cls">${cls}</td><td class="num">${um(d.up)}</td><td class="num">${um(d.lo)}</td><td class="num">${mm(D, d.up)}</td><td class="num">${mm(D, d.lo)}</td></tr>`;
+    }).join('') : '';
+    renderLookup();
+  }
+
+  hL.addEventListener('change', () => { fillGrades(hG, grades.hole[hL.value], Number(hG.value) || 7); render(); });
+  sL.addEventListener('change', () => { fillGrades(sG, grades.shaft[sL.value], Number(sG.value) || 6); render(); });
+  [hG, sG].forEach((el) => el.addEventListener('change', render));
+  inD.addEventListener('input', render);
+  lin.addEventListener('input', renderLookup);
+  root.querySelectorAll<HTMLButtonElement>('[data-fit]').forEach((b) => b.addEventListener('click', () => setFit(b.dataset.fit!)));
+  fillGrades(hG, grades.hole.H, 7);
+  fillGrades(sG, grades.shaft.g, 6);
+  render();
+</script>

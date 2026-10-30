@@ -1,0 +1,140 @@
+---
+key: spindle-interfaces
+locale: en
+slug: spindle-interfaces-steep-taper-hsk
+title: 'Spindle interfaces: 7:24 steep taper, dual contact and HSK'
+description: 'How the toolholder meets the spindle: the 7:24 steep taper that touches only on its cone, the dual-contact version that also seats on the face, and the hollow 1:10 HSK taper clamped from inside. What happens to each as the spindle speeds up, and where the makers’ claims end and independent data begin.'
+section: 5
+subsection: spindle-interfaces
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: '7:24'
+    label: 'Steep taper, self-releasing (BS 1660-4, Smith); CAT, ISO and BT holders differ in flanges and pull studs (Smith)'
+  - value: '1:10'
+    label: 'HSK: a hollow taper with contact on the taper and the flange face (ISO 12164-1, HAIMER, BIG DAISHOWA)'
+  - value: '25–50 %'
+    label: 'Share of the total deformation at the tool tip that the spindle–toolholder taper joint can account for (Purdue, stated without a reference)'
+  - value: '20,000 or 30,000'
+    label: 'rpm limit for 40-taper holders according to two makers, whose figures differ (IBAG, BIG KAISER, in CTE)'
+sources:
+  - label: 'Purdue University, Manufacturing Laboratories, Taper Joint Dynamics (research summary), 2000'
+    url: https://engineering.purdue.edu/ManLab/t_taper.html
+  - label: 'S. Smith, “Understanding tapered spindle connections”, Cutting Tool Engineering, December 2014'
+    url: https://www.ctemag.com/articles/understanding-tapered-spindle-connections
+  - label: 'E. Rivin, J. Agapiou, C. Xie, K. R. Cagle, “Steep Trouble”, Cutting Tool Engineering, April 1999'
+    url: https://ctemag.com/node/28642
+  - label: 'K. Hanson, “Alternatives to steep tapers”, Cutting Tool Engineering, September 2017'
+    url: https://ctemag.com/?p=96096
+  - label: 'ISO 7388-1:2007, Tool shanks with 7/24 taper for automatic tool changers, Part 1 (catalogue page)'
+    url: https://www.iso.org/standard/44098.html
+  - label: 'BSI, BS 1660-4:1989, Machine tapers: spindle noses and tool shanks with self-release 7/24 tapers (catalogue page)'
+    url: https://knowledge.bsigroup.com/products/machine-tapers-specification-for-spindle-noses-and-tool-shanks-with-self-release-7-24-tapers
+  - label: 'ISO 12164-1:2023, Hollow taper interface with flange contact surface, Part 1 (catalogue page)'
+    url: https://www.iso.org/standard/77916.html
+  - label: 'ISO 26623-1:2020, Polygonal taper interface with flange contact surface, Part 1 (catalogue page)'
+    url: https://www.iso.org/standard/72968.html
+  - label: 'BIG DAISHOWA, BIG-PLUS Dual Contact Spindle System'
+    url: https://www.bigdaishowa.com/node/1209
+  - label: 'BIG DAISHOWA, FAQ: BIG-PLUS Dual Contact'
+    url: https://www.bigdaishowa.com/en/node/1662
+  - label: 'BIG DAISHOWA, HSK 101: Everything You Need to Know About HSK Tool Holders'
+    url: https://www.bigdaishowa.com/node/1606
+  - label: 'BIG DAISHOWA, Why HSK-A63 Isn’t Always the Best Choice for Milling Applications (blog)'
+    url: https://www.bigdaishowa.com/en/blog/why-hsk-a63-isnt-always-best-choice-milling-applications
+  - label: 'HAIMER, Hollow taper shank DIN 69893 HSK-A, HSK-E, HSK-F (product page)'
+    url: https://haimer.com/en/products/tool-holders/hollow-taper-shank-din-69893-hsk-a,-hsk-e,-hsk-f
+  - label: 'Sandvik Coromant, Coromant Capto system – The original, C-2940:133 ENG/01, 2010'
+    url: https://cdn2.sandvik.coromant.com/files/a53b485b-be0f-019d-8100-3f0d1619b9fa/41a1ea28-68bd-444e-a71d-7442975ae940/c-2940-133.pdf
+---
+import SpindleTaper from '../../../components/mdx/SpindleTaper.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+The spindle interface is the joint between the machine’s spindle and the toolholder. It centres the holder, carries the cutting forces and has to let go again at every tool change. It is not a minor joint: introducing their work on the standard 7/24 taper interface, Purdue University’s Manufacturing Laboratories state, without a reference, that the spindle–toolholder taper joint "is a key source of structural weakness in spindle systems and can account for 25% to 50% of the total deformation at the tool tip". Three designs are compared here: the 7:24 steep taper, the same taper with face contact added (dual contact), and the hollow HSK taper. How the cutter is gripped inside the holder is on the [shrink-fit, hydraulic, milling and collet chucks](/workholding-and-toolholding/shrink-fit-hydraulic-milling-collet-chucks/) page, and what runout does to the cut on [tool runout](/workholding-and-toolholding/tool-runout/).
+
+## The 7:24 steep taper
+
+The cone narrows by 7 units of diameter over 24 units of length; Smith (Cutting Tool Engineering) puts it as 3.5 in per foot. ISO 7388-1 covers 7/24 tool shanks for automatic tool changers, and BS 1660-4, identical to ISO 297, covers "self-release 7/24 tapers".
+
+- **Self-releasing.** Smith divides cone holders into "self-locking and free-releasing" types; machinists prefer the 7/24 taper because it does "not self-lock in the spindle", unlike shallow tapers such as the Morse (often knocked out with a drift), Jacobs and Brown & Sharpe, which friction and other forces hold in the spindle. Rivin et al. add that a simple drawbar can release steep tapers, with no kick-out device.
+- **Sizes and variants.** Sizes 30, 40, 50 and 60 share the same cone angle and are sections taken at different places along the cone (Smith). CAT, ISO and BT holders all use the 7/24 cone and differ in their "flanges and pull studs" (Smith); the sources read for this page do not give the details.
+- **Where it touches.** Contact is meant to be near the gage line, with clearance at the tail by the retention knob (Smith). Between the holder’s flange and the spindle face there is a gap: Rivin et al. write that the taper’s steepness "makes it almost impossible to manufacture interchangeable toolholders that have both face and taper contact with the spindle", because that would need fractional-micron tolerances while spindle gage diameters can vary by tens of microns. The industry has adopted a design with a large clearance there.
+- **Fit classes.** ASME B5.50 and ISO 1947 grade the taper fit from AT1 (tightest) to AT11; most spindles are AT2 or better and most holders AT3 or better (Smith). An AT4 holder allows 13 arc-seconds on each angle, which can leave up to 13 µm of radial clearance at the back of the joint (Rivin et al., who give AT1 to AT9 for ISO 1947).
+
+### Clamping force and stiffness
+
+The holder is pulled in by its pull stud, or retention knob. Rivin et al. give 2,000–5,500 lbf (about 8.9–24.5 kN) as the typical axial force on a No. 50 holder. Purdue’s work showed that joint stiffness rises non-uniformly with axial preload and falls as the radial load rises. Rivin et al. report, without naming them, researchers who raised stiffness by 20–50 % with 400–800 % more preload; repeated high axial force, they add, rapidly wears the spindle hole and can damage the front spindle bearing.
+
+The knob itself matters. On a tight-tolerance holder, overtightening it can swell the tail and move the contact from the nose to the tail, and losing nose contact "dramatically reduces the stiffness" (Smith). Smith says to torque the knob to the maker’s specification, and Hanson, reporting the advice of Bill Popoli of IBAG North America in Cutting Tool Engineering, writes: "Use balanced holders and high-quality retention knobs that have been properly torqued—otherwise distortion at the small end of the taper may occur."
+
+Two side effects of the taper-only joint, both from Rivin et al.: the axial position of the tool can vary by 25–50 µm from one holder to the next, or before and after use, which complicates touch-probe measurement; and the clearance at the back lets the holder shift under heavy cutting load. "These microscopic shifts accelerate wear on the front part of the spindle hole", which they call bell mouthing; in extreme cases fretting corrosion can follow.
+
+## At high spindle speed
+
+The spindle grows more than the holder. Rivin et al.: a No. 30 spindle can expand by up to 5 µm at 30,000 rpm while the holder expands less, so the joint loosens, the effective overhang grows, stiffness drops and the tool shifts axially. Hanson describes "the expansion of the spindle housing at high speeds" letting the holder be pulled up into the taper, where it can jam; BIG DAISHOWA calls it the "sinking" effect, in which the spindle "pulls the tool holder in at higher speeds, which can negatively impact accuracy".
+
+<Figure caption="The three interfaces in section, schematic. The drawbar pulls the holder in, then the spindle speed rises and falls by itself until the slider is touched; the spindle bore grows with speed, many times exaggerated. Plain steep taper: at rest the contact lies towards the gage line with clearance at the tail (Smith) and a large gap at the face (Rivin et al.); at speed the mouth opens, the holder is drawn in, and the contact is drawn further back, where the surfaces still meet (Rivin et al.: the joint loosens and the effective overhang grows; no source gives a contact length). Dual contact: the face stops the holder; the drawing keeps taper and face contact and leaves out the bore growth (BIG DAISHOWA; Burley, in Hanson). HSK: the shank grows with the spindle, as BIG DAISHOWA and Hanson describe it; a study cited by Rivin et al. (1999) found the thin wall curving inward instead. The slider has no numbers: the drawing is not to scale, and the figures in the sources apply to particular sizes.">
+  <SpindleTaper locale="en" />
+</Figure>
+
+More interference is not the cure. To keep contact at speed a No. 40 taper may need up to 20 µm of interference, and that much interference needs extremely high drawbar forces, makes it "nearly impossible for the operator to change the tool" and can bulge the spindle enough to damage the spindle bearing (Rivin et al.).
+
+The rules of thumb differ. Hanson reports Popoli’s advice as "Always stay below 20,000 rpm with 40-taper holders, and reach no more than 30,000 rpm with 30-taper ones", while Jack Burley of BIG KAISER, in a paragraph about BIG-PLUS, recommends staying below 30,000 rpm with 40-taper holders. Neither states a balance grade or a tool mass.
+
+A word that gets mixed up: in the sources read here, taper-only holders tend to "bellmouth" the spindle over time (Burley, in Hanson), and Rivin et al. use "bell mouthing" for wear at the front of the spindle hole. That is wear, not the expansion with speed described above.
+
+## Dual contact on a 7:24 taper
+
+BIG DAISHOWA’s BIG-PLUS, developed in 1992 (Burley of BIG KAISER, in Hanson), keeps the 7:24 taper but adds face contact: "the shank contacts the spindle taper and the spindle face simultaneously". It relies on a little elastic deformation of the spindle (Burley, in Hanson). The maker describes the sequence as "secure taper contact first, followed by face contact second", relying on the axial movement during clamping of roughly 0.0005–0.001 in (about 13–25 µm) that it says occurs on every machine.
+
+- **At speed.** The flange is a hard stop at the spindle face, so the holder is not drawn in as the spindle expands (Burley, in Hanson); BIG DAISHOWA lists "Elimination of Z-axial movement at high speeds", without a number.
+- **Why it works anyway.** Spindles from licensed builders are dimensionally controlled with BIG’s Master Gage, and only BIG-PLUS holders are recommended for them; all BIG-PLUS holders are made to the same tolerance and specification (BIG DAISHOWA).
+- **Mixing holders and spindles.** A BIG-PLUS holder fits a standard spindle but "seats in the spindle taper only"; a standard holder in a BIG-PLUS spindle works, but "simultaneous contact cannot be attained" (BIG DAISHOWA). The maker says magazines and tool changers need no change.
+- **Maker figures, no independent test.** BIG DAISHOWA: the dual contact positions the holder "within 1 micron" at tool change. According to tests cited by Burley (in Hanson), a CV40 BIG-PLUS holder deflected 60 µm at 70 mm from the spindle face under a 500 kg radial load, about half as much as a traditional V-flange holder. No independent test was found.
+- **Dirt.** In a paragraph reporting Burley’s views, Hanson writes that BIG-PLUS, "like any dual-contact toolholder, requires particular attention to cleanliness", because chips caught between the spindle face and the holder can cause serious problems; he counts HSK and Capto among the dual-contact designs.
+
+## HSK: the hollow 1:10 taper
+
+ISO 12164-1 calls it a "hollow taper interface with flange contact surface", and HAIMER writes: "The holder is clamped via its taper with flange contact surface". The taper is 1:10 (BIG DAISHOWA, Rivin et al.); HAIMER’s table gives an L1 of 32 mm for HSK-A63 and 50 mm for HSK-A100. It was developed in the late 1980s at RWTH Aachen (Hanson).
+
+- **Clamped from inside.** BIG DAISHOWA describes "drawbar fingers inside designed to expand outward with the spindle"; HAIMER lists "Symmetric force transmission to clamping shoulder". The sources read for this page give no shoulder angle and no clamping force.
+- **Self-locking.** The shallow taper holds by friction, so the drawbar needs a kick-out mechanism; keeping flange contact takes 15–20 µm of extra interference, which absorbs most of the drawbar force (Rivin et al.).
+- **Speed.** Some HSK holders can run at 50,000 rpm or more (Hanson); BIG DAISHOWA mentions speeds above 50,000 rpm in certain micromachining applications.
+- **Centrifugal force: the sources disagree.** BIG DAISHOWA: "More centrifugal force equals better clamping", and HSK interfaces "benefit from centrifugal effects at high spindle speeds, which help stabilize taper and face contact"; Hanson writes that the hollow body expands with the spindle. Rivin et al. (1999) cite a study in which the thin wall curved inward under the drawbar force, and similarly under centrifugal force at speed, leaving contact on only two narrow circular bands or none; they add that the large contact area is sensitive to dirt. The 1999 authors were proposing designs of their own; BIG DAISHOWA sells both HSK and BIG-PLUS holders.
+- **Where the maker draws the line.** BIG DAISHOWA: "At lower spindle speeds, particularly below 25,000 rpm, the short engagement length of HSK-A63 limits bending stiffness", and its own testing found that "the longer the tool holder is, BIG-PLUS has the advantage and better rigidity".
+
+### Forms
+
+ISO 12164-1:2023 covers types A, AB, C, CB and EB: A, AB and EB have a grooved flange for automatic tool change, C and CB are changed by hand only. HAIMER gives HSK-A as DIN 69893-1, HSK-E as DIN 69893-5 and HSK-F as DIN 69893-6.
+
+| Form | What the sources say | Source |
+|---|---|---|
+| A | Drive keys at the taper shank add torque transmission; groove for the tool changer; bore for a data chip; in most cases up to 45,000 rpm for general high-speed work with moderately high torque | HAIMER; BIG DAISHOWA |
+| E | Almost symmetrical, no notches or drive-key slots: balance at very high speed, but for very small tools and low torque | BIG DAISHOWA; HAIMER (no drive keys listed) |
+| F | Like E; BIG DAISHOWA calls the taper "slightly smaller than that of an HSK-E shank of the same size". In HAIMER’s tables HSK-F63 has a D3 of 38.009 mm and an L1 of 25 mm, against 48.010 mm and 32 mm for HSK-A63 | BIG DAISHOWA; HAIMER |
+| T | For turning on multitask machines, compatible with HSK-A, with a tighter key fit | BIG DAISHOWA; Hanson |
+
+The sources read for this page do not say how forms B and D differ.
+
+## The polygon taper, briefly
+
+ISO 26623-1 covers "polygonal taper interfaces with flange contact surface" for turning, drilling, milling, mill-turn and grinding machines: "The torque is transmitted by form lock (polygon)", and the clamping is by segments in a circular groove or by a centre bolt. Sandvik Coromant’s Capto brochure lists ISO 26623; Capto was patented in 1988 (Hanson) and comes in six sizes from C3 to C10 (Sandvik). Sandvik reports a 2009 test series by WZL in Aachen, credited to WZL/Fraunhofer IPT, in which a C6 had 1.65 times the interface stiffness of an HSK-A 63; the test report itself was not found.
+
+## Side by side
+
+| | 7:24 steep taper | Dual contact (BIG-PLUS) | HSK |
+|---|---|---|---|
+| Taper | 7:24, solid | 7:24, solid | 1:10, hollow, short engagement (BIG DAISHOWA) |
+| Contact | Taper only, gap at the face | Taper first, then face | Taper and face |
+| Release | Self-releasing | Not stated in the sources read | Self-locking: kick-out needed (Rivin et al.) |
+| At high speed | Holder drawn into the spindle (Hanson, BIG DAISHOWA) | Face stops the axial movement (Burley in Hanson, BIG DAISHOWA) | BIG DAISHOWA, Hanson: contact improves; a study cited by Rivin et al.: it can shrink |
+| Standards named | ISO 7388-1, BS 1660-4 (= ISO 297), ASME B5.50 | ASME B5.50, JIS B6339, DIN 69871 (BIG DAISHOWA) | ISO 12164-1, DIN 69893, ASME B5.62 (BIG DAISHOWA) |
+
+<CheckList id="spindle-interfaces" locale="en" items={[
+  { icon: 'chips', title: 'Clean faces', check: 'Chips or dirt on the taper, the flange or the spindle face.', fix: 'Clean both sides before clamping: any dual-contact holder needs particular attention to cleanliness, and chips caught between the spindle face and the holder can cause serious problems (Hanson); HSK’s large contact area is sensitive to dirt (Rivin et al.).', src: 'Hanson; Rivin et al.' },
+  { icon: 'holder', title: 'Pull stud', check: 'Whether the retention knob is torqued to the maker’s value.', fix: 'Overtightening can swell the tail of a tight-tolerance holder and move the contact there, which "dramatically reduces the stiffness" (Smith); Hanson, after Popoli (IBAG), warns of distortion at the small end of the taper.', src: 'Smith; Hanson' },
+  { icon: 'align', title: 'Matching pair', check: 'Holder and spindle of the same interface.', fix: 'A BIG-PLUS holder in a standard spindle seats on the taper only; a standard holder in a BIG-PLUS spindle gets no face contact (BIG DAISHOWA).', src: 'BIG DAISHOWA' },
+  { icon: 'speed', title: 'Speed', check: 'Spindle speed against the interface.', fix: 'For 40-taper holders IBAG says below 20,000 rpm and BIG KAISER below 30,000 rpm; for high-speed work BIG DAISHOWA points to HSK.', src: 'Hanson; BIG DAISHOWA' },
+  { icon: 'wear', title: 'Spindle wear', check: 'Wear or fretting at the front of the spindle taper.', fix: 'Clearance at the back of a taper-only joint lets the holder shift and wears the front of the spindle hole, in extreme cases with fretting corrosion (Rivin et al.).', src: 'Rivin et al.' },
+]} />

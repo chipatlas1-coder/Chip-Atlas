@@ -1,0 +1,124 @@
+---
+/**
+ * Blind-hole depth for tapping: pick the thread, the chamfer form and the full-thread depth; the
+ * section shows the internal thread, the tap at its programmed depth and the dimension chain
+ * (thread + chamfer + clearance + drill point). Arithmetic and drawing in src/lib/blindhole.ts.
+ */
+import { SIZES, FORMS, drawBlind, depths, type BState } from '../../lib/blindhole';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { thread: 'tam diş', cham: 'ağız', clear: 'boşluk', point: 'uç', total: 'matkap Ø', tap: 'kılavuz', size: 'Diş', form: 'Kesme formu', depth: 'Tam diş derinliği', tapL: 'Kılavuzu programla', cylL: 'Tam çapta del', totL: 'Matkap ucu dahil', aria: 'Kör delik kesiti: tam diş, ağzın bıraktığı eksik dişler, boşluk ve matkap ucu', d: 'd' }
+  : { thread: 'full thread', cham: 'chamfer', clear: 'clearance', point: 'point', total: 'drill Ø', tap: 'tap', size: 'Thread', form: 'Chamfer form', depth: 'Full-thread depth', tapL: 'Program the tap to', cylL: 'Drill full Ø to', totL: 'Including the point', aria: 'Blind hole in section: full thread, the incomplete threads the chamfer leaves, clearance and drill point', d: 'd' };
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+const st: BState = { size: 5, form: 1, k: 1.5 };
+const G = [drawBlind(st, T, false, dec), drawBlind(st, T, true, dec)];
+const v = depths(st);
+const mm = (x: number) => `${dec(x.toFixed(2))} mm`;
+---
+<div class="bh" data-bh data-locale={locale} data-anim>
+  <div class="controls">
+    <label class="field"><span>{T.size}</span>
+      <select data-i="size">{SIZES.map((s, i) => <option value={i} selected={i === st.size}>{s.name} × {dec(String(s.P))}</option>)}</select></label>
+    <label class="field"><span>{T.form}</span>
+      <select data-i="form">{FORMS.map((fm, i) => <option value={i} selected={i === st.form}>{fm.k} · {dec(fm.range)}</option>)}</select></label>
+    <label class="field grow"><span>{T.depth} <span class="nw"><output data-o="k">{dec(st.k.toFixed(1))}</output> × d = <output data-o="L">{mm(v.L)}</output></span></span>
+      <input type="range" min="1" max="2.5" step="0.1" value={st.k} data-i="k" /></label>
+  </div>
+  <svg viewBox={`0 0 ${G[0].W} ${G[0].H}`} class="wide" role="img" aria-label={T.aria} data-svg="w" set:html={G[0].svg} />
+  <svg viewBox={`0 0 ${G[1].W} ${G[1].H}`} class="narrow" role="img" aria-label={T.aria} data-svg="n" set:html={G[1].svg} />
+  <dl class="read">
+    <div data-h="tap" tabindex="0"><dt>{T.tapL}</dt><dd class="num" data-o="tap">{mm(v.tap)}</dd></div>
+    <div data-h="cyl" tabindex="0"><dt>{T.cylL}</dt><dd class="num" data-o="cyl">{mm(v.cyl)}</dd></div>
+    <div data-h="tot" tabindex="0"><dt>{T.totL}</dt><dd class="num" data-o="tot">{mm(v.total)}</dd></div>
+  </dl>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .bh { display: grid; gap: 0.8rem; }
+  .bh > svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .narrow { display: none !important; }
+  @media (max-width: 40rem) { .wide { display: none !important; } .narrow { display: block !important; } }
+  .controls { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 0.7rem 1rem; align-items: end; }
+  @media (max-width: 40rem) { .controls { grid-template-columns: 1fr 1fr; } .grow { grid-column: 1 / -1; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span { font-size: 0.85rem; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .field output { color: var(--data); font-family: var(--font-mono); }
+  .nw { white-space: nowrap; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  select { width: 100%; font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--bg-sunk); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.35rem 0.5rem; min-height: 2.1rem; }
+  .read { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+  .read dt { font-size: 0.78rem; color: var(--ink-3); line-height: 1.3; }
+  .read dd { margin: 0; color: var(--data); font-size: 1.1rem; }
+  .read div:first-child dd { color: var(--color-spark-400); }
+  .bh :global(.bh-work) { fill: url(#ca-hatch); stroke: #555d63; stroke-width: 0.9; stroke-linejoin: round; }
+  .bh :global(.bh-axis) { stroke: #767e86; stroke-width: 0.7; stroke-dasharray: 10 3 2 3; }
+  .bh :global(.bh-tap) { fill: color-mix(in oklab, #202426 14%, transparent); stroke: #1e2123; stroke-width: 1; stroke-dasharray: 5 3; }
+  .bh :global(.bh-cham) { stroke: #e2601a; stroke-width: 1.6; fill: none; }
+  .bh :global(.bh-dim) { stroke: var(--ink-3); stroke-width: 1; fill: none; }
+  .bh :global(.bh-dim.acc) { stroke: #e2601a; }
+  .bh :global(.bh-dim.thr), .bh :global(.bh-dim.tot) { stroke: #2a78d6; }
+  .bh :global(.bh-dim.tap) { stroke: #e2601a; }
+  .bh :global(.bh-ext) { stroke: var(--ink-3); stroke-width: 0.6; stroke-dasharray: 2 3; }
+  .bh :global(.bh-t) { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-2); paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; stroke-linejoin: round; }
+  .bh :global(.bh-t.acc), .bh :global(.bh-t.tap) { fill: #e2601a; }
+  .bh :global(.bh-t.thr), .bh :global(.bh-t.tot) { fill: #2a78d6; }
+  .bh :global(.bh-t.sm) { font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .bh .narrow :global(.bh-t) { font-size: 12px; }
+  /* hovering a result picks out the part of the chain it adds up */
+  .read > div { border-radius: 4px; padding: 0.3rem 0.45rem; margin: -0.3rem -0.45rem; transition: background-color 150ms; }
+  .read > div:hover, .read > div:focus-visible { background: color-mix(in oklab, var(--data) 8%, transparent); }
+  .read > div:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .bh :global(:is(.bh-d, .bh-tapg)) { transition: opacity 160ms; }
+  .bh[data-h] :global(:is(.bh-d, .bh-tapg)) { opacity: 0.22; }
+  .bh[data-h='tap'] :global(:is(.bh-d.thr, .bh-d.acc, .bh-d.tap, .bh-tapg)),
+  .bh[data-h='cyl'] :global(:is(.bh-d.thr, .bh-d.acc, .bh-d.clr, .bh-d.tot)),
+  .bh[data-h='tot'] :global(:is(.bh-d.thr, .bh-d.acc, .bh-d.clr, .bh-d.pt)) { opacity: 1; }
+  /* entry: the tap runs down to its programmed depth, then the chain is dimensioned step by step */
+  .bh :global(.bh-tapg) { transform-box: fill-box; }
+  :global(html.anim) .bh[data-anim]:not([data-in]) :global(:is(.bh-tapg, .bh-d, .bh-exts)) { opacity: 0; }
+  :global(html.anim) .bh[data-anim][data-in]:not(.settled) :global(.bh-tapg) { animation: bh-down 1.3s cubic-bezier(0.35, 0.1, 0.25, 1) backwards; }
+  :global(html.anim) .bh[data-anim][data-in]:not(.settled) :global(.bh-exts) { animation: ca-fade 0.5s 1.1s backwards; }
+  :global(html.anim) .bh[data-anim][data-in]:not(.settled) :global(.bh-d) { animation: ca-rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(1.25s + var(--i) * 0.16s); }
+  @keyframes bh-down { 0% { transform: translateY(-55%); opacity: 0; } 18% { opacity: 1; } }
+</style>
+
+<script>
+  import { drawBlind, depths } from '../../lib/blindhole';
+  import { whenIn, countUp } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-bh]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const mm = (x: number) => `${dec(x.toFixed(2))} mm`;
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const svgs = [q<SVGSVGElement>('[data-svg="w"]'), q<SVGSVGElement>('[data-svg="n"]')];
+    const render = () => {
+      root.classList.add('settled');                                 // the entry animation runs once, not on every redraw
+      const st = { size: Number(q<HTMLSelectElement>('[data-i="size"]').value), form: Number(q<HTMLSelectElement>('[data-i="form"]').value), k: Number(q<HTMLInputElement>('[data-i="k"]').value) };
+      svgs.forEach((svg, i) => { const g = drawBlind(st, T, i === 1, dec); svg.setAttribute('viewBox', `0 0 ${g.W} ${g.H}`); svg.innerHTML = g.svg; });
+      const v = depths(st);
+      q('[data-o="k"]').textContent = dec(st.k.toFixed(1));
+      q('[data-o="L"]').textContent = mm(v.L);
+      q('[data-o="tap"]').textContent = mm(v.tap);
+      q('[data-o="cyl"]').textContent = mm(v.cyl);
+      q('[data-o="tot"]').textContent = mm(v.total);
+    };
+    ['size', 'form'].forEach((k) => q(`[data-i="${k}"]`).addEventListener('change', render));
+    q('[data-i="k"]').addEventListener('input', render);
+    root.querySelectorAll<HTMLElement>('.read > div').forEach((d) => {
+      const on = () => { root.dataset.h = d.dataset.h; };
+      const off = () => { delete root.dataset.h; };
+      d.addEventListener('mouseenter', on);
+      d.addEventListener('mouseleave', off);
+      d.addEventListener('focus', on);
+      d.addEventListener('blur', off);
+    });
+    whenIn(root, () => {
+      root.querySelectorAll('.read dd').forEach((d, i) => countUp(d, 650, 1300 + i * 160));
+      setTimeout(() => root.classList.add('settled'), 3200);
+    });
+  });
+</script>

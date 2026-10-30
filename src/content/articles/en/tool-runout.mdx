@@ -1,0 +1,114 @@
+---
+key: tool-runout
+locale: en
+slug: tool-runout
+title: 'Tool runout'
+description: 'How far a cutter turns off its true axis: what that does to the load on each tooth, to the hole and the surface, and to tool life; where and how to measure it; what toolholder makers state for their chucks; and the usual causes in the shop.'
+section: 5
+subsection: toolholders
+order: 1
+updated: 2026-10-30
+tools: [milling, drilling]
+glance:
+  - value: '0.02 mm'
+    label: 'Largest runout (T.I.R., radial and axial) ISCAR asks for when drilling to tolerance'
+  - value: '10 %'
+    label: 'Tool life per 0.0001 in (2.54 µm) of runout, as a rule of thumb (BIG DAISHOWA; its own tests differ)'
+  - value: '< 3 µm'
+    label: 'Runout HAIMER guarantees for its shrink chucks, at 3 × D'
+  - value: '2/3'
+    label: 'Least share of the collet bore the shank must fill (REGO-FIX)'
+sources:
+  - label: 'Harvey Performance, In The Loupe, “Reducing Tool Runout”, 2017 (modified 2023)'
+    url: https://www.harveyperformance.com/in-the-loupe/reducing-tool-runout/
+  - label: 'Harvey Performance, In The Loupe, “Key Tool Holding Considerations”, 2017 (modified 2024)'
+    url: https://www.harveyperformance.com/in-the-loupe/key-tool-holding-considerations/
+  - label: 'BIG DAISHOWA–Americas, “Your Complete Guide to Runout in Machining and How to Avoid It” (updated 2025)'
+    url: https://www.bigdaishowa.com/en/node/1618
+  - label: 'BIG DAISHOWA–Americas, “Combat Rising Carbide Costs with Better Tool Holders” (updated 2026)'
+    url: https://www.bigdaishowa.com/en/blog/combat-rising-carbide-costs-better-tool-holders
+  - label: 'BIG DAISHOWA–Americas, J. Burley, “Tools, Holders and Runout: Uncover the Hidden Savings” (updated 2025)'
+    url: https://www.bigdaishowa.com/en/node/1484
+  - label: 'BIG DAISHOWA–Americas, “Tool Holders that Maintain Runout Accuracy When It Matters”'
+    url: https://bigdaishowa.com/en/node/1167
+  - label: 'BIG DAISHOWA–Americas, NEW BABY CHUCK product page'
+    url: https://www.bigdaishowa.com/en/products/tool-holders/collet-chucks/new-baby-chuck
+  - label: 'ISCAR, Drilling Handbook, General Purpose Drilling: Troubleshooting (flipbook p. 97)'
+    url: https://www.iscar.com/Catalogs/Publication/english_1/Drilling_Handbook/Drilling_Handbook_flipview/files/basic-html/page97.html
+  - label: 'HAIMER, “The top 10 reasons for HAIMER shrink technology”'
+    url: https://www.haimer.com/en/products/shrinking-technology/application-and-know-how/the-top-10-reasons-for-haimer-shrink-technology
+  - label: 'HAIMER, Power Clamp brochure (Turkish/English; file dated 2021-04), pp. 5–6'
+    url: https://www.haimer.com/shop/catalog/downloads/files/2021-04-Power-Clamp-DE-EN-screen/Power-Clamp_TR-EN.pdf
+  - label: 'SCHUNK, TENDO Platinum hydraulic chucks (product group page)'
+    url: https://schunk.com/hu/en/tools/toolholder-quickfinder/tendo-platinum/c/PGR_4940
+  - label: 'SCHUNK, TENDO ES hydraulic chucks (product group page)'
+    url: https://www.schunk.com/de/en/tools/toolholder-quickfinder/tendo-es/c/PGR_4946
+  - label: 'SCHUNK, TRIBOS-M HSK-E 25 Ø6x35, ID 205267 (product page)'
+    url: https://schunk.com/us/en/p/000000000000205267
+  - label: 'REGO-FIX, ER collet system catalogue COL1125, 01/2015, pp. 2–3, 33'
+    url: https://www.productivity.com/wp-content/uploads/2020/04/Rego-Fix-_ER_System-3-25-20-Interactive.pdf
+  - label: 'MAPAL, K. Rehor, “Sustainability through hydraulic expansion technology”, 2022'
+    url: https://mapal.com/en/a/nachhaltigkeit-spannen
+  - label: 'M. Xie, X. Yu, W. Bao, C. Liu, M. Xia, “Side-Milling-Force Model Considering Tool Runout and Workpiece Deformation”, Electronics 12 (2023) 968'
+    url: https://www.mdpi.com/2079-9292/12/4/968
+---
+import RunoutTeeth from '../../../components/mdx/RunoutTeeth.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Harvey Performance defines it in one line: "Tool runout is the measurement of how far a cutting tool, holder, or spindle rotates off of its true axis." The causes are in every joint of the chain; Xie and co-authors, who describe it by an offset and a tilt of the tool axis and then model the offset only, write that "The manufacturing error and clamping error of the tool and spindle components cause the drift and eccentricity between the tool axis and the ideal rotation axis of the spindle". Harvey: "Every added connection between a machine and the workpiece it is cutting will introduce a higher level of runout." Harvey: "Runout is measured using an indicator that measures the variation of a tool's diameter as it rotates." ISCAR and REGO-FIX state it as T.I.R.; REGO-FIX spells this out as "Total Indicated Runout".
+
+## What it does to the cut
+
+A cutter that turns off its axis does not share the work evenly between its teeth. BIG DAISHOWA: "When a drill or mill doesn't run concentric to its centerline," "it generates more force in the direction of the biggest margin, causing just one side of a tool to do most of the work." Its example: "if you have a six-tooth cutter but the tool has runout of more than a thousandth of an inch," (25.4 µm) "you're likely only effectively using three of the teeth." The figure shows the mechanism in this page's own geometric model, not BIG DAISHOWA's example. In the model, three of six teeth stop cutting at 25 µm T.I.R. only when fz is about 0.005–0.006 mm; from fz 0.013 mm all six cut, unevenly.
+
+<Figure caption="A milling cutter with runout, seen along its axis, and the chip each tooth takes. In this page’s geometric model the cutter’s axis is offset by e from the spindle axis (exaggerated in the drawing), so a dial on the round body swings by 2e, the T.I.R. Each tooth cuts what the earlier teeth have left: a tooth that stands further out than the one before it takes more than the feed per tooth, one that stands further in takes less, and once the T.I.R. is large enough against fz some teeth cut nothing at all. The offset is drawn pointing at tooth 1; other orientations give somewhat different shares. The loads always add up to the feed per revolution. The model has no deflection or wear; it shows the direction of the effect, not a maker’s figure. Example values: T.I.R. 20 µm, fz 0.03 mm, four teeth.">
+  <RunoutTeeth locale="en" tir={0.02} fz={0.03} z={4} />
+</Figure>
+
+In the model the shares depend only on the T.I.R. relative to fz; the diameter drops out because the model has no stiffness, deflection or tool strength. At a small fz the same runout makes the shares more uneven. Harvey's point is about the tool itself: "As the ratio of tool runout to tool diameter becomes larger, threats of tool failure increase." BIG DAISHOWA: "With tools ¾-inches in diameter or larger, runout of 0.0005″ may not impair tool life." (0.0005 in is 12.7 µm.)
+
+In drilling, ISCAR's troubleshooting table gives one check value for several faults. For holes out of tolerance: "Check the runout and make sure it is within 0.02 mm T.I.R.(radial and axial cutting points)." and "Check the chisel point runout and make sure that it is within 0.02 mm T.I.R."; the same check, "within 0.02 mm T.I.R. (radial and axial)", appears for a rough surface and for an inaccurate hole position. For holes out of tolerance (and for burrs at the exit) the table also advises checking the adaptation and using a hydraulic chuck, ISCAR's MAXIN power chuck or side-clamping systems.
+
+## What it does to tool life
+
+The figures found all come from one toolholder maker, BIG DAISHOWA. Its rule of thumb: "one-tenth (.0001″) of runout will increase or decrease tool life by 10%." For end mills: "For every 0.0001″ reduction in runout, usable carbide end mill life increases by approximately 10 percent." It also writes that "In many shops, average runout around 0.0005″ TIR is accepted as normal" (12.7 µm), and that at this level "expected tool life is already reduced by roughly 50 percent compared to near-zero runout."
+
+Its own figures do not fit one rule. Drilling steel 0.590 in deep with a 0.118 in (3 mm) carbide drill, its table gives 2,300 holes at 0.00008 in (2.0 µm) of runout and 800 holes at 0.0006 in (15.2 µm), almost three times as many. For a 4-flute, Ø10 mm solid-carbide end mill, over the same change, "reducing runout from 0.0006″ to 0.00008″ increased cutting length by approximately 30 percent". A rule of 10 % per 0.0001 in cannot give both: 5.2 tenths come to 1.5 times if each tenth adds 10 % of the life, and to 2.3 times if each tenth costs 10 % of the near-zero life, as the 0.0005 in example implies (this page's arithmetic). Neither page gives the cutting conditions. Both results point the same way; Harvey and SCHUNK state the direction only.
+
+## Where and how to measure
+
+Harvey: "Runout should be measured at the point where a tool will be cutting," "typically at the end of the tools, or along a portion of the length of cut." It warns that dial indicators "are not as accurate as the available laser indicators", that "A dial indicator may not be plausible in these instances due to the inconsistent shape of a tool's flutes.", and that "Most end mill manufacturers recommend using a laser runout indicator in place of a dial indicator wherever possible." For miniature and micro tools, "lasers should be strictly used". For drills ISCAR names the points: the radial and axial cutting points, and the chisel point.
+
+## What the holder makers state
+
+Each maker states its figure under its own condition, and the conditions differ, so these numbers cannot be ranked against each other:
+
+| Holder | Maker, product | Stated runout | Condition as stated |
+|---|---|---|---|
+| Shrink-fit | HAIMER | "< 3μm run-out at 3xD" (guaranteed) | 3 × D |
+| Hydraulic | SCHUNK TENDO Platinum, TENDO ES | "run-out and repeat accuracy < 0.003 mm" | length not given |
+| Hydraulic | BIG DAISHOWA | "as low as 0.00004″" (1 µm) | at the nose |
+| Polygonal | SCHUNK TRIBOS-M, Ø6 | the page gives both "≤ 0.003 mm at 2.5 x D" and, for Ø 6 mm, ≤ 0.005 mm | 2.5 × D unclamped length |
+| ER collet | REGO-FIX ER | "T.I.R. ≤ 0.0004″ (10 μm) over the entire clamping range" | length not given |
+| ER collet, ultra-precision | REGO-FIX ER-UP | "T.I.R. ≤ 0.0002″ (5 μm) over the entire clamping range" | length not given |
+| Precision collet chuck | BIG DAISHOWA NEW BABY CHUCK | "1-micron runout" (guaranteed) | at the collet nose |
+
+Harvey compares the types in words: "Shrink-fit and press-fit tool holders are inherently better at minimizing runout due to their fewer components.", and "Collet-based tool holders also often introduce an extra amount of runout due to their additional components." On holders with a clamping screw it is blunt: "Set screw based holders should be avoided, as they push the tool off-center with their uneven holding pressure.", and "Weldon flats are found guilty of adding large amounts of runout in many shops."
+
+Whether a shrink chuck keeps its accuracy over time rests on maker claims only. BIG DAISHOWA, which sells hydraulic chucks, writes that shrink chucks "often suffer from a slow loss of accuracy" from "the excessive heating and cooling cycles needed to change a tool". MAPAL, which makes both shrink and hydraulic chucks and argues for hydraulic ones, writes that "radial run-out and rigidity keep deteriorating from the first use onward". HAIMER, which sells shrink chucks, says of the contact cooling on its Power Clamp machines: "There is no deformation of the chuck. The runout accuracy is preserved." It gives no figure for accuracy after many shrink cycles. No independent test was found.
+
+## Causes in the shop
+
+- **Chips and dirt.** Harvey: "Often, chips can become lodged in the spindle, and cause an obstruction between two high-precision surfaces in the system." HAIMER: "Run-out accuracy is often compromised if contaminants are introduced to the bore of a tool holder during machining." Harvey: "Ensuring that your tool holder and spindle are clean and free of chips and debris is paramount when setting up for every job."
+- **The collet.** REGO-FIX: "never insert the tool less than 2/3 of the collet bore length"; never clamp a shank larger than the collet's range, but take the next collet up; and tighten with a torque wrench. For its Hi-Q ERC nuts, "The maximum torque shall not be more than 25% above the recommended tightening torque."
+- **The nut and the pull stud.** BIG DAISHOWA: with a solid nut, "torque forces will twist the collet when adding the last few degrees of a wrench pull", and pull studs out of line with the taper "will impart lateral forces against the system."
+- **Uneven clamping.** Harvey: "Uniform pressure around the entire circumference of a shank is essential for reducing runout."
+- **Shank tolerance.** For shrink-fit holders Harvey asks for h6 shanks: "Shank diameters with h6 tolerances ensure the tool will always work properly and reliably with a shrink fit holder."
+
+<CheckList id="runout-before" locale="en" items={[
+  { icon: 'chips', title: 'Clean', check: 'Spindle, holder taper and bore.', fix: 'Free of chips and dirt before every job (Harvey, HAIMER).', src: 'Harvey Performance; HAIMER' },
+  { icon: 'clamp', title: 'Collet', check: 'Shank size against the collet range; how far the shank goes in.', fix: 'No oversize shanks; at least 2/3 of the bore length; torque wrench, not more than 25 % over the recommended torque on Hi-Q ERC nuts (REGO-FIX).', src: 'REGO-FIX' },
+  { icon: 'holder', title: 'Holder type', check: 'Set screw, Weldon, collet, hydraulic, shrink-fit.', fix: 'Avoid set-screw holders; shrink-fit and press-fit holders have fewer components (Harvey).', src: 'Harvey Performance' },
+  { icon: 'align', title: 'Measure', check: 'Runout at the cutting point.', fix: 'Laser where possible, and only laser on miniature and micro tools; a dial indicator can push on the tool and may not be usable on flutes (Harvey); for drills radial, axial and chisel point (ISCAR).', src: 'Harvey Performance; ISCAR' },
+  { icon: 'hole', title: 'Drilling to tolerance', check: 'T.I.R. against the hole tolerance.', fix: 'Within 0.02 mm T.I.R., radial and axial (ISCAR).', src: 'ISCAR' },
+]} />

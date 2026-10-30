@@ -1,0 +1,95 @@
+---
+key: fluid-types
+locale: tr
+slug: kesme-sivisi-turleri
+title: 'Kesme sıvısı türleri'
+description: 'Saf kesme yağları, çözünür yağlar (emülsiyonlar), yarı sentetikler ve sentetikler: her birinin neyden yapıldığı, tankta nasıl göründüğü, neyi daha iyi ya da daha kötü yaptığı ve aralarında farklılaşan sağlık konuları.'
+section: 8
+subsection: coolant
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: '4'
+    label: 'Başlıca sınıf: saf yağ, çözünür yağ, yarı sentetik ve sentetik (OSHA)'
+  - value: '%30–85'
+    label: 'Çözünür yağ konsantresindeki ileri derecede rafine baz yağ (base oil) (OSHA)'
+  - value: '%5–30'
+    label: 'Yarı sentetik konsantredeki baz yağ, örnek olarak verilmiş (OSHA)'
+  - value: '0'
+    label: 'Sentetik bir sıvıdaki petrol kökenli yağ (OSHA)'
+sources:
+  - label: 'OSHA, Metalworking Fluids: Safety and Health Best Practices Manual'
+    url: https://www.osha.gov/metalworking-fluids/manual
+  - label: 'IFA / DGUV, KSS-Portal: Kühlschmierstoffarten (DIN 51385)'
+    url: https://dguv.de/ifa/praxishilfen/kuehlschmierstoffe/kuehlschmierstoff/arten/index.jsp
+  - label: 'HSE, About metalworking fluids'
+    url: https://www.hse.gov.uk/metalworking/about.htm
+  - label: 'HSE, Bacterial contamination (metalworking fluids)'
+    url: https://www.hse.gov.uk/metalworking/bacterial.htm
+  - label: 'NIOSH / CDC, Metalworking Fluids konu sayfası (arşiv)'
+    url: https://archive.cdc.gov/www_cdc_gov/niosh/topics/metalworking/default.html
+  - label: 'FUCHS Oil Finland, “Cutting emulsion compared to cutting oils”'
+    url: https://www.fuchs.com/fi/en/products/product-program/metal-processing-lubricants/cutting-emulsion-compared-to-cutting-oils/
+  - label: 'Lubrizol 360, “How it Works: The Types of Metalworking Fluids”'
+    url: https://360.lubrizol.com/Resources/How-It-Works/How-it-Works---The-Types-of-Metalworking-Fluids
+  - label: 'T. Norrby, “Base Oil and Emulsifier Selection Principles Part II”, STLE Annual Meeting 2017, Metalworking V, Session 7B (sunum)'
+    url: https://www.stle.org/images/pdf/STLE_ORG/AM2017%20Presentations/Metalworking/STLE2017_Metalworking%20V_Session%207B_T.%20Norrby2_Base%20Oil%20and%20Emulsifier%20Selection%20Principles%20Part%20II.pdf
+  - label: 'Mobil Türkiye, Mobilcut Serisi ürün bilgileri'
+    url: https://www.mobil.com/tr-TR/Industrial/pds/eu-xx-Mobilcut-Series
+  - label: 'Mobil Türkiye, Mobilcut New broşürü, “Hassas talaşlı imalat işlemleri için suda çözünür kesme sıvıları”'
+    url: https://www.mobiloil.com.tr/-/media/project/wep/mobil/mobil-tr/pdfs/technical-resource/exa1900012---eu1811mcpptrtr.pdf?la=tr-tr
+  - label: 'Petrol Ofisi, Bor Yağı ürün sayfası'
+    url: https://www.petrolofisi.com.tr/metalworking-fluids/bor-yagi
+  - label: 'Petrol Ofisi, PROCUT HD ürün bilgi formu'
+    url: https://www.petrolofisi.com.tr/medium/Product/Document/403b3fe9-7367-462a-a5b5-d632e1748452
+---
+import FluidTypes from '../../../components/mdx/FluidTypes.astro';
+
+HSE bütün aileyi tek cümleyle anlatır: metal işleme sıvıları, metallerin talaşlı işlenmesi ve biçimlendirilmesi sırasında kullanılan saf yağlar ya da su bazlı sıvılardır. IFA’nın aktardığı Alman sınıflandırması DIN 51385 de ilk ayrımı aynı yerden yapar: suyla karışmayan ve suyla karışabilen sıvılar; su ile karışabilen bir sıvı, ancak su eklendikten sonra kullanıma hazır hâle gelen bir konsantredir. DIN 51385 su ile karışabilenler arasında da suda yağ emülsiyonu oluşturanları, kolloidal ya da gerçek çözelti verenlerden ayırır. OSHA’nın kılavuzu ise bileşime göre sınıflandırır: yaygın olarak bulunan dört başlıca sınıf saf yağ (*straight oil*), çözünür yağ (*soluble oil*), yarı sentetik ve sentetiktir. Bu sayfa OSHA’nın dört sınıfını izler. Su ile karışabilen bir sıvının karışımını ölçmek ve düzeltmek [kesme sıvısı konsantrasyonu](/tr/sogutma-ve-yaglama/kesme-sivisi-konsantrasyonu/) sayfasındadır. Türkçe ürün belgelerinde de bu adlar geçer: Mobil’in ürün sayfası Mobilcut 140 için "su ile karışabilen", Mobilcut 250 için "yarı sentetik", Mobilcut 320 için "mineral yağ içermeyen sentetik" der (aynı firmanın broşürü ise seriyi "suda çözünür kesme sıvıları" diye anar); Petrol Ofisi PROCUT HD’yi "saf kesme yağı" olarak tanımlar ve su ile karışabilen bir ürününü "Bor Yağı" adıyla satar.
+
+<Figure caption="Dört sınıf yan yana, şematik: her kap, sıvıyı arkasındaki bir parçayla birlikte kullanımdaki hâliyle gösterir; içinden ne kadar görülebildiği OSHA’ya göredir (çözünür yağ genellikle sütsü beyaz, yarı sentetikler çoğu zaman saydamdan sütsüye, sentetikler saydam, öyle ki operatör işi görebilir). Emülsiyonlarda dolaşan damlalar ölçekli değildir; yarı sentetiğinkiler, Norrby’nin çalışmasının (STLE 2017) genel bulgusu gibi daha küçük çizilmiştir; saf yağın saydam kehribar rengi şematiktir. Çubuklar konsantredeki yağ payını OSHA’nın verdiği gibi gösterir; saf yağın çubuğu çizgilidir, çünkü OSHA bir sayı değil, yalnızca *çoğunlukla* (*mostly*) der. Altta sınıflar, OSHA’ya göre soğutma (ısı giderme) sırasıyla; yalnızca bir sıralamadır ve kaynaklar çözünür yağ ile yarı sentetiği yağlama bakımından sıralamaz. Bir sınıfı vurgulamak için üzerine tıklayın.">
+  <FluidTypes locale="tr" />
+</Figure>
+
+## Saf kesme yağları
+
+OSHA: bu tür metal işleme sıvısı çoğunlukla mineral (petrol kökenli) ya da bitkisel yağlardan oluşur ve kullanılmadan önce suyla seyreltilmez. Yelpazenin yağlayan ucudur: OSHA’ya göre saf yağlar genellikle soğutmadan çok yağlama gerektiren işlemlerde kullanılır. Lubrizol onları, baz yağın (*base oil*) sağladığı iyi yağlayıcılığı gerektiren, daha yavaş ve ağır işlemler için en uygun sayar; çoğu zaman aşırı basınç (*extreme pressure*, EP) katkıları içerdiklerini ve iş parçasının paslanmasını da etkili biçimde önlediklerini ekler. OSHA: bu malzemeler klorlu ve kükürtlü katkılar içerebilir.
+
+Saf yağ uzun ömürlüdür. FUCHS’a göre saf kesme yağları özellikle kararlıdır ve nadiren değiştirilmesi gerekir; kullanımda işlenen parçalar ve talaşla birlikte azalır. Yağ oksitlenmeye başlarsa ya da metal parçacıkları ve tortu sorun çıkaracak düzeye gelirse durum değişir. Bedeli yangın riskidir: OSHA’ya göre saf yağ sistemleri yangından korunma gerektirebilir. Türkçe bir bilgi formundan örnek: Petrol Ofisi’nin PROCUT HD’si, "klor içermeyen ham maddeler kullanılarak üretilmiş, saf kesme yağıdır"; otomatik tornalarda ve vida makinelerinde, diş açma, frezeleme, broş ve kesme işlerinde kullanılır, viskozitesi 40 °C’de 35,7 mm²/s, parlama noktası (COC) 206 °C’dir.
+
+## Çözünür yağlar (emülsiyonlar)
+
+OSHA’ya göre çözünür yağ konsantresinin %30–85’i ileri derecede rafine edilmiş (*severely refined*) baz yağdır; yağın suda dağılmasına yardım eden emülgatörler de içerir. FUCHS: konsantre bir mineral yağ ve belki bir sentetik esterle birlikte bir emülgatör ve başka katkılardan oluşur; konsantre suyla karıştırıldığında sütsü beyaz bir emülsiyon oluşur. Mobil’in Türkçe ürün sayfası da Mobilcut 100’ü "konvansiyonel sütsü" bir sıvı olarak tanımlar; broşürü "Süt Rengi Emülsiyon" der. Kullanımda iki işi birden görür: OSHA’ya göre çözünür yağlar genelde iyi yağlama sağlar ve saf yağlardan daha iyi soğutur.
+
+OSHA sakıncalarını da sayar: korozyon kontrolleri bazen zayıftır; bazen kirli (*dirty*) olurlar, yani tezgâh yüzeyleri ve çevresi yağla ya da güç temizlenen ürün kalıntılarıyla kaplanır; duman çıkarabilirler (yarı sentetikler ve sentetikler kadar iyi soğutmayabilirler); karışım kararlılıkları (*mix stability*) zayıf ya da tank ömürleri (*sump life*) kısa olabilir. Bunlar genel ifadelerdir; tek tek ürünler iyi korozyon koruması vaat eder, örneğin Mobil’in geleneksel sütsü Mobilcut 100’ü için Türkçe bilgi sayfası uzun süreli korozyon koruması vaat eder. Geçerli olan, tezgâhtaki ürünün bilgi formudur.
+
+## Yarı sentetikler
+
+OSHA: bu tür sıvı daha az miktarda ileri derecede rafine baz yağ içerir, örneğin konsantrede %5–30. Çözünür yağlardaki bileşenlerin birçoğunu içerir ve daha karmaşık bir emülgatör paketi taşır. OSHA onlara iyi yağlama, iyi ısı giderme (*heat reduction*) ve iyi pas kontrolü yakıştırır; tank ömürlerinin daha uzun olduğunu ve çözünür yağlardan daha temiz olduklarını yazar. Lubrizol, konsantre hâlinde yağ, katkı ve suyun bir birleşimini içerdiklerini ekler.
+
+Çoğu zaman çözünür yağdan farklı görünürler. FUCHS’a göre bu emülsiyonlar olağandan daha berraktır ve yarı sentetik ya da mikro emülsiyon diye anılır; Mobil’in broşürü de bazı ürünleri "Mikro Emülsiyon" diye etiketler. OSHA daha temkinlidir: yarı sentetikler çoğu zaman saydamdan sütsüye uzanır. Norrby’nin STLE çalışması, damla boyutlarını yüksek seyreltmede ışık saçılmasıyla ölçmüş ve (neredeyse) yarı saydam yarı sentetik formülasyonların damlalarını genel olarak sütsü emülsiyonlarınkinden küçük bulmuştur. Ölçülen boyutlar orada denenen formülasyonlara aittir ve bunlardan birinde su sertliğindeki fark damla boyutunu yüz kat kaydırmıştır; sınıf değeri değildirler.
+
+## Sentetikler
+
+OSHA: bu sıvıların formülasyonları hiç petrol kökenli yağ içermez; parçayı ıslatmaya yardım eden deterjan benzeri (*detergent-like*) bileşenler ve performansı artıran başka katkılar içerir. FUCHS: sentetik sıvılar mineral yağ içermez, çoğu zaman glikol bazlıdır ve emülsiyonların aksine suda tümüyle çözünür. Sonuç gözle görülür: OSHA’ya göre bu sıvı saydamdır ve operatörün işi görmesine izin verir; FUCHS’a göre oluşan çözelti normalde çok berrak ve saydamdır.
+
+Yelpazenin soğutan ucudur. OSHA’ya göre sentetikler genellikle en temiz olanlardır, en iyi ısı gidermeyi sağlar ve tank ömürleri daha uzundur. Lubrizol: mükemmel soğutma sağlar, yüksek hızlı işlemler için en uygundur ve genellikle çok az köpürür. FUCHS, hiç yağlayıcı bileşen içermeyen sentetik sıvılar da bulunduğunu ve bunların taşlama sıvısı olarak kullanıldığını yazar. Mobil’in Türkçe bilgi sayfası sentetik Mobilcut 320’yi "Çelik ve dökme demirin taşlama işlemleri için" sayar ve kobalt çözünmesi (*cobalt leaching*) nedeniyle tungsten karbür için uygun olmadığını ekler.
+
+## Kısaca
+
+| | Saf yağ | Çözünür yağ | Yarı sentetik | Sentetik |
+|---|---|---|---|---|
+| Su | seyreltilmez | emülsiyon | emülsiyon, çoğu zaman daha küçük damlalı | çözelti |
+| Yağ içeriği (OSHA) | konsantre yok; çoğunlukla mineral ya da bitkisel yağ | %30–85 | örneğin %5–30 | petrol kökenli yağ yok |
+| Görünüş (OSHA) | yağlı (viskoz his) | sütsü beyaz | çoğu zaman saydamdan sütsüye | saydam |
+| Güçlü yanı (OSHA) | soğutmadan çok yağlama | iyi yağlama, saf yağdan iyi soğutma | iyi yağlama, ısı giderme, pas kontrolü | en iyi ısı giderme, en temiz, mükemmel pas kontrolü |
+| OSHA’nın tür tanımındaki sakınca | yangından korunma gerekebilir | korozyon, kalıntı (kirlilik), duman, karışım kararlılığı, tank ömrü | sayılmamış | sayılmamış |
+
+OSHA’nın tür tanımları yarı sentetikler ve sentetikler için sakınca saymaz; sağlık bölümü ise kontakt dermatit riskinin en çok su bazlı, sentetik ve yarı sentetik sıvılarla çalışanlarda olduğunu yazar (aşağıda). Bulunan kaynakların hiçbiri sınıfları bakteri, yabancı yağ (*tramp oil*), köpürme (Lubrizol’ün sentetikler hakkındaki notu dışında), maliyet ya da tezgâh boyası ve contalarla uyum bakımından sıralamaz.
+
+## Su ile karışabilen bütün sıvıların ortak yanı
+
+Belirli bir konsantrasyonda çalışacak şekilde yapılırlar: OSHA’ya göre su bazlı bütün metal işleme sıvıları, suda çözünmüş ya da emülsiyon hâlinde belirli bir konsantrasyonda çalıştırılmak üzere tasarlanır. Bakteri üremesine elverişlidirler: HSE, su ya da su karışımı içeren sıvı sistemlerinin zararlı bakterilerle ağır biçimde kirlenebileceğini, NIOSH da su bazlı sıvıların mikrobiyal büyümeyi desteklediğini yazar. Her sınıfta katkı vardır; OSHA yüzey aktif maddeleri (*surfactants*), biyositleri, aşırı basınç katkılarını, antioksidanları ve korozyon önleyicileri sayar.
+
+Sağlık riskleri sınıfa göre değişir. OSHA’ya göre kontakt dermatit (*contact dermatitis*) riski en çok su bazlı, sentetik ve yarı sentetik sıvılarla çalışanlardadır; saf yağlar çoğu zaman temas bölgelerinde sivilceli, akneye benzer rahatsızlıklarla ilişkilendirilir; son aşırı duyarlılık pnömonisi (*hypersensitivity pneumonitis*, HP) salgınları sentetik, yarı sentetik ve çözünür yağ sıvılarının aerosollerine maruziyetle ilişkilendirilmiştir.

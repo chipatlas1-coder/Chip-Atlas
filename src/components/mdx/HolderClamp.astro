@@ -1,0 +1,176 @@
+---
+/**
+ * How four toolholders grip a round shank, animated in section (gaps and deformations exaggerated):
+ *  - shrink fit: the nose is heated, the bore grows, the shank goes in, the nose cools and grips by interference;
+ *  - hydraulic: tightening the clamping screw compresses the oil; the chamber round the bore expands onto the shank;
+ *  - milling chuck: the nut runs on needle rollers along the tapered, slotted body and squeezes it onto the shank;
+ *  - collet: the nut pushes the slotted collet into the taper of the holder; the collet closes on the shank.
+ * One loop per type; a stage line under the drawing. Schematic, not to scale.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { types: { shrink: 'Shrink fit', hydro: 'Hidrolik', mill: 'Milling chuck', collet: 'Pens' }, coil: 'indüktif bobin', shank: 'takım sapı', oil: 'yağ odası', screw: 'sıkma vidası', nut: 'somun', rollers: 'iğneli makaralar', collet: 'pens', taper: 'konik yuva', stages: { shrink: ['1 · burun ısıtılır, delik genişler', '2 · sap deliğe sürülür', '3 · burun soğur, delik sapı sıkar'], hydro: ['1 · sap deliğe sürülür', '2 · vida yağı sıkıştırır', '3 · oda genişler, sapa bastırır'], mill: ['1 · sap deliğe sürülür', '2 · somun iğneli makaralar üzerinde konik gövde boyunca ilerler', '3 · konik gövde sapa sıkıştırılır'], collet: ['1 · sap pense sürülür', '2 · somun pensi koniğe iter', '3 · pens kapanır, sapı sıkar'] }, aria: 'Takım tutucuların sapı sıkma biçimi, kesit görünüşte, abartılı' }
+  : { types: { shrink: 'Shrink fit', hydro: 'Hydraulic', mill: 'Milling chuck', collet: 'Collet' }, coil: 'induction coil', shank: 'shank', oil: 'oil chamber', screw: 'clamping screw', nut: 'nut', rollers: 'needle rollers', collet: 'collet', taper: 'taper', stages: { shrink: ['1 · the nose is heated, the bore grows', '2 · the shank slides in', '3 · the nose cools and the bore grips the shank'], hydro: ['1 · the shank slides into the bore', '2 · the screw compresses the oil', '3 · the chamber expands onto the shank'], mill: ['1 · the shank slides into the bore', '2 · the nut runs on needle rollers along the tapered body', '3 · the tapered body is squeezed onto the shank'], collet: ['1 · the shank slides into the collet', '2 · the nut pushes the collet into the taper', '3 · the collet closes on the shank'] }, aria: 'How toolholders grip a shank, in section, exaggerated' };
+---
+<div class="hc" data-hc data-locale={locale} data-anim>
+  <div class="seg" data-g="t">{(['shrink', 'hydro', 'mill', 'collet'] as const).map((k, i) => <button type="button" data-v={k} aria-pressed={String(i === 0)}>{T.types[k]}</button>)}</div>
+  <svg class="sc" viewBox="0 52 640 196" role="img" aria-label={T.aria} data-sc></svg>
+  <ol class="st" data-st>{[0, 1, 2].map((i) => <li data-s={i}>{T.stages.shrink[i]}</li>)}</ol>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .hc { display: grid; gap: 0.7rem; }
+  .seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1 1 7rem; font: inherit; font-size: 0.84rem; padding: 0.4rem 0.5rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.3rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .sc { width: 100%; height: auto; display: block; }
+  .st { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+  @media (max-width: 40rem) { .st { grid-template-columns: 1fr; } }
+  .st li { font-size: 0.82rem; color: var(--ink-3); border-top: 3px solid var(--line); padding-top: 0.35rem; transition: color 0.2s, border-color 0.2s; }
+  .st li.on { color: var(--ink); border-color: var(--accent); }
+  .hc :global(.tx) { font: 12px var(--font-mono); fill: #364554; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+  .hc.narrow :global(.tx) { font-size: 19px; }
+</style>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-hc]').forEach((root, idx) => {
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const sc = q<SVGSVGElement>('[data-sc]');
+    const CY = 150, RB = 20;                              // axis, shank radius
+    let type: 'shrink' | 'hydro' | 'mill' | 'collet' = 'shrink', t = 0.62, last = 0;
+    const f = (n: number) => n.toFixed(1);
+    const ease = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+    const seg = (x: number, a: number, b: number) => ease((x - a) / (b - a));
+    // one half of a holder in section: taper, flange, body; bore from xb to the nose with radius rb (y measured up)
+    const half = (outer: [number, number][], xb: number, rbAt: (x: number) => number, sgn: 1 | -1) => {
+      const Y = (h: number) => CY - sgn * h;
+      const pts: string[] = [`${f(20)},${f(CY)}`, `${f(20)},${f(Y(22))}`, `${f(90)},${f(Y(32))}`, `${f(90)},${f(Y(58))}`, `${f(130)},${f(Y(58))}`];
+      outer.forEach(([x, h]) => pts.push(`${f(x)},${f(Y(h))}`));
+      const xn = outer[outer.length - 1][0];
+      for (let x = xn; x >= xb; x -= 5) pts.push(`${f(x)},${f(Y(rbAt(x)))}`);
+      pts.push(`${f(xb)},${f(Y(rbAt(xb)))}`, `${f(xb)},${f(CY)}`);
+      return `M${pts.join(' L')} Z`;
+    };
+    const shank = (x0: number) => {
+      let s = `<rect x="${f(x0)}" y="${CY - RB}" width="${f(560 - x0 + 20)}" height="${2 * RB}" fill="url(#ca-carbide)" stroke="#364554" stroke-width="1.2"/>`;
+      for (let k = 0; k < 6; k++) { const x = 560 + k * 14 - 30; s += `<path d="M${f(x)},${CY - RB} L${f(x + 22)},${CY + RB}" stroke="#5f6c79" stroke-width="1.3" opacity="${x > 530 ? 0.8 : 0}"/>`; }
+      return s;
+    };
+    const arrows = (xs: number[], k: number, gap: number) => xs.map((x) => `
+      <path d="M${x},${f(CY - RB - gap - 22)} L${x},${f(CY - RB - gap - 6)}" stroke="#13998a" stroke-width="2.2" marker-end="url(#ca-arr-data)" opacity="${f(k)}"/>
+      <path d="M${x},${f(CY + RB + gap + 22)} L${x},${f(CY + RB + gap + 6)}" stroke="#13998a" stroke-width="2.2" marker-end="url(#ca-arr-data)" opacity="${f(k)}"/>`).join('');
+    const draw = () => {
+      let s = '', stage = 0;
+      const sec = (d: string) => `<path d="${d}" fill="url(#ca-hatch)" stroke="#364554" stroke-width="1.5"/>`;
+      const back = (d: string) => `<path d="${d}" fill="#eef2f6"/>`;
+      if (type === 'shrink') {
+        const heat = seg(t, 0, 0.18) * (1 - seg(t, 0.5, 0.75));          // 0…1
+        const ins = seg(t, 0.22, 0.45);
+        const gap = 5 * heat;                                             // exaggerated expansion
+        stage = t < 0.2 ? 0 : t < 0.47 ? 1 : 2;
+        const outer: [number, number][] = [[130, 46], [250, 40], [400, 31]];
+        const rb = (x: number) => (x > 400 - 150 ? RB + gap * Math.min(1, (x - 250) / 40) : RB);
+        const xs = 262 + (1 - ins) * 170;
+        s += shank(xs);
+        s += back(half(outer, 250, rb, 1)) + back(half(outer, 250, rb, -1));
+        s += sec(half(outer, 250, rb, 1)) + sec(half(outer, 250, rb, -1));
+        // heat tint on the holder only (HAIMER: only the clamping area is heated; the tool has no time to heat up)
+        s += `<defs><clipPath id="hc-heat-${idx}"><path d="${half(outer, 250, rb, 1)}"/><path d="${half(outer, 250, rb, -1)}"/></clipPath></defs>`;
+        s += `<rect x="250" y="${f(CY - 44)}" width="152" height="88" fill="#e2601a" opacity="${f(0.45 * heat)}" clip-path="url(#hc-heat-${idx})"/>`;
+        // coil
+        const co = heat > 0.02 ? Math.min(1, heat * 1.6) : 0;
+        for (let k = 0; k < 7; k++) { const x = 270 + k * 19; s += `<rect x="${x}" y="${CY - 62}" width="12" height="10" rx="3" fill="#b87333" opacity="${f(co)}"/><rect x="${x}" y="${CY + 52}" width="12" height="10" rx="3" fill="#b87333" opacity="${f(co)}"/>`; }
+        s += `<text x="300" y="${CY - 72}" class="tx" opacity="${f(co)}">${T.coil}</text>`;
+        const g = seg(t, 0.68, 0.8);
+        s += arrows([300, 340, 380], g, 0);
+        s += `<text x="470" y="${CY - 34}" class="tx">${T.shank}</text>`;
+      } else if (type === 'hydro') {
+        const ins = seg(t, 0.02, 0.2), p = seg(t, 0.25, 0.55);
+        stage = t < 0.22 ? 0 : t < 0.56 ? 1 : 2;
+        const outer: [number, number][] = [[130, 48], [392, 48], [400, 42]];
+        // sleeve: a small clearance (2.2, exaggerated) that the oil pressure closes over the chamber length
+        const bore = (x: number) => (x >= 280 && x <= 390 ? RB + 2.2 - 2.2 * p * Math.sin((Math.PI * (x - 280)) / 110) : RB + 2.2);
+        const xs = 262 + (1 - ins) * 170;
+        s += shank(xs);
+        s += back(half(outer, 250, () => RB + 2.2, 1)) + back(half(outer, 250, () => RB + 2.2, -1));
+        s += sec(half(outer, 250, bore, 1)) + sec(half(outer, 250, bore, -1));
+        // oil chamber (both sides) and the channel to the screw
+        const oilCol = `rgba(227,178,60,${f(0.35 + 0.6 * p)})`;
+        const ch = (sgn: 1 | -1) => { let d = ''; for (let x = 280; x <= 390; x += 5) { const h = RB + 2.2 + 4 - 2.2 * p * Math.sin((Math.PI * (x - 280)) / 110); d += `${x === 280 ? 'M' : 'L'}${x},${f(CY - sgn * h)}`; } return `${d} L390,${f(CY - sgn * (RB + 13))} L280,${f(CY - sgn * (RB + 13))} Z`; };
+        s += `<path d="${ch(1)}" fill="${oilCol}" stroke="#a37b1f" stroke-width="1"/><path d="${ch(-1)}" fill="${oilCol}" stroke="#a37b1f" stroke-width="1"/>`;
+        s += `<path d="M285,${CY - RB - 13} L285,${CY - 38} L215,${CY - 38}" fill="none" stroke="${oilCol}" stroke-width="5"/>`;
+        // screw: moves down as it turns
+        const dz = 10 * p, ang = p * 720;
+        s += `<rect x="205" y="${f(CY - 64 + dz)}" width="20" height="30" fill="#c3ccd5" stroke="#364554"/>`;
+        s += `<g transform="translate(215 ${f(CY - 70 + dz)}) rotate(${f(ang)})"><polygon points="-9,0 -4.5,-7.8 4.5,-7.8 9,0 4.5,7.8 -4.5,7.8" fill="#364554"/><line x1="0" y1="-5" x2="0" y2="5" stroke="#fff" stroke-width="1.6"/></g>`;
+        s += `<text x="232" y="${CY - 74}" class="tx">${T.screw}</text><text x="292" y="${CY + 68}" class="tx">${T.oil}</text>`;
+        s += arrows([310, 335, 360], seg(t, 0.5, 0.62), 2.2 * (1 - p));
+        s += `<text x="470" y="${CY - 34}" class="tx">${T.shank}</text>`;
+      } else if (type === 'mill') {
+        const ins = seg(t, 0.02, 0.2), p = seg(t, 0.25, 0.55);
+        stage = t < 0.22 ? 0 : t < 0.56 ? 1 : 2;
+        const outer: [number, number][] = [[130, 52], [296, 52], [296, 44], [404, 37]];
+        const tap = (x: number) => 44 - ((x - 296) / 108) * 7;           // outer taper of the body
+        const bore = (x: number) => (x >= 300 ? RB + 2.2 * (1 - p) : RB + 2.2);
+        const xs = 262 + (1 - ins) * 170;
+        s += shank(xs);
+        s += back(half(outer, 250, () => RB + 2.2, 1)) + back(half(outer, 250, () => RB + 2.2, -1));
+        s += sec(half(outer, 250, bore, 1)) + sec(half(outer, 250, bore, -1));
+        // internal slots in the clamping zone
+        for (const x of [322, 352, 382]) for (const sg of [1, -1]) s += `<line x1="${x}" y1="${f(CY - sg * (bore(x) + 1))}" x2="${x}" y2="${f(CY - sg * (bore(x) + 10))}" stroke="#364554" stroke-width="2"/>`;
+        // nut on needle rollers; it moves towards the body as it is tightened
+        const nx = 308 - 12 * p, NL = 92;
+        const nut = (sg: 1 | -1) => `M${f(nx)},${f(CY - sg * 62)} L${f(nx + NL)},${f(CY - sg * 62)} L${f(nx + NL)},${f(CY - sg * (tap(nx + NL) + 7))} L${f(nx)},${f(CY - sg * (tap(nx) + 7))} Z`;
+        s += `<path d="${nut(1)}" fill="url(#ca-hatch)" stroke="#364554" stroke-width="1.5"/><path d="${nut(-1)}" fill="url(#ca-hatch)" stroke="#364554" stroke-width="1.5"/>`;
+        for (let k = 0; k < 7; k++) for (const sg of [1, -1]) {
+          const x = nx + 8 + k * 12.6, y = CY - sg * (tap(x) + 3.5), a = (p * 900 + k * 40) * (Math.PI / 180);
+          s += `<circle cx="${f(x)}" cy="${f(y)}" r="3.3" fill="#c3ccd5" stroke="#364554" stroke-width="1"/><line x1="${f(x - 2.6 * Math.cos(a))}" y1="${f(y - 2.6 * Math.sin(a))}" x2="${f(x + 2.6 * Math.cos(a))}" y2="${f(y + 2.6 * Math.sin(a))}" stroke="#364554" stroke-width="0.9"/>`;
+        }
+        s += `<text x="${f(nx + 10)}" y="${CY - 70}" class="tx">${T.nut}</text><text x="${f(nx + 6)}" y="${CY + 82}" class="tx">${T.rollers}</text>`;
+        s += arrows([330, 360], seg(t, 0.5, 0.62), 2.2 * (1 - p));
+        s += `<text x="470" y="${CY - 34}" class="tx">${T.shank}</text>`;
+      } else {
+        const ins = seg(t, 0.02, 0.2), push = seg(t, 0.25, 0.55);
+        stage = t < 0.22 ? 0 : t < 0.56 ? 1 : 2;
+        const sh = 8 * push;                                              // collet and nut move left
+        const outer: [number, number][] = [[130, 46], [300, 46], [372, 44]];
+        const taper = (x: number) => (x < 300 ? RB + 4 : RB + 4 + ((x - 300) / 72) * 12);
+        const xs = 262 + (1 - ins) * 170;
+        s += shank(xs);
+        s += back(half(outer, 250, taper, 1)) + back(half(outer, 250, taper, -1));
+        s += sec(half(outer, 250, taper, 1)) + sec(half(outer, 250, taper, -1));
+        // collet: cone in the taper, bore closes as it moves in
+        const cg = 2.4 * (1 - push);
+        const cx0 = 304 - sh, cx1 = 392 - sh;
+        const cOut = (x: number) => RB + 4 + ((x - 300) / 72) * 12 - 0.4;                      // follows the taper
+        const colPath = (sgn: 1 | -1) => `M${f(cx0)},${f(CY - sgn * (RB + cg))} L${f(cx0)},${f(CY - sgn * cOut(cx0 + sh))} L${f(cx1)},${f(CY - sgn * Math.min(cOut(cx1 + sh), RB + 18))} L${f(cx1)},${f(CY - sgn * (RB + cg))} Z`;
+        s += `<path d="${colPath(1)}" fill="#d7c08a" stroke="#7a6230" stroke-width="1.2"/><path d="${colPath(-1)}" fill="#d7c08a" stroke="#7a6230" stroke-width="1.2"/>`;
+        for (let k = 0; k < 3; k++) { const x = cx0 + 22 + k * 22; s += `<line x1="${f(x)}" y1="${f(CY - RB - cg - 2)}" x2="${f(x)}" y2="${f(CY - RB - cg - 9)}" stroke="#7a6230" stroke-width="1.4"/><line x1="${f(x)}" y1="${f(CY + RB + cg + 2)}" x2="${f(x)}" y2="${f(CY + RB + cg + 9)}" stroke="#7a6230" stroke-width="1.4"/>`; }
+        // nut: threaded on the nose, lip pressing the collet face
+        const nx = 368 - sh;
+        const nut = (sgn: 1 | -1) => `M${f(nx)},${f(CY - sgn * 52)} L${f(nx + 64)},${f(CY - sgn * 52)} L${f(nx + 64)},${f(CY - sgn * (RB + 4))} L${f(nx + 30)},${f(CY - sgn * (RB + 4))} L${f(nx + 26)},${f(CY - sgn * 44)} L${f(nx)},${f(CY - sgn * 44)} Z`;
+        s += `<path d="${nut(1)}" fill="url(#ca-hatch)" stroke="#364554" stroke-width="1.5"/><path d="${nut(-1)}" fill="url(#ca-hatch)" stroke="#364554" stroke-width="1.5"/>`;
+        s += `<text x="${f(nx + 8)}" y="${CY - 60}" class="tx">${T.nut}</text><text x="336" y="${CY - 56}" class="tx" text-anchor="middle">${T.taper}</text><text x="${f(cx0 + 4)}" y="${CY + 70}" class="tx">${T.collet}</text>`;
+        s += arrows([320, 345], seg(t, 0.5, 0.62), cg);
+        s += `<text x="470" y="${CY - 34}" class="tx">${T.shank}</text>`;
+      }
+      s += `<line x1="10" y1="${CY}" x2="630" y2="${CY}" stroke="#9aa6b2" stroke-width="1" stroke-dasharray="14 4 3 4"/>`;
+      sc.innerHTML = s;
+      root.querySelectorAll<HTMLElement>('[data-st] li').forEach((li, i) => { li.textContent = T.stages[type][i]; li.classList.toggle('on', i === stage); });
+    };
+    root.querySelectorAll<HTMLButtonElement>('[data-g="t"] button').forEach((b, _, all) => b.addEventListener('click', () => { type = b.dataset.v as typeof type; all.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); t = document.documentElement.classList.contains('anim') ? 0 : 0.62; draw(); }));
+    const fit = () => root.classList.toggle('narrow', sc.getBoundingClientRect().width > 0 && sc.getBoundingClientRect().width < 480);
+    new ResizeObserver(fit).observe(sc);
+    draw(); fit();
+    let visible = false;
+    new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+    const step = (now: number) => { const dt = Math.min(0.05, (now - last) / 1000); last = now; if (visible) { t = (t + dt / 7) % 1; draw(); } requestAnimationFrame(step); };
+    whenIn(root, () => { last = performance.now(); t = 0; requestAnimationFrame(step); });
+  });
+</script>

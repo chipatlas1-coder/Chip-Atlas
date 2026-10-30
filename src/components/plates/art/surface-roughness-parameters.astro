@@ -1,0 +1,38 @@
+---
+/* A measured profile over five sampling lengths: mean line, the area that Ra averages,
+   and the peak-to-valley height of one sampling length that enters Rz. */
+import { randomProfile, rz } from '../../../lib/profile.js';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const N = 400;
+const z = randomProfile(N, 23, 13, 1);
+const amp = Math.max(...z.map(Math.abs));
+const X = (i: number) => 40 + (i / (N - 1)) * 410;
+const Y = (v: number) => 160 - (v / amp) * 78;
+const path = z.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+const area = `M${X(0)},160 ` + z.map((v, i) => `L${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ') + ` L${X(N - 1)},160 Z`;
+const { parts } = rz(z, 5);
+const p = parts[2];
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <path class="soft-data f" style="--i:3" d={area} />
+  <line class="c f" style="--i:1" x1="30" y1="160" x2="460" y2="160" />
+  {[0, 1, 2, 3, 4, 5].map((k) => <line class="h f" style="--i:2" x1={40 + k * 82} y1="244" x2={40 + k * 82} y2="256" />)}
+  <path class="b d" style="--i:2" pathLength="1" d={path} />
+  <g class="f" style="--i:6">
+    <line class="h" x1={X(p.peak)} y1={Y(z[p.peak])} x2={X(p.peak) + 40} y2={Y(z[p.peak])} stroke="#e2601a" />
+    <line class="h" x1={X(p.valley)} y1={Y(z[p.valley])} x2={X(p.peak) + 40} y2={Y(z[p.valley])} stroke="#e2601a" />
+    <line class="a" x1={X(p.peak) + 32} y1={Y(z[p.peak]) + 3} x2={X(p.peak) + 32} y2={Y(z[p.valley]) - 3} marker-start="url(#ca-arr-acc)" marker-end="url(#ca-arr-acc)" stroke-width="1.6" />
+    <circle cx={X(p.peak)} cy={Y(z[p.peak])} r="3.5" fill="#e2601a" />
+    <circle cx={X(p.valley)} cy={Y(z[p.valley])} r="3.5" fill="#e2601a" />
+  </g>
+  <g class="lbl">
+    <line class="h" x1="40" y1="250" x2="450" y2="250" />
+    <text class="t-sm" x="72" y="272">l<tspan font-size="9" dy="3">r</tspan></text>
+    <text class="t-sm" x="236" y="296">l<tspan font-size="9" dy="3">n</tspan><tspan dy="-3"> = 5 · l</tspan><tspan font-size="9" dy="3">r</tspan></text>
+    <text class="t-acc" x={X(p.peak) + 40} y={(Y(z[p.peak]) + Y(z[p.valley])) / 2 + 4}>Rz<tspan font-size="9" dy="3">i</tspan></text>
+    <text class="t-data" x="44" y="40">Ra = (1/l) ∫ |Z(x)| dx</text>
+    <text class="t-sm" x="372" y="154">{tr ? 'ortalama çizgi' : 'mean line'}</text>
+  </g>
+</svg>

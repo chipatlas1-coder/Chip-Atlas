@@ -1,0 +1,177 @@
+---
+/**
+ * Plateau-honed profile and its material ratio curve with the ISO 13565-2 construction, built
+ * step by step (the article's five steps). Profile and curve share one height scale. Every value
+ * is calculated from the profile drawn (src/lib/profile.js: honedProfile, rkFamily).
+ */
+import { honedProfile, rkFamily } from '../../lib/profile.js';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const N = 700;
+const z = honedProfile(N, 11);
+const r = rkFamily(z);
+const zmax = Math.max(...z), zmin = Math.min(...z);
+const dec = (v: number, k = 2) => (tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+const pct = (v: number, k = 1) => (tr ? `%${dec(v, k)}` : `${dec(v, k)} %`);
+const lineAt = (m: number) => r.z0 - (r.Rk / 100) * m;
+const T = tr
+  ? {
+      aria: 'Plato honlanmış profil ve malzeme oranı eğrisi üzerinde ISO 13565-2 yapımı',
+      prof: 'Profil', curve: 'Malzeme oranı eğrisi', all: 'Tümü',
+      steps: ['Eşdeğer doğru', 'Rk', 'Mr1, Mr2', 'Rpk', 'Rvk'],
+      say: [
+        'Eşdeğer doğru: %40 malzeme oranını kapsayan kesen, eğimi en küçük olduğu yere kaydırılır.',
+        'Rk: doğrunun %0 ve %100 ile kesişimleri arasındaki yükseklik. Bu bant profilin çekirdeğidir.',
+        'Mr1 ve Mr2: çekirdeğin uçlarından geçen yatay çizgiler eğriyi bu malzeme oranlarında keser.',
+        'Rpk: %0 ile Mr1 arasında çekirdeğin üstünde kalan A1 alanı, tabanı Mr1 olan eşit alanlı bir üçgene çevrilir: Rpk = 2·A1/Mr1.',
+        'Rvk: Mr2 ile %100 arasında çekirdeğin altında kalan A2 alanı, tabanı %100 − Mr2 olan eşit alanlı bir üçgene çevrilir: Rvk = 2·A2/(%100 − Mr2).',
+      ],
+    }
+  : {
+      aria: 'Plateau-honed profile and the ISO 13565-2 construction on its material ratio curve',
+      prof: 'Profile', curve: 'Material ratio curve', all: 'All',
+      steps: ['Equivalent line', 'Rk', 'Mr1, Mr2', 'Rpk', 'Rvk'],
+      say: [
+        'Equivalent straight line: a secant spanning 40 % of material ratio, moved to where its slope is smallest.',
+        'Rk: the height between the line’s intersections with 0 % and 100 %. This band is the core of the profile.',
+        'Mr1 and Mr2: horizontals through the ends of the core cut the curve at these material ratios.',
+        'Rpk: the area A1 above the core between 0 % and Mr1 becomes a triangle of equal area on the base Mr1: Rpk = 2·A1/Mr1.',
+        'Rvk: the area A2 below the core between Mr2 and 100 % becomes a triangle of equal area on the base 100 % − Mr2: Rvk = 2·A2/(100 % − Mr2).',
+      ],
+    };
+const G = [false, true].map((narrow) => {
+  const W = narrow ? 360 : 640, H = narrow ? 320 : 340;
+  const top = 34, bottom = H - 42;
+  const px0 = narrow ? 8 : 16, px1 = narrow ? 112 : 262, ax0 = narrow ? 150 : 318, ax1 = narrow ? 326 : 586;
+  const Y = (v: number) => top + ((zmax - v) / (zmax - zmin)) * (bottom - top);
+  const PX = (i: number) => px0 + (i / (N - 1)) * (px1 - px0);
+  const AX = (m: number) => ax0 + (m / 100) * (ax1 - ax0);
+  const f = (v: number) => v.toFixed(1);
+  const prof = z.map((v, i) => `${i ? 'L' : 'M'}${f(PX(i))},${f(Y(v))}`).join(' ');
+  const curve = r.sorted.map((v, i) => `${i ? 'L' : 'M'}${f(AX(r.mr[i]))},${f(Y(v))}`).join(' ');
+  const a1 = r.sorted.map((v, i) => [r.mr[i], v] as [number, number]).filter(([m]) => m <= r.Mr1);
+  const a2 = r.sorted.map((v, i) => [r.mr[i], v] as [number, number]).filter(([m]) => m >= r.Mr2);
+  const A1 = `M${f(AX(0))},${f(Y(r.z0))} ` + a1.map(([m, v]) => `L${f(AX(m))},${f(Y(v))}`).join(' ') + ` L${f(AX(r.Mr1))},${f(Y(r.z0))} Z`;
+  const A2 = `M${f(AX(r.Mr2))},${f(Y(r.z100))} ` + a2.map(([m, v]) => `L${f(AX(m))},${f(Y(v))}`).join(' ') + ` L${f(AX(100))},${f(Y(r.z100))} Z`;
+  return { narrow, W, H, top, bottom, px0, px1, ax0, ax1, Y, AX, prof, curve, A1, A2 };
+});
+const vals = [
+  { k: 2, t: `Rk ${dec(r.Rk)} µm` }, { k: 4, t: `Rpk ${dec(r.Rpk)} µm` }, { k: 5, t: `Rvk ${dec(r.Rvk)} µm` },
+  { k: 3, t: `Mr1 ${pct(r.Mr1)}` }, { k: 3, t: `Mr2 ${pct(r.Mr2)}` },
+];
+---
+<div class="abbott" data-abbott data-step="5">
+  <div class="steps" role="radiogroup" aria-label={tr ? 'Yapım adımları' : 'Construction steps'}>
+    {T.steps.map((s, i) => <button type="button" role="radio" aria-checked={i === 4 ? 'true' : 'false'} data-go={i + 1}><span class="n">{i + 1}</span>{s}</button>)}
+  </div>
+  <p class="say" aria-live="polite" data-say={JSON.stringify(T.say)}>{T.say[4]}</p>
+  {G.map(({ narrow, W, H, top, bottom, px0, px1, ax0, ax1, Y, AX, prof, curve, A1, A2 }) => (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={T.aria} class={narrow ? 'narrow' : 'wide'}>
+      <defs>
+        <linearGradient id={`ab-fill-${locale}-${narrow ? 'n' : 'w'}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e6fd6" stop-opacity="0.22" /><stop offset="1" stop-color="#1e6fd6" stop-opacity="0.02" /></linearGradient>
+      </defs>
+      <text x={px0} y="20" class="t">{T.prof}</text>
+      <text x={ax0} y="20" class="t">{T.curve}</text>
+      <!-- core band (step 2) -->
+      <rect x={px0} y={Y(r.z0)} width={ax1 - px0} height={Y(r.z100) - Y(r.z0)} class="core s2" />
+      <!-- profile -->
+      <path d={`${prof} L${px1},${bottom} L${px0},${bottom} Z`} fill={`url(#ab-fill-${locale}-${narrow ? 'n' : 'w'})`} />
+      <path d={prof} class="pline" />
+      <!-- axes of the curve -->
+      <line x1={ax0} x2={ax1} y1={bottom} y2={bottom} class="ax" />
+      {[0, 20, 40, 60, 80, 100].map((m) => <g><line x1={AX(m)} x2={AX(m)} y1={bottom} y2={bottom + 4} class="ax" /><text x={AX(m)} y={bottom + 16} text-anchor="middle" class="tick">{m}</text></g>)}
+      <text x={ax1} y={bottom + 32} text-anchor="end" class="tick">{tr ? 'malzeme oranı (%)' : 'material ratio (%)'}</text>
+      <!-- areas (steps 4, 5) -->
+      <path d={A1} class="area s4" />
+      <path d={A2} class="area s5" />
+      <!-- the curve -->
+      <path d={curve} class="aline" />
+      <!-- step 1: 40 % window and equivalent line -->
+      <rect x={AX(r.secant.m)} y={top} width={AX(r.secant.m + 40) - AX(r.secant.m)} height={bottom - top} class="win s1" />
+      <text x={(AX(r.secant.m) + AX(r.secant.m + 40)) / 2} y={top + 12} text-anchor="middle" class="tick s1">{tr ? '%40' : '40 %'}</text>
+      <line x1={AX(0)} y1={Y(lineAt(0))} x2={AX(100)} y2={Y(lineAt(100))} class="eq s1" />
+      <!-- step 2: Rk dimension -->
+      <g class="s2">
+        <line x1={ax1 + 10} x2={ax1 + 10} y1={Y(r.z0)} y2={Y(r.z100)} class="dim" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+        <text x={ax1 + 16} y={(Y(r.z0) + Y(r.z100)) / 2 + 4} class="t dat">Rk</text>
+      </g>
+      <!-- step 3: Mr1, Mr2 -->
+      <g class="s3">
+        <line x1={AX(0)} x2={AX(r.Mr1)} y1={Y(r.z0)} y2={Y(r.z0)} class="hz" />
+        <line x1={AX(r.Mr2)} x2={AX(100)} y1={Y(r.z100)} y2={Y(r.z100)} class="hz" />
+        <line x1={AX(r.Mr1)} x2={AX(r.Mr1)} y1={Y(r.z0)} y2={bottom} class="mr" />
+        <line x1={AX(r.Mr2)} x2={AX(r.Mr2)} y1={Y(r.z100)} y2={bottom} class="mr" />
+        <text x={AX(r.Mr1) + 4} y={bottom - 6} class="tick acc">Mr1</text>
+        <text x={AX(r.Mr2) - 4} y={bottom - 6} text-anchor="end" class="tick acc">Mr2</text>
+      </g>
+      <!-- step 4: Rpk triangle -->
+      <g class="s4">
+        <path d={`M${AX(0)},${Y(r.z0)} L${AX(0)},${Y(r.z0 + r.Rpk)} L${AX(r.Mr1)},${Y(r.z0)} Z`} class="tri" />
+        <text x={AX(0) - 6} y={Y(r.z0 + r.Rpk / 2) + 4} text-anchor="end" class="t acc">Rpk</text>
+        <text x={AX(r.Mr1 / 2) + 8} y={Y(r.z0) - 8} class="tick acc">A1</text>
+      </g>
+      <!-- step 5: Rvk triangle -->
+      <g class="s5">
+        <path d={`M${AX(100)},${Y(r.z100)} L${AX(100)},${Y(r.z100 - r.Rvk)} L${AX(r.Mr2)},${Y(r.z100)} Z`} class="tri" />
+        <text x={AX(100) + 6} y={Y(r.z100 - r.Rvk / 2) + 4} class="t acc">Rvk</text>
+        <text x={AX((r.Mr2 + 100) / 2) - 2} y={Y(r.z100) + 26} text-anchor="end" class="tick acc">A2</text>
+      </g>
+    </svg>
+  ))}
+  <p class="vals">{vals.map((v) => <span data-k={v.k}>{v.t}</span>)}</p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-abbott]').forEach((root) => {
+    const say = root.querySelector<HTMLElement>('.say')!;
+    const texts = JSON.parse(say.dataset.say!);
+    root.querySelectorAll<HTMLButtonElement>('[data-go]').forEach((b) => b.addEventListener('click', () => {
+      const k = Number(b.dataset.go);
+      root.dataset.step = String(k);
+      say.textContent = texts[k - 1];
+      root.querySelectorAll('[data-go]').forEach((x) => x.setAttribute('aria-checked', String(x === b)));
+    }));
+  });
+</script>
+
+<style>
+  .abbott { display: grid; gap: 0.6rem; padding: 0.9rem 1rem 0.8rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  .steps { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .steps button { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; padding: 0.28rem 0.7rem 0.28rem 0.35rem; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink-2); transition: border-color 150ms, color 150ms, background-color 150ms; }
+  .steps button:hover { border-color: var(--ink-3); color: var(--ink); }
+  .steps button[aria-checked="true"] { border-color: var(--accent); color: var(--ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+  .steps .n { width: 1.2rem; height: 1.2rem; border-radius: 50%; border: 1.3px solid var(--color-spark-400); color: var(--color-spark-400); font: 600 0.66rem/1.05rem var(--font-mono); text-align: center; }
+  .say { margin: 0; min-height: 2.6em; font-size: 0.86rem; color: var(--ink-2); max-width: none; }
+  svg { width: 100%; height: auto; display: block; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } .abbott { padding: 0.8rem 0.7rem; } }
+  .t { font-family: var(--font-mono); font-size: 12px; fill: var(--ink); }
+  .tick { font-family: var(--font-mono); font-size: 10.5px; fill: var(--ink-3); }
+  .acc { fill: var(--color-spark-400); }
+  .dat { fill: var(--color-metro-400); }
+  .core { fill: color-mix(in oklab, #1e6fd6 10%, transparent); }
+  .pline { fill: none; stroke: #2a78d6; stroke-width: 1.1; stroke-linejoin: round; }
+  .aline { fill: none; stroke: #1e6fd6; stroke-width: 2.2; stroke-linejoin: round; }
+  .ax { stroke: var(--line-strong); }
+  .win { fill: color-mix(in oklab, var(--ink) 5%, transparent); stroke: var(--line-strong); stroke-dasharray: 2 3; }
+  .eq { stroke: var(--ink); stroke-width: 1.4; stroke-dasharray: 6 4; }
+  .dim { stroke: #1e6fd6; stroke-width: 1.3; }
+  .hz { stroke: var(--color-spark-400); stroke-width: 1; stroke-dasharray: 3 3; }
+  .mr { stroke: var(--color-spark-400); stroke-dasharray: 3 3; }
+  .area { fill: color-mix(in oklab, #e2601a 22%, transparent); }
+  .tri { fill: color-mix(in oklab, #e2601a 12%, transparent); stroke: #e2601a; stroke-width: 1.4; stroke-linejoin: round; }
+  .vals { margin: 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-2); max-width: none; }
+  .s1, .s2, .s3, .s4, .s5 { transition: opacity 300ms ease; }
+  /* progressive build: hide steps above the current one, dim the earlier ones */
+  [data-step="1"] :is(.s2, .s3, .s4, .s5), [data-step="2"] :is(.s3, .s4, .s5), [data-step="3"] :is(.s4, .s5), [data-step="4"] .s5 { opacity: 0; }
+  [data-step="2"] .s1, [data-step="3"] :is(.s1, .s2), [data-step="4"] :is(.s1, .s2, .s3) { opacity: 0.35; }
+  [data-step="5"] .s1 { opacity: 0.5; }
+  .vals span { transition: color 200ms, opacity 200ms; }
+  [data-step="1"] .vals span { opacity: 0.35; }
+  [data-step="2"] .vals span:not([data-k="2"]) { opacity: 0.35; }
+  [data-step="3"] .vals span:not([data-k="3"]) { opacity: 0.35; }
+  [data-step="4"] .vals span:not([data-k="4"]) { opacity: 0.35; }
+  [data-step="2"] .vals [data-k="2"], [data-step="3"] .vals [data-k="3"], [data-step="4"] .vals [data-k="4"], [data-step="5"] .vals [data-k="5"] { color: var(--color-spark-400); }
+  @media (prefers-reduced-motion: reduce) { .s1, .s2, .s3, .s4, .s5, .vals span { transition: none; } }
+</style>

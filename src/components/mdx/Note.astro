@@ -1,0 +1,18 @@
+---
+/** Callout. kind: 'note' (blue, context), 'warn' (orange, a mistake people make), 'key' (the rule to remember). */
+interface Props { kind?: 'note' | 'warn' | 'key'; title?: string }
+const { kind = 'note', title } = Astro.props;
+---
+<aside class:list={['note', kind]}>
+  {title && <p class="note-title">{title}</p>}
+  <div class="note-body"><slot /></div>
+</aside>
+
+<style>
+  .note { font-family: var(--font-sans); font-size: 1rem; line-height: 1.6; border: 1px solid color-mix(in oklab, var(--data) 22%, white); border-left: 4px solid var(--data); background: color-mix(in oklab, var(--data) 6%, white); padding: 0.95rem 1.15rem; border-radius: 0 12px 12px 0; }
+  .warn { border-color: color-mix(in oklab, var(--accent) 26%, white); border-left-color: var(--accent); background: color-mix(in oklab, var(--accent) 7%, white); }
+  .key { border-color: var(--line); border-left-color: var(--color-temper-purple); background: var(--bg-raised); }
+  .note-title { font-weight: 650; color: var(--ink) !important; margin-bottom: 0.35rem; }
+  .note-body :global(p) { margin: 0; color: var(--ink-2) !important; }
+  .note-body :global(p + p) { margin-top: 0.5rem; }
+</style>

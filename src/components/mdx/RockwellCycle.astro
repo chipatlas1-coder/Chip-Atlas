@@ -1,0 +1,132 @@
+---
+/**
+ * The Rockwell test cycle, played: indenter depth against time under the preliminary force, the total
+ * force and the preliminary force again; the permanent depth h is read against the datum set under the
+ * preliminary force, and HR = N − h / S. Pick a scale and a permanent depth. Depth shapes are schematic
+ * (elastic part and seating not to scale); N, S and the forces are PTB's and ZwickRoell's values.
+ * Arithmetic and drawing in src/lib/hardness.ts.
+ */
+import { SCALES, rockwell, drawRockwellCycle, RC } from '../../lib/hardness';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { depth: 'Derinlik', time: 'Zaman', f0: 'Ön yük F₀', f: 'Toplam yük F', datum: 'F₀ altında başlangıç', hold: '4 ± 2 s', read: 'okuma', scale: 'Skala', h: 'Kalıcı derinlik h', ind: 'Batıcı uç', loads: 'Yükler', cone: '120° elmas koni', b1: 'bilye 1,5875 mm', b3: 'bilye 3,175 mm', result: 'Sertlik', calc: 'Hesap', replay: 'Tekrar oynat', aria: 'Rockwell deney çevrimi: ön yük, toplam yük, yeniden ön yük altında batıcı ucun derinliği ve okunan kalıcı derinlik' }
+  : { depth: 'Depth', time: 'Time', f0: 'Preliminary F₀', f: 'Total force F', datum: 'datum under F₀', hold: '4 ± 2 s', read: 'reading', scale: 'Scale', h: 'Permanent depth h', ind: 'Indenter', loads: 'Forces', cone: '120° diamond cone', b1: 'ball 1.5875 mm', b3: 'ball 3.175 mm', result: 'Hardness', calc: 'Working', replay: 'Replay', aria: 'Rockwell test cycle: depth of the indenter under the preliminary force, the total force and the preliminary force again, and the permanent depth that is read' };
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+const si = 2, h0 = 0.08;
+const sc = SCALES[si];
+const G = [drawRockwellCycle(RC.end, sc, h0, T, dec, false), drawRockwellCycle(RC.end, sc, h0, T, dec, true)];
+const hr = rockwell(sc, h0);
+const n0 = (v: number) => dec(v.toFixed(1));
+---
+<div class="rc" data-rc data-locale={locale} data-anim>
+  <div class="controls">
+    <label class="field"><span>{T.scale}</span>
+      <select data-i="s">{SCALES.map((s, i) => <option value={i} selected={i === si}>{s.k}</option>)}</select></label>
+    <label class="field grow"><span>{T.h} <output data-o="h">{dec(h0.toFixed(3))}</output> mm</span>
+      <input type="range" min={(sc.N - 95) * sc.S} max={(sc.N - 10) * sc.S} step={sc.S / 2} value={h0} data-i="h" /></label>
+  </div>
+  <svg class="defs" aria-hidden="true" width="0" height="0"><defs><marker id="rc-a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,1 L10,5 L0,9 z" fill="#e2601a" /></marker></defs></svg>
+  <svg viewBox={`0 0 ${G[0].W} ${G[0].H}`} class="wide" role="img" aria-label={T.aria} data-svg="w">
+    <g data-g set:html={G[0].svg} />
+  </svg>
+  <svg viewBox={`0 0 ${G[1].W} ${G[1].H}`} class="narrow" role="img" aria-label={T.aria} data-svg="n">
+    <g data-g set:html={G[1].svg} />
+  </svg>
+  <dl class="read">
+    <div class="big"><dt>{T.result}</dt><dd class="num" data-o="hr">{n0(hr)} {sc.k}</dd></div>
+    <div><dt>{T.calc}</dt><dd class="num" data-o="calc">{sc.N} − {dec(h0.toFixed(3))} / {dec(String(sc.S))} = {n0(hr)}</dd></div>
+    <div><dt>{T.ind}</dt><dd data-o="ind">{T[sc.ind]}</dd></div>
+    <div><dt>{T.loads}</dt><dd class="num" data-o="loads">F₀ {dec(String(sc.F0))} N · F {dec(String(sc.F))} N</dd></div>
+  </dl>
+  <button type="button" class="replay" data-replay hidden>↻ {T.replay}</button>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .rc { display: grid; gap: 0.8rem; position: relative; }
+  .rc > svg.defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .rc > svg:not(.defs) { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .narrow { display: none !important; }
+  @media (max-width: 40rem) { .wide { display: none !important; } .narrow { display: block !important; } }
+  .controls { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.7rem 1.2rem; align-items: end; }
+  @media (max-width: 30rem) { .controls { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  select { width: 100%; min-width: 8rem; font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--bg-sunk); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.35rem 0.5rem; min-height: 2.1rem; }
+  .read { display: grid; grid-template-columns: 1fr 1.4fr 1fr 1.3fr; gap: 0.75rem; margin: 0; }
+  @media (max-width: 40rem) { .read { grid-template-columns: 1fr 1fr; } }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; color: var(--ink); font-size: 0.92rem; }
+  .read .big dd { color: #e2601a; font-size: 1.35rem; font-weight: 500; }
+  .replay { justify-self: end; font: 500 0.78rem var(--font-mono); color: var(--ink-2); background: transparent; border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.3rem 0.65rem; min-height: 2rem; cursor: pointer; }
+  .replay:hover { color: var(--ink); border-color: var(--ink-3); }
+  .replay:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .rc :global(.rc-band.p0) { fill: #2a78d6; fill-opacity: 0.06; }
+  .rc :global(.rc-band.p1) { fill: #e2601a; fill-opacity: 0.08; }
+  .rc :global(.rc-bl) { font: 500 11px var(--font-mono); }
+  .rc :global(.rc-bl.p0) { fill: #2a78d6; }
+  .rc :global(.rc-bl.p1) { fill: #e2601a; }
+  .rc :global(.rc-axis) { stroke: var(--line-strong); stroke-width: 1; }
+  .rc :global(.rc-datum) { stroke: #2a78d6; stroke-width: 1; stroke-dasharray: 5 4; }
+  .rc :global(.rc-final) { stroke: #e2601a; stroke-width: 1; stroke-dasharray: 5 4; }
+  .rc :global(.rc-curve) { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linejoin: round; }
+  .rc :global(.rc-dot) { fill: #e2601a; stroke: #f7fbfe; stroke-width: 1.5; }
+  .rc :global(.rc-h) { stroke: #e2601a; stroke-width: 1.4; }
+  .rc :global(.rc-t) { font: 11px var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; }
+  .rc :global(.rc-t.s) { font-size: 10.5px; fill: var(--ink-3); }
+  .rc :global(.rc-t.h) { fill: #e2601a; font-weight: 500; }
+</style>
+
+<script>
+  import { SCALES, rockwell, drawRockwellCycle, RC } from '../../lib/hardness';
+  import { whenIn, countUp } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-rc]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const gs = [...root.querySelectorAll<SVGGElement>('[data-g]')];
+    const sel = q<HTMLSelectElement>('[data-i="s"]'), rng = q<HTMLInputElement>('[data-i="h"]');
+    const btn = q<HTMLButtonElement>('[data-replay]');
+    let raf = 0;
+    const draw = (t: number) => {
+      const sc = SCALES[Number(sel.value)], h = Number(rng.value);
+      gs.forEach((g, i) => { g.innerHTML = drawRockwellCycle(t, sc, h, T, dec, i === 1).svg; });
+    };
+    const read = () => {
+      const sc = SCALES[Number(sel.value)], h = Number(rng.value), hr = rockwell(sc, h);
+      q('[data-o="h"]').textContent = dec(h.toFixed(3));
+      q('[data-o="hr"]').textContent = `${dec(hr.toFixed(1))} ${sc.k}`;
+      q('[data-o="calc"]').textContent = `${sc.N} − ${dec(h.toFixed(3))} / ${dec(String(sc.S))} = ${dec(hr.toFixed(1))}`;
+      q('[data-o="ind"]').textContent = T[sc.ind];
+      q('[data-o="loads"]').textContent = `F₀ ${dec(String(sc.F0))} N · F ${dec(String(sc.F))} N`;
+    };
+    const play = () => {
+      cancelAnimationFrame(raf);
+      const t0 = performance.now();
+      const step = (now: number) => {
+        const t = (now - t0) / 1000;
+        draw(Math.min(t, RC.end));
+        if (t < RC.end) raf = requestAnimationFrame(step);
+        else countUp(q('[data-o="hr"]'), 600);
+      };
+      raf = requestAnimationFrame(step);
+    };
+    sel.addEventListener('change', () => {
+      const sc = SCALES[Number(sel.value)];
+      // keep the depth inside a sensible span for the scale: superficial scales read 0.001 mm per point
+      // the slider spans 95 down to 10 points on the chosen scale
+      const lo = (sc.N - 95) * sc.S, hi = (sc.N - 10) * sc.S;
+      rng.min = String(lo); rng.max = String(hi); rng.step = String(sc.S / 2);
+      rng.value = String(Math.min(hi, Math.max(lo, (sc.N - 50) * sc.S)));
+      cancelAnimationFrame(raf); draw(RC.end); read();
+    });
+    rng.addEventListener('input', () => { cancelAnimationFrame(raf); draw(RC.end); read(); });
+    whenIn(root, () => { btn.hidden = false; play(); });
+    btn.addEventListener('click', play);
+  });
+</script>

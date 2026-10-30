@@ -1,0 +1,91 @@
+---
+/* S355J2: limits up to 40 mm from EN 10025-2 (the article's table) and a welded I-section: two
+   flange plates and a web joined by fillet welds, cut square at the near end so the section and the
+   weld throats show; the beam runs level across the plate and fades out at its far end.
+   Orthographic view from the right and above, rolled so the beam runs level. Proportions
+   schematic, weld size exaggerated. */
+import Elements from '../Elements.astro';
+import { ortho, f1, type V3 } from '../geom3d';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const d = (s: string) => (tr ? s.replaceAll('.', ',') : s);
+const items = [
+  { el: 'C', z: 6, v: d('≤ 0.20') },
+  { el: 'Si', z: 14, v: d('≤ 0.55') },
+  { el: 'Mn', z: 25, v: d('≤ 1.60') },
+  { el: 'P', z: 15, v: d('≤ 0.025') },
+];
+const id = (s: string) => `s355-${s}-${locale}`;
+// place the section's centre at (396, 250): build the camera once at the origin, then shift it
+const AZ = 40, EL = 13, K = 0.72;
+const c0 = ortho(AZ, EL, K, 0, 0).P([400, 0, 0]);
+const cam = ortho(AZ, EL, K, 404 - c0[0], 268 - c0[1]);
+// section in the Y–Z plane; beam from x0 to x1 along X; H height, B flange width, tf, tw, a weld leg
+const H = 104, B = 100, tf = 12, tw = 9, a = 9, x0 = 30, x1 = 400;
+const yT = H / 2, yB = -H / 2, zF = B / 2, zW = tw / 2;
+const q = (pts: V3[]) => cam.poly(pts);
+const along = (p: [number, number], r: [number, number]): V3[] => [[x0, p[0], p[1]], [x1, p[0], p[1]], [x1, r[0], r[1]], [x0, r[0], r[1]]];   // [y, z] pairs
+const web = q(along([yB + tf, zW], [yT - tf, zW]));
+const botTop = q(along([yB + tf, zW], [yB + tf, zF]));
+const botFront = q(along([yB, zF], [yB + tf, zF]));
+const topFront = q(along([yT - tf, zF], [yT, zF]));
+const topTop = q(along([yT, -zF], [yT, zF]));
+const weldTop = q(along([yT - tf, zW + a], [yT - tf - a, zW]));
+const weldBot = q(along([yB + tf + a, zW], [yB + tf, zW + a]));
+const sec = q([
+  [x1, yB, -zF], [x1, yB, zF], [x1, yB + tf, zF], [x1, yB + tf, zW], [x1, yT - tf, zW], [x1, yT - tf, zF], [x1, yT, zF],
+  [x1, yT, -zF], [x1, yT - tf, -zF], [x1, yT - tf, -zW], [x1, yB + tf, -zW], [x1, yB + tf, -zF],
+]);
+const tri = (sy: number, sz: number) => {
+  const y0 = sy > 0 ? yT - tf : yB + tf, dy = sy > 0 ? -a : a;
+  return q([[x1, y0, sz * zW], [x1, y0, sz * (zW + a)], [x1, y0 + dy, sz * zW]]);
+};
+const welds = [tri(1, 1), tri(1, -1), tri(-1, 1), tri(-1, -1)].join(' ');
+const fA = cam.P([x0, 0, 0]), fB = cam.P([x0 + 170, 0, 0]);
+const weldOn = cam.P([x1 - 150, yB + tf + a * 0.45, zW + a * 0.45]);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id={id('fade')} gradientUnits="userSpaceOnUse" x1={f1(fA[0])} y1={f1(fA[1])} x2={f1(fB[0])} y2={f1(fB[1])}>
+      <stop offset="0" stop-color="#fff" stop-opacity="0" /><stop offset="1" stop-color="#fff" />
+    </linearGradient>
+    <clipPath id={id('clip')}><rect x="0" y="181" width="480" height="139" /></clipPath>
+    <mask id={id('mask')} maskUnits="userSpaceOnUse" x="0" y="0" width="480" height="320"><rect width="480" height="320" fill={`url(#${id('fade')})`} /></mask>
+    <linearGradient id={id('top')} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b5bec5" /><stop offset="1" stop-color="#e7ecf0" />
+    </linearGradient>
+    <linearGradient id={id('front')} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#acb5bb" /><stop offset="1" stop-color="#889299" />
+    </linearGradient>
+    <linearGradient id={id('web')} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#636a6f" /><stop offset="1" stop-color="#889299" />
+    </linearGradient>
+  </defs>
+  <text class="t-big f" style="--i:0" x="24" y="52">S355J2</text>
+  <text class="t-sm f" style="--i:1" x="26" y="74">1.0577, EN 10025-2 {tr ? '(kütlece %, t ≤ 40 mm)' : '(% by mass, t ≤ 40 mm)'}</text>
+  <Elements items={items} x={24} y={90} />
+
+  <g clip-path={`url(#${id('clip')})`}>
+    <g class="f" style="--i:5" mask={`url(#${id('mask')})`} stroke-linejoin="round">
+      <path d={web} fill={`url(#${id('web')})`} />
+      <path d={botTop} fill={`url(#${id('top')})`} stroke="#2f3438" stroke-width="0.5" />
+      <path d={weldBot} fill="#cf621d" stroke="#e2601a" stroke-width="0.6" />
+      <path d={weldTop} fill="#ac5723" stroke="#e2601a" stroke-width="0.6" />
+      <path d={botFront} fill={`url(#${id('front')})`} stroke="#474e54" stroke-width="0.5" />
+      <path d={topFront} fill={`url(#${id('front')})`} stroke="#474e54" stroke-width="0.5" />
+      <path d={topTop} fill={`url(#${id('top')})`} stroke="#2f3438" stroke-width="0.5" />
+    </g>
+    <g class="f" style="--i:6">
+      <path d={sec} class="hatch" />
+      <path d={welds} class="fill-acc" />
+    </g>
+    <path class="o d" style="--i:6" pathLength="1" d={sec} />
+  </g>
+  <g class="lbl">
+    <text class="t-data t-sm" x="26" y="206">ReH ≥ 355 MPa</text>
+    <text class="t-sm" x="26" y="220">t ≤ 16 mm</text>
+    <text class="t-acc t-sm" x="190" y="308" text-anchor="end">{tr ? 'köşe kaynakları' : 'fillet welds'}</text>
+    <line class="h" x1="194" y1="304" x2={f1(weldOn[0])} y2={f1(weldOn[1])} stroke="#e2601a" />
+  </g>
+</svg>

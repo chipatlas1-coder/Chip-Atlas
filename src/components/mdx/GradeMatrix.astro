@@ -1,0 +1,84 @@
+---
+/**
+ * Choosing among the 304/316 family: environment (columns) against fabrication (rows). Each cell
+ * names the grade the article's sources point to; the reasons are in the article text.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? {
+      cols: [{ h: 'Ilımlı ortam', s: 'iç mekân, tatlı su, gıda ekipmanı' }, { h: 'Klorürlü ortam', s: 'sahil, yol tuzu, klorürlü proses suyu' }],
+      rows: [
+        { h: 'Kalın kesitler kaynaklanacak', s: 'kaynaktan sonra çözeltiye alma tavı yok' },
+        { h: 'Kaynaksız ya da ince kesit', s: 'genel imalat' },
+        { h: 'Çok talaş kaldırılacak', s: 'kaynak yok' },
+      ],
+      or: 'ya da', imp: 'işlenebilirliği artırılmış', not: 'klorüre uygun değil',
+    }
+  : {
+      cols: [{ h: 'Mild environment', s: 'indoors, fresh water, food equipment' }, { h: 'Chlorides', s: 'coast, road salt, chloride-bearing process water' }],
+      rows: [
+        { h: 'Thick sections welded', s: 'no solution anneal after welding' },
+        { h: 'Not welded, or thin sections', s: 'general fabrication' },
+        { h: 'Heavily machined', s: 'not welded' },
+      ],
+      or: 'or', imp: 'improved machinability', not: 'not for chlorides',
+    };
+type G = { n: string; e: string; note?: string; warn?: boolean };
+const cells: G[][][] = [
+  [[{ n: '304L', e: '1.4307' }], [{ n: '316L', e: '1.4404' }, { n: '316Ti', e: '1.4571' }]],
+  [[{ n: '304', e: '1.4301' }], [{ n: '316', e: '1.4401' }]],
+  [[{ n: '303', e: '1.4305' }, { n: '304 / 304L', e: '', note: T.imp }], [{ n: '316L', e: '1.4404', note: T.imp }]],
+];
+---
+<div class="gm" role="table" aria-label={tr ? '304/316 ailesinde kalite seçimi' : 'Choosing a grade in the 304/316 family'}>
+  <div class="gm-head" role="row">
+    <span role="columnheader" class="corner"></span>
+    {T.cols.map((c, j) => <span role="columnheader" class:list={['ch', `c${j}`]}><b>{c.h}</b><small>{c.s}</small></span>)}
+  </div>
+  {T.rows.map((r, i) => (
+    <div class="gm-row" role="row">
+      <span role="rowheader" class="rh"><b>{r.h}</b><small>{r.s}</small></span>
+      {cells[i].map((cell, j) => (
+        <span role="cell" class:list={['cell', `c${j}`]}>
+          <span class="colname">{T.cols[j].h}</span>
+          {cell.map((g, k) => (
+            <>
+              {k > 0 && <i class="or">{T.or}</i>}
+              <span class="grade">
+                <b>{g.n}</b>{g.e && <em>{g.e}</em>}
+                {g.note && <small>{g.note}</small>}
+              </span>
+            </>
+          ))}
+        </span>
+      ))}
+    </div>
+  ))}
+</div>
+
+<style>
+  .gm { display: grid; gap: 0.4rem; }
+  .gm-head, .gm-row { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(0, 1.2fr) minmax(0, 1.2fr); gap: 0.4rem; }
+  .ch, .rh { display: grid; gap: 0.1rem; align-content: center; padding: 0.45rem 0.6rem; font-size: 0.86rem; color: var(--ink); }
+  .ch small, .rh small { font-size: 0.74rem; color: var(--ink-3); line-height: 1.3; }
+  .ch { border-bottom: 2px solid var(--line-strong); }
+  .ch.c0 { border-color: #1e6fd6; }
+  .ch.c1 { border-color: #d4520f; }
+  .cell { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; padding: 0.55rem 0.6rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  .cell.c0 { box-shadow: inset 3px 0 0 #1e6fd6; }
+  .cell.c1 { box-shadow: inset 3px 0 0 #d4520f; }
+  .grade { display: inline-grid; gap: 0.05rem; padding: 0.3rem 0.55rem; background: var(--bg-raised); border: 1px solid var(--line-strong); border-radius: 5px; }
+  .grade b { font-family: var(--font-mono); font-size: 0.98rem; font-weight: 600; color: var(--ink); }
+  .grade em { font-style: normal; font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-3); }
+  .grade small { font-size: 0.7rem; color: var(--color-metro-400); }
+  .or { font-style: normal; font-size: 0.74rem; color: var(--ink-3); }
+  .colname { display: none; }
+  @media (max-width: 40rem) {
+    .gm-head { display: none; }
+    .gm-row { grid-template-columns: minmax(0, 1fr); gap: 0.35rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--line); }
+    .rh { padding: 0.2rem 0; }
+    .colname { display: block; flex-basis: 100%; font-size: 0.72rem; color: var(--ink-3); }
+  }
+</style>

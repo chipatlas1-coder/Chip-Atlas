@@ -1,0 +1,50 @@
+---
+/* Long chips in turning. The bar in the chuck, the tool cutting, and the chip that would not break: a long
+   ribbon that snarls round the bar and the tool (a "bird's nest"). Inset: the short, broken chips a chip
+   breaker working inside its range makes. Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { nest: 'dolanan uzun talaş', good: 'kırılmış talaş', breaker: 'talaş kırıcı aralığında', feed: 'f' }
+  : { nest: 'long, tangling chip', good: 'broken chips', breaker: 'chip breaker in its range', feed: 'f' };
+const f1 = (v: number) => v.toFixed(1);
+const cy = 150, R = 52, r = 47, xc = 52, xt = 214, xe = 318;
+// the snarl: a ribbon leaving the rake face and wrapping round the bar in loose, uneven turns
+const snarl: string[] = [];
+for (let i = 0; i <= 420; i++) {
+  const t = i / 420, a = t * 5.4 * 2 * Math.PI;
+  const x = xt + 6 - t * 150 + 10 * Math.sin(a * 0.31) + 26 * Math.cos(a) * (0.6 + 0.4 * Math.sin(t * 7));
+  const y = cy - 6 + (R + 18 + 14 * Math.sin(t * 11)) * Math.sin(a) * 0.95;
+  snarl.push(`${f1(x)},${f1(y)}`);
+}
+const ribbon = `M${xt + 2},${cy - r - 2} C${xt + 18},${cy - r - 40} ${xt + 52},${cy - r - 46} ${xt + 60},${cy - r - 14} C${xt + 70},${cy - r + 30} ${xt + 30},${cy + 40} ${xt + 6},${cy + 20}`;
+// inset: short broken chips (C shapes and short helices)
+const ix = 346, iy = 190;
+const cs = [[368, 220, 0], [400, 214, 40], [440, 226, -30], [380, 254, 80], [414, 262, 15], [450, 256, 120], [366, 288, -60], [404, 294, 160], [444, 290, 60]];
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <rect class="metal f" style="--i:0" x="16" y={cy - 84} width="36" height="168" rx="4" />
+  <path class="metal-h f" style="--i:1" d={`M${xc},${cy - R} L${xt},${cy - R} L${xt},${cy - r} L${xe},${cy - r} L${xe},${cy + r} L${xt},${cy + r} L${xt},${cy + R} L${xc},${cy + R} Z`} />
+  <path class="o2 d" style="--i:2" pathLength="1" d={`M${xc},${cy - R} L${xt},${cy - R} L${xt},${cy - r} L${xe},${cy - r} L${xe},${cy + r} L${xt},${cy + r} L${xt},${cy + R} L${xc},${cy + R}`} />
+  <line class="c f" style="--i:2" x1="10" y1={cy} x2="330" y2={cy} />
+  <!-- holder and insert -->
+  <rect class="carbide f" style="--i:3" x={xt - 34} y="8" width="44" height={cy - R - 40} rx="3" />
+  <path class="coat f" style="--i:4" d={`M${xt},${cy - r + 1} L${xt - 22},${cy - R - 32} L${xt + 6},${cy - R - 32} Z`} stroke="#8a6420" stroke-width="1" stroke-linejoin="round" />
+  <line class="a d" style="--i:5" pathLength="1" x1={xt - 40} y1="30" x2={xt - 84} y2="30" marker-end="url(#ca-arr-acc)" />
+  <!-- the chip that did not break -->
+  <path class="d" style="--i:6" pathLength="1" d={ribbon} fill="none" stroke="#c96f2e" stroke-width="5" stroke-linecap="round" />
+  <polyline class="d" style="--i:7" pathLength="1" points={snarl.join(' ')} fill="none" stroke="#b9822a" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.9" />
+  <polyline class="d" style="--i:8" pathLength="1" points={snarl.join(' ')} fill="none" stroke="#f3dc8a" stroke-width="1" stroke-opacity="0.9" />
+  <!-- inset: broken chips -->
+  <rect class="sunk f" style="--i:9" x={ix} y={iy} width="124" height="118" rx="8" stroke="var(--line-strong)" />
+  <g class="f" style="--i:10">
+    {cs.map(([x, y, a]) => <path d="M-8,4 C-10,-8 4,-12 9,-4 C11,1 8,6 4,7" transform={`translate(${x} ${y}) rotate(${a})`} fill="none" stroke="#b9822a" stroke-width="4" stroke-linecap="round" />)}
+  </g>
+  <path class="d" style="--i:11" pathLength="1" d={`M${ix + 2},${iy - 16} l5,6 l10,-12`} fill="none" stroke="#13998a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <g class="lbl">
+    <text class="t-acc t-sm" x={xt - 98} y="34" text-anchor="end">{T.feed}</text>
+    <text class="t-ink" x="24" y="300">{T.nest}</text>
+    <text class="t-ink t-sm" x={ix + 22} y={iy - 10}>{T.good}</text>
+  </g>
+</svg>

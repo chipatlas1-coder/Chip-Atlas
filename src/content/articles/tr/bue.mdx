@@ -1,0 +1,101 @@
+---
+key: bue
+locale: tr
+slug: yiginti-talas
+title: 'Yığıntı talaş (BUE)'
+description: 'Kesici kenara yapışan, büyüyen, kopan ve parçada parçacıklar bırakabilen iş malzemesi: nedir, hangi malzemeler ve koşullar doğurur, yüzeye, ölçüye ve takıma ne yapar ve takım üreticilerinin önerdiği çareler, ayrıştıkları noktalarla.'
+section: 12
+subsection: tool-problems
+order: 2
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'fazla soğuk'
+    label: 'Kesme bölgesi iş malzemesinin yeniden kristalleşme sıcaklığının altında (Mitsubishi); okunan hiçbir kaynak hız sayısı vermez'
+  - value: 'çelik · paslanmaz · Al'
+    label: 'Düşük karbonlu çelik, paslanmaz çelikler ve alüminyum birlikte anılır (ISCAR, Machining Doctor, Sandvik Coromant)'
+  - value: '%12–16'
+    label: 'AA2011 ve AA7075 tornalamada talaş açısı −5°, 0° ve 5°’ten 10°, 15° ve 20°’ye çıktığında Ra’daki ortalama düşüş (Sekmen, Günay, Şeker)'
+  - value: '+ talaş açısı'
+    label: 'Daha pozitif talaş açısı, keskin kenar, parlatılmış yüzey: üreticilerin çoğunun anlaştığı çareler'
+sources:
+  - label: 'M. Sekmen, M. Günay, U. Şeker, “Alüminyum Alaşımlarının İşlenmesinde Kesme Hızı ve Talaş Açısının Yüzey Pürüzlülüğü, Yığıntı Talaş ve Yığıntı Katmanı Oluşumu Üzerine Etkisi”, Politeknik Dergisi 18(3), 2015, 141–148'
+    url: https://dergipark.org.tr/en/download/article-file/385737
+  - label: 'M. Vural, EUT 231 Üretim Yöntemleri, Talaşlı İmalat, bölüm 21 Talaş kaldırmanın teorisi (İTÜ ders sunusu, Groover’a dayanır; Gaziantep Üniversitesi’nde)'
+    url: https://ntmyo.gaziantep.edu.tr/files/dosyalar/ch21-talas-kaldirmanin-teorisi.pdf
+  - label: 'H. Demir, H. B. Ulaş, M. Zeyveli, “Talaşlı Üretimde Kullanılan Kesme Sıvılarından İstenen Özellikler”, IATS’09, Karabük, 2009'
+    url: https://cdn.bartin.edu.tr/makine/68df7d9c9f6ecb4700d81de4ba2b2163/mak448talasli-imalat.pdf
+  - label: 'Sandvik Coromant, kanal açma ve kesmede kesme sıvısı broşürü (Türkçe)'
+    url: https://cdn2.sandvik.coromant.com/files/a53b485b-be0f-019d-8100-3f0d1619b9fa/34c4bb20-cfd0-405e-be15-9304ffa49fc8/coolant-in-parting-grooving-trk.pdf
+  - label: 'Mitsubishi Materials, e-öğrenme kursu 78, Causes of tool damage (built-up wear, welding)'
+    url: https://www.mmc-carbide.com/permanent/courses/78/causes-of-tool-damage.html
+  - label: 'ISCAR, Milling Inserts Wear Troubleshooting'
+    url: https://www.iscar.com/products.aspx/countryid/5/productid/12356
+  - label: 'ISCAR, Drilling Inserts Wear Problems and Solutions'
+    url: https://www.iscar.com/products.aspx/countryid/5/productid/12345
+  - label: 'PMPA, Craftsman Cribsheet “Built Up Edge: What It Is and What To Do”, Eylül 2021'
+    url: https://www.pmpa.org/wp-content/uploads/2021/10/Craftsman-Cribsheet-Built-Up-Edge-—-What-It-Is-and-What-To-Do-1.pdf
+  - label: 'Harvey Performance Company, “Built-Up Edge Causes and Effects in Turning”, In The Loupe, 2020'
+    url: https://www.harveyperformance.com/in-the-loupe/causes-effects-of-built-up-edge-bue-in-turning-applications/
+  - label: 'Machining Doctor, sözlük: Built-Up Edge (BUE)'
+    url: https://www.machiningdoctor.com/glossary/built-up-edge-bue/
+  - label: 'S. Kim, Metal Cutting II, MIT OpenCourseWare 2.008, bahar 2004 (sunu)'
+    url: https://ocw.mit.edu/courses/2-008-design-and-manufacturing-ii-spring-2004/0251504d88dc4cdf3cab815aececaf3e_08cutting_2_6_f.pdf
+  - label: 'Manufacturing Engineering Technology in SI Units, 6. baskı, bölüm 21 Fundamentals of Machining sunusu, Pearson, 2010'
+    url: https://people.iut.ac.ir/sites/default/files/users/mosafavi/course_files/fundamental_of_machining.pdf
+  - label: '“Built-up edge effect on tool wear when turning steels at low cutting speed”, Journal of Materials Engineering and Performance 13(5), 2004, 542–547 (özet)'
+    url: https://research.manchester.ac.uk/en/publications/built-up-edge-effect-on-tool-wear-when-turning-steels-at-low-cutt/
+  - label: 'Taylor & Francis Knowledge, “Built up edge” (D. A. Stephenson, J. S. Agapiou, Metal Cutting Theory and Practice, 2018’den alıntı)'
+    url: https://taylorandfrancis.com/knowledge/Engineering_and_technology/Mechanical_engineering/Built_up_edge
+---
+import BueCycle from '../../../components/mdx/BueCycle.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Yığıntı talaş (İngilizce *built-up edge*, BUE), Türkçe bir çalışmanın tanımıyla takımın talaş yüzeyine yapışan iş malzemesidir: "yığıntı talaş (YT) olarak bilinir ve bu oluşum çoğunlukla sünek malzemelerin işlenmesinde oluşmaktadır" (Sekmen, Günay ve Şeker). İTÜ’nün Groover’a dayanan ders sunusu aynı şeye yığma kenar der; Sandvik Coromant’ın Türkçe broşürü talaş yığılması (BUE) yazar. Mitsubishi Materials’a göre yığıntı, kesici kenarın üstüne yapışan pekleşmiş (*work-hardened*) bir malzeme parçasıdır; kenardan dışarı taşar ve iş parçasını kendisi keser. *Manufacturing Engineering Technology* ders kitabının sunusu onu takım ucuna biriken iş malzemesi katmanları olarak anlatır ve kendi başına bir talaş türü sayar; [talaş tipleri](/tr/temeller/talas-tipleri/) sayfası da öyle.
+
+## Nasıl oluşur
+
+Isı, basınç ve sürtünme iş malzemesini takıma kaynatır. Harvey Performance’a göre talaş yüksek ısı, basınç ve sürtünme yüzünden takıma yapışır; Sekmen, Günay ve Şeker yığıntı talaş ve yığıntı katmanının nedenini "özellikle kesme hızına bağlı olarak talaş kaldırma esnasında kesici takımdaki sıcaklık ve aşırı basınçtır" diye verir. Mitsubishi takım kalitesi ile iş malzemesi arasındaki yüksek yakınlığı (*affinity*) da sayar. Yığıntı yerinde durmaz: İTÜ sunusuna göre "Yığma kenarı oluşur ve belirli aralıklarda kopar"; Türkçe çalışmaya göre de yüksek kesme kuvvetleriyle takım yüzeyinden koparak uzaklaşır ve talaş kaldırma sürdükçe takım üst yüzeyinde yeniden birikmeye başlayabilir; Stephenson ve Agapiou’ya göre de belirli aralıklarla kopar ve yeniden oluşur. Kopan parçacıklar yeni yüzeyde kalabilir: Groover’ın şeklindeki etiket "Yeni yüzey üzerinde yığma kenar parçacıkları" der (İTÜ sunusu); PMPA’ya göre de takımdan koparken iş parçasına kaynayabilir.
+
+<Figure caption="Dik kesme (*orthogonal cutting*), şematik: düşük kesme hızında kenarda iş malzemesinden bir yığıntı oluşur, kenarın biraz altına uzanır ve orada durdukça daha derin keser, sonra kopar ve işlenmiş yüzeyde parçacıklar kalabilir; takımın arkasındaki yüzey düzensizleşir. Yeterince yüksek hızda (çoğu kaynağa göre karbür takımlarda) yığıntı oluşmaz. Hız ölçeğinde sayı yoktur, çünkü bu sayfa için okunan kaynaklar sayı vermez ve eşik malzemeye bağlıdır.">
+  <BueCycle locale="tr" />
+</Figure>
+
+## Ne zaman oluşur
+
+- **Yapışkan, sünek malzemeler.** ISCAR düşük karbonlu çelik, paslanmaz çelikler ve alüminyum gibi çok yapışkan malzemelerin işlenmesini sayar; Machining Doctor düşük karbonlu çeliği, östenitik paslanmaz çeliği ve alüminyumu anar. Sandvik Coromant’ın Türkçe broşürü "düşük karbonlu çelikler, alüminyum ve duplex paslanmaz çelikler gibi sıvanma eğilimi gösteren malzemeler" der. PMPA pekleşen (*work-hardening*) alaşımları ekler ve kükürtlü (otomat; *resulfurized*) çeliklerde yığıntının genellikle kararlı olduğunu, çünkü mangan sülfürlerin kaynamayı önleyici özellikleri bulunduğunu yazar.
+- **Fazla soğuk bir kesme bölgesi.** Mitsubishi’nin nedeni iş malzemesinin yeniden kristalleşme sıcaklığının altındaki düşük kesme sıcaklıklarıdır; ISCAR’ınki kesme bölgesi sıcaklığının fazla düşük olması. İTÜ sunusu yığma kenarı "Düşük-orta kesme hızları" ile ilişkilendirir. Bu sayfa için okunan hiçbir kaynak buna m/dak ya da °C olarak bir sayı vermez. Her kaynak aynı yönü göstermez: PMPA HSS takımlarda hızın düşürülmesini önerir; Sandvik Coromant broşürü duplex paslanmazda kök nedenin çok düşük veya çok yüksek işleme sıcaklıkları olduğunu yazar; Türkçe tornalama deneylerinde ise AA7075’te 600 m/dak’da 400 m/dak’dakinden daha az yığıntı oluşmuş, AA2011’de belirgin bir değişim görülmemiştir.
+- **Negatif geometri.** ISCAR negatif kesme geometrisini neden olarak anar; Türkçe deneylerde −5°, 0° ve 5°’lik talaş açıları 10°–20°’ye göre daha çok yığıntı vermiştir ve yazarlar "pozitif yönde talaş açının artması ile YT oluşumunun azaldığını" yazar; 10°–20°’de yapışma daha çok ince bir katman (YK) biçimindedir. Açıların kendisi [talaş, boşluk ve kama açıları](/tr/kesici-takimlar/talas-bosluk-kama-acilari/) sayfasındadır.
+
+## Ne yapar
+
+- **Yüzey kalitesi.** Ders kitabı sunusuna göre yüzey kalitesini en çok etkileyen yığıntıdır. IATS’09’daki Türkçe çalışma "En kötü yüzey yığma kenar oluşumu nedeniyle (2) no'lu bölgede görülmüştür." der. Türkçe alüminyum deneylerinde talaş açısı −5°…5°’ten 10°…20°’ye çıktığında Ra ortalama yaklaşık %12 (AA2011) ve %16 (AA7075) düşmüş; yazarlar bunu yığıntının azalmasına bağlar.
+- **Ölçü.** Mitsubishi’ye göre genellikle daha büyük bir kesme derinliğine ve dolayısıyla ölçü hatasına yol açar; Harvey’e göre talaş yüzeyine ya da yan yüzeye kaynamış malzeme takım yüksekliğini (merkez yüksekliği; *centerline distance*) ve kesici kenarın geometrisini değiştirir; PMPA ölçü kontrolünde istatistiksel yeterliliğin kaybından söz eder.
+- **Takım.** Koparken takım malzemesinden de koparabilir ve kesici kenarda bir çukur bırakır (Machining Doctor); Sekmen, Günay ve Şeker kesici kenardan küçük parçaların kırılıp uzaklaşabileceğini, Mitsubishi kenarda ufalanmayı yazar. 2004 tarihli bir çalışma, yığıntının takım aşınmasını artırdığından yola çıkarak orta ve yüksek dayanımlı çeliklerin düşük kesme hızında tornalanmasını incelemiş; kaplamasız karbür takımlarda aşınmanın arttığını ve takımların erken kırıldığını gözlemiştir.
+- **Her zaman zararlı değil.** PMPA ince ve kararlı bir yığıntının daha az aşınma, daha düşük güç ve daha iyi yüzey verebileceğini, Mitsubishi de yığıntı oluşturan talaş kaynamasının (*chip welding*) takım aşınmasını geciktirebileceğini yazar; öteki kaynakların çoğu onu hasar olarak görür (MIT sunusu yararlı olabileceğini sorar, yanıt vermez).
+
+Harvey’in tanıma yolu: takımın talaş yüzeyinde ya da yan yüzeyinde, büyüteç olmadan da görülebilen malzeme. Türkçe çalışma, talaş yüzeyine geniş bir alanda kaynayan ince katmanı ayrıca yığıntı katmanı (YK, *built-up layer*) diye adlandırır.
+
+## Çareler
+
+Üreticilerin önerdikleri ve ayrıştıkları noktalar:
+
+| Çare | Öneren | Not |
+|---|---|---|
+| Kesme hızını artırmak | Mitsubishi, ISCAR, PMPA (karbür); MIT, Pearson sunusu, Machining Doctor | PMPA: HSS takımlarda hızı düşürün. Harvey yığıntıyı çoğunlukla fazla düşük hıza ya da ilerlemeye bağlar |
+| Daha pozitif ya da büyük talaş açısı | Mitsubishi, ISCAR, PMPA; MIT, Pearson sunusu; Sekmen, Günay, Şeker | |
+| Keskin kenar, küçük kenar hazırlama (*hone*) | Mitsubishi, ISCAR, Harvey; Machining Doctor, Pearson sunusu | |
+| Parlatılmış talaş yüzeyi ya da kaplama sonrası işlem | Mitsubishi (ayna yüzey, kaynama için), ISCAR, Harvey; Machining Doctor | |
+| Yakınlığı düşük bir kalite: sermet ya da kaplamalı | Mitsubishi; Harvey, PMPA (kaplama); Pearson sunusu | Okunan hiçbir kaynak alüminyum için belirli bir kaplama adlandırmaz |
+| Kesme sıvısının yağlayıcılığını, basıncını ya da debisini artırmak | Mitsubishi, ISCAR, Sandvik Coromant; MIT, PMPA, Pearson sunusu; IATS’09 | Sandvik Coromant, duplex paslanmaz gibi sıvanma eğilimli malzemelerde çubuk merkezine yakın kesmede: soğutma sıcaklığı yığıntı aralığına düşürebilir, bu yüzden orada kesme sıvısı kapatılır |
+| İlerleme | ISCAR: tam karbür ve değiştirilebilir başlıklı matkaplarda artırın, değiştirilebilir uçlu matkaplarda azaltın; MIT, PMPA: azaltın | Tek bir kural yok; Harvey fazla düşük ilerlemeyi de olağan bir neden sayar |
+
+ISCAR kesme sıvısındaki yağ oranının kontrol edilmesini, Harvey de konsantrasyonun artırılmasını ister; bunun nasıl ölçüldüğü [kesme sıvısı konsantrasyonu](/tr/sogutma-ve-yaglama/kesme-sivisi-konsantrasyonu/) sayfasında, kesme hızının çubuk merkezine doğru neden düştüğü [kesme ve kanal açma](/tr/prosesler/kesme-ve-kanal-acma/) sayfasındadır.
+
+<CheckList id="bue" locale="tr" items={[
+  { icon: 'wear', title: 'Bakın', check: 'Talaş yüzeyinde ya da yan yüzeyde malzeme; düzensiz yüzey; kayan ölçüler.', fix: 'Kenarda çoğu zaman büyüteçsiz görülebilen malzeme (Harvey); koptuktan sonra kenarda çukurlar (Machining Doctor).', src: 'Harvey; Machining Doctor' },
+  { icon: 'speed', title: 'Hız', check: 'Kesme bölgesinin fazla soğuk çalışıp çalışmadığı.', fix: 'Karbürde hızı artırın (Mitsubishi, ISCAR); HSS’de PMPA tersini önerir.', src: 'Mitsubishi; ISCAR; PMPA' },
+  { icon: 'edge', title: 'Kenar', check: 'Talaş açısı, kenar hazırlama ve talaş yüzeyinin pürüzsüzlüğü.', fix: 'Daha pozitif talaş açısı, keskin kenar ya da küçük kenar hazırlama, parlatılmış yüzey (Mitsubishi, ISCAR, Harvey).', src: 'Mitsubishi; ISCAR; Harvey' },
+  { icon: 'coolant', title: 'Kesme sıvısı', check: 'Yağlayıcılık, basınç, yön ve konsantrasyon.', fix: 'Kenara yöneltilmiş daha çok yağlayıcılık, basınç ya da debi (Mitsubishi, ISCAR, Harvey); yağ oranını kontrol edin (ISCAR) ya da konsantrasyonu artırın (Harvey).', src: 'Mitsubishi; ISCAR; Harvey' },
+  { icon: 'hard', title: 'Kalite', check: 'Takım kalitesi ile iş malzemesi arasındaki yakınlık.', fix: 'Yakınlığı düşük sermet ya da kaplamalı bir kalite (Mitsubishi).', src: 'Mitsubishi' },
+]} />

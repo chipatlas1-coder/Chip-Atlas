@@ -1,0 +1,179 @@
+---
+/**
+ * The three indentation methods side by side, each indenter pressing once when the figure comes into
+ * view (and on Replay):
+ * - Brinell: a carbide ball; the round indentation's diameter d is measured (ball and cap to scale,
+ *   d = 0.59 D, inside the 0.24 D–0.6 D window of ZwickRoell and Metkon);
+ * - Vickers: a 136° diamond pyramid; the two diagonals of the square indentation are measured (depth
+ *   to scale, d / 7);
+ * - Rockwell: a 120° diamond cone; preliminary force, total force, back to the preliminary force; the
+ *   permanent depth h between the two preliminary-force positions is read (schematic depths).
+ * Without motion the figure shows the indentations and their measurements.
+ */
+interface Props {
+  aria: string;
+  t: { brinell: string; vickers: string; rockwell: string; bMeas: string; vMeas: string; rMeas: string; f0: string; f: string; replay: string };
+}
+const { aria, t } = Astro.props;
+const W = 180, H = 230, cx = 90, ys = 140, yb = 214;
+const f = (n: number) => n.toFixed(2).replace(/\.?0+$/, '');
+// Brinell: ball radius 34, cap depth 6.5 → d/2 = √(34² − 27.5²) = 20.0
+const R = 34, hB = 6.5, rB = Math.sqrt(R * R - (R - hB) ** 2);
+// Vickers: section across the faces (parallel to the sides), the only section that shows 136°; half-width = half the
+// side = 26 → depth 26 / tan 68° = d / (2√2 · tan 68°) ≈ d / 7 with d the diagonal
+const aV = 26, hV = aV / Math.tan((68 * Math.PI) / 180);
+// Rockwell (schematic): cone 120°, tip radius 4; depths below the surface at F0, at F, back at F0
+const yF0 = ys + 5, yF = ys + 22, yR = ys + 15, rt = 4;
+// 120° cone: faces 30° above horizontal, spherical tip of radius rt (tangent points at ±rt·sin 60°)
+const RISE = 18;
+const cone = (tip: number) => {
+  const xs = rt * Math.sin((60 * Math.PI) / 180), yt = tip - rt / 2, top = xs + RISE / Math.tan((30 * Math.PI) / 180);
+  return `M${f(cx - xs)},${f(yt)} L${f(cx - top)},${f(yt - RISE)} L${f(cx + top)},${f(yt - RISE)} L${f(cx + xs)},${f(yt)} A${rt},${rt} 0 0 1 ${f(cx - xs)},${f(yt)} Z`;
+};
+
+---
+<div class="hm" data-hm data-anim role="group" aria-label={aria}>
+  {/* Brinell */}
+  <figure class="panel b" style="--i:0">
+    <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+      <path d={`M10,${ys} L${f(cx - rB)},${ys} A${R},${R} 0 0 0 ${f(cx + rB)},${ys} L${W - 10},${ys} L${W - 10},${yb} L10,${yb} Z`} class="work dent" />
+      <path d={`M10,${ys} L${W - 10},${ys} L${W - 10},${yb} L10,${yb} Z`} class="work flat" />
+      <g class="ind">
+        <rect x={cx - 15} y={ys + hB - 2 * R - 40} width="30" height="46" class="holder" />
+        <circle cx={cx} cy={ys + hB - R} r={R} class="ball" />
+        <circle cx={cx - 11} cy={ys + hB - R - 12} r="9" class="shine" />
+      </g>
+      <g class="meas">
+        <line x1={f(cx - rB)} x2={f(cx + rB)} y1={ys + 18} y2={ys + 18} class="dim" marker-start="url(#hm-a)" marker-end="url(#hm-a)" />
+        <line x1={f(cx - rB)} x2={f(cx - rB)} y1={ys + 1} y2={ys + 22} class="ext" /><line x1={f(cx + rB)} x2={f(cx + rB)} y1={ys + 1} y2={ys + 22} class="ext" />
+        <text x={cx} y={ys + 33} text-anchor="middle" class="lab">d</text>
+        <g transform={`translate(${W - 34} 30)`}><circle r="17" class="print" /><line x1="-17" x2="17" y1="0" y2="0" class="dim" /><line x1="-12" x2="12" y1="-12" y2="12" class="dim2" /></g>
+      </g>
+      <defs><marker id="hm-a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,1 L10,5 L0,9 z" fill="#2a78d6" /></marker></defs>
+    </svg>
+    <figcaption><b>{t.brinell}</b><span>{t.bMeas}</span></figcaption>
+  </figure>
+  {/* Vickers */}
+  <figure class="panel v" style="--i:1">
+    <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+      <path d={`M10,${ys} L${f(cx - aV)},${ys} L${cx},${f(ys + hV)} L${f(cx + aV)},${ys} L${W - 10},${ys} L${W - 10},${yb} L10,${yb} Z`} class="work dent" />
+      <path d={`M10,${ys} L${W - 10},${ys} L${W - 10},${yb} L10,${yb} Z`} class="work flat" />
+      <g class="ind">
+        <rect x={cx - 15} y={ys + hV - 60} width="30" height="40" class="holder" />
+        <path d={`M${cx - 15},${f(ys + hV - 20)} L${f(cx - aV - 4)},${f(ys + hV - 12)} L${f(cx - aV)},${ys} L${cx},${f(ys + hV)} L${f(cx + aV)},${ys} L${f(cx + aV + 4)},${f(ys + hV - 12)} L${cx + 15},${f(ys + hV - 20)} Z`} class="diamond" />
+        <path d={`M${cx},${f(ys + hV)} L${cx},${f(ys + hV - 20)}`} class="facet" />
+      </g>
+      <g class="meas">
+        <text x={cx} y={ys + 33} text-anchor="middle" class="lab">136°</text>
+        <g transform={`translate(${W - 34} 30)`}>
+          <path d="M-18,0 L0,-18 L18,0 L0,18 Z" class="print" />
+          <line x1="-18" x2="18" y1="0" y2="0" class="dim" /><line x1="0" x2="0" y1="-18" y2="18" class="dim v" />
+        </g>
+        <text x={W - 34} y="62" text-anchor="middle" class="lab s">d₁, d₂</text>
+      </g>
+    </svg>
+    <figcaption><b>{t.vickers}</b><span>{t.vMeas}</span></figcaption>
+  </figure>
+  {/* Rockwell */}
+  <figure class="panel r" style="--i:2">
+    <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+      <path d={`M10,${ys} L${f(cx - (yR - ys) * Math.tan((60 * Math.PI) / 180))},${ys} L${cx - 2},${yR} L${cx + 2},${yR} L${f(cx + (yR - ys) * Math.tan((60 * Math.PI) / 180))},${ys} L${W - 10},${ys} L${W - 10},${yb} L10,${yb} Z`} class="work dent" />
+      <path d={`M10,${ys} L${W - 10},${ys} L${W - 10},${yb} L10,${yb} Z`} class="work flat" />
+      <g class="ind rw">
+        <rect x={cx - 15} y={yR - rt / 2 - RISE - 34} width="30" height="34" class="holder" />
+        <path d={cone(yR)} class="diamond" />
+      </g>
+      <g class="meas">
+        <line x1="22" x2="62" y1={yF0} y2={yF0} class="ref" /><text x="20" y={yF0 + 4} text-anchor="end" class="lab s">{t.f0}</text>
+        <line x1="22" x2="62" y1={yR} y2={yR} class="ref r" />
+        <line x1="40" x2="40" y1={yF0} y2={yR} class="dim" marker-start="url(#hm-a)" marker-end="url(#hm-a)" />
+        <text x="46" y={(yF0 + yR) / 2 + 22} class="lab">h</text>
+        <text x={W - 16} y="34" text-anchor="end" class="lab s"><tspan class="hr">HR = N − h / S</tspan></text>
+      </g>
+      <g class="phase" aria-hidden="true">
+        <text x={W - 16} y="54" text-anchor="end" class="ph p0">{t.f0}</text>
+        <text x={W - 16} y="54" text-anchor="end" class="ph p1">{t.f}</text>
+        <text x={W - 16} y="54" text-anchor="end" class="ph p2">{t.f0}</text>
+      </g>
+    </svg>
+    <figcaption><b>{t.rockwell}</b><span>{t.rMeas}</span></figcaption>
+  </figure>
+  <button type="button" class="replay" data-replay hidden>↻ {t.replay}</button>
+</div>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-hm]').forEach((el) => {
+    const btn = el.querySelector<HTMLButtonElement>('[data-replay]')!;
+    whenIn(el, () => { el.classList.add('go'); btn.hidden = false; });
+    btn.addEventListener('click', () => { el.classList.remove('go'); void el.offsetWidth; el.classList.add('go'); });
+  });
+</script>
+
+<style>
+  .hm { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+  .panel { margin: 0; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; padding: 0.35rem 0.45rem 0.6rem; display: grid; gap: 0.3rem; align-content: start; }
+  svg { width: 100%; height: auto; display: block; overflow: hidden; }
+  figcaption { display: grid; gap: 0.1rem; font-size: 0.8rem; line-height: 1.35; padding-inline: 0.15rem; }
+  figcaption b { font-size: 0.9rem; color: var(--ink); }
+  figcaption span { color: var(--ink-3); }
+  .replay { justify-self: end; grid-column: 1 / -1; font: 500 0.78rem var(--font-mono); color: var(--ink-2); background: transparent; border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.3rem 0.65rem; min-height: 2rem; cursor: pointer; }
+  .replay:hover { color: var(--ink); border-color: var(--ink-3); }
+  .replay:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .work { fill: url(#ca-hatch); stroke: #555d63; stroke-width: 0.9; stroke-linejoin: round; }
+  .work.flat { opacity: 0; }
+  .holder { fill: url(#ca-metal-h); stroke: #1e2123; stroke-width: 0.6; }
+  .ball { fill: url(#ca-metal-h); stroke: #1e2123; stroke-width: 0.8; }
+  .shine { fill: #ffffff; opacity: 0.18; }
+  .diamond { fill: color-mix(in oklab, #1a4f9a 35%, #dee6ef); stroke: #1a4f9a; stroke-width: 0.8; stroke-linejoin: round; }
+  .facet { stroke: #1a4f9a; stroke-width: 0.6; opacity: 0.6; }
+  .dim { stroke: #2a78d6; stroke-width: 1.1; }
+  .dim.v, .dim2 { stroke: #e2601a; stroke-width: 1.1; }
+  .dim2 { opacity: 0; }
+  .ext { stroke: #2a78d6; stroke-width: 0.6; stroke-dasharray: 2 2; }
+  .ref { stroke: #2a78d6; stroke-width: 1; stroke-dasharray: 3 2; }
+  .ref.r { stroke: #e2601a; }
+  .print { fill: #f6fbff; stroke: #555d63; stroke-width: 0.9; }
+  .lab { font: 500 11px var(--font-mono); fill: #2a78d6; paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; }
+  .lab.s { font-size: 9.5px; fill: var(--ink-3); }
+  .hr { fill: var(--ink-2); }
+  .ph { font: 500 10px var(--font-mono); fill: #e2601a; opacity: 0; }
+  /* static: indenters lifted clear, indentations and measurements shown */
+  .ind { transform: translateY(-46px); }
+  .r .ind { transform: translateY(-40px); }
+  /* motion */
+  :global(html.anim) .hm[data-anim]:not(.go) .ind { transform: translateY(-46px); }
+  :global(html.anim) .hm[data-anim]:not(.go) :is(.meas, .work.dent) { opacity: 0; }
+  :global(html.anim) .hm[data-anim]:not(.go) .work.flat { opacity: 1; }
+  :global(html.anim) .hm.go .b .ind, :global(html.anim) .hm.go .v .ind { animation: hm-press 2.4s cubic-bezier(0.45, 0, 0.35, 1) both; animation-delay: calc(var(--i, 0) * 0.25s + 0.2s); }
+  :global(html.anim) .hm.go .v .ind { --i: 1; }
+  :global(html.anim) .hm.go .r .ind { animation: hm-rock 4.2s linear both 0.7s; }
+  :global(html.anim) .hm.go .work.flat { animation: hm-hide 0.01s both; }
+  :global(html.anim) .hm.go .b .work.flat { animation-delay: 1.1s; }
+  :global(html.anim) .hm.go .v .work.flat { animation-delay: 1.35s; }
+  :global(html.anim) .hm.go .r .work.flat { animation-delay: 1.3s; }
+  :global(html.anim) .hm.go .work.dent { animation: hm-show 0.01s both; }
+  :global(html.anim) .hm.go .b .work.dent { animation-delay: 1.1s; }
+  :global(html.anim) .hm.go .v .work.dent { animation-delay: 1.35s; }
+  :global(html.anim) .hm.go .r .work.dent { animation-delay: 1.3s; }
+  :global(html.anim) .hm.go .meas { animation: ca-fade 0.5s both; }
+  :global(html.anim) .hm.go .b .meas { animation-delay: 2.5s; }
+  :global(html.anim) .hm.go .v .meas { animation-delay: 2.75s; }
+  :global(html.anim) .hm.go .r .meas { animation-delay: 4.9s; }
+  :global(html.anim) .hm.go .ph.p0 { animation: hm-on 0.8s 1.2s; }
+  :global(html.anim) .hm.go .ph.p1 { animation: hm-on 1.25s 2s; }
+  :global(html.anim) .hm.go .ph.p2 { animation: hm-on 1.05s 3.25s; }
+  @keyframes hm-press { 0% { transform: translateY(-46px); } 38%, 58% { transform: translateY(0); } 100% { transform: translateY(-46px); } }
+  /* Rockwell: down to F0 (5 px into the surface), hold; to F (22 px), hold; back to F0 (15 px), hold; lift */
+  @keyframes hm-rock {
+    0% { transform: translateY(-40px); }
+    12% { transform: translateY(-10px); animation-timing-function: ease-in-out; }
+    22% { transform: translateY(-10px); }
+    34%, 52% { transform: translateY(7px); }
+    60%, 82% { transform: translateY(0); }
+    100% { transform: translateY(-40px); }
+  }
+  @keyframes hm-hide { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes hm-show { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes hm-on { from, to { opacity: 1; } }
+</style>

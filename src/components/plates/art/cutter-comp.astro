@@ -1,0 +1,46 @@
+---
+/* Cutter radius compensation: the programmed step profile (blue), the tool centre path one radius to the left of it
+   (G41, dashed) computed by src/lib/cuttercomp.ts, and the tool drawn at three points along it. Schematic. */
+import { offsetProfile, elLength, elPoint, type Seg, type El } from '../../../lib/cuttercomp';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr ? { prog: 'program', path: 'takım merkezi', side: 'G41 · sol' } : { prog: 'program', path: 'tool centre', side: 'G41 · left' };
+const prof: Seg[] = [
+  { type: 'line', a: [40, 70], b: [150, 70] },
+  { type: 'arc', a: [150, 70], b: [175, 95], c: [150, 95], ccw: true },
+  { type: 'line', a: [175, 95], b: [175, 170] },
+  { type: 'line', a: [175, 170], b: [290, 170] },
+];
+const r = 14;
+const o = offsetProfile(prof, r, 1);
+const X = (x: number) => 20 + x * 1.5, Y = (y: number) => 310 - y * 1.5, S = 1.5;
+const P = (p: [number, number]) => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`;
+const elD = (e: El, first: boolean) => {
+  const m = first ? `M${P(e.a)} ` : '';
+  if (e.type === 'line') return `${m}L${P(e.b)}`;
+  return `${m}A${(e.r * S).toFixed(1)},${(e.r * S).toFixed(1)} 0 0 ${e.ccw ? 0 : 1} ${P(e.b)}`;
+};
+const path = o.els.map((e, i) => elD(e, i === 0)).join(' ');
+const total = o.els.reduce((t, e) => t + elLength(e), 0);
+const at = (d: number) => { for (const e of o.els) { const L = elLength(e); if (d <= L) return elPoint(e, d); d -= L; } return o.els[o.els.length - 1].b; };
+const tools = [0.12, 0.47, 0.83].map((u) => at(total * u));
+const part = `M${P([20, 20])} L${P([20, 70])} L${P([150, 70])} A${25 * S},${25 * S} 0 0 0 ${P([175, 95])} L${P([175, 170])} L${P([300, 170])} L${P([300, 20])} Z`;
+const progD = `M${P([40, 70])} L${P([150, 70])} A${25 * S},${25 * S} 0 0 0 ${P([175, 95])} L${P([175, 170])} L${P([290, 170])}`;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <path class="metal-h f" style="--i:0" d={part} />
+  <path class="d" style="--i:1" pathLength="1" d={progD} fill="none" stroke="#1e5fc4" stroke-width="3" stroke-linejoin="round" />
+  <path class="f" style="--i:2" d={path} fill="none" stroke="#e2601a" stroke-width="1.8" stroke-dasharray="7 5" />
+  <g class="f" style="--i:3">
+    {tools.map((p) => <g>
+      <circle cx={X(p[0])} cy={Y(p[1])} r={r * S} fill="#e2601a" fill-opacity="0.2" stroke="#c94f0c" stroke-width="1.8" />
+      <circle cx={X(p[0])} cy={Y(p[1])} r="2.6" fill="#c94f0c" />
+    </g>)}
+  </g>
+  <g class="lbl">
+    <text class="t-data t-sm" x={X(50)} y={Y(70) + 20}>{T.prog}</text>
+    <text class="t-acc t-sm" x={X(175 - r) - r * S - 6} y={Y(128)} text-anchor="end">{T.path}</text>
+    <text class="t-ink" x="30" y="40">{T.side}</text>
+  </g>
+</svg>

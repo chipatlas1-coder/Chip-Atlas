@@ -1,0 +1,113 @@
+---
+/* Longitudinal turning in a parallel (dimetric) projection, built from 3D coordinates:
+   X along the bar axis, Y radial toward the viewer, Z up. The bar turns so that its front
+   surface moves down; the tool feeds toward the chuck (−X). Forces on the tool:
+   Fc along −Z (cutting speed direction), Ff along +X (against the feed), Fp along +Y (radial).
+   Insert: 80° rhombus in a 95° holder, rake face horizontal at centre height. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const cx = 214, cy = 112;
+const P = (X: number, Y: number, Z: number) => [cx + X * 0.97 - Y * 0.52, cy + X * 0.2 + Y * 0.4 - Z];
+const f1 = (p: number[]) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+const ring = (X: number, r: number, n = 72) => Array.from({ length: n }, (_, i) => { const t = (2 * Math.PI * i) / n; return P(X, r * Math.cos(t), r * Math.sin(t)); });
+// convex hull (monotone chain) of two end rings = silhouette of a cylinder in parallel projection
+const hull = (pts: number[][]) => {
+  const p = [...pts].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cr = (o: number[], a: number[], b: number[]) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo: number[][] = [], up: number[][] = [];
+  for (const q of p) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (const q of [...p].reverse()) { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return [...lo.slice(0, -1), ...up.slice(0, -1)];
+};
+const poly = (pts: number[][]) => 'M' + pts.map(f1).join(' L') + ' Z';
+const R = 48, r2 = 40;
+const big = poly(hull([...ring(-300, R), ...ring(0, R)]));
+const small = poly(hull([...ring(0, r2), ...ring(150, r2)]));
+const endFace = poly(ring(150, r2));
+const shoulder = poly(ring(0, R));
+// gradient across the bar, perpendicular to its projected axis
+const ax = [0.97, 0.2], nrm = [-0.2, 0.97];
+const g1 = [cx - nrm[0] * 54, cy - nrm[1] * 54], g2 = [cx + nrm[0] * 54, cy + nrm[1] * 54];
+// insert
+const A = [0, r2, 0];
+const m = [0.087, 0.996, 0], e2 = [0.996, 0.087, 0], side = 50, th = 7;
+const v = (p: number[], d: number[], k: number) => [p[0] + d[0] * k, p[1] + d[1] * k, p[2] + d[2] * k];
+const B = v(A, m, side), D = v(A, e2, side), C = v(B, e2, side);
+const top = [A, B, C, D];
+const bot = top.map((q) => [q[0], q[1], q[2] - th]);
+const sideFace = (i: number) => poly([top[i], top[(i + 1) % 4], bot[(i + 1) % 4], bot[i]].map((q) => P(q[0], q[1], q[2])));
+const hole = poly(Array.from({ length: 40 }, (_, i) => { const t = (2 * Math.PI * i) / 40; const c = [(A[0] + C[0]) / 2, (A[1] + C[1]) / 2]; return P(c[0] + 9 * Math.cos(t), c[1] + 9 * Math.sin(t), 0.2); }));
+// holder shank toward the viewer
+const box = (x0: number, x1: number, y0: number, y1: number, z0: number, z1: number) => ({
+  top: poly([P(x0, y0, z1), P(x1, y0, z1), P(x1, y1, z1), P(x0, y1, z1)]),
+  front: poly([P(x0, y1, z1), P(x1, y1, z1), P(x1, y1, z0), P(x0, y1, z0)]),
+  side: poly([P(x1, y0, z1), P(x1, y1, z1), P(x1, y1, z0), P(x1, y0, z0)]),
+});
+const hold = box(8, 58, 74, 300, -34, -th);
+// tubular chip leaving the rake face
+const hel = (() => {
+  const o = [26, 52, 2], dir = [0.55, 0.1, 1], L = Math.hypot(...dir), d = dir.map((x) => x / L);
+  const a1 = [1, 0, -0.25], a2 = [d[1] * a1[2] - d[2] * a1[1], d[2] * a1[0] - d[0] * a1[2], d[0] * a1[1] - d[1] * a1[0]];
+  const pts: number[][] = [];
+  for (let i = 0; i <= 160; i++) {
+    const t = i / 160, ang = t * Math.PI * 2 * 2.6, rr = 9 + 3 * t;
+    const c = v(o, d, t * 92);
+    pts.push(P(c[0] + rr * (Math.cos(ang) * a1[0] + Math.sin(ang) * a2[0]), c[1] + rr * (Math.cos(ang) * a1[1] + Math.sin(ang) * a2[1]), c[2] + rr * (Math.cos(ang) * a1[2] + Math.sin(ang) * a2[2])));
+  }
+  return 'M' + pts.map(f1).join(' L');
+})();
+const a = P(A[0], A[1], A[2]);
+const end = (d: number[], k: number) => P(A[0] + d[0] * k, A[1] + d[1] * k, A[2] + d[2] * k);
+const Fc = end([0, 0, -1], 112), Ff = end([1, 0, 0], 70), Fp = end([0, 1, 0], 66);
+const feedA = P(140, 250, -20), feedB = P(70, 250, -20);
+const rot = Array.from({ length: 26 }, (_, i) => { const t = 1.9 - (i / 25) * 2.4; return P(150, (r2 - 12) * Math.cos(t), (r2 - 12) * Math.sin(t)); });
+const rotA = rot[0];
+const L = tr ? { feed: 'ilerleme f', n: 'n' } : { feed: 'feed f', n: 'n' };
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id={`cfz-bar-${locale}`} gradientUnits="userSpaceOnUse" x1={g1[0]} y1={g1[1] - 40} x2={g2[0]} y2={g2[1] + 40}>
+      <stop offset="0" stop-color="#7e878f" /><stop offset="0.2" stop-color="#eaeff2" /><stop offset="0.42" stop-color="#c7cfd5" />
+      <stop offset="0.75" stop-color="#929ba4" /><stop offset="1" stop-color="#6b7278" />
+    </linearGradient>
+  </defs>
+  <path class="f" style="--i:0" d={big} fill={`url(#cfz-bar-${locale})`} />
+  <path class="f" style="--i:0" d={shoulder} fill="#636b71" />
+  <path class="f" style="--i:1" d={small} fill={`url(#cfz-bar-${locale})`} />
+  <path class="f" style="--i:2" d={endFace} fill="#565e63" />
+  <path class="o d" style="--i:1" pathLength="1" d={big} />
+  <path class="o d" style="--i:2" pathLength="1" d={small} />
+  <path class="h f" style="--i:2" d={endFace} />
+  <line class="c f" style="--i:3" x1={P(-300, 0, 0)[0]} y1={P(-300, 0, 0)[1]} x2={P(190, 0, 0)[0]} y2={P(190, 0, 0)[1]} />
+  <!-- holder and insert -->
+  <path class="f" style="--i:3" d={hold.side} fill="#ecf2f7" />
+  <path class="f" style="--i:3" d={hold.front} fill="#dee5ea" />
+  <path class="f" style="--i:3" d={hold.top} fill="#b7c0c7" />
+  <path class="o d" style="--i:4" pathLength="1" d={hold.top} />
+  {[0, 1, 2, 3].map((i) => <path class="f" style="--i:4" d={sideFace(i)} fill="#e2e8ed" stroke="#a5aeb6" stroke-width="0.8" />)}
+  <path class="coat f" style="--i:5" d={poly(top.map((q) => P(q[0], q[1], q[2])))} />
+  <path class="f" style="--i:5" d={hole} fill="#f5f9fd" stroke="#656e74" stroke-width="0.8" />
+  <path class="o2 d" style="--i:5" pathLength="1" d={poly(top.map((q) => P(q[0], q[1], q[2])))} />
+  <!-- chip -->
+  <path class="f" style="--i:6; fill: none" d={hel} stroke="#fbfdff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+  <path class="f" style="--i:6; fill: none" d={hel} stroke="url(#ca-chip)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- forces on the tool -->
+  <g class="f" style="--i:8">
+    <line class="a" x1={a[0]} y1={a[1]} x2={Fc[0]} y2={Fc[1]} marker-end="url(#ca-arr-acc)" stroke-width="3" />
+    <line class="b" x1={a[0]} y1={a[1]} x2={Ff[0]} y2={Ff[1]} marker-end="url(#ca-arr-data)" stroke-width="2.6" />
+    <line class="b" x1={a[0]} y1={a[1]} x2={Fp[0]} y2={Fp[1]} marker-end="url(#ca-arr-data)" stroke-width="2.6" />
+    <circle cx={a[0]} cy={a[1]} r="4.5" fill="#1b1d1e" stroke="#fbfdff" stroke-width="1.5" />
+  </g>
+  <g class="lbl">
+    <text class="it t-acc" x={Fc[0] + 8} y={Fc[1] - 2}>F<tspan font-size="11" dy="4">c</tspan></text>
+    <text class="it t-data" x={Ff[0] + 6} y={Ff[1] + 16}>F<tspan font-size="11" dy="4">f</tspan></text>
+    <text class="it t-data" x={Fp[0] - 26} y={Fp[1] + 12}>F<tspan font-size="11" dy="4">p</tspan></text>
+    <line class="h" x1={feedA[0]} y1={feedA[1]} x2={feedB[0]} y2={feedB[1]} marker-end="url(#ca-arr)" />
+    <text x={feedB[0] - 2} y={feedB[1] + 22}>{L.feed}</text>
+    <path d={'M' + rot.map(f1).join(' L')} fill="none" stroke="#f2f7fa" stroke-width="1.6" marker-end="url(#ca-arr-ink)" />
+    <text class="it t-ink" x={rotA[0] - 4} y={rotA[1] - 8}>n</text>
+    <text class="t-ink" x="300" y="262">k<tspan font-size="9" dy="3">c</tspan><tspan dy="-3"> = k</tspan><tspan font-size="9" dy="3">c1.1</tspan><tspan dy="-3"> · h</tspan><tspan font-size="9" dy="-6">−mc</tspan></text>
+    <text class="t-ink" x="300" y="290">F<tspan font-size="9" dy="3">c</tspan><tspan dy="-3"> = k</tspan><tspan font-size="9" dy="3">c</tspan><tspan dy="-3"> · b · h</tspan></text>
+  </g>
+</svg>

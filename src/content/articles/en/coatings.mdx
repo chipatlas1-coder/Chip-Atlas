@@ -1,0 +1,99 @@
+---
+key: coatings
+locale: en
+slug: cvd-and-pvd-coatings
+title: 'CVD and PVD coatings on cutting tools'
+description: 'What the thin hard layer on a carbide insert does, and how the two processes differ: CVD, hot and thick, with tensile stress and a honed edge; PVD, cooler and thinner, with compressive stress and a sharp edge. The numbers the sources give, and where they differ.'
+section: 4
+subsection: coatings
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: '≈ 1000 °C'
+    label: 'Conventional CVD process temperature (Horn); medium-temperature CVD about 700–950 °C (CTE); PVD around 450 °C (Horn), below 500 °C for most BALINIT grades (Oerlikon Balzers)'
+  - value: '5–20 µm'
+    label: 'Usual CVD coating thickness, sometimes thicker (CTE); about 5–20 µm for thick turning coatings (Schalk et al.); PVD 1–8 µm (Machining Doctor)'
+  - value: 'tensile · compressive'
+    label: 'Residual stress in CVD and in PVD coatings (Schalk et al.; compressive also Machining Doctor)'
+  - value: '90–95 %'
+    label: 'Share of indexable inserts estimated to be coated (CTE)'
+sources:
+  - label: 'N. Schalk, M. Tkadletz, C. Mitterer, “Hard coatings for cutting applications: Physical vs. chemical vapor deposition and future challenges for the coatings community”, Surface and Coatings Technology 429, 2022, 127949 (open access)'
+    url: https://www.sciencedirect.com/science/article/pii/S0257897221011233
+  - label: 'A. Richter, “Get chemical with CVD-coated inserts”, Cutting Tool Engineering, January 2022'
+    url: https://ctemag.com/articles/get-chemical-cvd-coated-inserts/
+  - label: 'D. Drape (Horn USA), “Cutting Tool Coating Production”, Production Machining, 2011, updated 2019'
+    url: https://productionmachining.com/articles/cutting-tool-coating-production
+  - label: 'Machining Doctor, glossary: Coating of Carbide Grades'
+    url: https://www.machiningdoctor.com/glossary/coating/
+  - label: 'Mitsubishi Materials, Coated Carbide (CVD & PVD), milling grades technical information'
+    url: https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/grade/milling/f_cvd_pvd.html
+  - label: 'Mitsubishi Materials, History of CVD Coating for reduced size and weight, Technology Archive vol. 9'
+    url: https://www.mmc-carbide.com/us/download/magazine/vol09/tec_vol09
+  - label: 'Kennametal, Metalcutting Grades (PVD, CVD and uncoated carbide grades), hosted by MSC Industrial Supply'
+    url: https://www1.mscdirect.com/images/solutions/kennametal/cuttingMatGradeSelection.pdf
+  - label: 'Oerlikon Balzers, Cutting Tools – Coating solutions and services for cutting tools, HQ189EN'
+    url: https://www.oerlikon.com/ecoma/files/HQ189EN_CUTTING-TOOLS_Overview.pdf?download=1
+  - label: 'Oerlikon Balzers, news release “Oerlikon Balzers introduces BALINIT OPTURA”, 9 September 2025'
+    url: https://www.oerlikon.com/ecoma/files/EN20250909_NewsRelease_Oerlikon_Balzers_introduces_BALINIT_OPTURA.pdf?download=1
+  - label: 'R. Bokram (CERATIZIT), “Early Warning Inserts Keep Shops in the Cut”, American Machinist, April 2022'
+    url: https://www.americanmachinist.com/cutting-tools/article/21238917/early-warning-inserts-keep-shops-in-the-cut-ceratizit
+---
+import CoatingLayers from '../../../components/mdx/CoatingLayers.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Nearly every insert in the tool cabinet is coated: Cutting Tool Engineering cites an estimate of about 90 to 95 % of indexable inserts. Schalk, Tkadletz and Mitterer put the practice in one sentence: "Since decades, protective hard coatings with thicknesses of a few micrometers are grown by physical or chemical vapor deposition (PVD, CVD) on cutting tools to improve their application performance." The substrate underneath is usually cemented carbide; the grades themselves are on the [ISO 513](/cutting-tools/iso-513/) page, and how edges wear on [tool wear](/fundamentals/tool-wear/).
+
+## What the coating does
+
+Horn’s Duane Drape lists five reasons in Production Machining: higher wear resistance, higher oxidation resistance, lower friction, higher resistance to metal fatigue and higher resistance to thermal shock. Two more points come up repeatedly:
+
+- **A heat barrier.** Machining Doctor writes that coatings work by raising hardness and insulating the substrate from the heat of the cut; Cutting Tool Engineering reports industries that use CVD-coated inserts for the heat protection they give the carbide.
+- **Less friction.** Kennametal says coatings reduce frictional forces at the tool tip; Machining Doctor describes PVD coatings as smoother, with less friction.
+
+## CVD: chemical vapour deposition
+
+- **Hot.** "In general, the CVD method requires temperatures around 1,000 degrees C." (Drape, Horn). Mitsubishi Materials gives 800 to 1100 °C, Schalk et al. 800 to 1150 °C for thermally activated CVD. In Cutting Tool Engineering, Kyocera’s Brian Wilshire says CVD coatings generally are deposited by medium-temperature CVD (MT-CVD), at about 700 to 950 °C, rather than at the 1000 °C that was typical in the past.
+- **Layered.** In one toolmaker’s range, quoted in Cutting Tool Engineering, most CVD grades start with a TiCN layer on the substrate, followed by Al₂O₃ and topped with TiN; Mitsubishi’s grade table lists TiCN-Al₂O₃-TiN. Kennametal writes that CVD is currently the only process that can apply alumina (Al₂O₃) to carbide efficiently; Schalk et al. describe PVD alumina as well, so the word that matters there is "efficiently".
+- **Thick.** "CVD coatings are usually from 5 to 20 µm (0.0002″ to 0.00079″) thick and sometimes thicker." (Cutting Tool Engineering); Schalk et al. give about 5 to 20 µm for thick turning coatings, Machining Doctor 5 to 25 µm. Thicker coatings go with the harder, more wear-resistant grades, thinner ones with toughness (Cutting Tool Engineering).
+- **Tensile stress and cracks.** CVD coatings commonly have tensile residual stress and a high surface roughness, and the tensile stress commonly leads to thermal cracks in the coating (Schalk et al.). Machining Doctor names the downside as more sensitivity to cracks and fractures.
+- **A rounder edge.** "CVD coated carbide inserts require heavier hones on the cutting edge and chip loads over .003 ipt are recommended." (Kennametal). The heat also matters for the substrate: "CVD processing at 1000 degrees C causes cobalt diffusion." (Mitsubishi Materials), and the process is not suitable for brazed tools (Cutting Tool Engineering).
+- **Where it is used.** CVD inserts dominate turning: in Cutting Tool Engineering, Ceratizit’s Christoph Czettl estimates that at least 60 % of turning inserts are CVD-coated, and Kyocera’s Brian Wilshire says the split is likely higher, at 70 to 75 % of turning inserts and only 10 % of milling inserts. Kennametal calls CVD grades the choice for most applications in ferrous materials. Machining Doctor links the thick, insulating CVD layer to higher cutting speeds than PVD; Kennametal writes that alumina coatings permit higher cutting speeds.
+
+## PVD: physical vapour deposition
+
+- **Cooler.** Drape gives "relatively low-operating temperatures, around 450° C", which allow sharp edges to be coated; Oerlikon Balzers lists a coating temperature below 500 °C for most of its BALINIT grades, among them BALINIT OPTURA, which it calls "a new high-performance PVD coating". Schalk et al. note that substrate temperatures close to room temperature are possible.
+- **The materials.** TiN, TiCN, TiAlN, AlTiN and AlCrN are among the familiar coatings (Drape); with PVD on inserts, "the most common coating is TiAlN" (Cutting Tool Engineering). TiAlN is not PVD-only: Schalk et al. describe CVD TiAlN as well. Many PVD coatings are multilayers of layers a few nanometres thick (Cutting Tool Engineering).
+- **Thin.** "PVD is good for creating thin coatings between 1 to 8 microns." (Machining Doctor); Schalk et al. give about 3 to 5 µm for the thinner, compressively stressed coatings used in milling.
+- **Compressive stress.** PVD films typically have high defect densities, small grains and compressive stresses (Schalk et al.); Machining Doctor writes that the compressive residual stress improves the toughness of the insert. Oerlikon Balzers’ table gives −2 to −5 GPa for its grades (maker figures).
+- **A sharp edge.** "Coating of tools with sharp edges is possible without softening or changing the quality of the substrate." (Mitsubishi Materials); Kennametal: the edges are sharp or only slightly honed, and chip loads can be as low as .001 ipt.
+- **Where it is used.** "PVD grades offer outstanding performance in milling, threading, grooving, cutoff and finish turning." (Kennametal). Milling and grooving involve interrupted cuts; Ceratizit’s Christoph Czettl says at least 60 % of the tougher PVD-coated inserts go to those applications, and for milling, Kyocera’s Brian Wilshire says PVD coatings are, for the most part, unrivalled (Cutting Tool Engineering). PVD inserts run at lower cutting speeds than CVD inserts (Machining Doctor); Kennametal says its PVD grades operate well at low to medium cutting speeds.
+
+<Figure caption="A coated carbide edge in section, magnified; with motion on, the coating grows layer by layer. CVD: TiCN, Al₂O₃ and TiN, around 1000 °C (medium-temperature CVD, generally used according to Kyocera in CTE: about 700–950 °C), a honed edge, tensile residual stress and cracks. PVD: TiAlN, the most common PVD insert coating, below 500 °C, a sharp edge, compressive residual stress. The slider moves the total thickness inside 5–20 µm for CVD and 1–8 µm for PVD (the ranges given by Cutting Tool Engineering and Machining Doctor; Schalk et al. give about 3–5 µm for PVD milling coatings): thicker for wear resistance, thinner for toughness (said of CVD grades in CTE). The coating is drawn to the 10 µm scale; the share of each CVD layer, the edge radii and the colours other than gold TiN are schematic, because none of the sources gives them.">
+  <CoatingLayers locale="en" />
+</Figure>
+
+## The gold top layer
+
+TiN is gold: Oerlikon Balzers lists TiN as "golden yellow", and CERATIZIT describes the gold-coloured TiN outer layer of a multilayer CVD Ti(C,N)/Al₂O₃/TiN coating. The colour has a job: CERATIZIT’s Robert Bokram writes that such a coating lets users identify insert wear and index before a breakage, so that sharp edges do not go unused.
+
+## Side by side
+
+| | CVD | PVD |
+|---|---|---|
+| Process temperature | Around 1000 °C (Horn); 800–1100 °C (Mitsubishi), 800–1150 °C (Schalk et al.); MT-CVD about 700–950 °C, the usual method according to Kyocera (CTE) | Around 450 °C (Horn); below 500 °C for most BALINIT grades (Oerlikon Balzers) |
+| Thickness | 5–20 µm, sometimes thicker (CTE); about 5–20 µm for thick turning coatings (Schalk et al.); 5–25 µm (Machining Doctor) | 1–8 µm (Machining Doctor); about 3–5 µm for milling coatings (Schalk et al.) |
+| Typical layers | TiCN → Al₂O₃ → TiN on top | TiN, TiCN, TiAlN/AlTiN, AlCrN; TiAlN the most common on inserts |
+| Residual stress | Tensile, with thermal cracks | Compressive |
+| Edge | Heavier hone (Kennametal) | Sharp or slightly honed |
+| Typical use | Turning, ferrous materials, higher speeds | Milling and other interrupted cuts, threading, grooving, finish turning; lower speeds |
+
+Uncoated carbide still has a place: Kennametal names non-ferrous materials as the main application for its unalloyed uncoated grades, and Machining Doctor’s table recommends uncoated grades for ISO N materials. Built-up edge on aluminium and other sticky materials is on the [built-up edge](/troubleshooting/built-up-edge/) page.
+
+<CheckList id="coatings" locale="en" items={[
+  { icon: 'speed', title: 'Speed and cut', check: 'Continuous turning at high speed, or interrupted cuts?', fix: 'Alumina coatings permit higher cutting speeds (Kennametal), and Machining Doctor links CVD to higher speeds than PVD; PVD for milling, grooving and other interrupted cuts (CTE, Kennametal).', src: 'Kennametal; CTE; Machining Doctor' },
+  { icon: 'edge', title: 'Edge', check: 'Whether the job needs a sharp edge or small chip loads.', fix: 'PVD allows sharp edges and chip loads down to .001 ipt; CVD inserts need heavier hones, and chip loads over .003 ipt are recommended (Kennametal).', src: 'Kennametal; Mitsubishi Materials' },
+  { icon: 'wear', title: 'Wear', check: 'Whether wear is visible before the edge breaks.', fix: 'A gold TiN top layer shows wear, so the insert can be indexed before a breakage (CERATIZIT).', src: 'CERATIZIT' },
+  { icon: 'hard', title: 'Thickness', check: 'Wear resistance or toughness?', fix: 'Thicker coatings go with the harder, more wear-resistant grades, thinner coatings with toughness (CTE).', src: 'CTE' },
+]} />

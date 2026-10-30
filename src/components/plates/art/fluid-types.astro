@@ -1,0 +1,34 @@
+---
+/* Types of cutting fluid. A nozzle aims a stream at an end mill in the cut; above, four drops in the classes'
+   colours: neat oil (amber), soluble oil (milky), semi-synthetic (translucent), synthetic (clear). Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const N = tr ? ['saf yağ', 'çözünür', 'yarı sent.', 'sentetik'] : ['neat', 'soluble', 'semi-syn.', 'synthetic'];
+const drop = (x: number, y: number, s = 1) => `M${x},${y - 26 * s} C${x + 4 * s},${y - 16 * s} ${x + 15 * s},${y - 6 * s} ${x + 15 * s},${y + 5 * s} A${15 * s},${15 * s} 0 0 1 ${x - 15 * s},${y + 5 * s} C${x - 15 * s},${y - 6 * s} ${x - 4 * s},${y - 16 * s} ${x},${y - 26 * s} Z`;
+const D = [
+  { fill: '#d9a441', op: 0.9, st: '#a8741a' },
+  { fill: '#f4f2ec', op: 1, st: '#b9b4a6' },
+  { fill: '#9fc0e6', op: 0.55, st: '#1e5fc4' },
+  { fill: '#d7f0ec', op: 0.35, st: '#13998a' },
+];
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <rect class="metal-h f" style="--i:0" x="40" y="236" width="400" height="58" rx="3" />
+  <rect class="f" style="--i:1" x="196" y="236" width="104" height="24" fill="#f7f9fb" />
+  <path class="o2 d" style="--i:1" pathLength="1" d="M40,236 L196,236 L196,260 L300,260 L300,236 L440,236" />
+  <rect class="carbide f" style="--i:2" x="226" y="96" width="44" height="160" rx="4" stroke="#5f6c79" stroke-width="1.2" />
+  <rect class="metal f" style="--i:2" x="214" y="40" width="68" height="60" rx="5" />
+  <g class="f" style="--i:3">
+    <path d="M232,104 L262,128 M232,134 L262,158 M232,164 L262,188 M232,194 L262,218 M232,224 L262,248" stroke="#5f6c79" stroke-width="2.4" />
+  </g>
+  <!-- nozzle and stream -->
+  <path class="f" style="--i:4" d="M70,58 L128,96 L120,108 L62,70 Z" fill="#364554" />
+  <path class="b flow" d="M126,104 C168,136 198,190 222,234" stroke-width="3" />
+  <path class="b flow" d="M120,110 C160,144 188,196 212,238" stroke-width="2" opacity="0.7" />
+  {D.map((d, i) => <path class="f" style={`--i:${5 + i}`} d={drop(330 + i * 34, 92)} fill={d.fill} fill-opacity={d.op} stroke={d.st} stroke-width="1.6" />)}
+  {D.map((d, i) => i === 1 && [0, 1, 2, 3, 4].map((k) => <circle class="f" style="--i:6" cx={330 + i * 34 - 7 + (k % 3) * 6} cy={92 - 2 + Math.floor(k / 3) * 7} r="1.6" fill="#fff" stroke="#c9c4b6" stroke-width="0.5" />))}
+  <g class="lbl">
+    {N.map((n, i) => <text class="t-sm" x={330 + i * 34} y={i % 2 ? 136 : 124} text-anchor="middle">{n}</text>)}
+  </g>
+</svg>

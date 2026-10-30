@@ -1,0 +1,184 @@
+---
+/**
+ * The uncut chip in longitudinal turning, drawn from the edge geometry (src/lib/chipsection.ts): the edge now,
+ * the surface the previous revolution left, the chip between them (magnified). Sliders for the depth of cut,
+ * the feed and the nose radius, presets for the entering angle. Readouts: the largest chip thickness, the length
+ * of edge in contact and their ratio; a flag when only the nose radius cuts. The marks on the depth slider are
+ * Sandvik Coromant's two rules: ap at least 2/3 of rε (training handbook) and ap above rε (its MSC article).
+ * On entry the depth of cut sweeps once from shallow to deep.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { ap: 'Kesme derinliği ap', f: 'İlerleme f', re: 'Uç yarıçapı rε', kr: 'Yanaşma açısı κr', h: 'En büyük talaş kalınlığı', b: 'Temas eden kenar boyu', ratio: 'Genişlik / kalınlık', nose: 'yalnızca uç yarıçapı kesiyor', edge: 'ana kenar da kesiyor', prev: 'bir devir önceki kenar', now: 'kesen kenar', chip: 'talaş kesiti', work: 'iş parçası', two: '⅔ rε', one: 'rε', feed: 'ilerleme', mm: 'mm', mmr: 'mm/dev', aria: 'Boyuna tornalamada kesilmemiş talaş kesiti: kesme derinliği, ilerleme, uç yarıçapı ve yanaşma açısıyla değişir' }
+  : { ap: 'Depth of cut ap', f: 'Feed f', re: 'Nose radius rε', kr: 'Entering angle κr', h: 'Largest chip thickness', b: 'Edge length in contact', ratio: 'Width / thickness', nose: 'only the nose radius cuts', edge: 'the major edge cuts too', prev: 'the edge one revolution earlier', now: 'edge in contact', chip: 'chip section', work: 'workpiece', two: '⅔ rε', one: 'rε', feed: 'feed', mm: 'mm', mmr: 'mm/rev', aria: 'The uncut chip section in longitudinal turning: how it changes with depth of cut, feed, nose radius and entering angle' };
+const RE = [0.4, 0.8, 1.2, 1.6], KR = [95, 75, 45];
+---
+<div class="cx" data-cx data-locale={locale} data-anim>
+  <svg viewBox="0 0 640 270" role="img" aria-label={T.aria} class="plot" data-svg></svg>
+  <ul class="legend" aria-hidden="true">
+    <li><span class="sw c"></span>{T.chip}</li>
+    <li><span class="sw n"></span>{T.now}</li>
+    <li><span class="sw p"></span>{T.prev}</li>
+    <li><span class="sw w"></span>{T.work}</li>
+  </ul>
+  <div class="ctl">
+    <label class="field"><span>{T.ap} <output data-o="ap">1,00</output> {T.mm}</span>
+      <span class="rail"><input type="range" min="0.1" max="3" step="0.01" value="1" data-i="ap" /><i data-m="two"></i><i data-m="one"></i></span>
+    </label>
+    <label class="field"><span>{T.f} <output data-o="f">0,25</output> {T.mmr}</span><input type="range" min="0.05" max="0.5" step="0.01" value="0.25" data-i="f" /></label>
+    <div class="field"><span>{T.re}</span><div class="seg" data-g="re">{RE.map((r) => <button type="button" data-v={r} aria-pressed={String(r === 0.8)}>{tr ? String(r).replace('.', ',') : r}</button>)}</div></div>
+    <div class="field"><span>{T.kr}</span><div class="seg" data-g="kr">{KR.map((k) => <button type="button" data-v={k} aria-pressed={String(k === 95)}>{k}°</button>)}</div></div>
+  </div>
+  <dl class="read">
+    <div><dt>{T.h}</dt><dd class="num" data-o="h">—</dd></div>
+    <div><dt>{T.b}</dt><dd class="num" data-o="b">—</dd></div>
+    <div><dt>{T.ratio}</dt><dd class="num" data-o="r">—</dd></div>
+    <div><dt></dt><dd class="flag" data-o="fl">—</dd></div>
+  </dl>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .cx { display: grid; gap: 0.75rem; }
+  .plot { width: 100%; height: auto; display: block; }
+  .ctl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.8rem 1rem; align-items: end; }
+  @media (max-width: 48rem) { .ctl { grid-template-columns: 1fr 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .rail { position: relative; display: block; }
+  .rail i { position: absolute; top: -0.35rem; width: 2px; height: 0.5rem; border-radius: 1px; background: #8b52c9; pointer-events: none; }
+  .rail i[data-m='one'] { background: #13998a; }
+  .seg { display: flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1; font: inherit; font-size: 0.82rem; padding: 0.35rem 0.3rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.1rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .read { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem 1rem; margin: 0; }
+  @media (max-width: 40rem) { .read { grid-template-columns: 1fr 1fr; } }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); min-height: 1em; }
+  .read dd { margin: 0.1rem 0 0; font: 600 1.05rem var(--font-mono); color: var(--ink); }
+  .read dd.flag { font: 600 0.9rem var(--font-sans); }
+  .cx[data-nose] .flag { color: #b23a34; }
+  .cx:not([data-nose]) .flag { color: #0f7a6e; }
+  .cx :global(.wk) { fill: url(#ca-hatch); stroke: none; }
+  .cx :global(.chip) { fill: #e3b23c; fill-opacity: 0.85; stroke: #b9822a; stroke-width: 1; }
+  .cx :global(.edge) { fill: url(#ca-coat); fill-opacity: 0.35; stroke: #8a6420; stroke-width: 1.4; stroke-linejoin: round; }
+  .cx :global(.eng) { fill: none; stroke: #c94f0c; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
+  .cx :global(.prev) { fill: none; stroke: #2a6fd6; stroke-width: 1.6; stroke-dasharray: 5 3; }
+  .cx :global(.ref) { stroke: #8b52c9; stroke-width: 1; stroke-dasharray: 3 3; }
+  .cx :global(.ref.one) { stroke: #13998a; }
+  .cx :global(.t) { font: 12px var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+  .cx :global(.t.p) { fill: #1e5fc4; }
+  .cx :global(.t.n) { fill: #c94f0c; }
+  .cx :global(.t.m) { fill: #8b52c9; font-size: 11px; }
+  .cx :global(.t.o) { fill: #0f7a6e; font-size: 11px; }
+  .cx :global(.dim) { stroke: #364554; stroke-width: 1; }
+  .cx :global(.ext) { stroke: #364554; stroke-width: 0.8; stroke-dasharray: 2 3; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem; margin: 0; padding: 0; list-style: none; font-size: 0.8rem; color: var(--ink-2); }
+  .legend li { display: flex; align-items: center; gap: 0.4rem; margin: 0; }
+  .legend .sw { display: inline-block; width: 1.4rem; height: 0; border-top: 3px solid; border-radius: 2px; }
+  .legend .sw.n { border-color: #c94f0c; }
+  .legend .sw.p { border-top: 2px dashed #2a6fd6; }
+  .legend .sw.c { height: 0.7rem; border: 1px solid #b9822a; background: #e3b23c; }
+  .legend .sw.w { height: 0.7rem; border: 1px solid #9aa6b2; background: repeating-linear-gradient(45deg, #eef2f6 0 3px, #9aa6b2 3px 4px); }
+</style>
+
+<script>
+  import { section, tangents } from '../../lib/chipsection';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-cx]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const apIn = q<HTMLInputElement>('[data-i="ap"]'), fIn = q<HTMLInputElement>('[data-i="f"]');
+    let re = 0.8, kr = 95;
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const f1 = (v: number) => v.toFixed(1);
+    const minor = (k: number) => (k === 95 ? 5 : k === 75 ? 15 : 45);   // 80° rhombic at 95°, square insert at 75° and 45°
+    const rad = (d: number) => (d * Math.PI) / 180;
+    // px per mm, tool tip at z = 0, uncut surface; a narrower drawing on phones so the labels stay legible
+    let K = 62, X0 = 300, Y0 = 52, W = 640, H = 270;
+    let X = (z: number) => X0 + z * K, Y = (x: number) => Y0 + x * K;
+    let zL = 0, zR = 0;
+    const layout = () => {
+      const narrow = root.clientWidth < 560;
+      [K, X0, Y0, W, H] = narrow ? [44, 200, 46, 420, 226] : [62, 300, 52, 640, 270];
+      X = (z: number) => X0 + z * K; Y = (x: number) => Y0 + x * K;
+      zL = (10 - X0) / K; zR = (W - 10 - X0) / K;
+    };
+    layout();
+    // depth of the tool's lower outline at axial position u (tool coordinates), −∞ where the tool is not
+    const depth = (u: number, ap: number, k: number, km: number) => {
+      const { zm, xm, zt, xt } = tangents({ ap, f: 0, re, kr: k, krMinor: km });
+      if (u >= 0) return u >= zt ? xt - (u - zt) * Math.tan(rad(km)) : ap - re + Math.sqrt(Math.max(0, re * re - u * u));
+      if (u >= zm) return ap - re + Math.sqrt(Math.max(0, re * re - u * u));
+      return k < 90 ? xm - (zm - u) * Math.tan(rad(k)) : -Infinity;
+    };
+    const draw = () => {
+      const ap = Number(apIn.value), f = Number(fIn.value), km = minor(kr);
+      const s = section({ ap, f, re, kr, krMinor: km });
+      // the work as the earlier revolutions left it: deepest of the tool outlines shifted by f, 2f, …
+      const surf: string[] = [];
+      for (let i = 0; i <= 310; i++) {
+        const z = zL + ((zR - zL) * i) / 310;
+        let d = 0;
+        for (let j = 1; j < 400; j++) { const u = z - j * f; if (u < zL - 2) break; d = Math.max(d, depth(u, ap, kr, km)); }
+        surf.push(`${f1(X(z))},${f1(Y(Math.min(ap, d)))}`);
+      }
+      const pts = (a: [number, number][]) => a.map(([z, x]) => `${f1(X(z))},${f1(Y(x))}`).join(' ');
+      const ya = Y(ap), y23 = Y((2 / 3) * re), y1 = Y(re);
+      const fx0 = X(0), fx1 = X(f);
+      q('[data-svg]').setAttribute('viewBox', `0 0 ${W} ${H}`);
+      q('[data-svg]').innerHTML = `
+        <path d="M10,${f1(Y0)} L${surf.join(' L')} L${W - 10},${H} L10,${H} Z" fill="#eef2f6"/>
+        <path d="M10,${f1(Y0)} L${surf.join(' L')} L${W - 10},${H} L10,${H} Z" fill="url(#ca-hatch)"/>
+        <polyline points="${surf.join(' ')}" fill="none" stroke="#364554" stroke-width="1.3"/>
+        <line x1="74" x2="${W - 10}" y1="${f1(y23)}" y2="${f1(y23)}" class="ref"/>
+        <line x1="74" x2="${W - 10}" y1="${f1(y1)}" y2="${f1(y1)}" class="ref one"/>
+        <text x="${W - 14}" y="${f1(y23 - 4)}" class="t m" text-anchor="end">${T.two}</text>
+        <text x="${W - 14}" y="${f1(y1 + 13)}" class="t o" text-anchor="end">${T.one}</text>
+        <path d="M${pts(s.edge).replace(/ /g, ' L')} Z" class="edge"/>
+        <path d="M${pts(s.chip).replace(/ /g, ' L')} Z" class="chip"/>
+        <polyline points="${pts(s.prev)}" class="prev"/>
+        <polyline points="${pts(s.engaged)}" class="eng"/>
+        <line x1="58" x2="58" y1="${f1(Y0)}" y2="${f1(ya)}" class="dim" marker-start="url(#ca-arr)" marker-end="url(#ca-arr)"/>
+        <line x1="48" x2="${f1(fx0)}" y1="${f1(ya)}" y2="${f1(ya)}" class="ext"/>
+        <text x="50" y="${f1((Y0 + ya) / 2 + 4)}" class="t" text-anchor="end">ap</text>
+        <line x1="${f1(fx0)}" x2="${f1(fx0)}" y1="${f1(ya + 5)}" y2="${f1(ya + 15)}" class="dim"/>
+        <line x1="${f1(fx1)}" x2="${f1(fx1)}" y1="${f1(ya + 5)}" y2="${f1(ya + 15)}" class="dim"/>
+        <line x1="${f1(fx0)}" x2="${f1(fx1)}" y1="${f1(ya + 10)}" y2="${f1(ya + 10)}" class="dim"/>
+        <text x="${f1((fx0 + fx1) / 2)}" y="${f1(ya + 28)}" class="t" text-anchor="middle">f</text>
+        <line x1="${f1(X0 - 40)}" x2="${f1(X0 - 110)}" y1="22" y2="22" stroke="#e2601a" stroke-width="2" marker-end="url(#ca-arr-acc)"/>
+        <text x="${f1(X0 - 34)}" y="26" class="t n">${T.feed}</text>`;
+      q('[data-o="ap"]').textContent = dec(ap.toFixed(2));
+      q('[data-o="f"]').textContent = dec(f.toFixed(2));
+      q('[data-o="h"]').textContent = `${dec(s.hmax.toFixed(3))} ${T.mm}`;
+      q('[data-o="b"]').textContent = `${dec(s.b.toFixed(2))} ${T.mm}`;
+      q('[data-o="r"]').textContent = dec((s.b / Math.max(1e-6, s.hmax)).toFixed(0));
+      root.toggleAttribute('data-nose', s.noseOnly);
+      q('[data-o="fl"]').textContent = s.noseOnly ? T.nose : T.edge;
+      const pos = (v: number) => `${((v - 0.1) / 2.9) * 100}%`;   // slider marks at 2/3 rε and rε (range 0.1–3)
+      (q('[data-m="two"]') as HTMLElement).style.left = pos((2 / 3) * re);
+      (q('[data-m="one"]') as HTMLElement).style.left = pos(re);
+    };
+    const seg = (g: string, set: (v: number) => void) => root.querySelectorAll<HTMLButtonElement>(`[data-g="${g}"] button`).forEach((b, _, all) => b.addEventListener('click', () => { set(Number(b.dataset.v)); all.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); cancelAnimationFrame(raf); draw(); }));
+    let raf = 0;
+    seg('re', (v) => (re = v)); seg('kr', (v) => (kr = v));
+    apIn.addEventListener('input', () => { cancelAnimationFrame(raf); draw(); });
+    fIn.addEventListener('input', () => { cancelAnimationFrame(raf); draw(); });
+    draw();
+    new ResizeObserver(() => { const w = W; layout(); if (w !== W) draw(); }).observe(root);
+    whenIn(root, () => {
+      const t0 = performance.now(), ms = 3200;
+      const step = (now: number) => {
+        const u = Math.min(1, (now - t0) / ms), e = u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2;
+        apIn.value = (0.2 + 1.8 * e).toFixed(2); draw();
+        if (u < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    });
+  });
+</script>

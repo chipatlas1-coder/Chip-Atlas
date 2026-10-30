@@ -1,0 +1,89 @@
+---
+key: caliper-micrometer
+locale: en
+slug: vernier-caliper-and-micrometer
+title: 'Reading a vernier caliper and a micrometer'
+description: 'How a vernier scale turns a 1 mm scale into 0.05 or 0.02 mm, how a 0.5 mm screw and 50 thimble divisions give 0.01 mm, the reading steps with worked examples, and why resolution is not accuracy: Abbe’s principle, measuring force, parallax, temperature, standards and makers’ error limits.'
+section: 10
+subsection: measuring-instruments
+order: 2
+updated: 2026-10-30
+tools: [micrometer]
+glance:
+  - value: '19 → 20'
+    label: '19 mm divided into 20 on the vernier: 0.05 mm (MEB, NPL); 49 into 50 gives 0.02 mm'
+  - value: '0.5 / 50'
+    label: 'Micrometer pitch 0.5 mm, 50 thimble divisions: 0.01 mm per division (MEB, NPL)'
+  - value: '20 °C'
+    label: 'Reference temperature for lengths (NPL)'
+  - value: '1/10'
+    label: 'Instrument resolution against the tolerance, as a rule of thumb (Mahr, a maker’s column)'
+sources:
+  - label: 'D. Flack, Callipers and Micrometers, Measurement Good Practice Guide No. 40, issue 2, National Physical Laboratory, 2014'
+    url: https://eprintspublications.npl.co.uk/2043/1/mgpg40.pdf
+  - label: 'T.C. Millî Eğitim Bakanlığı, Ölçme ve Kontrol 10 Ders Materyali (S. B. Aydoğmuş), MTAL Makine ve Tasarım Teknolojisi, pp. 16–57, in Turkish'
+    url: https://meslek.meb.gov.tr/upload/dersmateryali/pdf/MTT2024OK1016.pdf
+  - label: 'Ankara Üniversitesi Açık Ders, 1.2 Mikrometre ile uzunluk ölçümü (Hafta 2), in Turkish'
+    url: https://acikders.ankara.edu.tr/pluginfile.php/1780/mod_resource/content/1/Hafta2.pdf
+  - label: 'Mitutoyo America, Mitutoyo Product Fundamentals: General, 2015'
+    url: https://www.mitutoyo.com/webfoo/wp-content/uploads/2119-Product-Fund.pdf
+  - label: 'Mitutoyo, Digimatic Outside Micrometers Series 293, catalogue page B-9 (hosted by Sumipol)'
+    url: https://www.sumipol.com/wp-content/uploads/2020/02/Digimatic-Outside-Micrometers-SERIES-293.pdf
+  - label: 'Mahr, datasheet Micrometer Micromar 40 A, item 4134007 (Turkish edition)'
+    url: https://metrology.mahr.com/tr/ueruen/datasheet/4134007-buegelmessschraube-micromar-40-a-18.pdf
+  - label: 'Mahr, datasheet Digital caliper MarCal 16 ER, item 4103012'
+    url: https://metrology.mahr.com/en-us/products/datasheet/4103012-digitaler-messschieber-marcal-16-er.pdf
+  - label: 'Mahr, Gaging Tips, “The rule of thumb, part 1”'
+    url: https://metrology.mahr.com/en-int/gaging-tips/detail/the-ruler-of-thumb-part-1
+  - label: 'KEYENCE, Measurement Fundamentals: Abbe principle'
+    url: https://keyence.com/ss/products/measure-sys/measurement-selection/basic/abbe-principle.jsp
+  - label: 'ISO 3611:2023, Design and metrological characteristics of micrometers for external measurements, 3rd edition (preview: foreword and contents)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+3611-2023.pdf
+  - label: 'SIS, SS-EN ISO 13385-1:2019, Design and metrological characteristics of callipers (product page)'
+    url: https://www.sis.se/en/produkter/metrology-and-measurement-physical-phenomena/linear-and-angular-measurements/measuring-instruments/ss-en-iso-13385-12019/
+---
+import VernierRead from '../../../components/mdx/VernierRead.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+The caliper and the micrometer are the two hand instruments every machinist reads, and both turn a coarse scale into a fine one by a trick: the caliper with a second, slightly shorter scale, the micrometer with a screw. NPL's good practice guide and the Turkish Ministry of Education's course material describe both the same way, and this page follows them. Hardness, another everyday shop-floor measurement, has its own page: [hardness testing](/metrology/hardness-testing/).
+
+## The vernier caliper
+
+NPL describes it as having "a main scale, a vernier scale and a fixed and sliding jaw"; it measures outside, inside and depth. The fine reading comes from the vernier: "20 vernier divisions occupy 19 divisions on the main scale." Each vernier division is then 0.95 mm, 0.05 mm shorter than a main-scale millimetre, so where the n-th vernier line meets a main-scale line the vernier zero sits n × 0.05 mm past the millimetre before it (MEB; NPL). Fifty divisions over 49 mm give 0.02 mm in the same way, ten over 9 mm give 0.1 mm (MEB), and NPL also lists a wide vernier of twenty divisions over 39 mm for 0.05 mm.
+
+Reading takes three steps, the same in both sources: read the main scale just left of the vernier zero; find the vernier line that lines up exactly with a main-scale line; add the two. MEB's examples: 10 mm and the ninth line of a 0.05 mm vernier make 10.45 mm; 12 mm and the 17th line of a 0.02 mm vernier make 12.34 mm. NPL reads "20 mm + 0.64 mm = 20.64 mm" on a 0.02 mm caliper. Before measuring, NPL closes the jaws and checks the zero.
+
+<Figure caption="The two scales, drawn from their arithmetic: a 0.05 mm vernier of 20 divisions over 19 mm, a 0.02 mm vernier of 50 divisions over 49 mm, and a micrometer with a 0.5 mm screw and 50 thimble divisions. The caliper overview closes on a round part; the magnified window shows the coinciding lines in orange. On the micrometer, the mm lines are above the reference line and the half-mm lines below it (NPL). The readout writes the reading as the two steps; ‘Try another’ moves to a random value.">
+  <VernierRead locale="en" />
+</Figure>
+
+Dial and digital calipers do the same job with less reading. NPL gives typical resolutions of 0.05 mm for vernier, 0.02 mm for dial and 0.01 mm for digital calipers, and Mitutoyo writes that "Smaller vernier calipers have largely been supplanted by dial or electronic calipers".
+
+## The outside micrometer
+
+A micrometer reads a screw. Its spindle has a 0.5 mm pitch and the thimble 50 divisions (MEB; NPL): "Each thimble graduation therefore equals one hundredth of a millimetre." (NPL). The sleeve carries 1 mm lines above the index line and 0.5 mm lines below it (NPL). To read it, "the value of the nearest visible graduation on the sleeve to the thimble is determined" and the thimble division on the index line is added (NPL). MEB's example: 5.50 mm on the sleeve and 35 thimble divisions make 5.85 mm; in an Ankara University lab sheet the thimble edge sits between 23.5 and 24.0 mm and division 21 is on the line, so 23.71 mm. NPL estimates a third decimal from the line itself, since "the width of a thimble graduation line equals one fifth of a thimble division"; some micrometers carry a vernier on the sleeve instead (NPL; Mitutoyo).
+
+To try it yourself, use the [micrometer reading simulator](/tools/micrometer-reading/): it has a step-by-step tutorial and a test on random parts.
+
+The micrometer has what the caliper lacks: a device for a constant measuring force. NPL: the ratchet slips and clicks at its limit, and "Always take the reading on the first click of the ratchet". Mitutoyo compares the ratchet stop, with "tactile and audible feedback" but usually needing two hands, and the friction thimble, with "a somewhat ‘mushy’ feel and a lack of audible feedback". The zero comes first: "Confirm that the zero line on the thimble is aligned with the index line on the sleeve" (NPL). Above 25 mm, where the spindle cannot reach the anvil, Mitutoyo uses setting standards to "verify (not calibrate) the zero opening position".
+
+## Resolution is not accuracy
+
+The smallest step an instrument shows says little about how right it is. NPL works through a 0.02 mm caliper with its face flatness, parallelism and squareness, five readings between 20.06 and 20.12 mm, and arrives at an expanded uncertainty of 0.035 mm, nearly twice the resolution. Makers' datasheets show the same gap: Mahr gives its MarCal 16 ER digital caliper a resolution of 0.01 mm and an "Error limit (mm) 0.03"; Mitutoyo gives one 0–25 mm Digimatic micrometer a resolution of 0.001 mm and an accuracy of ±2 µm, "* Excluding quantizing error of ±1 count". Both are maker figures for single models; Mahr's Turkish datasheet gives a 175–200 mm Micromar 40 A micrometer an error limit of 7 µm, likewise a maker figure.
+
+The standards for the two instruments are ISO 13385-1:2019 for calipers, which covers analogue ("vernier scale or circular scale (dial)") and digital indication (SIS), and ISO 3611:2023 for micrometers, whose third edition added a "classification system of maximum permissible errors" and a reference to ISO 14978:2018. NPL noted in 2014 that, under ISO 14978, equipment standards of this kind "shall not include any numerical values for MPEs and MPLs", so the numbers are in makers' datasheets; whether the 2023 classification contains numbers was not visible in the parts of the standard read for this page. For choosing an instrument, Mahr's Gaging Tips column gives a rule of thumb: "the measuring instrument should resolve to approximately 1/10 of the tolerance being measured".
+
+## Errors in use
+
+- **Abbe's principle.** NPL: "maximum accuracy may be obtained only when the standard is in line with the axis of the object being measured", and "The construction of the calliper does not conform to Abbe's principle"; KEYENCE adds that "outside micrometers follow Abbe's principle". NPL's advice for the caliper: measure as close to the beam as possible.
+- **Force.** "Unlike micrometers, most vernier callipers are not provided with a device that allows a constant measuring force." Pressed too hard, the slider's leaf spring "will bend, causing the jaw slider to tilt" (NPL).
+- **Parallax.** On a vernier "the apparent alignment position will vary slightly depending on the viewing angle"; on a micrometer, "view the index line on the sleeve from directly above" (NPL).
+- **Temperature.** "Lengths of objects are determined at the internationally adopted temperature of 20 °C", and "A 100 mm (4 in.) long iron rod will change length by 0.012 mm (0.000 47 in.) with a temperature change of 10 °C" (NPL). For the micrometer, NPL asks for instrument and part to stand in the room for at least an hour to reach room temperature; for the caliper, it asks for the temperature difference between caliper and part to be kept as small as possible. It warns against measuring parts still hot from machining.
+
+<CheckList id="caliper-micrometer" locale="en" items={[
+  { icon: 'sync', title: 'Zero', check: 'The reading with the jaws or faces closed.', fix: 'Close the jaws and check zero before measuring (NPL); on a micrometer, thimble zero on the index line; above 25 mm with a setting standard (Mitutoyo).', src: 'NPL; Mitutoyo' },
+  { icon: 'clamp', title: 'Force', check: 'How hard the caliper is closed; how the micrometer is turned.', fix: 'No excessive force on a caliper; read a micrometer on the first click of the ratchet (NPL).', src: 'NPL' },
+  { icon: 'align', title: 'Position', check: 'Where on the jaws the part sits.', fix: 'As close to the caliper beam as possible (Abbe, NPL); beam parallel to the dimension, faces in even contact (NPL).', src: 'NPL' },
+  { icon: 'hard', title: 'Temperature', check: 'Part and instrument temperature.', fix: 'Micrometer and part in the room at least an hour; caliper and part at as nearly the same temperature as possible; no parts hot from machining (NPL).', src: 'NPL' },
+  { icon: 'depth', title: 'Instrument choice', check: 'Resolution and error limit against the tolerance.', fix: 'Resolution about 1/10 of the tolerance (Mahr); judge by the error limit, not the resolution.', src: 'Mahr; NPL' },
+]} />

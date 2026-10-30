@@ -1,0 +1,88 @@
+---
+// Development page for new figures (not linked; removed before publishing).
+import Base from '../layouts/Base.astro';
+import Figure from '../components/mdx/Figure.astro';
+import EnteringAngle from '../components/mdx/EnteringAngle.astro';
+import FacingSpeed from '../components/mdx/FacingSpeed.astro';
+import TurningOps from '../components/mdx/TurningOps.astro';
+import DinGroups from '../components/mdx/DinGroups.astro';
+import BarOverhang from '../components/mdx/BarOverhang.astro';
+import TapTypes from '../components/mdx/TapTypes.astro';
+import ChamferForms from '../components/mdx/ChamferForms.astro';
+import TapLoad from '../components/mdx/TapLoad.astro';
+import TapModel3D from '../components/mdx/TapModel3D.astro';
+import BlindHoleDepth from '../components/mdx/BlindHoleDepth.astro';
+import CheckList from '../components/mdx/CheckList.astro';
+const groups = [
+  { de: 'Plandrehen', name: 'Facing', text: 'Plane surfaces such as end faces.' },
+  { de: 'Runddrehen', name: 'Cylindrical turning', text: 'Round surfaces on the outside of a cylinder.' },
+  { de: 'Schraubdrehen', name: 'Screw turning', text: 'Threads: the feed per revolution is the pitch.' },
+  { de: 'Wälzdrehen', name: 'Generating turning', text: 'Rolling surfaces such as gear teeth, with a generating motion.' },
+  { de: 'Profildrehen', name: 'Profile turning', text: 'The tool carries the shape as its negative.' },
+  { de: 'Formdrehen', name: 'Form (contour) turning', text: 'Any shape from a controlled tool path.' },
+];
+const bars = [
+  { label: 'Steel bar', times: 4 },
+  { label: 'Carbide bar', times: 6, carbide: true },
+  { label: 'Short dampened bar', times: 7, damped: true },
+  { label: 'Long dampened bar', times: 10, damped: true },
+  { label: 'Carbide-reinforced dampened bar', sub: 'Sandvik Coromant', times: 14, damped: true, carbide: true },
+];
+const ops = [
+  { k: 'face', name: 'Facing', feed: 'radial, towards the axis' },
+  { k: 'long', name: 'Longitudinal turning', feed: 'axial' },
+  { k: 'prof', name: 'Profiling', feed: 'axial and radial together' },
+  { k: 'chamfer', name: 'Chamfering', feed: 'at 45°' },
+  { k: 'groove', name: 'Grooving', feed: 'radial plunge' },
+  { k: 'thread', name: 'Thread turning', feed: 'axial, one pitch per revolution' },
+  { k: 'part', name: 'Parting off', feed: 'radial, to the centre' },
+  { k: 'drill', name: 'Drilling', feed: 'axial, on the centre line' },
+  { k: 'bore', name: 'Internal turning (boring)', feed: 'axial, inside a hole' },
+];
+const q = Astro.url.searchParams;
+---
+<Base locale="en" title="dev figures" description="dev" path="/dev-figs/" altPath="/tr/">
+  <article class="sheet article" style="padding-block: 2rem">
+    <div class="body prose-article" style="max-width: 46rem">
+      <Figure caption="tap types test">
+        <TapTypes aria="Four tap types" types={[
+          { name: 'Spiral point', hole: 'through hole', chips: 'pushed ahead, out of the far end' },
+          { name: 'Spiral flute', hole: 'blind hole', chips: 'pulled back up the flutes' },
+          { name: 'Straight flute', hole: 'blind hole, short chips', chips: 'stay in the flutes' },
+          { name: 'Forming tap', hole: 'blind or through', chips: 'none: the material flows' },
+        ]} />
+      </Figure>
+      <Figure caption="blind hole test"><BlindHoleDepth locale="en" /></Figure>
+      <Figure caption="blind hole test TR"><BlindHoleDepth locale="tr" /></Figure>
+      <CheckList id="dev" locale="en" items={[
+        { title: 'The tap hits the bottom', check: 'Hole depth against the programmed tap depth', fix: 'Drill deeper', src: 'Haas; ISCAR' },
+        { title: 'Chips pack', check: 'Tap type against the hole', fix: 'Spiral flute in blind holes', src: 'Haas; Seco' },
+      ]} />
+      <Figure caption="tap 3d test"><TapModel3D locale="en" /></Figure>
+      <Figure caption="tap load test"><TapLoad locale="en" /></Figure>
+      <Figure caption="tap load test TR"><TapLoad locale="tr" size={3} mat={6} vc={8} /></Figure>
+      <Figure caption="chamfer forms test">
+        <ChamferForms aria="Chamfer forms A to F" head={{ form: 'Form', threads: 'Chamfer threads', use: 'Hole' }} forms={[
+          { k: 'A', threads: '6–8', mid: 7, use: 'short through holes', hole: 'short-through' },
+          { k: 'B', threads: '3.5–5', mid: 4.25, use: 'through holes; spiral point pushes chips ahead', hole: 'through', point: true },
+          { k: 'C', threads: '2–3', mid: 2.5, use: 'blind holes; through holes in short-chipping materials', hole: 'blind' },
+          { k: 'D', threads: '3.5–5', mid: 4.25, use: 'through holes, and blind holes with long runout', hole: 'blind' },
+          { k: 'E', threads: '1.5–2', mid: 1.75, use: 'blind holes with short runout', hole: 'blind' },
+          { k: 'F', threads: '1–1.5', mid: 1.25, use: 'blind holes with very short runout', hole: 'blind' },
+        ]} />
+      </Figure>
+      <h2>DIN groups</h2>
+      <Figure caption="DIN groups test."><DinGroups groups={groups} aria="The six groups of turning in DIN 8589-1" /></Figure>
+      <h2>Bar overhang</h2>
+      <Figure caption="Bar overhang test."><BarOverhang bars={bars} aria="Maximum boring bar overhang" unit="overhang in bar diameters D" clamp="clamp" /></Figure>
+      <h2>Operations</h2>
+      <Figure caption="Turning operations test."><TurningOps locale="en" ops={ops} aria="Turning operations on one part" all="All operations" /></Figure>
+      <h2>Facing</h2>
+      <Figure caption="Facing test (EN)."><FacingSpeed locale="en" /></Figure>
+      <Figure caption="Facing test (TR)."><FacingSpeed locale="tr" vc={250} d0={80} nmax={3000} /></Figure>
+      <h2>Entering angle</h2>
+      <Figure caption="Entering angle test (EN)."><EnteringAngle locale="en" /></Figure>
+      <Figure caption="Entering angle test (TR)."><EnteringAngle locale="tr" kr={75} /></Figure>
+    </div>
+  </article>
+</Base>

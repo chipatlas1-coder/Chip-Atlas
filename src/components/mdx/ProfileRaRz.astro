@@ -1,0 +1,76 @@
+---
+/**
+ * A synthetic roughness profile over five sections: mean line, Ra band, Rz_i per section, Rt.
+ * Values computed from the drawn profile. Wide and narrow layouts; the key is an HTML legend.
+ */
+import { randomProfile, ra, rz, rt } from '../../lib/profile.js';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const n = 1000;
+const z = randomProfile(n, 23, 11, 0.9);
+const Ra = ra(z), { Rz, parts } = rz(z, 5), Rt = rt(z);
+const dec = (v: number, k = 2) => (tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+const L = tr
+  ? { mean: 'ortalama çizgi', sec: 'bölüm', ra: '±Ra bandı', pv: 'bölümdeki en yüksek tepe ve en derin vadi', aria: 'Pürüzlülük profili, Ra ve Rz' }
+  : { mean: 'mean line', sec: 'section', ra: '±Ra band', pv: 'highest peak and deepest valley in the section', aria: 'Roughness profile with Ra and Rz' };
+const zmax = Math.max(...z.map(Math.abs));
+function layout(narrow: boolean) {
+  const W = narrow ? 360 : 640, H = narrow ? 250 : 300;
+  const x0 = narrow ? 8 : 24, x1 = W - (narrow ? 8 : 24), ym = narrow ? 128 : 152, sy = (narrow ? 74 : 92) / zmax;
+  const X = (i: number) => x0 + (i / (n - 1)) * (x1 - x0);
+  const Y = (v: number) => ym - v * sy;
+  const d = z.map((v, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join('');
+  return { W, H, x0, x1, ym, X, Y, d, narrow };
+}
+const geo = [layout(false), layout(true)];
+---
+<div class="prw">
+  {geo.map((g) => (
+    <svg viewBox={`0 0 ${g.W} ${g.H}`} role="img" aria-label={L.aria} class:list={['prof', g.narrow ? 'narrow' : 'wide']}>
+      <rect x={g.x0} y={g.Y(Ra)} width={g.x1 - g.x0} height={g.Y(-Ra) - g.Y(Ra)} class="band" />
+      {parts.map((p, s) => {
+        const xc = (g.X(p.start) + g.X(p.start + n / 5 - 1)) / 2;
+        return (
+          <g>
+            {s > 0 && <line x1={g.X(p.start)} x2={g.X(p.start)} y1={g.narrow ? 36 : 40} y2={g.H - 36} class="sep" />}
+            <line x1={g.X(p.peak) - 9} x2={g.X(p.peak) + 9} y1={g.Y(z[p.peak])} y2={g.Y(z[p.peak])} class="pv" />
+            <line x1={g.X(p.valley) - 9} x2={g.X(p.valley) + 9} y1={g.Y(z[p.valley])} y2={g.Y(z[p.valley])} class="pv" />
+            <text x={xc} y={g.narrow ? 48 : 54} text-anchor="middle" class="t mut">{g.narrow ? s + 1 : `${L.sec} ${s + 1}`}</text>
+            <text x={xc} y={g.H - 16} text-anchor="middle" class="t acc">Rz{s + 1} {dec(p.rzi)}</text>
+          </g>
+        );
+      })}
+      <line x1={g.x0} x2={g.x1} y1={g.ym} y2={g.ym} class="mean" />
+      <path d={g.d} class="line" />
+      <text x={g.x0} y="20" class="t">Ra {dec(Ra)} · Rz {dec(Rz)} · Rt {dec(Rt)} µm</text>
+    </svg>
+  ))}
+  <p class="key">
+    <span><i class="k-line"></i>{L.mean}</span>
+    <span><i class="k-band"></i>{L.ra}</span>
+    <span><i class="k-pv"></i>{L.pv}</span>
+  </p>
+</div>
+
+<style>
+  .prw { display: grid; gap: 0.5rem; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } }
+  .band { fill: color-mix(in oklab, var(--data) 13%, transparent); }
+  .sep { stroke: var(--line-strong); stroke-dasharray: 3 4; }
+  .mean { stroke: var(--ink-2); stroke-width: 1; }
+  .line { fill: none; stroke: var(--data); stroke-width: 1.3; stroke-linejoin: round; }
+  .narrow .line { stroke-width: 1.1; }
+  .pv { stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; }
+  .t { font-family: var(--font-mono); font-size: 12.5px; fill: var(--ink); }
+  .narrow .t { font-size: 12px; }
+  .mut { fill: var(--ink-3); }
+  .acc { fill: var(--color-spark-400); }
+  .key { margin: 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font-size: 0.8rem; color: var(--ink-3); max-width: none; }
+  .key span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .key i { display: inline-block; width: 16px; }
+  .k-line { height: 0; border-top: 1px solid var(--ink-2); }
+  .k-band { height: 10px; background: color-mix(in oklab, var(--data) 22%, transparent); }
+  .k-pv { height: 0; border-top: 2px solid var(--accent); width: 12px !important; }
+</style>

@@ -1,0 +1,167 @@
+---
+key: iso-metric-threads
+locale: en
+slug: iso-metric-threads
+title: 'ISO metric screw threads'
+description: 'The 60° ISO metric thread: the basic profile, the formulas for pitch and minor diameters, coarse and fine pitches, tolerance classes such as 6H/6g, the stress area of a bolt, and which edition of each standard is current.'
+section: 11
+subsection: threads-and-standard-parts
+order: 2
+updated: 2026-10-11
+tools: [tapdrill]
+glance:
+  - value: '60°'
+    label: 'Thread angle'
+  - value: '0.541 P'
+    label: 'Basic thread overlap 5H/8'
+  - value: '9.026'
+    unit: 'mm'
+    label: 'Pitch diameter d2 of M10'
+  - value: '6H/6g'
+    label: 'Classes that apply when none is written, from M1.6'
+sources:
+  - label: 'ISO 68-1:2023, ISO general purpose screw threads — Basic and design profiles (catalogue page)'
+    url: https://www.iso.org/standard/85107.html
+  - label: 'IS 4218-1:2001, identical to ISO 68-1:1998 (basic profile proportions)'
+    url: https://law.resource.org/pub/in/bis/S01/is.4218.1.2001.pdf
+  - label: 'ISO 724:2023, Basic dimensions (sample pages with the clause 5 formulas)'
+    url: https://cdn.standards.iteh.ai/samples/85104/9815392ad8904c9aa23cf7727e7b1dde/ISO-724-2023.pdf
+  - label: 'ISO 261:1998, General plan (catalogue page; confirmed 2024)'
+    url: https://www.iso.org/standard/4165.html
+  - label: 'ISO 262:2023, Selected sizes for screws, bolts and nuts (catalogue page)'
+    url: https://www.iso.org/standard/85105.html
+  - label: 'IS 4218-4:2001, identical to ISO 262:1998 (selected sizes)'
+    url: https://law.resource.org/pub/in/bis/S01/is.4218.4.2001.pdf
+  - label: 'ISO 965-1:2026, Tolerances — Principles and basic data (catalogue page)'
+    url: https://www.iso.org/standard/87889.html
+  - label: 'DIN Media, DIN ISO 965-1:2026-09 (summary of changes)'
+    url: https://www.dinmedia.de/en/standard/din-iso-965-1/402951158
+  - label: 'ISO 965-2:2024, Limits of sizes for internal and external threads (catalogue page)'
+    url: https://www.iso.org/standard/87890.html
+  - label: 'ISO 965-6:2025 (catalogue page; the ten recommended tolerance classes)'
+    url: https://www.iso.org/standard/86908.html
+  - label: 'IS 14962-1:2001, identical to ISO 965-1:1998 (tolerance positions, grades, designation)'
+    url: https://law.resource.org/pub/in/bis/S01/is.14962.1.2001.pdf
+  - label: 'IS 1367-3:2002, identical to ISO 898-1:1999 (tensile stress areas)'
+    url: https://law.resource.org/pub/in/bis/S01/is.1367.3.2002.pdf
+  - label: 'Bolt Science, "ISO 68-1 basic and design thread profiles", 2023'
+    url: https://www.boltscience.com/pages/ISO68-1-basic-and-design-thread-profiles.htm
+  - label: 'Bolt Science, "Information on screw threads"'
+    url: https://www.boltscience.com/pages/screw8.htm
+  - label: 'Engineering Toolbox, bolt threads — tensile stress area (cross-check)'
+    url: https://www.engineeringtoolbox.com/bolt-threads-stress-d_856.html
+---
+import TapProfile from '../../../components/mdx/TapProfile.astro';
+import ThreadCode from '../../../components/mdx/ThreadCode.astro';
+import StressArea from '../../../components/mdx/StressArea.astro';
+import Model3D from '../../../components/mdx/Model3D.astro';
+
+The ISO metric thread is the general-purpose thread of bolts, screws, nuts and tapped holes. Its geometry is simple: a 60° thread whose proportions are all fixed by the pitch. From that follow every diameter on a drawing, every tap drill and the strength of the bolt.
+
+## Which standard covers what
+
+| Standard | Covers | Current edition |
+|---|---|---|
+| ISO 68-1 | Basic and design profiles | 2023 (2nd edition) |
+| ISO 261 | General plan: which diameter goes with which pitches | 1998, confirmed 2024 |
+| ISO 262 | Selected sizes for screws, bolts and nuts | 2023 (3rd edition) |
+| ISO 724 | Basic dimensions: pitch and minor diameters | 2023 (3rd edition) |
+| ISO 965-1 | Tolerance system: positions, grades, classes | 2026 (5th edition); the 2013 edition is withdrawn |
+| ISO 965-2 | Limits of sizes for 6H/6g (M1.6–M100) and 5H/6h (M1–M1.4) | 2024 |
+| ISO 898-1 | Mechanical properties of bolts; tensile stress area | 2013 |
+
+Many tables in circulation, including Wikipedia's, still cite the 1998 editions. The numbers on this page match both, except where noted.
+
+## The basic profile
+
+The profile is built on an equilateral triangle, so the thread angle is 60°. Its height is
+
+$$
+H = \frac{\sqrt{3}}{2}\,P = 0.866025\,P
+$$
+
+where P is the pitch. The sharp triangle is cut off by H/8 at the major diameter, leaving a flat P/8 wide, and by H/4 at the minor diameter, leaving a flat P/4 wide. What remains is the **basic overlap** of the internal and external thread, 5H/8 = 0.541266 P.
+
+<Figure caption="The ISO basic profile drawn to scale for M10 (P = 1.5 mm): nut above, bolt below. The pitch line, where tooth and gap are equally wide, defines the pitch diameter d2.">
+  <TapProfile locale="en" d={10} P={1.5} />
+</Figure>
+
+The 2023 edition of ISO 68-1 separates this basic profile from the **design profile** of real parts. According to Bolt Science, the external thread has a rounded root with a minimum radius of 0.125 P, which now applies to all external threads unless a product standard says otherwise; before, it applied only from property class 8.8 up.
+
+## Basic dimensions
+
+ISO 724 gives the diameters as functions of the nominal diameter d and the pitch P:
+
+$$
+d_2 = D_2 = d - 0.649519\,P \qquad D_1 = d - 1.082532\,P \qquad d_3 = d - 1.226869\,P
+$$
+
+- **d2 = D2**, the pitch diameter, lies 3H/8 below the major diameter on each side.
+- **D1**, the basic minor diameter of the internal thread, lies 5H/8 below it.
+- **d3**, the minor diameter of the external thread on the design profile, lies 17H/24 below it. The 2023 edition of ISO 724 added it to the tables.
+
+**Example, M10 (P = 1.5 mm):** d2 = 9.026 mm, D1 = 8.376 mm, d3 = 8.160 mm. ISO 724 rounds to three decimals.
+
+<Figure caption="M10 × 1.5 in 3D with a quarter cut away: the external thread on its design profile, swept along a right-hand helix. The cut face carries d, d2 and d3 from the example, the pitch and the 60° between the flanks.">
+  <Model3D locale="en" kind="thread" />
+</Figure>
+
+<Note kind="note" title="Two thread depths">
+Tables quote "thread depth" as either 0.541 P or 0.613 P (some print 0.614 P). Both are correct: 0.541 P is the basic overlap 5H/8, the depth of the internal thread on the basic profile; 0.613 P is 17H/24, the depth of the external thread on the design profile. Check which one a table means before using it.
+</Note>
+
+## Coarse and fine pitches
+
+Each diameter has one **coarse** pitch. ISO 262 selects one or more **fine** pitches for fasteners from M8 up; the general plan of ISO 261 lists more. ISO 261 sorts diameters into first, second and third choice; first choice should be used where possible. The coarse series from M1 to M64:
+
+| d (mm) | 1 | 1.2 | 1.6 | 2 | 2.5 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 14 | 16 | 18 | 20 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **P (mm)** | 0.25 | 0.25 | 0.35 | 0.4 | 0.45 | 0.5 | 0.7 | 0.8 | 1 | 1.25 | 1.5 | 1.75 | 2 | 2 | 2.5 | 2.5 |
+
+| d (mm) | 22 | 24 | 27 | 30 | 33 | 36 | 39 | 42 | 45 | 48 | 52 | 56 | 60 | 64 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **P (mm)** | 2.5 | 3 | 3 | 3.5 | 3.5 | 4 | 4 | 4.5 | 4.5 | 5 | 5 | 5.5 | 5.5 | 6 |
+
+M14, M18, M22 and M60 are second choice; so, according to a single source, are M27, M33, M39, M45 and M52. The fine pitches that ISO 262 selects for bolts and nuts, and the full dimensions of every size, are in the [tap drill and thread calculator](/tools/tap-drill-calculator/). That list follows the 1998 edition of ISO 262; we have not been able to check it against the table of the 2023 edition.
+
+<Note kind="warn" title="ISO 261 is wider than ISO 262">
+ISO 261 lists many more diameter–pitch combinations than ISO 262 selects for fasteners. M8 × 0.75, for example, is in the general plan of ISO 261 but not among the selected sizes of ISO 262, which give M8 × 1 only. Tables that mix the two are common.
+</Note>
+
+## Designation and tolerance classes
+
+A coarse thread is written with its diameter only, **M10**; a fine thread adds the pitch, **M10 × 1.25**. The tolerance class follows after a dash:
+
+- Internal threads have the tolerance positions **G** and **H**; external threads **e, f, g** and **h**. H and h have a fundamental deviation of zero.
+- A tolerance class combines a grade with a position, for example **6H** or **6g**. Grade 6 is medium quality with a normal length of engagement.
+- If no class is given, medium quality applies: **6H/6g** from M1.6 up, 5H/6h up to M1.4.
+- When the pitch-diameter and crest-diameter classes differ, the pitch-diameter class comes first: **M20 × 2-6H/5g6g**.
+- The length of engagement is short (S), normal (N) or long (L); N applies when nothing is written. A left-hand thread adds LH, as in M6 × 0.75-5h6h-S-LH.
+
+<Figure caption="Four designations taken apart. Dashed parts are not written; the value shown is the one that then applies.">
+  <ThreadCode locale="en" />
+</Figure>
+
+ISO 965-6:2025 gives limits of sizes for the ten classes that ISO 965-1 recommends: 4H, 5H, 6H, 7H and 6G for nuts; 4h, 6h, 6g, 6f and 6e for bolts.
+
+<Note kind="key" title="ISO 965-1 has a new edition">
+ISO 965-1:2026 replaced the 2013 edition in April 2026. According to DIN Media's summary, it adds tolerances for the minor diameter of external threads, special pitches and tolerances, and rules for coated threads. We could not read the 2026 text itself; the positions, grades and designations above come from the earlier text of ISO 965-1 and agree with ISO 965-2:2024 and ISO 965-6:2025.
+</Note>
+
+## Tensile stress area
+
+The strength of a bolt is calculated on the **tensile stress area**, defined in ISO 898-1 as the area of a circle whose diameter is the mean of d2 and d3:
+
+$$
+A_s = \frac{\pi}{4}\left(\frac{d_2 + d_3}{2}\right)^2
+$$
+
+| Thread | M6 | M8 | M10 | M12 | M16 | M20 | M24 | M30 | M36 |
+|---|---|---|---|---|---|---|---|---|---|
+| **As (mm²)** | 20.1 | 36.6 | 58.0 | 84.3 | 157 | 245 | 353 | 561 | 817 |
+
+<Figure caption="M10 drawn to scale: the external thread on its design profile, with the four diameters, and the stress area in section. ds lies halfway between d2 and d3; every value is calculated from d and P with the formulas above, and As agrees with the table.">
+  <StressArea locale="en" d={10} P={1.5} />
+</Figure>
+
+A fine thread has a larger stress area than the coarse thread of the same diameter: M10 × 1.25 has 61.2 mm², M10 × 1 has 64.5 mm². Proof load and breaking load follow from As and the property class; see [bolt property classes](/drawings-and-tolerances/bolt-property-classes/). For the hole a tap needs, see [tap drill sizes](/processes/tap-drill-sizes/).

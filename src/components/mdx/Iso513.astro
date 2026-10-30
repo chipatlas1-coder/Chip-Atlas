@@ -1,0 +1,46 @@
+---
+/** ISO 513:2012 main application groups with their identification colours. */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const rows = [
+  { g: 'P', color: '#276ede', name: tr ? 'mavi' : 'blue', mat: tr ? 'Çelik: östenitik paslanmaz hariç tüm çelikler ve çelik dökümler' : 'Steel: all steels and cast steels except austenitic stainless', range: [1, 50] },
+  { g: 'M', color: '#d9a600', name: tr ? 'sarı' : 'yellow', mat: tr ? 'Paslanmaz çelik: östenitik ve östenitik-ferritik (dubleks) çelik ve çelik dökümler' : 'Stainless steel: austenitic and austenitic-ferritic (duplex) steel and cast steel', range: [1, 40] },
+  { g: 'K', color: '#c2413b', name: tr ? 'kırmızı' : 'red', mat: tr ? 'Dökme demir: lamel grafitli, küresel grafitli, temper döküm' : 'Cast iron: grey, spheroidal-graphite and malleable cast iron', range: [1, 40] },
+  { g: 'N', color: '#1b9f57', name: tr ? 'yeşil' : 'green', mat: tr ? 'Demir dışı metaller: alüminyum ve diğerleri; metal olmayan malzemeler' : 'Non-ferrous metals: aluminium and others; non-metallic materials', range: [1, 30] },
+  { g: 'S', color: '#8d592c', name: tr ? 'kahverengi' : 'brown', mat: tr ? 'Süper alaşımlar ve titanyum: Fe, Ni, Co esaslı ısıl dayanımlı alaşımlar; titanyum alaşımları' : 'Superalloys and titanium: heat-resistant Fe, Ni and Co based alloys; titanium alloys', range: [1, 30] },
+  { g: 'H', color: '#676d72', name: tr ? 'gri' : 'grey', mat: tr ? 'Sert malzemeler: sertleştirilmiş çelik, sertleştirilmiş dökme demir, kokil dökme demir' : 'Hard materials: hardened steel, hardened cast iron, chilled cast iron', range: [1, 30] },
+];
+const scaleX = (v: number) => (v / 50) * 100;
+---
+<div class="iso513">
+  <div class="hdr"><span>{tr ? 'Grup' : 'Group'}</span><span>{tr ? 'İş parçası malzemesi' : 'Workpiece material'}</span><span>{tr ? 'Uygulama grupları' : 'Application groups'}</span></div>
+  {rows.map((r) => (
+    <div class="row">
+      <span class="g"><span class="sw" style={`background:${r.color}`}></span><b>{r.g}</b> <span class="muted">{r.name}</span></span>
+      <span class="mat">{r.mat}</span>
+      <span class="bar" aria-label={`${r.g}01–${r.g}${String(r.range[1]).padStart(2, '0')}`}>
+        <span class="fill" style={`left:0;width:${scaleX(r.range[1])}%;background:${r.color}`}></span>
+        <span class="lab">{r.g}01 … {r.g}{String(r.range[1]).padStart(2, '0')}</span>
+      </span>
+    </div>
+  ))}
+  <div class="axis"><span></span><span></span><span class="ends"><span>{tr ? '01: aşınma direnci, daha yüksek hız' : '01: wear resistance, higher speed'}</span><span>{tr ? '50: tokluk, daha yüksek ilerleme' : '50: toughness, higher feed'}</span></span></div>
+</div>
+
+<style>
+  .iso513 { display: grid; gap: 0.4rem; font-size: 0.9rem; }
+  .hdr, .row, .axis { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) 13rem; gap: 1rem; align-items: center; }
+  @media (max-width: 40rem) { .hdr, .row, .axis { grid-template-columns: 5.5rem minmax(0, 1fr); } .bar, .hdr span:last-child, .axis .ends { grid-column: 1 / -1; } }
+  .hdr { color: var(--ink-3); font-size: 0.8rem; border-bottom: 1px solid var(--line-strong); padding-bottom: 0.4rem; }
+  .row { padding: 0.45rem 0; border-bottom: 1px solid var(--line); }
+  .g { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .g b { font-family: var(--font-mono); font-size: 1.05rem; color: var(--ink); }
+  .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .muted { color: var(--ink-3); font-size: 0.8rem; }
+  .mat { color: var(--ink-2); }
+  .bar { position: relative; height: 1.4rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+  .fill { position: absolute; top: 0; bottom: 0; opacity: 0.55; }
+  .lab { position: relative; font-family: var(--font-mono); font-size: 0.75rem; padding-left: 0.4rem; line-height: 1.4rem; color: var(--ink); }
+  .ends { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.72rem; color: var(--ink-3); font-family: var(--font-mono); }
+</style>

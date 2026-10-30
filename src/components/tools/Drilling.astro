@@ -1,0 +1,244 @@
+---
+import ToolShell from '../ToolShell.astro';
+import type { Locale } from '../../i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+
+const copy = tr
+  ? {
+      title: 'Delme hesaplayıcısı',
+      description: 'İki ağızlı matkap için devir, ilerleme hızı, talaş hacmi, uç boyu, delme süresi, ağız başına talaş kalınlığı, kesme kuvveti, güç ve tork; test edilmiş formüllerle.',
+      lead: 'Matkap çapını, kesme hızını ve devir başına ilerlemeyi gir; devir, ilerleme hızı, talaş hacmi ve delme süresi gelir. Kienzle sabitlerini eklersen her ağızdaki kuvvet, net güç ve tork da hesaplanır.',
+      D: 'Matkap çapı Dc', mode: 'Hangisi biliniyor?', vc: 'Kesme hızı vc', n: 'Devir n', fn: 'Devir başına ilerleme fn',
+      point: 'Uç açısı σ', L: 'Delik derinliği L (tam çap)', kc11: 'Özgül kesme kuvveti kc1.1', mc: 'Kienzle üssü mc',
+      kcHint: 'kc1.1 ve mc değerlerini malzeme sayfasından veya takım üreticisinin kataloğundan al. Uç açısı: HSS matkaplarda genellikle 118°, karbür matkaplarda genellikle 140°.',
+      res: { n: 'Devir n', vc: 'Kesme hızı vc', vf: 'İlerleme hızı vf', Q: 'Talaş hacmi Q', lp: 'Uç boyu lp', tc: 'Delme süresi tc', h: 'Ağız başına talaş kalınlığı h', kc: 'Özgül kesme kuvveti kc', F: 'Ağız başına kesme kuvveti Fc', Pc: 'Net güç Pc', Mc: 'Tork Mc' },
+      group1: 'Kinematik', group2: 'Kuvvet, güç ve tork (Kienzle)',
+      figureLabel: 'Matkap ve delik kesiti',
+      notes: [
+        'vc matkabın çevresindeki hızdır. Merkeze doğru hız sıfıra iner; merkezdeki kesici kenar (chisel edge) kesmekten çok malzemeyi ezer. Bu nedenle gerçek itme kuvveti ve tork bu modelin verdiğinden yüksektir.',
+        'Kuvvet modeli iki ağızlı matkap içindir: her ağız fn/2 kalınlığında, Dc/2 genişliğinde bir talaş keser ve kuvvet kolu Dc/4’tür. Merkez ve çevre uçlu (uç değiştirmeli) matkaplarda üreticinin formülünü kullan.',
+        'Delme süresi uç boyunu (lp) içerir: uç, tam çap derinliğe ulaşmadan önce lp kadar ilerler. Yaklaşma, geri çekme ve gagalama (peck) hareketleri dâhil değildir.',
+        'Pc net kesme gücüdür. Motor gücü için iş mili verimine böl ve tezgâhın güç-devir eğrisini kontrol et.',
+      ],
+    }
+  : {
+      title: 'Drilling calculator',
+      description: 'Spindle speed, penetration rate, removal rate, point length, drilling time, chip thickness per lip, cutting force, power and torque for a two-lip drill, computed with tested formulae.',
+      lead: 'Enter the drill diameter, cutting speed and feed per revolution; spindle speed, penetration rate, removal rate and drilling time follow. Add the Kienzle constants and the force on each lip, the net power and the torque are computed too.',
+      D: 'Drill diameter Dc', mode: 'Which one is known?', vc: 'Cutting speed vc', n: 'Spindle speed n', fn: 'Feed per revolution fn',
+      point: 'Point angle σ', L: 'Hole depth L (full diameter)', kc11: 'Specific cutting force kc1.1', mc: 'Kienzle exponent mc',
+      kcHint: 'Take kc1.1 and mc from the material page or the tool maker’s catalogue. Point angle: commonly 118° on HSS drills and 140° on solid carbide drills.',
+      res: { n: 'Spindle speed n', vc: 'Cutting speed vc', vf: 'Penetration rate vf', Q: 'Removal rate Q', lp: 'Point length lp', tc: 'Drilling time tc', h: 'Chip thickness per lip h', kc: 'Specific cutting force kc', F: 'Cutting force per lip Fc', Pc: 'Net power Pc', Mc: 'Torque Mc' },
+      group1: 'Kinematics', group2: 'Force, power and torque (Kienzle)',
+      figureLabel: 'Drill and hole section',
+      notes: [
+        'vc is the speed at the drill periphery. It falls to zero toward the centre, where the chisel edge extrudes rather than cuts. Real thrust and torque are therefore higher than this model gives.',
+        'The force model is for a two-lip drill: each lip cuts a chip fn/2 thick and Dc/2 wide, with a lever of Dc/4. For indexable drills with centre and periphery inserts, use the maker’s formula.',
+        'Drilling time includes the point length lp: the tip travels lp before the full diameter reaches the depth. Approach, retract and peck moves are not included.',
+        'Pc is the net cutting power. For the motor, divide by the spindle efficiency and check the machine’s power curve against the spindle speed.',
+      ],
+    };
+
+const sources = [
+  { label: 'Iscar — Drilling Handbook, formulas page (MRR, net power, torque)', url: 'https://www.iscar.com/Catalogs/Publication/english_1/Drilling_Handbook/Drilling_Handbook_flipview/files/basic-html/page312.html' },
+  { label: 'O. Kienzle, VDI-Z 94 (1952) — specific cutting force kc = kc1.1 · h^−mc' },
+];
+---
+<ToolShell locale={locale} route="drilling" title={copy.title} description={copy.description} lead={copy.lead} sectionN={7} sources={sources}>
+  <div class="tool-grid-2" data-drilling data-locale={locale}>
+    <div class="panel inputs">
+      <label class="field">
+        <span>{copy.D} <span class="unit">mm</span></span>
+        <input id="drill-D" type="number" min="0.1" step="0.1" value="12" data-in="D" />
+      </label>
+      <fieldset class="mode">
+        <legend class="hint">{copy.mode}</legend>
+        <label><input id="drill-mode-vc" type="radio" name="drill-mode" value="vc" checked data-mode /> vc</label>
+        <label><input id="drill-mode-n" type="radio" name="drill-mode" value="n" data-mode /> n</label>
+      </fieldset>
+      <div class="two">
+        <label class="field">
+          <span>{copy.vc} <span class="unit">m/min</span></span>
+          <input id="drill-vc" type="number" min="1" step="1" value="90" data-in="vc" />
+        </label>
+        <label class="field">
+          <span>{copy.n} <span class="unit">rpm</span></span>
+          <input id="drill-n" type="number" min="1" step="1" value="2387" data-in="n" disabled />
+        </label>
+      </div>
+      <div class="two">
+        <label class="field">
+          <span>{copy.fn} <span class="unit">mm/rev</span></span>
+          <input id="drill-fn" type="number" min="0.005" step="0.01" value="0.20" data-in="fn" />
+        </label>
+        <label class="field">
+          <span>{copy.point} <span class="unit">°</span></span>
+          <input id="drill-point" type="number" min="60" max="180" step="1" value="140" data-in="point" />
+        </label>
+      </div>
+      <label class="field">
+        <span>{copy.L} <span class="unit">mm</span></span>
+        <input id="drill-L" type="number" min="0" step="1" value="36" data-in="L" />
+      </label>
+      <div class="two">
+        <label class="field">
+          <span>{copy.kc11} <span class="unit">N/mm²</span></span>
+          <input id="drill-kc11" type="number" min="100" step="10" placeholder="kc1.1" data-in="kc11" />
+        </label>
+        <label class="field">
+          <span>{copy.mc}</span>
+          <input id="drill-mc" type="number" min="0" max="1" step="0.01" placeholder="mc" data-in="mc" />
+        </label>
+      </div>
+      <p class="hint">{copy.kcHint}</p>
+    </div>
+
+    <div class="stack">
+      <div class="figure">
+        <svg data-figure viewBox="0 0 640 360" role="img" aria-label={copy.figureLabel}></svg>
+      </div>
+      <div class="panel results">
+        <h2 class="h3">{copy.group1}</h2>
+        <div class="results-grid">
+          <div class="readout"><span class="value"><span data-out="n">—</span><small>rpm</small></span><span class="label">{copy.res.n}</span></div>
+          <div class="readout"><span class="value"><span data-out="vc">—</span><small>m/min</small></span><span class="label">{copy.res.vc}</span></div>
+          <div class="readout"><span class="value"><span data-out="vf">—</span><small>mm/min</small></span><span class="label">{copy.res.vf}</span></div>
+          <div class="readout"><span class="value"><span data-out="Q">—</span><small>cm³/min</small></span><span class="label">{copy.res.Q}</span></div>
+          <div class="readout"><span class="value"><span data-out="lp">—</span><small>mm</small></span><span class="label">{copy.res.lp}</span></div>
+          <div class="readout"><span class="value"><span data-out="tc">—</span><small>min</small></span><span class="label">{copy.res.tc}</span></div>
+        </div>
+        <h2 class="h3">{copy.group2}</h2>
+        <div class="results-grid">
+          <div class="readout"><span class="value"><span data-out="h">—</span><small>mm</small></span><span class="label">{copy.res.h}</span></div>
+          <div class="readout"><span class="value"><span data-out="kc">—</span><small>N/mm²</small></span><span class="label">{copy.res.kc}</span></div>
+          <div class="readout"><span class="value"><span data-out="F">—</span><small>N</small></span><span class="label">{copy.res.F}</span></div>
+          <div class="readout"><span class="value"><span data-out="Pc">—</span><small>kW</small></span><span class="label">{copy.res.Pc}</span></div>
+          <div class="readout"><span class="value"><span data-out="Mc">—</span><small>N·m</small></span><span class="label">{copy.res.Mc}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Fragment slot="formulae">
+    <div class="formula-grid">
+      <div class="formula"><math display="block"><mrow><mi>n</mi><mo>=</mo><mfrac><mrow><msub><mi>v</mi><mi>c</mi></msub><mo>·</mo><mn>1000</mn></mrow><mrow><mi>π</mi><mo>·</mo><msub><mi>D</mi><mi>c</mi></msub></mrow></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>v</mi><mi>f</mi></msub><mo>=</mo><msub><mi>f</mi><mi>n</mi></msub><mo>·</mo><mi>n</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><mi>Q</mi><mo>=</mo><mfrac><mrow><msub><mi>D</mi><mi>c</mi></msub><mo>·</mo><msub><mi>f</mi><mi>n</mi></msub><mo>·</mo><msub><mi>v</mi><mi>c</mi></msub></mrow><mn>4</mn></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>l</mi><mi>p</mi></msub><mo>=</mo><mfrac><msub><mi>D</mi><mi>c</mi></msub><mrow><mn>2</mn><mo>·</mo><mi>tan</mi><mo>(</mo><mi>σ</mi><mo>/</mo><mn>2</mn><mo>)</mo></mrow></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>t</mi><mi>c</mi></msub><mo>=</mo><mfrac><mrow><mi>L</mi><mo>+</mo><msub><mi>l</mi><mi>p</mi></msub></mrow><msub><mi>v</mi><mi>f</mi></msub></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><mi>h</mi><mo>=</mo><mfrac><msub><mi>f</mi><mi>n</mi></msub><mn>2</mn></mfrac><mo>·</mo><mi>sin</mi><mo>(</mo><mi>σ</mi><mo>/</mo><mn>2</mn><mo>)</mo></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>F</mi><mi>c</mi></msub><mo>=</mo><msub><mi>k</mi><mi>c</mi></msub><mo>·</mo><mfrac><msub><mi>f</mi><mi>n</mi></msub><mn>2</mn></mfrac><mo>·</mo><mfrac><msub><mi>D</mi><mi>c</mi></msub><mn>2</mn></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>P</mi><mi>c</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>F</mi><mi>c</mi></msub><mo>·</mo><msub><mi>v</mi><mi>c</mi></msub></mrow><mn>60000</mn></mfrac><mo>=</mo><mfrac><mrow><msub><mi>f</mi><mi>n</mi></msub><mo>·</mo><msub><mi>v</mi><mi>c</mi></msub><mo>·</mo><msub><mi>D</mi><mi>c</mi></msub><mo>·</mo><msub><mi>k</mi><mi>c</mi></msub></mrow><mn>240000</mn></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>M</mi><mi>c</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>F</mi><mi>c</mi></msub><mo>·</mo><msub><mi>D</mi><mi>c</mi></msub></mrow><mn>2000</mn></mfrac></mrow></math></div>
+    </div>
+    <p class="hint">{tr ? 'Fc bir ağızdaki kuvvettir. Birimler: Dc mm, n rpm, vc m/min, fn mm/rev, L ve lp mm, vf mm/min, Q cm³/min, kc N/mm², Fc N, Pc kW, Mc N·m.' : 'Fc is the force on one lip. Units: Dc mm, n rpm, vc m/min, fn mm/rev, L and lp mm, vf mm/min, Q cm³/min, kc N/mm², Fc N, Pc kW, Mc N·m.'}</p>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <ul>
+      {copy.notes.map((note) => <li>{note}</li>)}
+    </ul>
+  </Fragment>
+</ToolShell>
+
+<style>
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .mode { display: flex; gap: 1.25rem; align-items: center; border: 0; padding: 0; }
+  .mode legend { padding: 0; margin-bottom: 0.35rem; }
+  .mode label { display: inline-flex; gap: 0.4rem; align-items: center; font-family: var(--font-mono); }
+  .mode input { accent-color: var(--accent); }
+  .stack { display: grid; gap: 1rem; min-width: 0; }
+  .results .h3 { margin-top: 0.5rem; font-weight: 500; color: var(--ink-2); }
+  .formula-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  @media (min-width: 48rem) { .formula-grid { grid-template-columns: repeat(3, 1fr); } }
+  input:disabled { opacity: 0.5; }
+</style>
+
+<script>
+  import { spindleSpeed, cuttingSpeed, feedSpeed, drillRemovalRate, drillChipThickness, specificCuttingForce, drillLipForce, drillPower, drillTorque, fmt } from '../../lib/calc.js';
+
+  const root = document.querySelector('[data-drilling]') as HTMLElement;
+  const locale = root.dataset.locale || 'en';
+  const get = (key: string) => root.querySelector(`[data-in="${key}"]`) as HTMLInputElement;
+  const modes = Array.from(root.querySelectorAll<HTMLInputElement>('[data-mode]'));
+  const svg = root.querySelector('[data-figure]') as SVGSVGElement;
+  const loc = (v: string) => (locale === 'tr' ? v.replace('.', ',') : v);
+  const set = (key: string, v: number, digits = 3) => { const el = root.querySelector(`[data-out="${key}"]`); if (el) el.textContent = Number.isFinite(v) ? loc(fmt(v, digits)) : '—'; };
+  const val = (key: string) => Number(get(key).value);
+  const DEG = Math.PI / 180;
+
+  function render() {
+    const mode = modes.find((m) => m.checked)?.value ?? 'vc';
+    get('vc').disabled = mode !== 'vc';
+    get('n').disabled = mode !== 'n';
+    const D = val('D'), fn = val('fn'), point = Math.min(Math.max(val('point') || 140, 60), 180), L = val('L');
+    let vc: number, n: number;
+    if (mode === 'vc') { vc = val('vc'); n = spindleSpeed(vc, D); get('n').value = String(Math.round(n)); }
+    else { n = val('n'); vc = cuttingSpeed(D, n); get('vc').value = String(Math.round(vc)); }
+    const vf = feedSpeed(fn, n);
+    const lp = point >= 180 ? 0 : D / (2 * Math.tan((point / 2) * DEG));
+    const h = drillChipThickness(fn, point);
+    set('n', n, 4); set('vc', vc); set('vf', vf, 4); set('Q', drillRemovalRate(vc, D, fn)); set('lp', lp); set('tc', (L + lp) / vf); set('h', h);
+    const kc11 = val('kc11'), mc = val('mc');
+    if (kc11 > 0 && get('mc').value !== '') {
+      const kc = specificCuttingForce(kc11, mc, h);
+      const F = drillLipForce(kc, D, fn);
+      set('kc', kc, 4); set('F', F, 4); set('Pc', drillPower(F, vc)); set('Mc', drillTorque(F, D));
+    } else {
+      ['kc', 'F', 'Pc', 'Mc'].forEach((k) => set(k, NaN));
+    }
+    draw(D, point, L, lp, n, vf, fn);
+  }
+
+  function draw(D: number, point: number, L: number, lp: number, n: number, vf: number, fn: number) {
+    const font = 'font-family="IBM Plex Mono, monospace" font-size="13"';
+    const parts: string[] = [];
+    // Section view: workpiece from y=90 down; hole drilled to depth L (full diameter) plus the cone.
+    const top = 90, cx = 260;
+    const total = L + lp;
+    const scale = Math.min(220 / Math.max(total, 1), 160 / Math.max(D, 1));
+    const r = (D / 2) * scale;
+    const depth = L * scale, tip = lp * scale;
+    const bottom = top + depth;
+    // Workpiece block with the hole cut away.
+    parts.push(`<path d="M60 ${top} H${cx - r} V${bottom} L${cx} ${bottom + tip} L${cx + r} ${bottom} V${top} H460 V340 H60 Z" fill="color-mix(in oklab, var(--color-steel-500) 14%, transparent)" stroke="var(--color-steel-500)" stroke-width="1.5"/>`);
+    // Drill body above and inside the hole, with the point.
+    parts.push(`<path d="M${cx - r} 30 V${bottom} L${cx} ${bottom + tip} L${cx + r} ${bottom} V30" fill="color-mix(in oklab, var(--accent) 16%, transparent)" stroke="var(--accent)" stroke-width="1.5"/>`);
+    // Flutes, schematic diagonal lines
+    for (let y = 40; y < bottom - 6; y += 22) {
+      parts.push(`<line x1="${cx - r}" y1="${y}" x2="${cx + r}" y2="${Math.min(y + r * 0.9, bottom)}" stroke="color-mix(in oklab, var(--accent) 45%, transparent)"/>`);
+    }
+    // Axis
+    parts.push(`<line x1="${cx}" y1="20" x2="${cx}" y2="${Math.min(bottom + tip + 20, 350)}" stroke="var(--ink-3)" stroke-dasharray="10 4 2 4"/>`);
+    // Dimensions: D above the part, L and lp on the right.
+    parts.push(`<line x1="${cx - r}" y1="${top - 14}" x2="${cx + r}" y2="${top - 14}" stroke="var(--ink-2)"/>`);
+    parts.push(`<text x="${cx + r + 8}" y="${top - 10}" ${font} fill="var(--ink-2)">Dc ${loc(String(D))}</text>`);
+    const dx = cx + r + 40;
+    parts.push(`<line x1="${dx}" y1="${top}" x2="${dx}" y2="${bottom}" stroke="var(--ink-2)"/>`);
+    parts.push(`<line x1="${dx - 6}" y1="${top}" x2="${dx + 6}" y2="${top}" stroke="var(--ink-2)"/>`);
+    parts.push(`<line x1="${dx - 6}" y1="${bottom}" x2="${dx + 6}" y2="${bottom}" stroke="var(--ink-2)"/>`);
+    parts.push(`<text x="${dx + 10}" y="${(top + bottom) / 2 + 4}" ${font} fill="var(--ink-2)">L ${loc(String(L))}</text>`);
+    if (tip > 2) {
+      parts.push(`<line x1="${dx}" y1="${bottom}" x2="${dx}" y2="${bottom + tip}" stroke="var(--accent)"/>`);
+      parts.push(`<line x1="${dx - 6}" y1="${bottom + tip}" x2="${dx + 6}" y2="${bottom + tip}" stroke="var(--accent)"/>`);
+      parts.push(`<text x="${dx + 10}" y="${bottom + tip / 2 + 4}" ${font} fill="var(--accent)">lp ${loc(fmt(lp, 3))}</text>`);
+    }
+    // Point angle label at the tip
+    parts.push(`<text x="${cx - r - 10}" y="${bottom + tip / 2 + 4}" ${font} fill="var(--accent)" text-anchor="end">σ ${point}°</text>`);
+    // Feed and rotation, right panel
+    parts.push(`<line x1="${cx - r - 40}" y1="30" x2="${cx - r - 40}" y2="70" stroke="var(--accent)" stroke-width="1.5"/>`);
+    parts.push(`<path d="M${cx - r - 40} 72 l-5 -10 h10 z" fill="var(--accent)"/>`);
+    parts.push(`<text x="${cx - r - 50}" y="50" ${font} fill="var(--accent)" text-anchor="end">fn ${loc(String(fn))}</text>`);
+    parts.push(`<text x="480" y="130" ${font} fill="var(--data)">n ${loc(fmt(n, 4))} rpm</text>`);
+    parts.push(`<text x="480" y="150" ${font} fill="var(--data)">vf ${loc(fmt(vf, 4))} mm/min</text>`);
+    parts.push(`<text x="60" y="${352}" ${font} fill="var(--ink-3)">${locale === 'tr' ? 'kesit · mm (ölçekli)' : 'section · mm (to scale)'}</text>`);
+    svg.innerHTML = parts.join('');
+  }
+
+  root.querySelectorAll('input').forEach((el) => el.addEventListener('input', render));
+  modes.forEach((m) => m.addEventListener('change', render));
+  render();
+</script>

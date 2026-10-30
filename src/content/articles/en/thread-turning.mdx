@@ -1,0 +1,243 @@
+---
+key: thread-turning
+locale: en
+slug: thread-turning
+title: 'Thread turning'
+description: 'Cutting a thread on a lathe with a threading insert: feed equal to the lead and the spindle encoder, full-profile, partial-profile and multi-tooth inserts, radial, flank, modified-flank and alternating infeed, the depth of each pass (ISCAR’s constant chip area, the √N rule, Mitsubishi’s table), the helix angle and the 1.5° shim, cutting speed, the G76 cycle and the usual faults.'
+section: 2
+subsection: turning
+order: 3
+updated: 2026-10-18
+tools: [turning]
+glance:
+  - value: 'f = P'
+    label: 'Feed per revolution equals the lead; on a single-start thread, the pitch (ISCAR, Haas, Hoffmann)'
+  - value: 'Modified flank'
+    label: 'Infeed recommended by ISCAR, Mitsubishi and Kennametal; the offset differs by maker'
+  - value: '≥ 0.05 mm'
+    label: 'Smallest depth of a pass (ISCAR, Kennametal)'
+  - value: '1.5°'
+    label: 'Inclination most holders are supplied with (ISCAR, Kennametal, Korloy, Hoffmann)'
+sources:
+  - label: 'ISCAR, Threading Handbook (flip view), pp. 22–23, 35–36, 43, 116–118, 120, 146–147'
+    url: https://iscar.com/Catalogs/flipview/reference-user-guides/Threading_Handbook/files/basic-html/page118.html
+  - label: 'ISCAR, Threading Catalog 62 ver. 3 (2023), user guide “Thread turning”, flip-view pp. 28, 81–83'
+    url: https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page83.html
+  - label: 'ISCAR, “Threading Inserts Wear Troubleshooting”'
+    url: https://www.iscar.com/products.aspx/countryid/1/productid/12355
+  - label: 'ISCAR, “Types and Profiles of Threading Inserts”'
+    url: https://www.iscar.com/products.aspx/countryid/23/productid/58
+  - label: 'ISCAR, “Flank Clearance and Effective Inclination Angle”'
+    url: https://www.iscar.com/Products.aspx/CountryID/1/ProductId/60
+  - label: 'Kennametal, threading technical data, pp. C58–C68 (hosted by MSC Industrial Supply)'
+    url: https://www1.mscdirect.com/images/solutions/kennametal/tnThreadingTechData.pdf
+  - label: 'Mitsubishi Materials, “Standard of depth of cut, external (radial infeed)”, ISO 60°'
+    url: https://www.mitsubishicarbide.net/contents/mhg/pl/html/product/product_guide/information/turning/threding_ex_01iso60.html
+  - label: 'Mitsubishi Materials, technical information “Threading methods”'
+    url: https://www.mmc-carbide.com/us/technical_information/tec_turning_tools/tec_threading/guide/tec_threading_methods
+  - label: 'Mitsubishi Materials, “Threading depth”'
+    url: https://mitsubishicarbide.net/contents/mhg/de/html/product/product_guide/information/turning/threding_depth.html
+  - label: 'Mitsubishi Materials, “Selecting cutting conditions” (threading)'
+    url: https://mitsubishicarbide.net/contents/mhg/pl/html/product/product_guide/information/turning/threding_recommended.html
+  - label: 'Sumitomo Electric, General Catalog 2025–2026, p. N52 “Technical Guidance: The Basics of Threading, Turning Edition”'
+    url: https://online.flippingbook.com/view/410142785/1258/
+  - label: 'Korloy, thread turning catalogue, section D (hosted by Cutwel)'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/Korloy%20Thread%20Turning%20Inserts.pdf
+  - label: 'Vargus, “Thread Turning Overview”'
+    url: https://www.vargus.com/en/amis-corner/thread-turning-overview/
+  - label: 'Vargus, MACH catalogue “NEW with Internal Applications” (via DirectIndustry)'
+    url: https://pdf.directindustry.com/pdf/vargus/mach-catalog-new-with-internal-applications/16116-1142493.html
+  - label: 'Hoffmann Group, “Thread turning – precise threads to optimally hold components in place”'
+    url: https://www.hoffmann-group.com/IE/en/brownlo/e/1448877
+  - label: 'HORN, “Gewindeübersicht / Thread Overview – Technische Hinweise” (thread turning)'
+    url: https://www.horn-group.com/fileadmin/main-website/Technical-Informations/Gewindedrehen.pdf
+  - label: 'CANELA, “Threading” catalogue section C'
+    url: https://cdn.shopify.com/s/files/1/0283/9796/1325/files/C_THREADING.pdf
+  - label: 'Haas Automation, lathe G-code reference “G76 Threading Cycle, Multiple Pass”'
+    url: https://www.haascnc.com/service/codes-settings.type=gcode.machine=lathe.value=G76.html
+  - label: 'Haas Automation, lathe G-code reference “G32 Thread Cutting”'
+    url: https://www.haascnc.com/service/codes-settings.type=gcode.machine=lathe.value=G32.html
+  - label: 'Haas Automation, Top Notch threading speeds and number of passes (insert grade HU25)'
+    url: https://haascnc.com/content/dam/haascnc/ecommerce-assets/linedrawings/lathe_tooling/top_notch_threading_insert/top%20notch%20Thread%20speeds%20and%20number%20of%20passes%2002-0638%20to%2002-0643.pdf
+  - label: 'Siemens, SINUMERIK 802S/C base line, Operation and Programming – Turning, edition 2003.08'
+    url: https://wiki.hsbne.org/_media/tools/metalshop/operation-programming.pdf
+  - label: 'M. Nalbant, M. Günay, Y. Yıldız, “Modelling of the Effect of Different Infeed Angles and Cutting Areas on the Cutting Forces in External Threading”, Turkish J. Eng. Env. Sci. 32 (2008) 153–161'
+    url: https://aj.tubitak.gov.tr/engineering/issues/muh-08-32-3/muh-32-3-4-0708-1.pdf
+---
+import ThreadInfeed from '../../../components/mdx/ThreadInfeed.astro';
+import ThreadPasses from '../../../components/mdx/ThreadPasses.astro';
+import HelixShim from '../../../components/mdx/HelixShim.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { passCounts } from '../../../data/threadturn-charts';
+
+A threading insert carries the profile of the thread, and the lathe moves it along the axis by one lead for every revolution of the part. ISCAR’s cutting-data pages take the feed per revolution as "a constant value equal to the threading pitch." Haas: "Feedrate is equivalent to thread lead." On a single-start thread the lead is the pitch; on a multi-start thread it is the pitch times the number of starts.
+
+The thread is not cut in one go. The insert passes along the thread again and again, each pass a little deeper, and Hoffmann Group notes that the last is a light finishing cut. Most of this page is about those passes: which way the insert moves into the groove, how deep each pass goes, and how the insert must lean to follow the helix.
+
+## The spindle and the tool stay in step
+
+Every pass must land in the groove the earlier passes cut. The control does this by starting the feed from the spindle’s own position. Haas: "At the first line of a G32 block of code, axis feed is synchronized with the rotation signal of the spindle encoder." The same page says that successive passes follow the same path only if the spindle speed is exactly the same each time, and warns: "Do Not change spindle RPM during threading." Feed override is switched off, too: "Feedrate Override is ignored while G32 is active."
+
+So thread turning runs at constant spindle speed (G97), not at constant cutting speed; the [turning operations](/processes/turning-operations/) page has the difference. A multi-start thread is cut by shifting the start angle: Haas gives G32 and G76 a "Q - Thread Start Angle", and Siemens’ 802S/C manual says a multiple thread can be cut by changing the start angle and repeating the operation.
+
+The feed rate in mm/min is the lead times the speed, so a coarse pitch reaches the axis’s limit quickly; Kennametal notes that the maximum cutting speed can be limited by the maximum travel speed (mm/min) the machine allows the tool.
+
+## Three kinds of insert
+
+| Insert | What it cuts | For it | Against it |
+|---|---|---|---|
+| **Full profile** | The whole profile, crest included | ISCAR: "Finish the thread in one operation."; "Bigger corner radius means better tool life." Kennametal: "High thread concentricity is obtained since the major and minor diameters are machined concurrently." | One insert per pitch and standard. ISCAR: "Requires a wider variety of items in the workshop." |
+| **Partial profile** | The flanks and the root, not the crest | One insert for a range of pitches (ISCAR, Kennametal, Hoffmann) | ISCAR: "Small corner radius will result in shorter tool life"; "Requires additional operation/s" |
+| **Multi-tooth** | The full profile, with "two or three cutting teeth" (ISCAR) | ISCAR: "Reduces the number of passes for high productivity."; "Ensures longer tool life." | ISCAR: "Can not work next to shoulder."; it "requires wide thread relief"; "High cutting forces." |
+
+ISCAR recommends full-profile inserts "for mass production", and partial-profile inserts not; a partial-profile insert leaves the major diameter of an external thread, or the minor diameter of an internal one, to another operation.
+
+## Four ways into the groove
+
+Each pass moves the insert deeper, and the direction it moves in decides which of its two edges does the cutting. ISCAR names four methods: radial, flank, modified flank and alternating flank.
+
+<Figure caption="Four infeed methods, live. The insert steps into the groove one pass at a time and each pass paints the material it removes (warm colours first, cool last); the bars show how much of each pass the insert’s left and right edges meet. With flank infeed (30°) the left edge only slides along the finished flank (red line) and the right edge does all the cutting; modified flank tilts the path a few degrees off the flank, so the left edge takes a thin cut instead. The depths are Mitsubishi’s for radial infeed, ISO 60° external, used for all four methods so that only the direction changes. Sharp V, no nose radius.">
+  <ThreadInfeed locale="en" />
+</Figure>
+
+**Radial.** The insert moves straight in, at right angles to the axis. Vargus: "The feed is perpendicular to the turning axis, and both flanks of the insert perform the cutting operation." Sumitomo calls it the "Most common threading technique, used mainly for small pitch threads", and warns that the long contact tends to chatter, that chip control is difficult and that the trailing edge is easily damaged. Kennametal: "Entire cutting edge is engaged at finish of thread, causing increased tendency to chatter." ISCAR accepts radial infeed for fine pitches and for finishing passes where the profile must be accurate; Hoffmann recommends it below 1.0 mm pitch, for hard machining and for work-hardening or short-chipping materials.
+
+**Flank.** The insert moves along one flank of the thread, so one edge cuts and the other slides. HORN: "More easily formed chip and better heat dissipation." ISCAR adds that deeper passes become possible, but the wear is uneven and the sliding edge rubs, which can spoil the finish and cause vibration. Sumitomo: "Effective for large-pitch threads and blemish-prone work material surfaces", with flank wear on the trailing edge.
+
+**Modified flank.** The path is turned a few degrees away from the flank, so the second edge takes a thin cut instead of rubbing. ISCAR: "Modified flank infeed is the recommended method for all thread turning operations." Mitsubishi: "Tool life and surface finish accuracy can be increased by changing the threading method from flank infeed to modified flank infeed." Sumitomo says it inhibits flank wear on the trailing edge.
+
+**Alternating flank.** The passes switch from one flank to the other, so both edges wear alike. ISCAR says this can extend tool life greatly, but the changing chip direction can lower surface quality, and uses it mainly for very large pitches and for Acme and trapezoidal threads. Vargus: "Use of the alternate flank method is recommended especially in large pitches and for materials with long chips." Hoffmann notes that it needs a threading cycle that can do it.
+
+How far off the flank is "modified"? The makers do not agree, and their figures should not be averaged:
+
+| Source | Offset from the flank angle |
+|---|---|
+| ISCAR, Threading Catalog 62 | 0.5° to 5° |
+| ISCAR, troubleshooting page | 3° to 5° (remedy for poor chip control) |
+| Kennametal | "the infeed angle should be 3° to 5° smaller than the angle of the thread" |
+| Hoffmann Group | "reduced by about 1-5° compared to the flank angle of the thread" |
+| Mitsubishi, threading methods | 1° to 3° (example: M12 × 1.0, five passes) |
+| Mitsubishi, threading depth | 5° (same example) |
+
+Kennametal adds that its chip-control inserts work best at an infeed angle of 28° to 29.5°, and that "The chip will not break on the last pass at a 0° infeed angle." One laboratory study (Gazi University, AISI 1050, P = 2 mm, nine passes) measured the main cutting force at infeed angles from 0° to 30°: it was highest at 15° and, over most passes, lowest at 30°, which the authors name the optimum infeed angle for cutting forces.
+
+## How deep each pass goes
+
+The groove of a 60° thread is a V, so its area grows with the square of its depth. Passes of equal depth therefore remove more and more metal: ISCAR’s example is 0.25 mm per pass on a 60° thread, where the second pass removes three times the metal of the first. To keep the load even, the passes must get shallower as the groove deepens.
+
+ISCAR’s formula keeps the chip area constant. With the total depth a<sub>p</sub> and n<sub>a</sub> passes, the depth reached after pass i is
+
+$$
+\Delta a_p(i) = \frac{a_p}{\sqrt{n_a - 1}} \cdot \sqrt{C}
+$$
+
+with C = 0.3 for the first pass, C = 1 for the second and C = i − 1 from the third on. ISCAR labels it ∆a<sub>p</sub>(i), but its worked example shows that it is the depth reached, not the depth of the pass: P 1.25 mm, a<sub>p</sub> = 0.78 mm, six passes give 0.19, 0.35, 0.49, 0.60, 0.70 and 0.78 mm. ISCAR: "This is the most common method and is generally recommended, as in most cases it ensures high productivity." And: "Using this method ensures constant loads on cutting edge and uniform wear, which increases tool life."
+
+Haas and Kennametal use the same idea in its plainest form. Haas: "Each successive cut is determined by the equation D*sqrt(N) where N is the Nth pass along the thread." Kennametal calls it the accumulated depth: the first pass times the square root of the pass number. Constant depth per pass also has its users: Korloy’s example divides 0.92 mm into ten passes of 0.092 mm, and Vargus says of its MACH tools: "Use the constant depth type of passes." ISCAR keeps constant depth for jobs where chip control is the problem, at the cost of more passes.
+
+<Figure caption="Three rules for the depth of each pass, live. Each V is the thread groove; its bands are the passes, warm first. ISCAR’s formula and the √N rule draw the bands closer together as the groove deepens; constant depth spaces them evenly. Below, the area each pass removes (sharp 60° V, radial infeed): flat for √N, flat from the third pass for ISCAR (its first two passes are lighter), rising for constant depth. The table gives each pass’s depth and, in brackets, the total after it; a Mitsubishi preset adds Mitsubishi’s own depths. Passes under 0.05 mm are marked.">
+  <ThreadPasses locale="en" />
+</Figure>
+
+**The last pass.** ISCAR: "the last pass, which is destined to be a finish pass, will be 0.05 - 0.1 mm", and no pass should be under 0.05 mm. Kennametal: "Maintain minimum .002 inch (0,05 mm) infeed on last passes"; a spring pass of .001 to .003 in "may be used to improve surface finish, however, chipbreaking action may be compromised." Mitsubishi goes thinner: "It is recommended to set the depth of cut of the final pass to 0.05mm ─ 0.025mm." Sumitomo’s troubleshooting table adds: "If the depth of cut of the final pass is too small, make it larger."
+
+**Hard and work-hardening materials.** Mitsubishi: "Please set the cutting depth sufficiently deep enough on materials such as hardened steel or austenitic stainless steel to help prevent premature wear and chipping caused by the outer layer of the material." For chips: "Chip control can be improved by increasing the cutting depth in the later half of passes."
+
+Mitsubishi’s table for ISO metric external threads with radial infeed:
+
+| P (mm) | Total (mm) | Depth of each pass (mm) |
+|---|---|---|
+| 0.5 | 0.31 | 0.10 · 0.08 · 0.07 · 0.06 |
+| 0.75 | 0.46 | 0.16 · 0.14 · 0.10 · 0.06 |
+| 1.0 | 0.61 | 0.18 · 0.15 · 0.12 · 0.10 · 0.06 |
+| 1.25 | 0.77 | 0.19 · 0.17 · 0.14 · 0.11 · 0.10 · 0.06 |
+| 1.5 | 0.92 | 0.22 · 0.21 · 0.17 · 0.14 · 0.12 · 0.06 |
+| 1.75 | 1.07 | 0.22 · 0.21 · 0.16 · 0.13 · 0.11 · 0.09 · 0.09 · 0.06 |
+| 2.0 | 1.23 | 0.24 · 0.23 · 0.17 · 0.16 · 0.14 · 0.12 · 0.11 · 0.06 |
+| 2.5 | 1.53 | 0.26 · 0.23 · 0.19 · 0.17 · 0.15 · 0.13 · 0.12 · 0.11 · 0.11 · 0.06 |
+| 3.0 | 1.84 | 0.27 · 0.25 · 0.20 · 0.18 · 0.16 · 0.14 · 0.13 · 0.12 · 0.12 · 0.11 · 0.10 · 0.06 |
+
+The totals are 0.61 to 0.62 times the pitch, the depth of the external thread on the design profile, 0.613 P (see [ISO metric screw threads](/drawings-and-tolerances/iso-metric-threads/)); Korloy’s minimum depths for its external inserts (0.92, 1.23 and 1.84 mm for P 1.5, 2.0 and 3.0) agree. With a full-profile insert, Mitsubishi says: "Set the finishing allowance on a diameter at approx. 0.1mm."
+
+How many passes, then? The makers’ counts overlap but do not match:
+
+<Figure caption="Number of passes by pitch, ISO metric, as each maker states it: Mitsubishi’s table (a single value), Korloy’s range and Haas’s range for its HU25 insert, whose rows cover pitch bands. Haas gives the same counts for all materials. Hover a band for the maker.">
+  <RangeChart locale="en" {...passCounts("en")} min={0} max={20} ticks={[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]} unit="" axisLabel="Passes" labelWidth={90} aria="Number of thread-turning passes by pitch, Mitsubishi, Korloy and Haas" />
+</Figure>
+
+Hoffmann puts it in one line: "Typically there are five passes for small pitches and up to 20 passes for very large pitches."
+
+## The helix angle and the shim
+
+The thread runs round the part on a helix, so its flanks lean. ISCAR gives the helix angle as
+
+$$
+\varphi = \arctan \frac{P}{\pi \cdot d_2}
+$$
+
+with the pitch diameter d<sub>2</sub>; for a multi-start thread the lead n × P replaces P (ISCAR, Kennametal, Korloy). ISCAR’s example: Ø20 × 2.5, d<sub>2</sub> = 18.376 mm, φ ≈ 2.5°. Hoffmann Group gives a quick estimate, a ≈ 20 · P / D in degrees.
+
+If the insert stood upright, one side would rub on the leaning flank. Tilting it by the helix angle gives, in ISCAR’s words, "equal load distribution applied to the insert" and "uniform wear on both sides of the cutting edge", and avoids "friction of the insert with the side of the threading profile". The tilt comes from the shim (ISCAR: anvil) under the insert. Kennametal: "All toolholders are supplied with 1.5° lead angle." Hoffmann: "Tip: most tools are supplied with standard shims for an inclination angle of 1.5 degrees." Korloy and ISCAR also use 1.5° as standard, and Korloy notes that "The dimension H1 (cutting edge height) remains constant with every insert/ shim combination."
+
+<Figure caption="The helix angle against the standard shim, live. Pick the major diameter, the pitch and the number of starts: the dial shows the exact helix angle φ (needle, from the ISO pitch diameter d₂ = d − 0.6495 P), Hoffmann’s estimate 20·P/D (blue mark) and the 1.5° most holders are supplied with (green); the orange arc is the gap the shim must close. On the right, φ against the diameter for several pitches, on a log scale; fine pitches on large diameters stay under 1.5°, coarse pitches on small diameters go far above it. For a multi-start thread the lead n·P replaces P in both formulas.">
+  <HelixShim locale="en" />
+</Figure>
+
+A thread far from 1.5° needs another shim. Hoffmann calls wrong shims "the most frequent cause of problems in thread turning": unequal or too small clearance on the flanks adds rubbing, heat and vibration. Sumitomo: "Check whether the cutting edge inclination angle is appropriate for the thread lead angle." ISCAR’s handbook pairs each anvil with a range of helix angles; check the holder maker’s own table rather than guessing.
+
+## Cutting speed
+
+Threading runs somewhat slower than turning. CANELA: "Threading speeds should normally be a minimum of 80% to 90% of turning speeds." Hoffmann: "a slightly lower rotational speed will protect the cutting edges of the indexable insert." ISCAR starts from a basic speed for the grade and material and scales it: "Vc = Ks x Vo", with "For normal stability: Ks=1" and, for unstable work such as a long overhang or poor clamping, "Ks=0.7". Its grade logic: "a harder carbide grade has higher wear resistance and enables higher cutting speed", while "a tougher carbide grade with its better impact strength is intended for lower speed." Mitsubishi raises the speed for efficiency within the machine’s speed and rigidity, and lowers it when radial infeed vibrates.
+
+One maker’s figures, as an example: Haas’s chart for its HU25 threading insert, by its material groups.
+
+| Haas group | vc (sfm) | vc (m/min) |
+|---|---|---|
+| P1–P3 | 200–600 | 61–183 |
+| P4–P6 | 200–520 | 61–158 |
+| M1–M3 | 150–480 | 46–146 |
+| K1–K3 | 200–480 | 61–146 |
+| N1–N7 | 300–1,800 | 91–549 |
+| S1–S3 | 40–300 | 12–91 |
+| H1–H4 | 50–200 | 15–61 |
+
+Haas: "Start with the middle range of the recommended sfm (vc)."
+
+## The cycle in the program
+
+A threading cycle repeats the passes by itself. Haas’s G76 is one block:
+
+| Address | Haas G76 |
+|---|---|
+| X | "X-axis absolute location, maximum thread Depth Diameter" |
+| Z | "Z-axis absolute location, maximum thread length" |
+| K | "Thread height, defines thread depth, radius measure" |
+| D | "First pass cutting depth" |
+| F (E) | "Feed rate, the lead of the thread" |
+| A | "Tool nose angle (value: 0 to 120 degrees) Do not use a decimal point" |
+| I | "Thread taper amount, radius measure" |
+| P | "Single Edge Cutting (load constant)"; P1 to P4 choose the infeed |
+| Q | "Thread Start Angle (Do not use a decimal point)" |
+
+P1 cuts with one edge at a constant amount per pass, P2 with both edges at a constant amount, P3 with one edge at constant depth and P4 with both edges at constant depth. Haas: "Based on industry experience, double edge cutting option P2 may give superior threading results." The depth K is reduced by the finish allowance (Setting 86), and Haas suggests A59 on a 60° thread against chatter. Its inch example: `G76 X0.913 Z-0.85 K0.042 D0.0115 F0.0714`, after `G97 S500 M03`.
+
+On FANUC controls G76 is usually written in two blocks (the Gazi University paper, whose tests followed "the Fanuc control system": "The G76 multiple repetitive threading cycle provides a complete threading operation with 2 output blocks of information"). The two formats are not interchangeable; check the control’s own manual. Siemens’ 802S/C manual names the thread-cutting cycle LCYC97 and thread cutting with constant lead G33.
+
+## When the thread goes wrong
+
+ISCAR’s troubleshooting page lists, for each fault, the causes and the remedies:
+
+| Fault | Causes ISCAR lists | Remedies ISCAR lists |
+|---|---|---|
+| Plastic deformation | Excessive heat; depth of cut too large; cutting speed too high; nose radius too small | Reduce cutting speed; reduce depth of cut or add passes; coated or harder grade; larger radius if possible |
+| Premature wear | Infeed depth too small; wrong inclination anvil; insert above centre line | Modified flank infeed or more depth of cut; reselect anvil; check centre height |
+| Insert breakage | Poor chip control; incorrect centre height | Tougher grade; M/B-type inserts with modified flank infeed |
+| Built-up edge | "Cutting edge too cold" | More speed or depth of cut; coated grade |
+| Vibration | Workpiece clamping; tool setup | Soft jaws; check overhang, anti-vibration bars |
+| Poor surface finish | Wrong inclination anvil; tool overhang too long | Modified flank infeed; reselect anvil; shorter overhang |
+| Poor chip control | Wrong infeed method | "Modified flank infeed 3-5°" |
+| Profile too shallow | Incorrect centre height; insert not reaching the crest; worn insert | Check centre height and the workpiece diameter; more radial infeed |
+| Nose breaks on the first pass | Depth of cut too large | Less depth, more passes |
+| Wrong profile | Unsuitable insert; wrong pitch in the program | Correct insert, anvil and tool; correct the program |
+
+The other makers agree on the main points. A wrong shim shows as uneven wear and a poor finish (ISCAR, Korloy, Sumitomo); Korloy’s remedy for uneven edge wear: "Choose the correct shim"; "Use the alternating flank infeed method." Against breakage, more and shallower passes; Sumitomo: "Increase the number of passes and reduce the depth of cut for each pass." Against built-up edge, a higher speed (ISCAR, Sumitomo) or a coated grade (ISCAR). A thread that comes out too shallow points to the centre height or the diameter (ISCAR, Korloy). For threads cut by milling instead, see [thread milling](/processes/thread-milling/).

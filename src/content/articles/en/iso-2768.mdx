@@ -1,0 +1,130 @@
+---
+key: iso-2768
+locale: en
+slug: iso-2768-general-tolerances
+title: 'ISO 2768 general tolerances'
+description: 'The tolerances that apply to every dimension on a drawing without its own tolerance. The f, m, c and v tables of ISO 2768-1 for lengths, radii, chamfers and angles, the H, K and L classes of the withdrawn ISO 2768-2, and the new edition about to replace Part 1.'
+section: 11
+subsection: dimensional-tolerances
+order: 2
+updated: 2026-10-11
+tools: [fits]
+glance:
+  - value: '4'
+    label: 'Tolerance classes in ISO 2768-1: f, m, c, v'
+  - value: '±0.2'
+    unit: 'mm'
+    label: 'A 25 mm length under class m'
+  - value: '±0°30′'
+    label: 'A 45° chamfer with a 40 mm shorter leg, class m'
+  - value: '2021'
+    label: 'ISO 2768-2 withdrawn, replaced by ISO 22081'
+sources:
+  - label: 'ISO 2768-1:1989, catalogue page (published; last reviewed and confirmed 2022)'
+    url: https://www.iso.org/standard/7748.html
+  - label: 'ISO 2768:2026 (2nd edition), "Tolerance limits for general specification of linear and angular sizes", catalogue page (stage 60.00, under publication)'
+    url: https://www.iso.org/standard/85741.html
+  - label: 'ISO 2768-2:1989, catalogue page (withdrawn 2021-02-04)'
+    url: https://www.iso.org/standard/7749.html
+  - label: 'ISO 22081:2021, catalogue page'
+    url: https://www.iso.org/standard/72514.html
+  - label: 'Star Rapid, "General tolerances DIN ISO 2768" (PDF, 2023)'
+    url: https://cdn2.starrapid.com/wp-content/uploads/2023/09/General_Tolerances-DIN-ISO-2768.pdf
+  - label: 'AMESweb, ISO 2768 linear dimension tolerances'
+    url: https://amesweb.info/fits-tolerances/iso-2768-linear-dimensions-tolerances.aspx
+  - label: 'AMESweb, ISO 2768 angular dimension tolerances'
+    url: https://amesweb.info/fits-tolerances/iso-2768-angular-dimensions-tolerances.aspx
+  - label: 'Engineers Edge, general ISO geometrical tolerances per ISO 2768'
+    url: https://ns1.engineersedge.com/mechanical,045tolerances/general_iso_tolerance_.htm
+  - label: 'CAMCUT, general tolerances for angular dimensions'
+    url: https://www.camcut-group.com/en-us/support/instructions/measuring/general-tolerances/general-tolerances-for-angular-dimensions/
+---
+import Iso2768Lookup from '../../../components/mdx/Iso2768Lookup.astro';
+import LineChart from '../../../components/mdx/LineChart.astro';
+import { iso2768Linear, iso2768Angles } from '../../../data/figures';
+
+Most dimensions on a drawing carry no tolerance of their own. They are still toleranced: a note in or near the title block, such as **ISO 2768-m**, applies one table of general tolerances to all of them at once. The drawing stays readable, and the tight tolerances that are written out stand out as the ones that matter.
+
+## Status: an edition about to change
+
+<Note kind="warn" title="Check which edition your drawing refers to">
+- **ISO 2768-1:1989**, the part with the tables below, is still a published standard; ISO last confirmed it in 2022.
+- Its successor, **ISO 2768 (2nd edition, 2026)**, "Tolerance limits for general specification of linear and angular sizes", has been at the "under publication" stage since 2 June 2026, with publication listed for October 2026. It will replace ISO 2768-1:1989. Whether it changes any of the values on this page could not be checked yet; this page will be updated when the text is available.
+- **ISO 2768-2:1989**, the geometrical part with classes H, K and L, was withdrawn on 4 February 2021 and replaced by ISO 22081:2021. Its classes still appear on many existing drawings.
+</Note>
+
+## Look up a general tolerance
+
+<Figure caption="ISO 2768-1:1989 lookup. Choose the type of dimension and the class written on the drawing.">
+  <Iso2768Lookup locale="en" />
+</Figure>
+
+## Linear dimensions
+
+Permissible deviations in mm, for the four tolerance classes f (fine), m (medium), c (coarse) and v (very coarse):
+
+| Nominal size (mm) | f | m | c | v |
+|---|---|---|---|---|
+| 0.5 to 3 | ±0.05 | ±0.1 | ±0.2 | — |
+| over 3 to 6 | ±0.05 | ±0.1 | ±0.3 | ±0.5 |
+| over 6 to 30 | ±0.1 | ±0.2 | ±0.5 | ±1 |
+| over 30 to 120 | ±0.15 | ±0.3 | ±0.8 | ±1.5 |
+| over 120 to 400 | ±0.2 | ±0.5 | ±1.2 | ±2.5 |
+| over 400 to 1000 | ±0.3 | ±0.8 | ±2 | ±4 |
+| over 1000 to 2000 | ±0.5 | ±1.2 | ±3 | ±6 |
+| over 2000 to 4000 | — | ±2 | ±4 | ±8 |
+
+For sizes below 0.5 mm, the deviation is written next to the nominal size. A dash means no general tolerance is specified for that class and range.
+
+**Example.** A 25 mm length on a drawing marked ISO 2768-m may lie between 24.8 and 25.2 mm. The same length under class f may lie between 24.9 and 25.1 mm.
+
+<Figure caption="The table as step lines on logarithmic axes. In every size range the deviation grows by a factor of 2 to 3 from f to m and from m to c, and by 1.7 to 2.1 from c to v. The points mark the example; hover to read the deviations at any size.">
+  <LineChart locale="en" series={iso2768Linear("en")} marks={[{ x: 25, y: 0.2, label: "25 mm, m: ±0.2" }, { x: 25, y: 0.1, label: "f: ±0.1", place: "se" }]} xLog yLog xMin={0.5} xMax={4000} yMin={0.03} yMax={10} xTicks={[0.5, 3, 6, 30, 120, 400, 1000, 2000, 4000]} yTicks={[0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10]} xLabel="nominal size (mm)" yLabel="permissible deviation ± (mm)" endLabels={false} xDec={1} yDec={2} tipUnit=" mm" aria="ISO 2768-1 linear deviations by nominal size for classes f, m, c and v" />
+</Figure>
+
+## External radii and chamfer heights
+
+| Nominal size (mm) | f and m | c and v |
+|---|---|---|
+| 0.5 to 3 | ±0.2 | ±0.4 |
+| over 3 to 6 | ±0.5 | ±1 |
+| over 6 | ±1 | ±2 |
+
+## Angles
+
+Angular deviations depend on the length of the **shorter side** of the angle, in mm:
+
+| Shorter side (mm) | f and m | c | v |
+|---|---|---|---|
+| up to 10 | ±1° | ±1°30′ | ±3° |
+| over 10 to 50 | ±0°30′ | ±1° | ±2° |
+| over 50 to 120 | ±0°20′ | ±0°30′ | ±1° |
+| over 120 to 400 | ±0°10′ | ±0°15′ | ±0°30′ |
+| over 400 | ±0°5′ | ±0°10′ | ±0°20′ |
+
+**Example.** A 45° chamfer angle whose shorter leg is 40 mm, under class m, may lie between 44°30′ and 45°30′.
+
+<Figure caption="Angular deviations against the length of the shorter side; the longer the side, the smaller the permitted angle error. Over 400 mm the line is drawn to 1000 mm. The point marks the example.">
+  <LineChart locale="en" series={iso2768Angles("en")} marks={[{ x: 40, y: 30, label: "40 mm, m: ±0°30′" }]} xLog yLog xMin={1} xMax={1000} yMin={4} yMax={240} xTicks={[1, 10, 50, 120, 400, 1000]} yTicks={[5, 10, 20, 30, 60, 120, 180]} yTickText={["5′", "10′", "20′", "30′", "1°", "2°", "3°"]} xLabel="shorter side (mm)" yLabel="permissible deviation ±" endLabels={false} xDec={0} yDec={0} tipUnit="′" height={300} aria="ISO 2768-1 angular deviations by length of the shorter side" />
+</Figure>
+
+## Straightness and flatness (withdrawn ISO 2768-2)
+
+ISO 2768-2 added general geometrical tolerances in three classes, H, K and L. A drawing note such as **ISO 2768-mK** combines class m from Part 1 with class K from Part 2. For straightness and flatness, by nominal length in mm:
+
+| Nominal length (mm) | H | K | L |
+|---|---|---|---|
+| up to 10 | 0.02 | 0.05 | 0.1 |
+| over 10 to 30 | 0.05 | 0.1 | 0.2 |
+| over 30 to 100 | 0.1 | 0.2 | 0.4 |
+| over 100 to 300 | 0.2 | 0.4 | 0.8 |
+| over 300 to 1000 | 0.3 | 0.6 | 1.2 |
+| over 1000 to 3000 | 0.4 | 0.8 | 1.6 |
+
+Part 2 also gave classes for perpendicularity, symmetry and circular run-out. Because the part is withdrawn, new drawings should refer to ISO 22081 instead.
+
+## Using general tolerances well
+
+- **Choose the class the shop can hold without effort.** General tolerances are meant to be met by normal workshop accuracy; anything tighter belongs on the dimension itself.
+- **Write out every tolerance that matters for function.** Fits, bearing seats and sealing faces need their own tolerances; see [ISO 286 fits](/tools/iso-286-fits/).
+- **State the standard and the class explicitly.** "General tolerances ±0.1" without a standard leaves angles, radii and form undefined.

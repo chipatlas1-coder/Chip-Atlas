@@ -1,0 +1,119 @@
+---
+key: iso-513
+locale: tr
+slug: iso-513
+title: 'ISO 513 — P M K N S H sınıflandırması'
+description: 'ISO 513 karbür, seramik, elmas ve cBN kesici malzemeleri uygulamaya göre nasıl sınıflandırır? Altı ana grup ve renkleri, 01''den 50''ye numaraların anlamı, HW, HC, CA gibi harf sembolleri ve HC-P10 gibi bir gösterimin okunuşu.'
+section: 4
+subsection: tool-materials
+order: 1
+updated: 2026-10-11
+tools: [decoder]
+glance:
+  - value: '6'
+    label: 'Ana grup: P, M, K, N, S, H'
+  - value: 'P01–P50'
+    label: 'En geniş uygulama grubu aralığı'
+  - value: '2012'
+    label: 'Güncel baskı, dördüncü; 2018''de onaylandı'
+sources:
+  - label: 'ISO 513:2012, Classification and application of hard cutting materials for metal removal with defined cutting edges, 4. baskı (resmî önizleme)'
+    url: https://cdn.standards.iteh.ai/samples/59932/d271ad516f744c8ca6782f6b4772bf87/ISO-513-2012.pdf
+  - label: 'ISO 513:2012 katalog sayfası (durum; son onay 2018)'
+    url: https://www.iso.org/standard/59932.html
+  - label: 'Hindistan Standartlar Bürosu, IS 2428:2024, ISO 513:2012 ile özdeş'
+  - label: 'ISCAR, Iscar''s World broşürü 2018, s. 51 (uygulama numaralarının anlamı)'
+    url: https://iscar.com/Catalogs/flipview/iscars-world/Iscars_World_Brochure_2018/files/basic-html/page51.html
+  - label: 'Dormer Pramet, Delik işleme kataloğu 2021–2022 (S grubu kahverengi gösterilmiş)'
+    url: https://static.chipdip.ru/lib/081/DOC042081563.pdf
+  - label: 'Dormer Pramet, İş parçası malzeme grupları (S grubu turuncu gösterilmiş)'
+    url: https://dormerpramet.com/WMG
+  - label: 'Seco Tools, "The ISO application standardization" (Seco''nun kendi 01–60 ölçeği)'
+    url: https://www.secotools.com/article/120339
+---
+import Iso513 from '../../../components/mdx/Iso513.astro';
+import Iso513Code from '../../../components/mdx/Iso513Code.astro';
+
+Uç kutuları ve kataloglar kaliteleri P25 ya da K10 gibi bir harf ve numarayla, çoğu zaman da renkli bir şeritle işaretler. Bunlar ISO 513'ten gelir: bir kesici malzemenin hangi iş malzemeleri için düşünüldüğünü ve aşınma direncine mi yoksa tokluğa mı yaslandığını söyleyen standart. Kalite seçerken ilk süzgeçtir.
+
+## Standart ne yapar, ne yapmaz
+
+ISO 513, tanımlı kesme kenarlı takımlar için sert kesici malzemeleri kapsar: sert metaller (sinterlenmiş karbürler), sermetler, seramikler, elmas ve kübik bor nitrür. Bunları bileşime ya da ölçülmüş özelliklere göre değil, **uygulamaya göre** sınıflandırır. Girişinde, yayımlandığı tarihte sert kesici malzemeleri özelliklerine göre standartlaştırmanın mümkün olmadığı, bu yüzden standardın kendini uygulamayla sınırladığı belirtilir. Standart bir deney tanımlamaz; belirli bir kalitenin bu ölçeklerde nerede durduğu üreticinin kataloğundan gelir.
+
+Güncel sürüm ISO 513:2012, dördüncü baskıdır. ISO standardı en son 2018'de gözden geçirip onaylamıştır.
+
+## Altı ana grup
+
+Ana gruplar iş malzemesine göre adlandırılır ve her birinin bir tanıtım rengi vardır.
+
+<Figure caption="ISO 513:2012 ana grupları, tanıtım renkleri ve uygulama gruplarının kapsamı. Yalnızca P 50'ye kadar gider; M ve K 40'ta, N, S ve H 30'da biter.">
+  <Iso513 locale="tr" />
+</Figure>
+
+| Grup | Renk | İş malzemeleri |
+|---|---|---|
+| **P** | mavi | Çelik: östenitik yapılı paslanmaz çelik dışındaki tüm çelikler ve çelik dökümler |
+| **M** | sarı | Paslanmaz çelik: östenitik ve östenitik-ferritik (dubleks) çelik ve çelik dökümler |
+| **K** | kırmızı | Dökme demir: lamel grafitli, küresel grafitli ve temper dökme demir |
+| **N** | yeşil | Demir dışı metaller: alüminyum ve diğer demir dışı metaller; metal olmayan malzemeler |
+| **S** | kahverengi | Süper alaşımlar ve titanyum: demir, nikel ve kobalt esaslı ısıya dayanıklı alaşımlar; titanyum ve titanyum alaşımları |
+| **H** | gri | Sert malzemeler: sertleştirilmiş çelik, sertleştirilmiş dökme demir, kokil dökme demir |
+
+<Note kind="note" title="Kahverengi mi, turuncu mu?">
+Standart S için kahverengiyi belirtir. Bazı üreticiler onu turuncu basar; örneğin Dormer Pramet bir katalogda kahverengi, web sitesinde turuncu kullanır. Rengi değil, harfi okuyun.
+</Note>
+
+## Numaraların anlamı
+
+Her ana grubun içinde uygulama grupları 01, 05, 10, 15 diye numaralanır: P01–P50, M01–M40, K01–K40, N01–N30, S01–S30 ve H01–H30.
+
+- **Küçük numaralar** daha aşınma dirençli, daha yüksek kesme hızları için bir kesici malzeme demektir.
+- **Büyük numaralar** daha tok, daha yüksek ilerlemeler için bir kesici malzeme demektir.
+
+Standart tablosunun dipnotları tam olarak bunu söyler: artan hız artan aşınma direnci, artan ilerleme artan tokluk ister. Bu yüzden bir K10 kalitesi yüksek hız ve hafif ilerlemede dökme demir için; bir P40 kalitesi ise tokluğun aşınma direncinden daha önemli olduğu, daha düşük hız ve daha ağır ilerlemede çelik için düşünülmüştür.
+
+<Note kind="warn" title="Uç kutusundaki her numara ISO 513 değildir">
+Bazı üreticiler ISO numaralarının yanında ya da yerine kendi ölçeklerini kullanır. Örneğin Seco kendi 01–60 işlem ölçeğini yayımlar. Farklı üreticilerin kalitelerini karşılaştırmadan önce kataloğun hangi ölçeği kullandığını kontrol edin.
+</Note>
+
+## Kesici malzeme için harf sembolleri
+
+İkinci bir harf grubu kesici malzemenin türünü belirtir.
+
+| Sembol | Kesici malzeme |
+|---|---|
+| **HW** | Kaplamasız sert metal, esas olarak tungsten karbür (WC), tane boyutu ≥ 1 µm |
+| **HF** | Kaplamasız sert metal, esas olarak WC, tane boyutu < 1 µm |
+| **HT** | Kaplamasız sert metal, esas olarak titanyum karbür veya nitrür (TiC, TiN ya da ikisi); sermet olarak da anılır |
+| **HC** | Yukarıdaki sert metaller, kaplamalı |
+| **CA** | Oksit seramik, esas olarak alüminyum oksit (Al₂O₃) |
+| **CR** | Oksit seramik, Al₂O₃, takviyeli |
+| **CM** | Karışık seramik, Al₂O₃ ve oksit dışı bileşenler |
+| **CN** | Silisyum nitrür seramik (Si₃N₄) |
+| **CC** | Yukarıdaki seramikler, kaplamalı |
+| **DM** | Monokristal elmas |
+| **DD** | Bağlayıcısız polikristal elmas |
+| **DP** | Bağlayıcılı polikristal elmas |
+| **BL** | Düşük cBN içerikli kübik bor nitrür |
+| **BH** | Yüksek cBN içerikli kübik bor nitrür |
+| **BC** | Yukarıdaki kübik bor nitrürler, kaplamalı |
+
+## Tam bir gösterimi okumak
+
+Tam gösterim; malzeme sembolü, bir tire ve uygulama grubundan oluşur. Standardın kendi örnekleri:
+
+- **HW-P10**: kaplamasız karbür, WC tanesi ≥ 1 µm, çelik için, ölçeğin aşınma direnci tarafında.
+- **HC-K20**: dökme demir için kaplamalı karbür, K aralığının ortasında.
+- **CA-K10**: dökme demir için alüminyum oksit seramik, ölçeğin aşınma direnci tarafında.
+
+<Figure caption="Üç örnek gösterim parçalarına ayrılmış hâlde. Ölçek, uygulama grubunun ana grubunun aralığında nerede durduğunu gösterir. Karşılaştırmak için bir örnek seçin.">
+  <Iso513Code locale="tr" />
+</Figure>
+
+## Uygulamada kullanmak
+
+1. Ana grubu iş malzemesinden bulun. Östenitik paslanmaz çelik, çelik olmasına rağmen P değil M'dir.
+2. Ölçekteki konumu işlemden seçin. Yüksek hız ve hafif ilerleme küçük numaraları; ağır ilerleme ve tokluk ihtiyacı büyük numaraları gösterir.
+3. Yayımlanmış aralığı bu konumu kapsayan bir kalite seçin, ardından üreticinin kendi kesme verileriyle doğrulayın.
+
+Bir ucun gösteriminin geri kalanını — biçim, serbest açı, tolerans, boyut — çözmek için [uç kodu çözücüyü](/tr/araclar/uc-kodu-cozucu/) kullanın.

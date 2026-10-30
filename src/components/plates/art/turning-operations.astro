@@ -1,0 +1,274 @@
+---
+/* Turning: the two motions that make the cut. A bar held in a three-jaw chuck turns (cutting
+   motion, n); a 95° holder with an 80° rhombic insert feeds along the axis towards the chuck (feed
+   motion, f), steps the bar down from the stock to the machined diameter and leaves a helical feed
+   mark behind it; the chip curls off the rake face. The work turns so that its front comes down
+   onto the rake face. Orthographic view from the front, right and above (azimuth 24°, elevation
+   28°); depth of cut, insert and feed pitch are exaggerated. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { cut: 'kesme hareketi', feed: 'ilerleme hareketi', mark: 'ilerleme izi', chuck: 'ayna' }
+  : { cut: 'cutting motion', feed: 'feed motion', mark: 'feed marks', chuck: 'chuck' };
+const id = (s: string) => `to-${s}-${locale}`;
+const url = (s: string) => `url(#${id(s)})`;
+
+/* ---- camera. X along the spindle axis towards the free end, Y up, Z towards the operator */
+type V = [number, number, number];
+type Q = [number, number];
+const rad = Math.PI / 180;
+const phi = 24 * rad, th = 28 * rad, K = 1.06;
+const cf = Math.cos(phi), sf = Math.sin(phi), ct = Math.cos(th), st = Math.sin(th);
+const dv: V = [sf * ct, st, cf * ct];                          // unit vector towards the viewer
+const O = { x: 92, y: 126 };
+const P = (X: number, Y: number, Z: number): Q => [O.x + K * (X * cf - Z * sf), O.y + K * (X * sf * st - Y * ct + Z * cf * st)];
+const Pv = (v: V) => P(v[0], v[1], v[2]);
+const f1 = (n: number) => n.toFixed(1);
+const pt = (p: Q) => `${f1(p[0])},${f1(p[1])}`;
+const path = (q: Q[], close = true) => `M${q.map(pt).join(' L')}${close ? ' Z' : ''}`;
+const poly = (q: V[]) => path(q.map(Pv));
+const dot = (a: V, b: V) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const add = (a: V, b: V, k = 1): V => [a[0] + k * b[0], a[1] + k * b[1], a[2] + k * b[2]];
+const unit = (a: V): V => { const l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; };
+const cross = (a: V, b: V): V => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const seen = (n: V) => dot(n, dv) > 0;
+
+/* ---- cylinders along X: t = 0 at the top, π/2 towards the operator */
+const tS = -Math.atan2(st, cf * ct);                           // upper silhouette line (just behind the top)
+const C3 = (X: number, r: number, t: number) => P(X, r * Math.cos(t), r * Math.sin(t));
+const arc = (X: number, r: number, t0: number, t1: number, n = 48): Q[] =>
+  Array.from({ length: n + 1 }, (_, i) => C3(X, r, t0 + ((t1 - t0) * i) / n));
+// seen outline of a cylinder from xa to xb: far half of the right end, near half of the left end
+const body = (xa: number, xb: number, r: number) => path([...arc(xb, r, tS, tS - Math.PI), ...arc(xa, r, tS + Math.PI, tS)]);
+const cap = (X: number, r: number) => path(arc(X, r, 0, 2 * Math.PI, 72));
+// gradient across a cylinder: from its upper to its lower silhouette line
+const across = (X: number, r: number) => {
+  const a = C3(X, r, tS), b = C3(X, r, tS + Math.PI);
+  return { x1: f1(a[0]), y1: f1(a[1]), x2: f1(b[0]), y2: f1(b[1]) };
+};
+// a small circle lying in the chuck face (X = const) round (Y0, Z0)
+const ring = (X: number, Y0: number, Z0: number, r: number, n = 28) =>
+  path(Array.from({ length: n }, (_, i) => { const a = (2 * Math.PI * i) / n; return P(X, Y0 + r * Math.cos(a), Z0 + r * Math.sin(a)); }));
+
+/* ---- the chuck: body, face, jaw slots, bolts, three stepped jaws */
+const Rc = 100, Xc0 = -64;
+const chuckBody = body(Xc0, 0, Rc);
+const tj =[0, 120, 240].map((d) => d * rad);
+const radial = (t: number): V => [0, Math.cos(t), Math.sin(t)];
+const tangent = (t: number): V => [0, -Math.sin(t), Math.cos(t)];
+const at = (t: number, X: number, rho: number, tau: number): V => {
+  const r = radial(t), q = tangent(t);
+  return [X, rho * r[1] + tau * q[1], rho * r[2] + tau * q[2]];
+};
+const slots = tj.map((t) => poly([at(t, 0, 30, -15), at(t, 0, 99, -15), at(t, 0, 99, 15), at(t, 0, 30, 15)])).join(' ');
+const bolts = [60, 180, 300].map((d) => d * rad).map((t) => ({ y: 79 * Math.cos(t), z: 79 * Math.sin(t) }));
+// a jaw: inner gripping step (taller) and outer step; faces seen from the camera, far box first
+const jawShade = { top: '#41464b', out: '#6c747a', side: '#a2abb2', inner: '#b9c1c7' };
+const jaw = (t: number) => {
+  const w = 14;
+  const boxes = [{ r0: 50, r1: 63, h: 34 }, { r0: 63, r1: 78, h: 24 }, { r0: 78, r1: 94, h: 14 }]
+    .map((b) => ({ ...b, depth: dot(at(t, b.h / 2, (b.r0 + b.r1) / 2, 0), dv) }))
+    .sort((a, b) => a.depth - b.depth);
+  const r = radial(t), q = tangent(t);
+  const out: { d: string; fill: string }[] = [];
+  for (const b of boxes) {
+    const faces: { n: V; c: V[]; fill: string }[] = [
+      { n: [1, 0, 0], c: [at(t, b.h, b.r0, -w), at(t, b.h, b.r1, -w), at(t, b.h, b.r1, w), at(t, b.h, b.r0, w)], fill: jawShade.top },
+      { n: r, c: [at(t, 0, b.r1, -w), at(t, b.h, b.r1, -w), at(t, b.h, b.r1, w), at(t, 0, b.r1, w)], fill: jawShade.out },
+      { n: [0, -r[1], -r[2]], c: [at(t, 0, b.r0, -w), at(t, b.h, b.r0, -w), at(t, b.h, b.r0, w), at(t, 0, b.r0, w)], fill: jawShade.inner },
+      { n: q, c: [at(t, 0, b.r0, w), at(t, b.h, b.r0, w), at(t, b.h, b.r1, w), at(t, 0, b.r1, w)], fill: jawShade.side },
+      { n: [0, -q[1], -q[2]], c: [at(t, 0, b.r0, -w), at(t, b.h, b.r0, -w), at(t, b.h, b.r1, -w), at(t, 0, b.r1, -w)], fill: jawShade.side },
+    ];
+    for (const f of faces) if (seen(f.n)) out.push({ d: poly(f.c), fill: f.fill });
+  }
+  return out;
+};
+const jawBack = jaw(tj[2]), jawTop = jaw(tj[0]), jawFront = jaw(tj[1]);
+
+/* ---- the bar: stock diameter up to the shoulder, machined diameter beyond it */
+const R0 = 50, R1 = 40, Xs = 196, X1 = 330, ch = 3;
+const stock = body(0, Xs, R0);
+const shoulder = cap(Xs, R0);
+const machined = body(Xs, X1 - ch, R1);
+const chamfer = cap(X1 - ch, R1);
+const endFace = cap(X1, R1 - ch);
+const facing = [8, 16, 24, 32].map((r) => cap(X1, r)).join(' ');
+// helical feed mark on the seen half of the machined diameter
+const pitch = 6.5;
+const feedMarks = (() => {
+  const segs: string[] = [];
+  for (let x0 = Xs + 3; x0 < X1 - ch - 2; x0 += pitch) {
+    const q: Q[] = [];
+    for (let i = 0; i <= 30; i++) {
+      const t = tS + (Math.PI * i) / 30, X = x0 + ((t - tS) / (2 * Math.PI)) * pitch;
+      if (X > X1 - ch - 0.5) break;
+      q.push(C3(X, R1, t));
+    }
+    if (q.length > 3) segs.push(path(q, false));
+  }
+  return segs.join(' ');
+})();
+
+/* ---- the tool: 95° holder (κr), 80° rhombic insert, nose on the machined diameter at the shoulder */
+const C: V = [Xs, 0, R1];
+const kr = 95 * rad, eps = 80 * rad;
+const e1: V = [Math.cos(Math.PI - kr), 0, Math.sin(Math.PI - kr)];      // main edge, from the nose outwards
+const e2: V = [Math.cos(Math.PI - kr - eps), 0, Math.sin(Math.PI - kr - eps)]; // minor edge, towards the free end
+const l = 30, yH = -2.8;
+const ins = [C, add(C, e1, l), add(add(C, e1, l), e2, l), add(C, e2, l)];
+const lift = (v: V, y: number): V => [v[0], y, v[2]];
+const insTop = poly(ins);
+const insSideZ = poly([ins[1], ins[2], lift(ins[2], yH), lift(ins[1], yH)]);   // faces the operator
+const insSideX = poly([ins[2], ins[3], lift(ins[3], yH), lift(ins[2], yH)]);   // faces the free end
+const mid = add(C, add(e1, e2), l / 2);
+const disc = (r: number, y = 0) => path(Array.from({ length: 28 }, (_, i) => { const a = (2 * Math.PI * i) / 28; return P(mid[0] + r * Math.cos(a), y, mid[2] + r * Math.sin(a)); }));
+const hole = disc(4.6), screw = disc(2.4, -0.8);
+const edgeMain = path([Pv(add(C, e1, l)), Pv(C), Pv(add(C, e2, l))], false);
+const H = { x0: Xs + 3, x1: Xs + 37, z0: R1 + 3.5, z1: R1 + 300, y0: yH - 32, y1: yH };
+const holderTop = poly([[H.x0, H.y1, H.z0], [H.x1, H.y1, H.z0], [H.x1, H.y1, H.z1], [H.x0, H.y1, H.z1]]);
+const holderSide = poly([[H.x1, H.y1, H.z0], [H.x1, H.y0, H.z0], [H.x1, H.y0, H.z1], [H.x1, H.y1, H.z1]]);
+// fade the shank out towards the operator
+const fadeA = P(H.x1, H.y1, R1 + 120), fadeB = P(H.x1, H.y1, R1 + 230);
+
+/* ---- the chip: a ribbon as wide as the engaged edge, leaving the rake face behind the main edge
+   and coiling up and away towards the free end. Drawn as short quads, the far side of each turn
+   first, so the coil reads in depth. */
+const chip = (() => {
+  const S0: V = add(add(C, e1, 5), e2, 3);
+  S0[1] = 0.4;
+  const A = unit([0.75, 0.55, 0.37]);                         // coil axis
+  const w = unit(add(e2, A, -dot(e2, A)));                   // first flow direction, square to the axis
+  let b1 = unit(cross(A, w));
+  if (b1[1] > 0) b1 = [-b1[0], -b1[1], -b1[2]];               // curl upwards, off the rake face
+  const r0 = 7, r1 = 18, turns = 3, L = 100, bw = 11;
+  const Q0 = add(S0, b1, -r0);
+  const n = 180;
+  const at = (s: number) => {
+    const ps = 2 * Math.PI * turns * s, rc = r0 + (r1 - r0) * s;
+    const radv = add([b1[0] * Math.cos(ps), b1[1] * Math.cos(ps), b1[2] * Math.cos(ps)], w, Math.sin(ps));
+    return { v: add(add(Q0, A, L * s), radv, rc), radv };
+  };
+  const quads: { d: string; front: boolean; s: number }[] = [];
+  for (let i = 0; i < n; i++) {
+    const a = at(i / n), b = at((i + 1) / n);
+    const half = (bw / 2) * Math.min(1, 0.35 + (i / n) * 4);   // the ribbon widens as it leaves the edge
+    const q = [add(a.v, A, -half), add(b.v, A, -half), add(b.v, A, half), add(a.v, A, half)];
+    quads.push({ d: poly(q), front: dot(add(a.radv, b.radv), dv) > 0, s: i / n });
+  }
+  return { quads, a: at(0).v, b: at(1).v };
+})();
+const chipA = Pv(chip.a), chipB = Pv(chip.b);
+
+/* ---- motions */
+// rotation: a ring just beyond the free end, top → operator side → bottom (the front comes down onto the rake face)
+const rotX = X1 + 24, rotR = R1 + 8;
+const rot = path(arc(rotX, rotR, -105 * rad, 150 * rad, 72), false);
+const axisAt = (X: number) => P(X, 0, 0);
+const perp = (() => { const a = axisAt(0), b = axisAt(100); const dx = b[0] - a[0], dy = b[1] - a[1], m = Math.hypot(dx, dy); return { ax: dx / m, ay: dy / m, nx: -dy / m, ny: dx / m }; })();
+const below = (X: number, off: number): Q => { const a = axisAt(X); return [a[0] + perp.nx * off, a[1] + perp.ny * off]; };
+const fA = below(318, R1 + 24), fB = below(246, R1 + 24), fLbl = below(282, R1 + 44);
+const markOn = C3(246, R1, tS + 0.35), markAt: Q = [306, 90];
+const chuckAt = below(-40, Rc + 16);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id={id('chuck')} gradientUnits="userSpaceOnUse" {...across(-32, Rc)}>
+      <stop offset="0" stop-color="#61686e" /><stop offset="0.2" stop-color="#9ea8af" /><stop offset="0.42" stop-color="#879098" /><stop offset="0.8" stop-color="#666d72" /><stop offset="1" stop-color="#595e63" />
+    </linearGradient>
+    <linearGradient id={id('cface')} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#adb6be" /><stop offset="0.55" stop-color="#8a939b" /><stop offset="1" stop-color="#6e757c" />
+    </linearGradient>
+    <linearGradient id={id('stock')} gradientUnits="userSpaceOnUse" {...across(100, R0)}>
+      <stop offset="0" stop-color="#656c72" /><stop offset="0.2" stop-color="#aab2b8" /><stop offset="0.4" stop-color="#969ea6" /><stop offset="0.78" stop-color="#727a81" /><stop offset="1" stop-color="#5e6469" />
+    </linearGradient>
+    <linearGradient id={id('mach')} gradientUnits="userSpaceOnUse" {...across(260, R1)}>
+      <stop offset="0" stop-color="#7e878f" /><stop offset="0.17" stop-color="#f2f5f7" /><stop offset="0.36" stop-color="#ced5db" /><stop offset="0.74" stop-color="#949da6" /><stop offset="1" stop-color="#6e757c" />
+    </linearGradient>
+    <linearGradient id={id('face')} x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#e0e5e9" /><stop offset="1" stop-color="#a0a9b1" />
+    </linearGradient>
+    <linearGradient id={id('shoulder')} x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#d3dadf" /><stop offset="1" stop-color="#889299" />
+    </linearGradient>
+    <linearGradient id={id('holder')} x1="0" y1="0" x2="1" y2="0.4">
+      <stop offset="0" stop-color="#acb5bb" /><stop offset="1" stop-color="#7e878f" />
+    </linearGradient>
+    <linearGradient id={id('insert')} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6f767d" /><stop offset="1" stop-color="#4e5255" />
+    </linearGradient>
+    <linearGradient id={id('fade')} gradientUnits="userSpaceOnUse" x1={f1(fadeA[0])} y1={f1(fadeA[1])} x2={f1(fadeB[0])} y2={f1(fadeB[1])}>
+      <stop offset="0" stop-color="#fff" /><stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </linearGradient>
+    <mask id={id('shank')} maskUnits="userSpaceOnUse" x="0" y="0" width="480" height="320">
+      <rect width="480" height="320" fill={url('fade')} />
+    </mask>
+    <linearGradient id={id('chip')} gradientUnits="userSpaceOnUse" x1={f1(chipA[0])} y1={f1(chipA[1])} x2={f1(chipB[0])} y2={f1(chipB[1])}>
+      <stop offset="0" stop-color="#976d00" /><stop offset="0.35" stop-color="#c66b14" /><stop offset="0.72" stop-color="#7c4d9a" /><stop offset="1" stop-color="#3c61ad" />
+    </linearGradient>
+    <linearGradient id={id('chipb')} gradientUnits="userSpaceOnUse" x1={f1(chipA[0])} y1={f1(chipA[1])} x2={f1(chipB[0])} y2={f1(chipB[1])}>
+      <stop offset="0" stop-color="#8c6937" /><stop offset="0.35" stop-color="#ffe5d5" /><stop offset="0.72" stop-color="#f4e8ff" /><stop offset="1" stop-color="#e5eeff" />
+    </linearGradient>
+  </defs>
+
+  <!-- chuck -->
+  <g class="f" style="--i:0">
+    <path d={chuckBody} fill={url('chuck')} />
+    <path d={path(arc(-46, Rc, tS + Math.PI, tS), false)} fill="none" stroke="#f3f8fd" stroke-width="1.2" />
+    <path d={path(arc(-44.6, Rc, tS + Math.PI, tS), false)} fill="none" stroke="#656e74" stroke-width="0.5" stroke-opacity="0.6" />
+    <path d={cap(0, Rc)} fill="#b9c1c7" />
+    <path d={cap(0, Rc - 5)} fill={url('cface')} />
+    <path d={slots} fill="#f3f8fd" />
+    {bolts.map((b) => <g><path d={ring(0, b.y, b.z, 6.5)} fill="#e0e8ed" stroke="#656e74" stroke-width="0.6" /><path d={ring(0, b.y, b.z, 3)} fill="#f7fbff" /></g>)}
+    {jawBack.map((f) => <path d={f.d} fill={f.fill} stroke="#f3f8fd" stroke-width="0.6" stroke-linejoin="round" />)}
+  </g>
+  <path class="h d" style="--i:0" pathLength="1" d={`${chuckBody} ${cap(0, Rc)}`} />
+
+  <!-- bar -->
+  <g class="f" style="--i:1">
+    <path d={stock} fill={url('stock')} />
+    <path d={shoulder} fill={url('shoulder')} />
+    <path d={machined} fill={url('mach')} />
+    <path d={feedMarks} fill="none" stroke="#cdd5db" stroke-width="0.7" stroke-opacity="0.45" />
+    <path d={chamfer} fill="#c5ccd2" />
+    <path d={endFace} fill={url('face')} />
+    <path d={facing} fill="none" stroke="#8d959d" stroke-width="0.6" stroke-opacity="0.8" />
+  </g>
+  <path class="o d" style="--i:1" pathLength="1" d={`${stock} ${machined}`} />
+  <path class="o d" style="--i:2" pathLength="1" d={`${shoulder} ${chamfer}`} />
+  <line class="c f" style="--i:2" x1={f1(axisAt(-60)[0])} y1={f1(axisAt(-60)[1])} x2={f1(axisAt(X1 + 40)[0])} y2={f1(axisAt(X1 + 40)[1])} />
+
+  <!-- the jaws in front of the bar -->
+  <g class="f" style="--i:2">
+    {[...jawTop, ...jawFront].map((f) => <path d={f.d} fill={f.fill} stroke="#f3f8fd" stroke-width="0.6" stroke-linejoin="round" />)}
+  </g>
+
+  <!-- tool -->
+  <g class="f" style="--i:3" mask={url('shank')}>
+    <path d={holderSide} fill="#cdd5db" stroke="#565e63" stroke-width="0.6" stroke-linejoin="round" />
+    <path d={holderTop} fill={url('holder')} stroke="#2f3438" stroke-width="0.6" stroke-linejoin="round" />
+  </g>
+  <g class="f" style="--i:4">
+    <path d={insSideZ} fill="#f7fbff" />
+    <path d={insSideX} fill="#eff6fb" />
+    <path d={insTop} fill={url('insert')} stroke="#656e74" stroke-width="0.6" stroke-linejoin="round" />
+    <path d={hole} fill="#ffffff" stroke="#8d959d" stroke-width="0.6" />
+    <path d={screw} fill="#b1bac2" />
+    <path d={edgeMain} fill="none" stroke="#161718" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" />
+  </g>
+  <g class="f" style="--i:5">
+    {chip.quads.filter((q) => !q.front).map((q) => <path d={q.d} fill={url('chipb')} stroke={url('chipb')} stroke-width="0.4" />)}
+    {chip.quads.filter((q) => q.front).map((q) => <path d={q.d} fill={url('chip')} stroke={url('chip')} stroke-width="0.4" />)}
+  </g>
+
+  <!-- motions -->
+  <path class="a d" style="--i:6" pathLength="1" d={rot} marker-end="url(#ca-arr-acc)" />
+  <line class="b d" style="--i:6" pathLength="1" x1={f1(fA[0])} y1={f1(fA[1])} x2={f1(fB[0])} y2={f1(fB[1])} marker-end="url(#ca-arr-data)" />
+  <g class="lbl">
+    <text class="t-acc" x="470" y="118" text-anchor="end">n · {T.cut}</text>
+    <text class="t-data" x={f1(fLbl[0])} y={f1(fLbl[1])} text-anchor="middle">f · {T.feed}</text>
+    <path class="h" d={`M${f1(markAt[0] + 8)},${f1(markAt[1] + 5)} L${pt(markOn)}`} />
+    <text class="t-sm" x={f1(markAt[0])} y={f1(markAt[1])} text-anchor="middle">{T.mark}</text>
+    <text class="t-sm" x={f1(chuckAt[0])} y={f1(chuckAt[1])} text-anchor="middle">{T.chuck}</text>
+  </g>
+</svg>

@@ -1,0 +1,151 @@
+---
+/**
+ * Horizontal range chart: one row per category, one or more ranges per row.
+ * The first range of a row is the primary band (thick); further ranges are maker or source
+ * variants (thin, labelled). Hover or focus a band to read it. Values come from the article.
+ */
+interface Range { lo: number; hi: number; note?: string; kind?: 'main' | 'alt'; color?: string; text?: string; upTo?: boolean }
+interface Row { label: string; sub?: string; ranges: Range[]; color?: string }
+interface Props {
+  locale: 'en' | 'tr'; rows: Row[]; min: number; max: number; ticks: number[]; unit: string;
+  axisLabel?: string; color?: string; aria: string; labelWidth?: number; legend?: { name: string; color: string }[]; dec?: number;
+}
+const { locale, rows, min, max, ticks, unit, axisLabel, color = '#d4520f', aria, labelWidth = 170, legend, dec } = Astro.props;
+const src = Boolean(legend);
+const tr = locale === 'tr';
+const n = (v: number) => { const t = dec !== undefined ? v.toFixed(dec) : String(v); return tr ? t.replace('.', ',') : t; };
+/* Two layouts: wide (label column on the left) and narrow for phones (label above the bars). */
+function layout(narrow: boolean) {
+  const W = narrow ? 360 : 660, L = narrow ? 14 : labelWidth, R = narrow ? 16 : 18, T = 26, head = narrow ? 20 : 0;
+  const altH = narrow ? 27 : 15; // narrow: alt notes get their own line above the thin bar
+  const X = (v: number) => L + ((v - min) / (max - min)) * (W - L - R);
+  /* legend mode: a note that fits neither right nor left of its band gets its own line above the band */
+  const txtOf = (g: Range) => g.text ?? (g.lo === g.hi ? n(g.lo) : `${n(g.lo)}–${n(g.hi)}`);
+  const place = (g: Range) => {
+    const w = txtOf(g).length * 6.4;
+    return X(g.hi) + 9 + w <= W - 2 ? 'right' : X(g.lo) - 9 - w >= 0 ? 'left' : 'above';
+  };
+  const lineH = (g: Range) => 15 + (place(g) === 'above' ? 13 : 0);
+  const rowH = (r: Row) => head + (legend ? 14 + r.ranges.reduce((a, g) => a + lineH(g), 0) : 30 + (r.sub && !narrow && r.ranges.length === 1 ? 10 : 0) + Math.max(0, r.ranges.length - 1) * altH);
+  const H = T + rows.reduce((a, r) => a + rowH(r), 0) + 30;
+  let y = T;
+  const laid = rows.map((r) => {
+    const y0 = y; y += rowH(r);
+    let yy = y0 + head + 12;
+    const at = r.ranges.map((g) => { const p = place(g); if (p === 'above') yy += 13; const v = { yy, p }; yy += 15; return v; });
+    return { r, y0, at };
+  });
+  const ticksGap = ticks.length > 1 ? X(ticks[1]) - X(ticks[0]) : 999;
+  const every = ticksGap < 30 ? 2 : 1;
+  return { narrow, W, L, R, T, H, X, laid, head, every, altH };
+}
+const G = [layout(false), layout(true)];
+---
+<div class="rangechart" data-rangechart>
+  {legend && <div class="legend" aria-hidden="true">{legend.map((l) => <span><i style={`background:${l.color}`}></i>{l.name}</span>)}</div>}
+  {G.map(({ narrow, W, L, R, T, H, X, laid, head, every, altH }) => (
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class={narrow ? 'narrow' : 'wide'}>
+    {ticks.map((t, ti) => (
+      <g>
+        <line x1={X(t)} x2={X(t)} y1={T - 6} y2={H - 26} class="grid" />
+        {ti % every === 0 && <text x={X(t)} y={H - 10} text-anchor="middle" class="tick">{Number.isInteger(t) ? String(t) : n(t)}</text>}
+      </g>
+    ))}
+    {axisLabel && <text x={W - R} y={14} text-anchor="end" class="axlab">{unit ? `${axisLabel} (${unit})` : axisLabel}</text>}
+    {laid.map(({ r, y0, at }, i) => (
+      <g>
+        {i > 0 && <line x1="0" x2={W} y1={y0} y2={y0} class="sep" />}
+        {narrow
+          ? <text x={L} y={y0 + 16} class="lab">{r.label}{r.sub && <tspan class="sub" dx="8">{r.sub}</tspan>}</text>
+          : <>
+              <text x="0" y={y0 + 19} class="lab">{r.label}</text>
+              {r.sub && <text x="0" y={y0 + 33} class="sub">{r.sub}</text>}
+            </>}
+        {src && r.ranges.map((g, k) => {
+          const { yy, p } = at[k], c = g.color ?? color;
+          const label = `${r.label}${g.note ? `, ${g.note}` : ''}: ${g.text ?? (g.lo === g.hi ? n(g.lo) : `${n(g.lo)}–${n(g.hi)}`)}${unit ? ' ' + unit : ''}`;
+          const txt = g.text ?? (g.lo === g.hi ? n(g.lo) : `${n(g.lo)}–${n(g.hi)}`);
+          return (
+            <g class="band" tabindex="0" role="img" aria-label={label} data-v={`${txt}${unit ? ' ' + unit : ''}`} data-k={g.note ? `${r.label}, ${g.note}` : r.label}>
+              <rect x={X(g.lo) - 6} y={yy - 5} width={Math.max(12, X(g.hi) - X(g.lo) + 12)} height="18" fill="transparent" />
+              {g.upTo
+                ? <><line x1={X(g.lo)} x2={X(g.hi)} y1={yy + 4} y2={yy + 4} stroke={c} stroke-width="3" stroke-dasharray="2 4" stroke-linecap="round" /><rect x={X(g.hi) - 3} y={yy - 1} width="6" height="10" rx="2" fill={c} class="mark" /></>
+                : g.lo === g.hi
+                ? <circle cx={X(g.lo)} cy={yy + 4} r="5" fill={c} class="mark" />
+                : <rect x={X(g.lo)} y={yy} width={Math.max(2, X(g.hi) - X(g.lo))} height="8" rx="4" fill={c} class="mark" />}
+              {p === 'above'
+                ? <text x={Math.max(2, Math.min(X(g.lo), W - 2 - txt.length * 6.4))} y={yy - 5} class="note">{txt}</text>
+                : <text x={p === 'right' ? X(g.hi) + 9 : X(g.lo) - 9} y={yy + 8} text-anchor={p === 'right' ? 'start' : 'end'} class="note">{txt}</text>}
+            </g>
+          );
+        })}
+        {!src && r.ranges.map((g, k) => {
+          const main = k === 0 && g.kind !== 'alt';
+          const yy = (main ? y0 + 9 : y0 + 25 + (k - 1) * altH + (narrow ? 12 : 0)) + head;
+          const hh = main ? 14 : 6;
+          const c = r.color ?? color;
+          const label = `${r.label}${g.note ? ` (${g.note})` : ''}: ${n(g.lo)}–${n(g.hi)} ${unit}`;
+          return (
+            <g class="band" tabindex="0" role="img" aria-label={label} data-v={`${n(g.lo)}–${n(g.hi)} ${unit}`} data-k={g.note ? `${r.label}, ${g.note}` : r.label}>
+              <rect x={X(g.lo)} y={yy - 4} width={Math.max(2, X(g.hi) - X(g.lo))} height={hh + 8} fill="transparent" />
+              <rect x={X(g.lo)} y={yy} width={Math.max(2, X(g.hi) - X(g.lo))} height={hh} rx={hh / 2} fill={c} fill-opacity={main ? 0.92 : 0.6} class="mark" />
+              {(() => {
+                const txt = main ? `${n(g.lo)}–${n(g.hi)}` : g.note ? `${g.note} ${n(g.lo)}–${n(g.hi)}` : '';
+                if (!txt) return null;
+                const wTxt = txt.length * (main ? 7.2 : 6.6);
+                const right = X(g.hi) + 8 + wTxt <= W - 2;
+                const left = X(g.lo) - 8 - wTxt >= 0;
+                if (!main && narrow) return <text x={Math.max(L, Math.min(X(g.lo), W - 2 - wTxt))} y={yy - 4} class="note">{txt}</text>;
+                const x = right ? X(g.hi) + 8 : left ? X(g.lo) - 8 : W - 2;
+                return <text x={x} y={main ? yy + 11 : yy + 6} text-anchor={right ? 'start' : 'end'} class={main ? 'val' : 'note'}>{txt}</text>;
+              })()}
+            </g>
+          );
+        })}
+      </g>
+    ))}
+  </svg>
+  ))}
+  <div class="tip" hidden><b data-tv></b><span data-tk></span></div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-rangechart]').forEach((root) => {
+    const tip = root.querySelector<HTMLElement>('.tip')!;
+    const show = (g: SVGGElement) => {
+      (tip.querySelector('[data-tv]') as HTMLElement).textContent = g.dataset.v || '';
+      (tip.querySelector('[data-tk]') as HTMLElement).textContent = g.dataset.k || '';
+      tip.hidden = false;
+      const rb = root.getBoundingClientRect(), mb = g.querySelector('.mark')!.getBoundingClientRect();
+      tip.style.left = `${Math.min(rb.width - tip.offsetWidth - 4, Math.max(4, mb.left - rb.left + mb.width / 2 - tip.offsetWidth / 2))}px`;
+      tip.style.top = `${Math.max(0, mb.top - rb.top - tip.offsetHeight - 8)}px`;
+      root.querySelectorAll('.band.on').forEach((b) => b.classList.remove('on'));
+      g.classList.add('on');
+    };
+    const hide = () => { tip.hidden = true; root.querySelectorAll('.band.on').forEach((b) => b.classList.remove('on')); };
+    root.querySelectorAll<SVGGElement>('.band').forEach((g) => { g.addEventListener('pointerenter', () => show(g)); g.addEventListener('focus', () => show(g)); g.addEventListener('blur', hide); });
+    root.addEventListener('pointerleave', hide);
+  });
+</script>
+
+<style>
+  .rangechart { position: relative; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-size: 0.8rem; color: var(--ink-2); margin-bottom: 0.4rem; }
+  .legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .legend i { width: 14px; height: 8px; border-radius: 4px; display: inline-block; }
+  svg { width: 100%; height: auto; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } }
+  .grid { stroke: var(--line); }
+  .sep { stroke: var(--line); stroke-dasharray: 2 4; }
+  .tick { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); }
+  .axlab { font-size: 11.5px; fill: var(--ink-3); }
+  .lab { font-size: 13px; font-weight: 500; fill: var(--ink); }
+  .sub { font-size: 11px; fill: var(--ink-3); }
+  .val { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-2); }
+  .note { font-family: var(--font-mono); font-size: 10.5px; fill: var(--ink-3); }
+  .band { outline: none; cursor: crosshair; }
+  .band.on .mark, .band:focus-visible .mark { stroke: var(--ink); stroke-width: 1.5; }
+  .tip { position: absolute; z-index: 2; pointer-events: none; display: grid; gap: 0.1rem; padding: 0.45rem 0.65rem; background: var(--bg-raised); border: 1px solid var(--line-strong); border-radius: 6px; font-size: 0.78rem; color: var(--ink-3); box-shadow: 0 8px 24px -6px rgba(21, 34, 48, 0.22); }
+  .tip b { font-family: var(--font-mono); font-size: 0.95rem; color: var(--ink); font-weight: 500; }
+</style>

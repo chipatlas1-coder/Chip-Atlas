@@ -1,0 +1,180 @@
+---
+/**
+ * A G-code program played line by line: the listing with the running line lit and its explanation, beside a plan
+ * view (XY, looking down Z) where the tool draws the path. Rapids dashed blue, G01 orange, G02 purple, G03 teal;
+ * on an arc line the centre and the I J vector from the start point are shown. Rapids can be drawn as a straight
+ * line or as the "dog-leg" a control makes when each axis moves at its own rapid rate. Program reader in
+ * src/lib/gcode.ts (motion codes only).
+ */
+import { parse } from '../../lib/gcode';
+interface Props { locale: 'en' | 'tr'; lines: string[]; notes: string[]; start?: [number, number]; dogleg?: boolean; unit?: string }
+const { locale, lines, notes, start = [0, 0], dogleg = false, unit = 'mm' } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { play: 'Oynat', pause: 'Duraklat', step: 'Bir satır', back: 'Geri', reset: 'Baştan', straight: 'düz', dog: 'eksen eksen', rapidPath: 'Hızlı hareketin yolu', rapid: 'G00 hızlı hareket', lin: 'G01 düz hat', cw: 'G02 saat ibresi yönünde', ccw: 'G03 saat ibresine ters', centre: 'yay merkezi', aria: 'G kodu programının üstten görünüşü: takım her satırda çizdiği yolu izler', line: 'Satır' }
+  : { play: 'Play', pause: 'Pause', step: 'One line', back: 'Back', reset: 'Restart', straight: 'straight', dog: 'axis by axis', rapidPath: 'Rapid path', rapid: 'G00 rapid', lin: 'G01 linear', cw: 'G02 clockwise', ccw: 'G03 counter-clockwise', centre: 'arc centre', aria: 'Plan view of a G-code program: the tool follows the path each line commands', line: 'Line' };
+const { errors } = parse(lines, start);
+if (errors.length) throw new Error(`GcodePlayer: ${errors.map((e) => `line ${e.line + 1}: ${e.msg}`).join('; ')}`);
+const data = { lines, notes, start, dogleg, unit };
+---
+<div class="gp" data-gp data-locale={locale} data-anim>
+  <div class="grid2">
+    <ol class="code" aria-label={T.line}>
+      {lines.map((l, i) => <li data-l={i}><span class="n">{i + 1}</span><code>{l}</code></li>)}
+    </ol>
+    <div class="view">
+      <svg class="plot" role="img" aria-label={T.aria} data-svg viewBox="0 0 480 360"></svg>
+      <ul class="legend" aria-hidden="true">
+        <li><span class="sw r"></span>{T.rapid}</li>
+        <li><span class="sw l"></span>{T.lin}</li>
+        <li><span class="sw c"></span>{T.cw}</li>
+        <li><span class="sw a"></span>{T.ccw}</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note" aria-live="polite" data-note>{notes[0]}</p>
+  <div class="ctl">
+    <button type="button" class="btn main" data-act="play" aria-label={T.play}><span data-o="pl">▶</span></button>
+    <button type="button" class="btn" data-act="back">{T.back}</button>
+    <button type="button" class="btn" data-act="step">{T.step}</button>
+    <button type="button" class="btn" data-act="reset">{T.reset}</button>
+    <div class="seg" role="group" aria-label={T.rapidPath}>
+      <span class="lab">{T.rapidPath}</span>
+      <button type="button" data-dog="0" aria-pressed={String(!dogleg)}>{T.straight}</button>
+      <button type="button" data-dog="1" aria-pressed={String(dogleg)}>{T.dog}</button>
+    </div>
+  </div>
+  <script type="application/json" data-cfg set:html={JSON.stringify({ T, ...data })} />
+</div>
+
+<style>
+  .gp { display: grid; gap: 0.8rem; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: 1rem; align-items: start; }
+  @media (max-width: 44rem) { .grid2 { grid-template-columns: 1fr; } }
+  .code { position: relative; margin: 0; padding: 0.5rem 0; list-style: none; border: 1px solid var(--line-strong); border-radius: 10px; background: #fbfcfd; font: 0.82rem/1.55 var(--font-mono); counter-reset: none; max-height: 24rem; overflow: auto; }
+  .code li { display: flex; gap: 0.7rem; padding: 0.12rem 0.8rem; margin: 0; border-left: 3px solid transparent; transition: background-color 180ms, border-color 180ms; }
+  .code li::before { content: none !important; }
+  .code .n { color: var(--ink-3); min-width: 1.4rem; text-align: right; user-select: none; }
+  .code code { background: none; padding: 0; font: inherit; color: var(--ink); white-space: pre; }
+  .code li.done code { color: var(--ink-2); }
+  .code li.on { background: #fdf0e6; border-left-color: #e2601a; }
+  .code li.on code { color: #152230; font-weight: 600; }
+  .plot { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin: 0.5rem 0 0; padding: 0; list-style: none; font-size: 0.78rem; color: var(--ink-2); }
+  .legend li { display: flex; align-items: center; gap: 0.4rem; margin: 0; }
+  .legend li::before { content: none !important; }
+  .legend .sw { display: inline-block; width: 1.4rem; height: 0; border-top: 3px solid; border-radius: 2px; }
+  .legend .sw.r { border-top: 2px dashed #2a6fd6; }
+  .legend .sw.l { border-color: #e2601a; }
+  .legend .sw.c { border-color: #8b52c9; }
+  .legend .sw.a { border-color: #13998a; }
+  .note { margin: 0; min-height: 2.9em; padding: 0.55rem 0.8rem; border-radius: 8px; background: #f2f5f8; font-size: 0.9rem; color: var(--ink); }
+  .ctl { display: flex; flex-wrap: wrap; gap: 0.5rem 0.6rem; align-items: center; }
+  .btn { font: inherit; font-size: 0.85rem; min-height: 2.3rem; padding: 0.3rem 0.8rem; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg-raised); color: var(--ink); cursor: pointer; }
+  .btn.main { width: 2.6rem; height: 2.6rem; padding: 0; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #e2601a; border-color: #e2601a; }
+  .seg { display: flex; align-items: center; gap: 0; margin-left: auto; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg .lab { font-size: 0.75rem; color: var(--ink-3); padding: 0 0.6rem; }
+  .seg button { font: inherit; font-size: 0.8rem; padding: 0.35rem 0.6rem; min-height: 2.1rem; border: 0; border-left: 1px solid var(--line-strong); background: var(--bg-raised); color: var(--ink-2); cursor: pointer; }
+  .seg button[aria-pressed='true'] { background: #2a6fd6; color: #fff; }
+  @media (max-width: 40rem) { .seg { margin-left: 0; } }
+  .gp :global(.gl) { stroke: #eef2f6; stroke-width: 1; }
+  .gp :global(.ax) { stroke: #9aa6b2; stroke-width: 1; }
+  .gp :global(.t) { font: 11px var(--font-mono); fill: var(--ink-3); }
+  .gp :global(.p0) { fill: none; stroke: #2a6fd6; stroke-width: 2; stroke-dasharray: 6 4; }
+  .gp :global(.p1) { fill: none; stroke: #e2601a; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .gp :global(.p2) { fill: none; stroke: #8b52c9; stroke-width: 3; stroke-linecap: round; }
+  .gp :global(.p3) { fill: none; stroke: #13998a; stroke-width: 3; stroke-linecap: round; }
+  .gp :global(.ghost) { fill: none; stroke: #d5dbe2; stroke-width: 1.5; stroke-dasharray: 2 3; }
+  .gp :global(.ij) { stroke: #8b52c9; stroke-width: 1.3; }
+  .gp :global(.ctr) { fill: #fff; stroke: #152230; stroke-width: 1.5; }
+  .gp :global(.tool) { fill: #e3b23c; stroke: #8a6420; stroke-width: 1.5; }
+</style>
+
+<script>
+  import { parse, pointAt, lengthOf, type Move, type Vec } from '../../lib/gcode';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-gp]').forEach((root) => {
+    const cfg = JSON.parse((root.querySelector('[data-cfg]') as HTMLElement).textContent || '{}');
+    const T = cfg.T, tr = root.dataset.locale === 'tr';
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const svg = q<SVGSVGElement>('[data-svg]'), note = q<HTMLElement>('[data-note]');
+    const lis = [...root.querySelectorAll<HTMLElement>('.code li')];
+    const { moves } = parse(cfg.lines, cfg.start);
+    let dog = !!cfg.dogleg;
+    // bounds over every point the path can reach
+    const pts: Vec[] = [cfg.start];
+    for (const m of moves) for (let k = 0; k <= 24; k++) { pts.push(pointAt(m, k / 24, false)); pts.push(pointAt(m, k / 24, true)); }
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    let x0 = Math.min(0, ...xs), x1 = Math.max(0, ...xs), y0 = Math.min(0, ...ys), y1 = Math.max(0, ...ys);
+    const W = 480, H = 360, pad = 34, span = Math.max((x1 - x0) / (W - 2 * pad), (y1 - y0) / (H - 2 * pad)) || 1;
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    const X = (x: number) => W / 2 + (x - cx) / span, Y = (y: number) => H / 2 - (y - cy) / span;
+    const f1 = (v: number) => v.toFixed(1);
+    const fmt = (v: number) => { const s = String(Math.round(v * 1000) / 1000 || 0).replace('-', '−'); return tr ? s.replace('.', ',') : s; };
+    // grid at a round step
+    const raw = span * 48, mag = 10 ** Math.floor(Math.log10(raw)), step = [1, 2, 5, 10].map((k) => k * mag).find((s) => s >= raw) || raw;
+    let grid = '';
+    for (let gx = Math.ceil((cx - (W / 2) * span) / step) * step; gx <= cx + (W / 2) * span; gx += step) grid += `<line x1="${f1(X(gx))}" x2="${f1(X(gx))}" y1="0" y2="${H}" class="gl"/>`;
+    for (let gy = Math.ceil((cy - (H / 2) * span) / step) * step; gy <= cy + (H / 2) * span; gy += step) grid += `<line x1="0" x2="${W}" y1="${f1(Y(gy))}" y2="${f1(Y(gy))}" class="gl"/>`;
+    const axes = `<line x1="0" x2="${W}" y1="${f1(Y(0))}" y2="${f1(Y(0))}" class="ax"/><line x1="${f1(X(0))}" x2="${f1(X(0))}" y1="0" y2="${H}" class="ax"/>
+      <text x="${W - 6}" y="${f1(Y(0) - 6)}" class="t" text-anchor="end">X</text><text x="${f1(X(0) + 6)}" y="12" class="t">Y</text>
+      <text x="${f1(X(0) + 4)}" y="${f1(Y(0) + 13)}" class="t">0</text>`;
+    const cls = (m: Move) => (m.kind === 'rapid' ? 'p0' : m.kind === 'feed' ? 'p1' : m.cw ? 'p2' : 'p3');
+    const path = (m: Move, u: number) => {
+      const n = m.kind === 'arc' ? Math.max(8, Math.ceil(m.sweep! * 24)) : m.kind === 'rapid' && dog ? 48 : 1;
+      const p: string[] = [];
+      for (let k = 0; k <= n; k++) { const [x, y] = pointAt(m, (u * k) / n, dog); p.push(`${f1(X(x))},${f1(Y(y))}`); }
+      return `<polyline points="${p.join(' ')}" class="${cls(m)}"/>`;
+    };
+    const ghost = moves.map((m) => { const n = m.kind === 'arc' ? Math.ceil(m.sweep! * 24) : m.kind === 'rapid' && dog ? 48 : 1; const p: string[] = []; for (let k = 0; k <= n; k++) { const [x, y] = pointAt(m, k / n, dog); p.push(`${f1(X(x))},${f1(Y(y))}`); } return `<polyline points="${p.join(' ')}" class="ghost"/>`; });
+    // one step per program line: its move, or a short pause on a line that does not move the tool
+    const steps = (cfg.lines as string[]).map((_, k) => moves.find((m) => m.line === k) || null);
+    const posBefore = (k: number): Vec => { for (let j = k - 1; j >= 0; j--) if (steps[j]) return steps[j]!.to; return cfg.start; };
+    const dur = () => steps.map((m) => (m ? Math.max(0.3, lengthOf(m, dog) / span / (m.kind === 'rapid' ? 360 : 120)) : 0.7));
+    let D = dur(), t = 0, playing = false, last = 0, raf = 0;
+    const total = () => D.reduce((a, b) => a + b, 0);
+    const locate = (tt: number) => { let acc = 0; for (let i = 0; i < steps.length; i++) { if (tt < acc + D[i]) return { i, u: (tt - acc) / D[i] }; acc += D[i]; } return { i: steps.length - 1, u: 1 }; };
+    const startOf = (i: number) => D.slice(0, i).reduce((a, b) => a + b, 0);
+    const draw = () => {
+      const { i, u } = locate(t);
+      const m = steps[i];
+      let body = grid + axes + ghost.join('');
+      for (let k = 0; k < i; k++) if (steps[k]) body += path(steps[k]!, 1);
+      if (m) body += path(m, u);
+      if (m && m.kind === 'arc') {
+        const c = m.center!;
+        body += `<line x1="${f1(X(m.from[0]))}" y1="${f1(Y(m.from[1]))}" x2="${f1(X(c[0]))}" y2="${f1(Y(c[1]))}" class="ij" marker-end="url(#ca-arr)"/>`;
+        body += `<circle cx="${f1(X(c[0]))}" cy="${f1(Y(c[1]))}" r="4" class="ctr"/><text x="${f1(X(c[0]) + 7)}" y="${f1(Y(c[1]) - 7)}" class="t">${T.centre} X${fmt(c[0])} Y${fmt(c[1])}</text>`;
+      }
+      const [px, py] = m ? pointAt(m, u, dog) : posBefore(i);
+      body += `<circle cx="${f1(X(px))}" cy="${f1(Y(py))}" r="7" class="tool"/><circle cx="${f1(X(px))}" cy="${f1(Y(py))}" r="2" fill="#152230"/>`;
+      body += `<text x="8" y="${H - 8}" class="t">X ${fmt(px)}  Y ${fmt(py)}  ${cfg.unit}</text>`;
+      svg.innerHTML = body;
+      lis.forEach((li, k) => { li.classList.toggle('on', k === i); li.classList.toggle('done', k < i); });
+      note.textContent = cfg.notes[i] || '';
+      const on = lis[i], box = on?.parentElement;
+      if (on && box && box.scrollHeight > box.clientHeight) { const top = on.offsetTop - box.clientHeight / 2; box.scrollTop = Math.max(0, top); }
+    };
+    const tick = (now: number) => {
+      if (!playing) return;
+      t += (now - last) / 1000; last = now;
+      if (t >= total()) { t = total() - 1e-6; playing = false; setPl(); draw(); return; }
+      draw(); raf = requestAnimationFrame(tick);
+    };
+    const setPl = () => { q('[data-o="pl"]').textContent = playing ? '❚❚' : '▶'; q('[data-act="play"]').setAttribute('aria-label', playing ? T.pause : T.play); };
+    const play = () => { if (t >= total() - 1e-3) t = 0; playing = true; last = performance.now(); setPl(); cancelAnimationFrame(raf); raf = requestAnimationFrame(tick); };
+    const stop = () => { playing = false; setPl(); cancelAnimationFrame(raf); };
+    q('[data-act="play"]').addEventListener('click', () => (playing ? stop() : play()));
+    q('[data-act="step"]').addEventListener('click', () => { stop(); const { i, u } = locate(t); t = u >= 1 - 1e-5 && i < steps.length - 1 ? startOf(i + 1) + D[i + 1] - 1e-6 : startOf(i) + D[i] - 1e-6; draw(); });
+    q('[data-act="back"]').addEventListener('click', () => { stop(); const { i } = locate(t); t = i === 0 ? 0 : startOf(i - 1) + D[i - 1] - 1e-6; draw(); });
+    q('[data-act="reset"]').addEventListener('click', () => { stop(); t = 0; draw(); });
+    root.querySelectorAll<HTMLButtonElement>('[data-dog]').forEach((b, _, all) => b.addEventListener('click', () => {
+      dog = b.dataset.dog === '1'; all.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      const { i, u } = locate(t); D = dur(); t = startOf(i) + u * D[i];
+      ghost.splice(0, ghost.length, ...moves.map((m) => { const n = m.kind === 'arc' ? Math.ceil(m.sweep! * 24) : m.kind === 'rapid' && dog ? 48 : 1; const p: string[] = []; for (let k = 0; k <= n; k++) { const [x, y] = pointAt(m, k / n, dog); p.push(`${f1(X(x))},${f1(Y(y))}`); } return `<polyline points="${p.join(' ')}" class="ghost"/>`; }));
+      draw();
+    }));
+    t = total() - 1e-6; draw();                     // without motion: the whole path, last line lit
+    whenIn(root, () => { t = 0; play(); });
+  });
+</script>

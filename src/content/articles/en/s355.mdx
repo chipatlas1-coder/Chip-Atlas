@@ -1,0 +1,121 @@
+---
+key: s355
+locale: en
+slug: s355
+title: 'S355 (St 52-3) structural steel'
+description: 'The non-alloy structural steel S355 to EN 10025-2: the quality grades JR, J0, J2 and K2, how they relate to the old St 52-3 and St 44-2, chemical composition, yield and tensile strength by thickness, impact energy, weldability — and why "St 52" tube is a different steel.'
+section: 6
+subsection: steels
+order: 3
+updated: 2026-10-11
+tools: [turning, milling]
+glance:
+  - value: '355'
+    unit: 'MPa'
+    label: 'Minimum yield strength ReH, up to 16 mm'
+  - value: '470–630'
+    unit: 'MPa'
+    label: 'Tensile strength Rm, 3 to 100 mm'
+  - value: '27'
+    unit: 'J'
+    label: 'Impact energy of S355J2 at −20 °C'
+  - value: '0.45'
+    label: 'Maximum carbon equivalent CEV up to 30 mm'
+sources:
+  - label: 'EN 10025-2:2019, Hot rolled products of structural steels — Part 2 (SIS catalogue page)'
+    url: https://www.sis.se/en/produkter/metallurgy/iron-and-steel-products/heattreatable-steels/ss-en-10025-22019
+  - label: 'BSI, BS EN 10025-2:2019 (changes from the 2004 edition)'
+    url: https://knowledge.bsigroup.com/products/hot-rolled-products-of-structural-steels-technical-delivery-conditions-for-non-alloy-structural-steels-1
+  - label: 'Ovako, Steel Navigator: S355 (EN 10025-2:2019)'
+    url: https://steelnavigator.ovako.com/steel-grades/s355/
+  - label: 'Ovako, Steel Navigator: S275JR'
+    url: https://steelnavigator.ovako.com/steel-grades/s275jr/
+  - label: 'Arvedi, non-alloyed structural steels to EN 10025-2'
+    url: https://www.arvedi.it/en/acciaieria/products/hot-rolled-steels/non-alloyed-structural-steels-as-per-en-10025-2/
+  - label: 'Liberty Steel, EN 10025-2 structural steels data sheet, 2024'
+    url: https://libertysteelgroup.com/uk/wp-content/uploads/sites/2/2024/12/LDL-EN10025-2-structural-Steels.pdf
+  - label: 'SIJ, SIQUAL 0577 / 0045 / 0553 (EN 10025-2)'
+    url: https://cms.sij.si/storage/38/SIQUAL-0577,-0045,-0553.pdf
+  - label: 'ArcelorMittal Industeel, S355J2 plate performance declaration (EN 10025-2:2019), 2025'
+    url: https://industeel.arcelormittal.com/fichier/dopil_s355j2_1-0577-en
+  - label: 'ArcelorMittal, sections catalogue with EN 10025 / DIN 17100 correspondence table, 2026'
+    url: https://industry.arcelormittal.com/catalogue/H30/EN
+  - label: 'Meusburger, material 1.0577 (S355J2)'
+    url: https://www.meusburger.com/PT/PT/material-grades/10577-structural-steel
+  - label: 'Roymech, EN 10025 steel data (reflects the 2004 edition)'
+    url: https://roymech.org/Useful_Tables/Matter/Steel_Data/Steel-10025.html
+  - label: 'Murray Steel Products, S355 low carbon manganese steel'
+    url: https://Murraysteelproducts.com/download/file/185/S355%20Low%20Carbon%20Manganese%20Steel%20-%20Murray%20Steel%20Products.pdf
+  - label: 'Hansa-Flex, hydraulic tube "ST52" in E355+N (1.0580)'
+    url: https://shop.hansa-flex.ch/en_GB/rohre/hydraulik-rohre/pr-10-2-st52/p/PR10-2ST52
+  - label: 'Marcegaglia, carbon steel tubes for hydraulic cylinders (E355, EN 10305)'
+    url: https://www.carbonsteel.marcegaglia.com/wp-content/uploads/2021/02/Marcegaglia-Carbon-Steel-Tubes-catalogue-download-cylinder.pdf
+---
+import StepChart from '../../../components/mdx/StepChart.astro';
+import ImpactGrades from '../../../components/mdx/ImpactGrades.astro';
+
+import { s355Series } from '../../../data/steel-charts';
+
+S355 is a non-alloy structural steel for welded constructions, frames and machine parts, with a minimum yield strength of 355 MPa in thin sections. It is still widely known by its old German name, St 52-3.
+
+## Quality grades
+
+The letters after S355 give the impact energy and the test temperature:
+
+| Grade | Number | Impact energy KV, min. |
+|---|---|---|
+| S355JR | 1.0045 | 27 J at +20 °C |
+| S355J0 | 1.0553 | 27 J at 0 °C |
+| S355J2 | 1.0577 | 27 J at −20 °C |
+| S355K2 | 1.0596 | 40 J at −20 °C |
+
+<Figure caption="The four quality grades as the minimum Charpy impact energy and the temperature at which it is tested. J0 and J2 ask for the same energy as JR at a colder test; K2 asks for more at −20 °C.">
+  <ImpactGrades locale="en" />
+</Figure>
+
+"+N" after the name, as in S355J2+N, is a delivery condition (normalized or normalizing rolled), not part of the steel name; the number stays 1.0577. The current standard is **EN 10025-2:2019**, which replaced the 2004 edition.
+
+## Old names: St 52-3 and St 44-2
+
+| Old name (DIN 17100) | Today |
+|---|---|
+| St 52-3 (1.0570) | via S355J2G3 (1.0570, earlier EN 10025) to **S355J2 (1.0577)**; ArcelorMittal maps St 52-3 N to S355J2+N and St 52-3 U to S355J0 |
+| St 44-2 | **S275JR** (1.0044) — an S275 grade, not S355 |
+
+<Note kind="warn" title="'St 52' tube is not S355">
+In hydraulics, "St 52" tube usually means a cold-drawn precision tube of **E355** to EN 10305-1 or -2 (formerly DIN 2391 St 52), for example E355+N, 1.0580. It is a different steel and standard from the plate and section steel S355 to EN 10025-2, with its own delivery conditions and properties. Specify the standard, not just "St 52".
+</Note>
+
+## Chemical composition
+
+Maximum %, heat analysis, EN 10025-2, for products up to 40 mm:
+
+| Grade | C | Si | Mn | P | S | N | Cu |
+|---|---|---|---|---|---|---|---|
+| S355JR | 0.24 | 0.55 | 1.60 | 0.035 | 0.035 | 0.012 | 0.55 |
+| S355J0 | 0.20 | 0.55 | 1.60 | 0.030 | 0.030 | 0.012 | 0.55 |
+| S355J2, K2 | 0.20 | 0.55 | 1.60 | 0.025 | 0.025 | — | 0.55 |
+
+Above 40 mm the carbon limit of J0, J2 and K2 rises to 0.22 %; for sections, some makers' sheets apply 0.22 % from 30 mm. The carbon equivalent CEV is limited to 0.45 up to 30 mm and 0.47 from 30 to 150 mm.
+
+## Mechanical properties
+
+Minimum yield strength ReH falls with thickness:
+
+| Thickness t (mm) | ≤ 16 | 16–40 | 40–63 | 63–80 | 80–100 | 100–150 | 150–200 | 200–250 |
+|---|---|---|---|---|---|---|---|---|
+| **ReH min (MPa)** | 355 | 345 | 335 | 325 | 315 | 295 | 285 | 275 |
+
+J2 and K2 continue to 400 mm with 265 MPa. Tensile strength Rm: 510–680 MPa below 3 mm, **470–630 MPa from 3 to 100 mm**, 450–600 MPa from 100 to 400 mm. Minimum elongation, longitudinal, t ≥ 3 mm: 22 % up to 40 mm, 21 % from 40 to 63 mm, 20 % from 63 to 100 mm; transverse values are 2 points lower.
+
+<Figure caption="Minimum yield strength ReH of S355 against nominal thickness (EN 10025-2, the values in the table above). The dashed step from 250 to 400 mm applies to J2 and K2 only.">
+  <StepChart locale="en" series={s355Series} xLabel="t" yLabel="ReH" xMax={400} yMax={400} yTicks={[0, 100, 200, 300, 400]} xTicks={[0, 40, 100, 150, 200, 250, 400]} lineLabel="ReH min" aria="Step chart of the minimum yield strength of S355 against thickness" />
+</Figure>
+
+<Note kind="note" title="One disagreement">
+Liberty Steel's data sheet prints 325 MPa for 40–63 mm. Ovako, SIJ and Roymech give 335 MPa, which is used here.
+</Note>
+
+## Weldability and machining
+
+S355 has good weldability, owing to its low carbon content and the CEV limit. For machining it behaves much like a mild steel (Murray Steel Products); Meusburger recommends a better-machining steel such as 1.1730 for parts that need no welding. In ISO 513 it belongs to group P.

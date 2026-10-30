@@ -1,0 +1,126 @@
+---
+/**
+ * Where the ISO 3685 wear measures are taken (article table): average flank wear VB_B and maximum
+ * flank wear VB_B max on the flank wear land, crater depth KT on the rake face; with the carbide
+ * criteria VB_B = 0.3 mm, VB_B max = 0.6 mm and KT = 0.06 + 0.3 f. Zones after ISO 3685: C at the
+ * corner radius, N the quarter of the worn edge farthest from the corner, B the straight part
+ * between. Wear shapes are schematic; the KT calculator uses the article's formula.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { flank: 'Serbest yüzey, önden', sec: 'Kenardan geçen kesit', edge: 'kesme kenarı', corner: 'köşe', rake: 'talaş yüzeyi', flankF: 'serbest yüzey', avg: 'ortalama', max: 'en büyük', crater: 'krater', feed: 'İlerleme f', crit: 'Karbür için ISO 3685 kriterleri', reg: 'düzgün aşınmada', irr: 'düzensiz aşınmada' }
+  : { flank: 'Flank, seen from the front', sec: 'Section through the edge', edge: 'cutting edge', corner: 'corner', rake: 'rake face', flankF: 'flank', avg: 'average', max: 'largest', crater: 'crater', feed: 'Feed f', crit: 'ISO 3685 criteria for carbide', reg: 'regular wear', irr: 'irregular wear' };
+const f = (v: number) => v.toFixed(1);
+// flank view: edge along y = 40 from x = 30 (corner) to x = 330; land width w(x)
+const E0 = 40, x0 = 30, x1 = 330, xC = 70, xN = 255;
+const w = (x: number) => {
+  let v = 30 + 4 * Math.sin(x / 9) + 3 * Math.sin(x / 4.3 + 1);
+  if (x < xC) v += 10 * (1 - (x - x0) / (xC - x0));       // a little more at the corner
+  if (x > xN) v += 34 * Math.exp(-(((x - 300) / 13) ** 2)); // notch towards the depth-of-cut end
+  if (Math.abs(x - 178) < 10) v += 11 * (1 - Math.abs(x - 178) / 10); // local maximum in zone B
+  return v;
+};
+const N = 150;
+const land = Array.from({ length: N + 1 }, (_, i) => { const x = x0 + ((x1 - x0) * i) / N; return [x, E0 + w(x)]; });
+const landPath = `M${x0},${E0} ` + land.map(([x, y]) => `L${f(x)},${f(y)}`).join(' ') + ` L${x1},${E0} Z`;
+const bPts = land.filter(([x]) => x >= xC && x <= xN);
+const avgB = bPts.reduce((a, [, y]) => a + (y - E0), 0) / bPts.length;
+const maxB = bPts.reduce((m, p) => ((p[1] - E0) > (m[1] - E0) ? p : m), bPts[0]);
+---
+<div class="wm" data-wm>
+  <div class="panels">
+    <figure class="pn">
+      <svg viewBox="0 0 360 170" role="img" aria-label={`${T.flank}: VB_B, VB_B max`}>
+        <path d={`M${x0 - 14},${E0} L${x1 + 14},${E0} L${x1 + 14},150 L${x0 - 14},150 Z`} fill="url(#ca-carbide)" />
+        <path d={landPath} class="land" />
+        <line x1={x0 - 14} x2={x1 + 14} y1={E0} y2={E0} class="edge" />
+        {[xC, xN].map((x) => <line x1={x} x2={x} y1={E0 - 16} y2="146" class="zone" />)}
+        <text x={(x0 + xC) / 2} y={E0 - 22} text-anchor="middle" class="zl">C</text>
+        <text x={(xC + xN) / 2} y={E0 - 22} text-anchor="middle" class="zl">B</text>
+        <text x={(xN + x1) / 2} y={E0 - 22} text-anchor="middle" class="zl">N</text>
+        <line x1={xC} x2={xN} y1={E0 + avgB} y2={E0 + avgB} class="avg" />
+        <line x1={maxB[0]} x2={maxB[0]} y1={E0 + 2} y2={maxB[1] - 2} class="dimm" marker-start="url(#ca-arr-acc)" marker-end="url(#ca-arr-acc)" />
+        <line x1={120} x2={120} y1={E0 + 2} y2={E0 + avgB - 2} class="dima" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+        <text x={114} y={E0 + avgB / 2 + 4} text-anchor="end" class="lab dat">VB<tspan baseline-shift="sub" font-size="8">B</tspan></text>
+        <text x={114} y={E0 + avgB + 16} text-anchor="middle" class="lab dat sm2">{T.avg}</text>
+        <text x={maxB[0] + 8} y={E0 + (maxB[1] - E0) / 2 + 4} class="lab acc">VB<tspan baseline-shift="sub" font-size="8">B max</tspan></text>
+        <text x={maxB[0]} y={maxB[1] + 16} text-anchor="middle" class="lab acc sm2">{T.max}</text>
+        <text x={x1 + 14} y={E0 - 6} text-anchor="end" class="sm">{T.edge}</text>
+        <text x={x0 - 14} y="164" class="sm">← {T.corner}</text>
+      </svg>
+      <figcaption>{T.flank}</figcaption>
+    </figure>
+    <figure class="pn">
+      <svg viewBox="0 0 300 170" role="img" aria-label={`${T.sec}: KT, VB`}>
+        <path d="M30,50 L140,50 C150,50 156,76 178,78 C200,80 208,52 220,50 L250,50 L250,74 L236,150 L60,150 Z" fill="url(#ca-carbide)" />
+        <path d="M30,50 L140,50 C150,50 156,76 178,78 C200,80 208,52 220,50 L250,50" class="ln" />
+        <path d="M250,74 L236,150" class="ln" />
+        <path d="M140,50 L220,50" class="orig" />
+        <path d="M250,50 L253.4,74" class="orig" />
+        <path d="M250,51 L250,74" class="wearland" />
+        <line x1="178" x2="178" y1="52" y2="76" class="dimm" marker-start="url(#ca-arr-acc)" marker-end="url(#ca-arr-acc)" />
+        <text x="170" y="68" text-anchor="end" class="lab acc">KT</text>
+        <line x1="264" x2="264" y1="51" y2="73" class="dima" marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+        <text x="270" y="66" class="lab dat">VB</text>
+        <text x="40" y="42" class="sm">{T.rake}</text>
+        <text x="236" y="166" text-anchor="end" class="sm">{T.flankF}</text>
+        <text x="180" y="40" text-anchor="middle" class="sm acc2">{T.crater}</text>
+      </svg>
+      <figcaption>{T.sec}</figcaption>
+    </figure>
+  </div>
+  <div class="crit">
+    <p class="ch">{T.crit}</p>
+    <ul>
+      <li><b>VB<sub>B</sub> = 0{tr ? ',' : '.'}3 mm</b> <span>{T.reg}</span></li>
+      <li><b>VB<sub>B max</sub> = 0{tr ? ',' : '.'}6 mm</b> <span>{T.irr}</span></li>
+      <li class="kt"><b>KT = 0{tr ? ',' : '.'}06 + 0{tr ? ',' : '.'}3 f = <output data-kt>{tr ? '0,14' : '0.14'}</output> mm</b>
+        <label><span>{T.feed}</span><input type="range" min="0.05" max="0.6" step="0.01" value="0.25" data-f /><output data-fv>{tr ? '0,25' : '0.25'}</output> mm</label>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-wm]').forEach((root) => {
+    const tr = document.documentElement.lang === 'tr';
+    const inp = root.querySelector<HTMLInputElement>('[data-f]')!;
+    const fmt = (v: number, k: number) => (tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+    const upd = () => { const f = Number(inp.value); root.querySelector('[data-fv]')!.textContent = fmt(f, 2); root.querySelector('[data-kt]')!.textContent = fmt(0.06 + 0.3 * f, 2); };
+    inp.addEventListener('input', upd);
+  });
+</script>
+
+<style>
+  .wm { display: grid; gap: 0.7rem; }
+  .panels { display: grid; grid-template-columns: 1.2fr 1fr; gap: 0.6rem; }
+  @media (max-width: 40rem) { .panels { grid-template-columns: minmax(0, 1fr); } }
+  .pn { margin: 0; padding: 0.5rem 0.6rem 0.55rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; display: grid; gap: 0.25rem; }
+  .pn figcaption { font-size: 0.8rem; color: var(--ink-2); }
+  svg { width: 100%; height: auto; display: block; }
+  .land { fill: color-mix(in oklab, #e2601a 16%, white); stroke: #e2601a; stroke-width: 1.2; }
+  .edge { stroke: #1b1d1e; stroke-width: 2; }
+  .zone { stroke: #656e74; stroke-width: 1; stroke-dasharray: 3 3; }
+  .zl { font-family: var(--font-mono); font-size: 12px; font-weight: 600; fill: var(--ink-2); }
+  .avg { stroke: #1e6fd6; stroke-width: 1.6; stroke-dasharray: 6 3; }
+  .dimm { stroke: #e2601a; stroke-width: 1.4; }
+  .dima { stroke: #1e6fd6; stroke-width: 1.4; }
+  .lab { font-family: var(--font-mono); font-size: 11px; paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; }
+  .acc { fill: #e2601a; } .dat { fill: #2a78d6; } .acc2 { fill: #e2601a; }
+  .sm { font-family: var(--font-mono); font-size: 9.5px; fill: var(--ink-3); }
+  .sm2 { font-size: 9.5px; }
+  .ln { fill: none; stroke: #1b1d1e; stroke-width: 1.4; stroke-linejoin: round; }
+  .orig { fill: none; stroke: #1b1d1e; stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 3 3; }
+  .wearland { fill: none; stroke: #e2601a; stroke-width: 2.4; }
+  .crit { padding: 0.75rem 0.9rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  .ch { margin: 0 0 0.4rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-3); }
+  .crit ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+  .crit li { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.8rem; font-size: 0.86rem; color: var(--ink-2); }
+  .crit li::before { content: none; }
+  .crit b { font-family: var(--font-mono); font-weight: 500; color: var(--ink); }
+  .crit output { color: var(--color-spark-400); }
+  .crit label { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-3); }
+  .crit input { accent-color: var(--accent); width: 9rem; }
+</style>

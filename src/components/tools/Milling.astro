@@ -1,0 +1,358 @@
+---
+import ToolShell from '../ToolShell.astro';
+import type { Locale } from '../../i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+
+const copy = tr
+  ? {
+      title: 'Frezeleme hesaplayıcısı',
+      description: 'Frezelemede devir, tabla ilerlemesi, talaş hacmi, kavrama açısı, gerçek (maksimum ve ortalama) talaş kalınlığı, talaş inceltme düzeltmesi, kesme gücü ve tork; test edilmiş formüllerle.',
+      lead: 'Freze kısmen kavradığında talaş, diş başına ilerlemeden ince çıkar. Bu araç gerçek talaş kalınlığını kavrama yayı boyunca hesaplar, gereken ilerlemeyi bulur ve gücü ortalama talaş kalınlığından hesaplar.',
+      D: 'Freze çapı Dc', z: 'Etkin diş sayısı zc', mode: 'Hangisi biliniyor?', vc: 'Kesme hızı vc', n: 'Devir n',
+      feedMode: 'İlerleme girişi', fzMode: 'fz (diş başına ilerleme)', hexMode: 'hex hedefi (katalog talaş kalınlığı)',
+      fz: 'Diş başına ilerleme fz', hexT: 'Hedef maks. talaş kalınlığı hex', ap: 'Eksenel derinlik ap', ae: 'Radyal kavrama ae',
+      kr: 'Yanaşma açısı κr', pos: 'Freze konumu', side: 'Kenar frezeleme (ae kenardan)', centre: 'Ortalanmış alın frezeleme',
+      dir: 'Kesme yönü', climb: 'Aynı yönlü (climb)', conv: 'Zıt yönlü (conventional)', L: 'Kesme boyu L',
+      kc11: 'Özgül kesme kuvveti kc1.1', mc: 'Kienzle üssü mc',
+      kcHint: 'kc1.1 ve mc değerlerini malzeme sayfasından veya takım üreticisinin kataloğundan al. Güç, Sandvik Coromant yönteminde olduğu gibi ortalama talaş kalınlığı hm ile hesaplanır.',
+      res: { n: 'Devir n', vc: 'Kesme hızı vc', vf: 'Tabla ilerlemesi vf', Q: 'Talaş hacmi Q', tc: 'Kesme süresi tc', fz: 'Diş başına ilerleme fz', phi: 'Kavrama açısı φe', hex: 'Maks. talaş kalınlığı hex', hm: 'Ortalama talaş kalınlığı hm', rctf: 'Talaş inceltme katsayısı fz / hex', kc: 'Özgül kesme kuvveti kc', Pc: 'Kesme gücü Pc', Mc: 'Tork Mc' },
+      group1: 'Kinematik', group2: 'Talaş kalınlığı', group3: 'Kuvvet ve güç (Kienzle, hm ile)',
+      figureLabel: 'Frezeleme kavrama geometrisi ve talaş kalınlığı',
+      chartTitle: 'Kavrama boyunca talaş kalınlığı h',
+      notes: [
+        'Talaş kalınlığı, dişin yörüngesini çember kabul eden standart modelle hesaplanır: h(φ) = fz · sin φ · sin κr. Bu model fz, freze yarıçapından çok küçükken (her pratik durumda) geçerlidir.',
+        'Kenar frezelemede ae < Dc/2 iken maksimum talaş kalınlığı fz’den küçüktür; katalogdaki talaş kalınlığına ulaşmak için ilerleme talaş inceltme katsayısıyla artırılır. ae ≥ Dc/2 olduğunda hex = fz · sin κr olur.',
+        'Aynı yönlü frezelemede talaş kalın başlar, ince biter; zıt yönlüde tersidir. Ortalama talaş kalınlığı ve güç iki yönde aynıdır; takım ömrü ve yüzey farklıdır.',
+        'Kesme süresi yalnız L boyunca talaş kaldırmayı kapsar; parçaya giriş ve çıkış için freze çapı kadar ek yol, hızlı hareketler ve takım değişimi dâhil değildir.',
+        'Pc net kesme gücüdür. Motor gücü için iş mili verimine böl ve tezgâhın güç-devir eğrisini kontrol et.',
+      ],
+    }
+  : {
+      title: 'Milling calculator',
+      description: 'Spindle speed, table feed, removal rate, engagement angle, true maximum and mean chip thickness, chip thinning correction, cutting power and torque for milling, computed with tested formulae.',
+      lead: 'When a cutter is only partly engaged, the chip comes out thinner than the feed per tooth. This tool computes the real chip thickness along the engagement arc, finds the feed you need, and takes the power from the mean chip thickness.',
+      D: 'Cutter diameter Dc', z: 'Effective teeth zc', mode: 'Which one is known?', vc: 'Cutting speed vc', n: 'Spindle speed n',
+      feedMode: 'Feed input', fzMode: 'fz (feed per tooth)', hexMode: 'hex target (catalogue chip thickness)',
+      fz: 'Feed per tooth fz', hexT: 'Target max. chip thickness hex', ap: 'Axial depth ap', ae: 'Radial engagement ae',
+      kr: 'Entering angle κr', pos: 'Cutter position', side: 'Side milling (ae from the edge)', centre: 'Centred face milling',
+      dir: 'Cutting direction', climb: 'Climb (down) milling', conv: 'Conventional (up) milling', L: 'Cut length L',
+      kc11: 'Specific cutting force kc1.1', mc: 'Kienzle exponent mc',
+      kcHint: 'Take kc1.1 and mc from the material page or the tool maker’s catalogue. Power is computed from the mean chip thickness hm, as in the Sandvik Coromant method.',
+      res: { n: 'Spindle speed n', vc: 'Cutting speed vc', vf: 'Table feed vf', Q: 'Removal rate Q', tc: 'Cutting time tc', fz: 'Feed per tooth fz', phi: 'Engagement angle φe', hex: 'Max. chip thickness hex', hm: 'Mean chip thickness hm', rctf: 'Chip thinning factor fz / hex', kc: 'Specific cutting force kc', Pc: 'Cutting power Pc', Mc: 'Torque Mc' },
+      group1: 'Kinematics', group2: 'Chip thickness', group3: 'Force and power (Kienzle, at hm)',
+      figureLabel: 'Milling engagement geometry and chip thickness',
+      chartTitle: 'Chip thickness h along the engagement',
+      notes: [
+        'Chip thickness uses the standard model that treats the tooth path as a circle: h(φ) = fz · sin φ · sin κr. The model holds whenever fz is far smaller than the cutter radius, which covers every practical case.',
+        'In side milling with ae < Dc/2 the maximum chip thickness is smaller than fz, so the feed is raised by the chip thinning factor to reach the catalogue chip thickness. At ae ≥ Dc/2, hex = fz · sin κr.',
+        'In climb milling the chip starts thick and ends thin; in conventional milling the reverse. The mean chip thickness and the power are the same in both directions; tool life and surface are not.',
+        'Cutting time covers chip removal along L only; the extra travel of one cutter diameter to enter and leave the part, rapid moves and tool changes are not included.',
+        'Pc is the net cutting power. For the motor, divide by the spindle efficiency and check the machine’s power curve against the spindle speed.',
+      ],
+    };
+
+const sources = [
+  { label: 'Sandvik Coromant — Formulas and definitions for milling (vf, Q, Pc, Mc)', url: 'https://cdn.sandvik.coromant.com/files/sitecollectiondocuments/services/metal-cutting-e-learning/formulas-and-definitions/formulas-and-deinitions-for-milling-metric-enu.pdf' },
+  { label: 'Machining Doctor — Chip thinning calculator (radial chip thinning factor)', url: 'https://www.machiningdoctor.com/calculators/chip-thinning-calculator/' },
+  { label: 'Y. Altintas, Manufacturing Automation, 2nd ed., Cambridge University Press, 2012 — chip thickness in milling, h(φ) = c · sin φ' },
+  { label: 'O. Kienzle, VDI-Z 94 (1952) — specific cutting force kc = kc1.1 · h^−mc' },
+];
+---
+<ToolShell locale={locale} route="milling" title={copy.title} description={copy.description} lead={copy.lead} sectionN={7} sources={sources}>
+  <div class="tool-grid-2" data-milling data-locale={locale}>
+    <div class="panel inputs">
+      <div class="two">
+        <label class="field">
+          <span>{copy.D} <span class="unit">mm</span></span>
+          <input id="mill-D" type="number" min="0.5" step="0.5" value="50" data-in="D" />
+        </label>
+        <label class="field">
+          <span>{copy.z}</span>
+          <input id="mill-z" type="number" min="1" step="1" value="4" data-in="z" />
+        </label>
+      </div>
+      <fieldset class="mode">
+        <legend class="hint">{copy.mode}</legend>
+        <label><input id="mill-mode-vc" type="radio" name="mill-mode" value="vc" checked data-mode /> vc</label>
+        <label><input id="mill-mode-n" type="radio" name="mill-mode" value="n" data-mode /> n</label>
+      </fieldset>
+      <div class="two">
+        <label class="field">
+          <span>{copy.vc} <span class="unit">m/min</span></span>
+          <input id="mill-vc" type="number" min="1" step="1" value="200" data-in="vc" />
+        </label>
+        <label class="field">
+          <span>{copy.n} <span class="unit">rpm</span></span>
+          <input id="mill-n" type="number" min="1" step="1" value="1273" data-in="n" disabled />
+        </label>
+      </div>
+      <fieldset class="mode">
+        <legend class="hint">{copy.feedMode}</legend>
+        <label><input id="mill-feed-fz" type="radio" name="mill-feed" value="fz" checked data-feed /> fz</label>
+        <label><input id="mill-feed-hex" type="radio" name="mill-feed" value="hex" data-feed /> hex</label>
+      </fieldset>
+      <div class="two">
+        <label class="field">
+          <span>{copy.fz} <span class="unit">mm</span></span>
+          <input id="mill-fz" type="number" min="0.001" step="0.01" value="0.12" data-in="fz" />
+        </label>
+        <label class="field">
+          <span>{copy.hexT} <span class="unit">mm</span></span>
+          <input id="mill-hex" type="number" min="0.001" step="0.01" value="0.10" data-in="hex" disabled />
+        </label>
+      </div>
+      <div class="two">
+        <label class="field">
+          <span>{copy.ap} <span class="unit">mm</span></span>
+          <input id="mill-ap" type="number" min="0.01" step="0.1" value="5" data-in="ap" />
+        </label>
+        <label class="field">
+          <span>{copy.ae} <span class="unit">mm</span></span>
+          <input id="mill-ae" type="number" min="0.01" step="0.5" value="10" data-in="ae" />
+        </label>
+      </div>
+      <div class="two">
+        <label class="field">
+          <span>{copy.kr} <span class="unit">°</span></span>
+          <input id="mill-kr" type="number" min="5" max="90" step="1" value="90" data-in="kr" />
+        </label>
+        <label class="field">
+          <span>{copy.L} <span class="unit">mm</span></span>
+          <input id="mill-L" type="number" min="0" step="1" value="200" data-in="L" />
+        </label>
+      </div>
+      <label class="field">
+        <span>{copy.pos}</span>
+        <select id="mill-pos" data-in="pos">
+          <option value="side">{copy.side}</option>
+          <option value="centre">{copy.centre}</option>
+        </select>
+      </label>
+      <label class="field" data-dir-field>
+        <span>{copy.dir}</span>
+        <select id="mill-dir" data-in="dir">
+          <option value="climb">{copy.climb}</option>
+          <option value="conv">{copy.conv}</option>
+        </select>
+      </label>
+      <div class="two">
+        <label class="field">
+          <span>{copy.kc11} <span class="unit">N/mm²</span></span>
+          <input id="mill-kc11" type="number" min="100" step="10" placeholder="kc1.1" data-in="kc11" />
+        </label>
+        <label class="field">
+          <span>{copy.mc}</span>
+          <input id="mill-mc" type="number" min="0" max="1" step="0.01" placeholder="mc" data-in="mc" />
+        </label>
+      </div>
+      <p class="hint">{copy.kcHint}</p>
+    </div>
+
+    <div class="stack">
+      <div class="figure">
+        <svg data-figure viewBox="0 0 640 420" role="img" aria-label={copy.figureLabel}></svg>
+      </div>
+      <div class="panel results">
+        <h2 class="h3">{copy.group1}</h2>
+        <div class="results-grid">
+          <div class="readout"><span class="value"><span data-out="n">—</span><small>rpm</small></span><span class="label">{copy.res.n}</span></div>
+          <div class="readout"><span class="value"><span data-out="vc">—</span><small>m/min</small></span><span class="label">{copy.res.vc}</span></div>
+          <div class="readout"><span class="value"><span data-out="vf">—</span><small>mm/min</small></span><span class="label">{copy.res.vf}</span></div>
+          <div class="readout"><span class="value"><span data-out="Q">—</span><small>cm³/min</small></span><span class="label">{copy.res.Q}</span></div>
+          <div class="readout"><span class="value"><span data-out="tc">—</span><small>min</small></span><span class="label">{copy.res.tc}</span></div>
+          <div class="readout"><span class="value"><span data-out="fz">—</span><small>mm</small></span><span class="label">{copy.res.fz}</span></div>
+        </div>
+        <h2 class="h3">{copy.group2}</h2>
+        <div class="results-grid">
+          <div class="readout"><span class="value"><span data-out="phi">—</span><small>°</small></span><span class="label">{copy.res.phi}</span></div>
+          <div class="readout"><span class="value"><span data-out="hex">—</span><small>mm</small></span><span class="label">{copy.res.hex}</span></div>
+          <div class="readout"><span class="value"><span data-out="hm">—</span><small>mm</small></span><span class="label">{copy.res.hm}</span></div>
+          <div class="readout"><span class="value"><span data-out="rctf">—</span></span><span class="label">{copy.res.rctf}</span></div>
+        </div>
+        <h2 class="h3">{copy.group3}</h2>
+        <div class="results-grid">
+          <div class="readout"><span class="value"><span data-out="kc">—</span><small>N/mm²</small></span><span class="label">{copy.res.kc}</span></div>
+          <div class="readout"><span class="value"><span data-out="Pc">—</span><small>kW</small></span><span class="label">{copy.res.Pc}</span></div>
+          <div class="readout"><span class="value"><span data-out="Mc">—</span><small>N·m</small></span><span class="label">{copy.res.Mc}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Fragment slot="formulae">
+    <div class="formula-grid">
+      <div class="formula"><math display="block"><mrow><mi>n</mi><mo>=</mo><mfrac><mrow><msub><mi>v</mi><mi>c</mi></msub><mo>·</mo><mn>1000</mn></mrow><mrow><mi>π</mi><mo>·</mo><msub><mi>D</mi><mi>c</mi></msub></mrow></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>v</mi><mi>f</mi></msub><mo>=</mo><msub><mi>f</mi><mi>z</mi></msub><mo>·</mo><msub><mi>z</mi><mi>c</mi></msub><mo>·</mo><mi>n</mi></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><mi>Q</mi><mo>=</mo><mfrac><mrow><msub><mi>a</mi><mi>p</mi></msub><mo>·</mo><msub><mi>a</mi><mi>e</mi></msub><mo>·</mo><msub><mi>v</mi><mi>f</mi></msub></mrow><mn>1000</mn></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>φ</mi><mi>e</mi></msub><mo>=</mo><mi>arccos</mi><mo>(</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mn>2</mn><msub><mi>a</mi><mi>e</mi></msub></mrow><msub><mi>D</mi><mi>c</mi></msub></mfrac><mo>)</mo></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>h</mi><mrow><mi>e</mi><mi>x</mi></mrow></msub><mo>=</mo><msub><mi>f</mi><mi>z</mi></msub><mo>·</mo><mi>sin</mi><msub><mi>κ</mi><mi>r</mi></msub><mo>·</mo><msqrt><mrow><mn>1</mn><mo>−</mo><msup><mrow><mo>(</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mn>2</mn><msub><mi>a</mi><mi>e</mi></msub></mrow><msub><mi>D</mi><mi>c</mi></msub></mfrac><mo>)</mo></mrow><mn>2</mn></msup></mrow></msqrt></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>h</mi><mi>m</mi></msub><mo>=</mo><msub><mi>f</mi><mi>z</mi></msub><mo>·</mo><mi>sin</mi><msub><mi>κ</mi><mi>r</mi></msub><mo>·</mo><mfrac><mrow><mn>2</mn><msub><mi>a</mi><mi>e</mi></msub><mo>/</mo><msub><mi>D</mi><mi>c</mi></msub></mrow><msub><mi>φ</mi><mi>e</mi></msub></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>k</mi><mi>c</mi></msub><mo>=</mo><msub><mi>k</mi><mrow><mi>c</mi><mn>1.1</mn></mrow></msub><mo>·</mo><msup><msub><mi>h</mi><mi>m</mi></msub><mrow><mo>−</mo><msub><mi>m</mi><mi>c</mi></msub></mrow></msup></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>P</mi><mi>c</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>a</mi><mi>e</mi></msub><mo>·</mo><msub><mi>a</mi><mi>p</mi></msub><mo>·</mo><msub><mi>v</mi><mi>f</mi></msub><mo>·</mo><msub><mi>k</mi><mi>c</mi></msub></mrow><mrow><mn>60</mn><mo>·</mo><msup><mn>10</mn><mn>6</mn></msup></mrow></mfrac></mrow></math></div>
+      <div class="formula"><math display="block"><mrow><msub><mi>M</mi><mi>c</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>P</mi><mi>c</mi></msub><mo>·</mo><mn>30</mn><mo>·</mo><msup><mn>10</mn><mn>3</mn></msup></mrow><mrow><mi>π</mi><mo>·</mo><mi>n</mi></mrow></mfrac></mrow></math></div>
+    </div>
+    <p class="hint">{tr
+      ? 'Kenar frezeleme formülleri. hex formülü ae < Dc/2 için geçerlidir, aksi halde hex = fz · sin κr. Ortalanmış alın frezelemede φe = 2 · arcsin(ae/Dc), hex = fz · sin κr ve hm = fz · sin κr · (ae/Dc) / arcsin(ae/Dc). Açılar radyan. Birimler: Dc mm, n rpm, vc m/min, fz mm, ap ve ae mm, vf mm/min, Q cm³/min, kc N/mm², Pc kW, Mc N·m.'
+      : 'Side-milling formulae. The hex formula applies for ae < Dc/2; otherwise hex = fz · sin κr. For centred face milling φe = 2 · arcsin(ae/Dc), hex = fz · sin κr and hm = fz · sin κr · (ae/Dc) / arcsin(ae/Dc). Angles in radians. Units: Dc mm, n rpm, vc m/min, fz mm, ap and ae mm, vf mm/min, Q cm³/min, kc N/mm², Pc kW, Mc N·m.'}</p>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <ul>
+      {copy.notes.map((note) => <li>{note}</li>)}
+    </ul>
+  </Fragment>
+</ToolShell>
+
+<style>
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .mode { display: flex; gap: 1.25rem; align-items: center; border: 0; padding: 0; flex-wrap: wrap; }
+  .mode legend { padding: 0; margin-bottom: 0.35rem; }
+  .mode label { display: inline-flex; gap: 0.4rem; align-items: center; font-family: var(--font-mono); }
+  .mode input { accent-color: var(--accent); }
+  .stack { display: grid; gap: 1rem; min-width: 0; }
+  .results .h3 { margin-top: 0.5rem; font-weight: 500; color: var(--ink-2); }
+  .formula-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  @media (min-width: 48rem) { .formula-grid { grid-template-columns: repeat(3, 1fr); } }
+  input:disabled { opacity: 0.5; }
+</style>
+
+<script>
+  import { spindleSpeed, cuttingSpeed, tableFeed, millingRemovalRate, engagementAngle, maxChipThickness, meanChipThickness, feedForChipThickness, specificCuttingForce, millingPower, torqueFromPower, fmt } from '../../lib/calc.js';
+
+  const root = document.querySelector('[data-milling]') as HTMLElement;
+  const locale = root.dataset.locale || 'en';
+  const get = (key: string) => root.querySelector(`[data-in="${key}"]`) as HTMLInputElement;
+  const modes = Array.from(root.querySelectorAll<HTMLInputElement>('[data-mode]'));
+  const feeds = Array.from(root.querySelectorAll<HTMLInputElement>('[data-feed]'));
+  const dirField = root.querySelector('[data-dir-field]') as HTMLElement;
+  const svg = root.querySelector('[data-figure]') as SVGSVGElement;
+  const loc = (v: string) => (locale === 'tr' ? v.replace('.', ',') : v);
+  const set = (key: string, v: number, digits = 3) => { const el = root.querySelector(`[data-out="${key}"]`); if (el) el.textContent = Number.isFinite(v) ? loc(fmt(v, digits)) : '—'; };
+  const val = (key: string) => Number(get(key).value);
+  const DEG = Math.PI / 180;
+
+  function render() {
+    const mode = modes.find((m) => m.checked)?.value ?? 'vc';
+    const feedMode = feeds.find((m) => m.checked)?.value ?? 'fz';
+    get('vc').disabled = mode !== 'vc';
+    get('n').disabled = mode !== 'n';
+    get('fz').disabled = feedMode !== 'fz';
+    get('hex').disabled = feedMode !== 'hex';
+    const D = val('D'), z = val('z'), ap = val('ap'), kr = val('kr') || 90, L = val('L');
+    const pos = (get('pos') as unknown as HTMLSelectElement).value as 'side' | 'centre';
+    const dir = (get('dir') as unknown as HTMLSelectElement).value;
+    dirField.hidden = pos === 'centre';
+    const ae = Math.min(val('ae'), D);
+    let vc: number, n: number;
+    if (mode === 'vc') { vc = val('vc'); n = spindleSpeed(vc, D); get('n').value = String(Math.round(n)); }
+    else { n = val('n'); vc = cuttingSpeed(D, n); get('vc').value = String(Math.round(vc)); }
+    let fz: number;
+    if (feedMode === 'fz') { fz = val('fz'); }
+    else { fz = feedForChipThickness(val('hex'), ae, D, kr, pos); get('fz').value = fz.toFixed(3); }
+    const vf = tableFeed(fz, z, n);
+    const Q = millingRemovalRate(ap, ae, vf);
+    const phi = engagementAngle(ae, D, pos);
+    const hex = maxChipThickness(fz, ae, D, kr, pos);
+    const hm = meanChipThickness(fz, ae, D, kr, pos);
+    if (feedMode === 'fz') get('hex').value = hex.toFixed(3);
+    set('n', n, 4); set('vc', vc); set('vf', vf, 4); set('Q', Q); set('tc', L / vf); set('fz', fz);
+    set('phi', phi); set('hex', hex); set('hm', hm); set('rctf', fz / hex);
+    const kc11 = val('kc11'), mc = val('mc');
+    if (kc11 > 0 && get('mc').value !== '') {
+      const kc = specificCuttingForce(kc11, mc, hm);
+      const Pc = millingPower(ae, ap, vf, kc);
+      set('kc', kc, 4); set('Pc', Pc); set('Mc', torqueFromPower(Pc, n));
+    } else {
+      ['kc', 'Pc', 'Mc'].forEach((k) => set(k, NaN));
+    }
+    draw(D, ae, pos, dir, fz, kr, hex, phi);
+  }
+
+  /** Angle range (from the feed direction, screen y down, clockwise positive) of the engaged arc. */
+  function arcRange(ae: number, D: number, pos: string, dir: string): [number, number] {
+    const R = D / 2;
+    if (pos === 'centre') { const a = Math.asin(Math.min(ae / D, 1)); return [-a, a]; }
+    const a0 = Math.asin(Math.max(-1, 1 - ae / R));
+    return dir === 'climb' ? [a0, Math.PI / 2] : [-Math.PI / 2, -a0];
+  }
+
+  function draw(D: number, ae: number, pos: string, dir: string, fz: number, kr: number, hex: number, phi: number) {
+    const font = 'font-family="IBM Plex Mono, monospace" font-size="13"';
+    const parts: string[] = [];
+    const R = 82, cx = 250, cy = 140;
+    const s = R / (D / 2); // px per mm
+    const aePx = Math.min(ae, D) * s;
+    // Workpiece: material ahead of the cutter (x > cx) and the band it occupies.
+    let y0: number, y1: number;
+    if (pos === 'centre') { y0 = cy - aePx / 2; y1 = cy + aePx / 2; }
+    else if (dir === 'climb') { y0 = cy + R - aePx; y1 = cy + R + 60; }
+    else { y0 = cy - R - 60; y1 = cy - R + aePx; }
+    const top = Math.max(y0, 20), bottom = Math.min(y1, 262);
+    // Uncut material ahead and the finished wall behind.
+    parts.push(`<rect x="${cx}" y="${top}" width="${600 - cx}" height="${bottom - top}" fill="color-mix(in oklab, var(--color-steel-500) 16%, transparent)" stroke="var(--color-steel-500)" stroke-width="1.5"/>`);
+    if (pos === 'side') {
+      const wallY = dir === 'climb' ? cy + R : cy - R;
+      const farY = dir === 'climb' ? bottom : top;
+      parts.push(`<rect x="40" y="${Math.min(wallY, farY)}" width="${cx - 40}" height="${Math.abs(farY - wallY)}" fill="color-mix(in oklab, var(--color-steel-500) 16%, transparent)" stroke="var(--color-steel-500)" stroke-width="1.5"/>`);
+    }
+    // Cutter
+    parts.push(`<circle cx="${cx}" cy="${cy}" r="${R}" fill="var(--bg-raised)" stroke="var(--ink-2)" stroke-width="1.5"/>`);
+    parts.push(`<circle cx="${cx}" cy="${cy}" r="3" fill="var(--ink-2)"/>`);
+    // Engaged arc
+    const [a0, a1] = arcRange(ae, D, pos, dir);
+    const p0 = [cx + R * Math.cos(a0), cy + R * Math.sin(a0)];
+    const p1 = [cx + R * Math.cos(a1), cy + R * Math.sin(a1)];
+    const large = a1 - a0 > Math.PI ? 1 : 0;
+    parts.push(`<path d="M${p0[0]} ${p0[1]} A${R} ${R} 0 ${large} 1 ${p1[0]} ${p1[1]}" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>`);
+    parts.push(`<circle cx="${p0[0]}" cy="${p0[1]}" r="4" fill="var(--accent)"/>`);
+    parts.push(`<text x="${p0[0] + 10}" y="${p0[1] + (p0[1] > cy ? 16 : -8)}" ${font} fill="var(--accent)">${locale === 'tr' ? 'giriş' : 'entry'}</text>`);
+    // Rotation (clockwise) arrow inside the cutter
+    const rr = R - 18;
+    parts.push(`<path d="M${cx - rr * Math.cos(0.5)} ${cy - rr * Math.sin(0.5)} A${rr} ${rr} 0 0 1 ${cx + rr * Math.cos(0.5)} ${cy - rr * Math.sin(0.5)}" fill="none" stroke="var(--data)" stroke-width="1.5"/>`);
+    parts.push(`<path d="M${cx + rr * Math.cos(0.5)} ${cy - rr * Math.sin(0.5)} l-9 -3 l4 9 z" fill="var(--data)"/>`);
+    parts.push(`<text x="${cx}" y="${cy + 24}" ${font} fill="var(--ink-3)" text-anchor="middle">Dc ${loc(String(D))}</text>`);
+    // Feed arrow
+    parts.push(`<line x1="${cx - 40}" y1="22" x2="${cx + 40}" y2="22" stroke="var(--accent)" stroke-width="1.5"/>`);
+    parts.push(`<path d="M${cx + 40} 22 l-10 -5 v10 z" fill="var(--accent)"/>`);
+    parts.push(`<text x="${cx + 48}" y="26" ${font} fill="var(--accent)">vf</text>`);
+    // ae dimension at the right edge of the material
+    const xd = 588;
+    parts.push(`<line x1="${xd}" y1="${pos === 'centre' ? y0 : dir === 'climb' ? y0 : y1}" x2="${xd}" y2="${pos === 'centre' ? y1 : dir === 'climb' ? cy + R : cy - R}" stroke="var(--ink-2)"/>`);
+    parts.push(`<text x="${xd - 6}" y="${pos === 'centre' ? cy + 4 : (dir === 'climb' ? (y0 + cy + R) / 2 : (y1 + cy - R) / 2) + 4}" ${font} fill="var(--ink-2)" text-anchor="end">ae ${loc(String(Math.round(ae * 100) / 100))}</text>`);
+    parts.push(`<text x="${cx + R + 12}" y="${cy - 6}" ${font} fill="var(--ink-2)">φe ${loc(fmt(phi, 3))}°</text>`);
+
+    // Chip thickness chart: h along the engaged arc, from entry to exit.
+    const gx = 60, gy = 300, gw = 540, gh = 90;
+    const sinKr = Math.sin(kr * DEG);
+    const hMax = fz * sinKr;
+    parts.push(`<text x="${gx}" y="${gy - 10}" ${font} fill="var(--ink-2)">${locale === 'tr' ? 'Kavrama boyunca talaş kalınlığı h (mm), girişten çıkışa' : 'Chip thickness h (mm) along the engagement, entry to exit'}</text>`);
+    parts.push(`<line x1="${gx}" y1="${gy + gh}" x2="${gx + gw}" y2="${gy + gh}" stroke="var(--line-strong)"/>`);
+    parts.push(`<line x1="${gx}" y1="${gy}" x2="${gx + gw}" y2="${gy}" stroke="var(--line)" stroke-dasharray="3 4"/>`);
+    parts.push(`<text x="${gx - 6}" y="${gy + 4}" ${font} fill="var(--ink-3)" text-anchor="end">${loc(fmt(hMax, 3))}</text>`);
+    parts.push(`<text x="${gx - 6}" y="${gy + gh + 4}" ${font} fill="var(--ink-3)" text-anchor="end">0</text>`);
+    let d = '';
+    const N = 120;
+    for (let i = 0; i <= N; i++) {
+      const a = a0 + (i / N) * (a1 - a0);
+      const h = fz * sinKr * Math.cos(a);
+      const x = gx + (i / N) * gw;
+      const y = gy + gh - (hMax > 0 ? (h / hMax) * gh : 0);
+      d += (i ? ' L' : 'M') + `${x.toFixed(1)} ${y.toFixed(1)}`;
+    }
+    parts.push(`<path d="${d} L${gx + gw} ${gy + gh} L${gx} ${gy + gh} Z" fill="color-mix(in oklab, var(--accent) 18%, transparent)" stroke="none"/>`);
+    parts.push(`<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2"/>`);
+    // hex marker
+    const hexY = gy + gh - (hMax > 0 ? (hex / hMax) * gh : 0);
+    parts.push(`<line x1="${gx}" y1="${hexY}" x2="${gx + gw}" y2="${hexY}" stroke="var(--data)" stroke-dasharray="5 4"/>`);
+    parts.push(`<text x="${gx + gw}" y="${hexY - 6}" ${font} fill="var(--data)" text-anchor="end">hex ${loc(fmt(hex, 3))}</text>`);
+    parts.push(`<text x="${gx}" y="${gy + gh + 18}" ${font} fill="var(--ink-3)">0°</text>`);
+    parts.push(`<text x="${gx + gw}" y="${gy + gh + 18}" ${font} fill="var(--ink-3)" text-anchor="end">${loc(fmt(phi, 3))}°</text>`);
+    svg.innerHTML = parts.join('');
+  }
+
+  root.querySelectorAll('input, select').forEach((el) => el.addEventListener('input', render));
+  render();
+</script>

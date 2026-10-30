@@ -1,0 +1,120 @@
+---
+key: chip-formation
+locale: tr
+slug: talas-olusumu
+title: 'Talaş oluşumu'
+description: 'Bir kesici kenar metal tabakasını nasıl talaşa dönüştürür? Dik kesme modeli, kayma düzlemi ve kayma açısı, talaş kalınlık oranı ve kayma birim şekil değişimi; Merchant ve Lee–Shaffer modellerinin öngördükleri.'
+section: 1
+subsection: chip-formation
+order: 1
+updated: 2026-10-11
+tools: [turning]
+glance:
+  - value: 'r < 1'
+    label: 'Talaş kalınlık oranı h/hc: talaş her zaman tabakadan kalındır'
+  - value: '22,9°'
+    label: 'Ölçülen talaştan kayma açısı: α = 10°, h = 0,20 mm, hc = 0,50 mm'
+  - value: '2,59'
+    label: 'Aynı örnekte kayma birim şekil değişimi'
+  - value: '≈ %1'
+    label: 'Talaş açısındaki her derece için güç değişimi (Sandvik Coromant, frezeleme)'
+sources:
+  - label: 'M. E. Merchant, "Mechanics of the Metal Cutting Process. I. Orthogonal Cutting and a Type 2 Chip", Journal of Applied Physics 16(5), 267–275, 1945'
+    url: https://doi.org/10.1063/1.1707586
+  - label: 'E. H. Lee, B. W. Shaffer, "The Theory of Plasticity Applied to a Problem of Machining", Journal of Applied Mechanics 18, 405–413, 1951'
+  - label: 'S. Kalpakjian, S. R. Schmid, Manufacturing Engineering and Technology, SI 6. baskı, bölüm 21 (ders slaytları, King Saud Üniversitesi)'
+    url: https://fac.ksu.edu.sa/sites/default/files/5-machining_fundamentals_ams_may01_13.pdf
+  - label: 'King Saud Üniversitesi, "Mechanics of metal cutting" ders notları (talaş kalınlık oranı, kayma açısı, kayma birim şekil değişimi)'
+    url: https://faculty.ksu.edu.sa/sites/default/files/lecture-03-mechanics_of_metal_cutting_-_dr_saqib.pdf
+  - label: 'P. L. B. Oxley, M. J. M. Welsh, Cranfield Memo M&P 67 (Merchant''ın değiştirilmiş bağıntısı; sonraki araştırmacılar deneyle uyumunu tekrarlayamadı)'
+    url: https://dspace.lib.cranfield.ac.uk/bitstream/1826/10832/1/COA_M_M%2bP_67.pdf
+  - label: 'Sandvik Coromant, Metalcutting Technical Guide, frezeleme bölümü (talaş açısıyla güç değişimi)'
+    url: https://dcngli4g50fhp.cloudfront.net/userfiles/ad/sandvik/documents/sandvik_5747275_catalog.pdf
+---
+import ShearAngle from '../../../components/mdx/ShearAngle.astro';
+import LineChart from '../../../components/mdx/LineChart.astro';
+import { shearModels, shearStrain } from '../../../data/figures';
+
+Kesici kenar metali, baltanın odunu yardığı gibi ayırmaz; onu keser, yani kaydırır. Kenarın hemen önündeki malzeme sıkışır, kenardan serbest yüzeye uzanan dar bir bölge boyunca kayar ve geldiği tabakadan daha kalın ve daha kısa bir talaş olarak ayrılır. Talaşlı imalattaki geri kalan her şey — kuvvetler, ısı, takım aşınması, yüzey kalitesi — bu bölgede olanlardan doğar.
+
+## Dik kesme modeli
+
+Talaş oluşumunu incelemek için kesme, **dik kesmeye** (orthogonal cutting) indirgenir: kesme hızına dik, düz bir kenar sabit genişlikte bir tabaka kaldırır. Deformasyon bölgesi, kenardan iş parçası yüzeyine uzanan tek bir düzlem, yani **kayma düzlemi** olarak ele alınır.
+
+Geometriyi dört büyüklük tanımlar:
+
+- **h**, kesilmemiş talaş kalınlığı: tabakanın kesilmeden önceki kalınlığı. Tornalamada h = f · sin κr.
+- **hc**, oluşan talaşın kalınlığı.
+- **α**, takımın talaş açısı.
+- **φ**, kayma düzlemi ile kesme doğrultusu arasındaki kayma açısı.
+
+<Note kind="note" title="Semboller hakkında">
+Talaş oluşumu üzerine ders kitapları talaş açısını α ile gösterir. Takım açılarını tanımlayan ISO 3002 ise talaş açısını γ, serbest açıyı α ile gösterir. Klasik denklemler ders kitabı gösterimiyle yayımlandığı için bu sayfa o gösterimi kullanır.
+</Note>
+
+<Figure caption="Seçilen modele göre ölçekli çizilmiş dik kesme. Talaş açısını artırın ya da sürtünmeyi azaltın: kayma açısı büyür, kayma düzlemi kısalır, talaş incelir, birim şekil değişimi düşer. h = 1 sabit alınmıştır.">
+  <ShearAngle locale="tr" />
+</Figure>
+
+## Talaş kalınlık oranı
+
+Talaş her zaman kesilmemiş tabakadan kalındır. İkisinin oranı olan **talaş kalınlık oranı** 1'den küçüktür; tersi talaş sıkışma oranıdır.
+
+$$
+r = \frac{h}{h_c} = \frac{\sin\varphi}{\cos(\varphi-\alpha)}
+$$
+
+Kayma açısı kesme sırasında görülemez, ama talaş sonradan ölçülebilir. Aynı bağıntı düzenlenince ölçülen talaştan φ bulunur:
+
+$$
+\tan\varphi = \frac{r\cos\alpha}{1-r\sin\alpha}
+$$
+
+**Örnek.** α = 10° olan bir takım h = 0,20 mm kalınlığında bir tabaka kesiyor ve talaş hc = 0,50 mm ölçülüyor. Bu durumda r = 0,40; tan φ = 0,4 · cos 10° / (1 − 0,4 · sin 10°) = 0,423 ve φ ≈ 22,9°.
+
+## Kayma birim şekil değişimi
+
+Kayma düzleminden geçen her malzeme elemanı şu kadar kayar:
+
+$$
+\gamma = \cot\varphi + \tan(\varphi-\alpha)
+$$
+
+Yukarıdaki örnek için γ ≈ 2,59. Kayma açısı küçük olduğunda ya da talaş açısı düşük veya negatif olduğunda 5 ve üzeri kayma birim şekil değişimleri görülür. Küçük kayma açısı bu yüzden kalın talaş, uzun kayma düzlemi ve büyük şekil değişimi demektir; hepsi enerjiye mal olur.
+
+<Figure caption="Yukarıdaki formülden üç talaş açısı için kayma açısına göre kayma birim şekil değişimi. Her eğrinin en küçük değeri φ = 45° + α/2'dedir; bunun altında birim şekil değişimi dik biçimde artar ve daha küçük bir talaş açısı tüm eğriyi yukarı kaldırır. Nokta örnektir.">
+  <LineChart locale="tr" series={shearStrain("tr")} marks={[{ x: 22.94, y: 2.59, label: "φ 22,9°, γ 2,59", place: "ne" }]} hlines={[{ y: 5, label: "γ = 5" }]} xMin={8} xMax={60} yMin={0} yMax={10} xTicks={[10, 20, 30, 40, 50, 60]} yTicks={[0, 2, 4, 6, 8, 10]} xLabel="kayma açısı φ (°)" yLabel="kayma birim şekil değişimi γ" endLabels={false} xDec={1} yDec={2} aria="−10°, 0° ve +10° talaş açıları için kayma açısına göre kayma birim şekil değişimi" />
+</Figure>
+
+## Kayma açısını öngörmek
+
+İki klasik model φ'yi talaş açısından ve talaş yüzeyindeki sürtünmeden öngörmeye çalışır. Sürtünme, μ = tan β olmak üzere sürtünme açısı β ile ifade edilir.
+
+**Merchant (1945)**, kayma düzleminin kesme kuvvetinin en küçük olduğu yere yerleştiğini varsaydı:
+
+$$
+\varphi = 45^\circ + \frac{\alpha}{2} - \frac{\beta}{2}
+$$
+
+**Lee ve Shaffer (1951)** talaşı ideal plastik malzeme olarak ele aldı ve kayma düzlemini en büyük kayma gerilmesi doğrultusuna yerleştirdi:
+
+$$
+\varphi = 45^\circ + \alpha - \beta
+$$
+
+İki model de her etkinin yönünde hemfikirdir. Büyük talaş açısı φ'yi artırır; daha fazla sürtünme onu düşürür. Büyük φ daha kısa kayma düzlemi, daha ince talaş, daha az şekil değişimi ve daha düşük kuvvet demektir.
+
+<Note kind="warn" title="Modelleri yön için kullanın, sayı için değil">
+Merchant'ın, iş malzemesinin kayma dayanımını hidrostatik gerilmeye bağlı kabul eden değiştirilmiş bağıntısı kendi deneyleriyle doğrulandı, ama sonraki araştırmacılar aynı uyumu elde edemedi. Talaş yüzeyindeki sürtünme katsayısı da nadiren bilinir: varsayılan μ = 0,6 ile yukarıdaki örnek Merchant'a göre φ = 34,5°, Lee–Shaffer'a göre 24,0° verir; ölçülen değer 22,9°'dir. Uygulamada kayma açısı öngörülmez, talaştan ölçülür.
+</Note>
+
+<Figure caption="Merchant ile Lee ve Shaffer'in öngördüğü kayma açısı, talaş açısı α'ya göre; sürtünme katsayısı μ = 0,6 (β ≈ 31°) için. Nokta, yukarıdaki örnekte ölçülen değerdir (α = 10°, φ = 22,9°). İki model de eğilimi doğru verir, ölçülen değeri hiçbiri tutturamaz. İki doğruyu okumak için üzerine gelin.">
+  <LineChart locale="tr" series={shearModels('tr')} marks={[{ x: 10, y: 22.9, label: 'ölçülen 22,9°' }]} xMin={-10} xMax={30} yMin={0} yMax={60} xTicks={[-10, 0, 10, 20, 30]} yTicks={[0, 10, 20, 30, 40, 50, 60]} xLabel="talaş açısı α (°)" yLabel="kayma açısı φ (°)" xDec={1} yDec={1} aria="Talaş açısına göre kayma açısı, Merchant ve Lee–Shaffer" />
+</Figure>
+
+## Tezgâhta bunun anlamı
+
+- **Daha pozitif talaş açısı, daha az kuvvet.** Talaş açısını artırmak φ'yi artırır; bu da kesme kuvvetini ve gücü düşürür. Sandvik Coromant frezeleme için pratik bir kural verir: talaş açısındaki her bir derecelik değişim güç tüketimini yaklaşık %1 değiştirir.
+- **Dayanım için negatif talaş açısı.** Negatif talaş açısı sert malzemeler ve kesintili kesmeler için daha dayanıklı bir kenar sağlar; bedeli daha fazla kuvvet ve güçtür.
+- **Düşük sürtünme yardımcı olur.** Keskin, pürüzsüz ya da kaplamalı bir talaş yüzeyi ve etkili kesme sıvısı β'yı düşürür, φ'yi artırır.
+- **Talaş bir yere gitmeli.** Uzun bir şerit hâlinde mi çıkacağı yoksa kısa parçalara mı kırılacağı malzemeye, hıza ve talaş kırıcıya bağlıdır. Talaşın sonrasında ne olduğunu görmek için [talaş tipleri](/tr/temeller/talas-tipleri/) sayfasına bakın.

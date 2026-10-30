@@ -1,0 +1,96 @@
+---
+/**
+ * Reading an ISO metric thread designation (article text, ISO 965-1): M, nominal diameter,
+ * × pitch for fine threads, tolerance class after a dash (pitch-diameter class before
+ * crest-diameter class when they differ; internal / external), length of engagement S, N or L,
+ * LH for left hand. What is not written is shown dashed with the value that then applies.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const dec = (s: string) => (tr ? s.replace('.', ',') : s);
+type Tok = { t: string; k: 'm' | 'd' | 'p' | 'c' | 'l' | 'h'; cap: string; txt: string; implicit?: boolean };
+const L = tr
+  ? { kind: 'diş türü', m: 'Metrik ISO dişi', d: 'anma çapı', p: 'adım', c: 'tolerans sınıfı', l: 'kavrama boyu', h: 'diş yönü', not: 'yazılmamış', pick: 'Örnek gösterimler' }
+  : { kind: 'thread type', m: 'ISO metric thread', d: 'nominal diameter', p: 'pitch', c: 'tolerance class', l: 'length of engagement', h: 'hand', not: 'not written', pick: 'Example designations' };
+const ex: { code: string; toks: Tok[] }[] = [
+  { code: 'M10', toks: [
+    { t: 'M', k: 'm', cap: L.kind, txt: L.m },
+    { t: '10', k: 'd', cap: L.d, txt: 'd = 10 mm' },
+    { t: `× ${dec('1.5')}`, k: 'p', cap: L.p, txt: tr ? 'normal adım; yazılmaz' : 'coarse pitch; not written', implicit: true },
+    { t: '-6H/6g', k: 'c', cap: L.c, txt: tr ? 'orta kalite: somunda 6H, cıvatada 6g' : 'medium quality: 6H for a nut, 6g for a bolt', implicit: true },
+    { t: '-N', k: 'l', cap: L.l, txt: tr ? 'normal; yazılmamışsa geçerli' : 'normal; applies when nothing is written', implicit: true },
+  ] },
+  { code: `M10 × ${dec('1.25')}`, toks: [
+    { t: 'M', k: 'm', cap: L.kind, txt: L.m },
+    { t: '10', k: 'd', cap: L.d, txt: 'd = 10 mm' },
+    { t: `× ${dec('1.25')}`, k: 'p', cap: L.p, txt: tr ? 'ince adım: her zaman yazılır' : 'fine pitch: always written' },
+    { t: '-6H/6g', k: 'c', cap: L.c, txt: tr ? 'orta kalite: somunda 6H, cıvatada 6g' : 'medium quality: 6H for a nut, 6g for a bolt', implicit: true },
+    { t: '-N', k: 'l', cap: L.l, txt: tr ? 'normal; yazılmamışsa geçerli' : 'normal; applies when nothing is written', implicit: true },
+  ] },
+  { code: 'M20 × 2-6H/5g6g', toks: [
+    { t: 'M', k: 'm', cap: L.kind, txt: L.m },
+    { t: '20', k: 'd', cap: L.d, txt: 'd = 20 mm' },
+    { t: '× 2', k: 'p', cap: L.p, txt: tr ? `ince adım (normal adım ${dec('2.5')})` : `fine pitch (coarse is ${dec('2.5')})` },
+    { t: '-6H', k: 'c', cap: tr ? 'iç diş (somun)' : 'internal thread (nut)', txt: tr ? '6H, bölüm dairesi ve diş üstü çapı için' : '6H for pitch and crest diameter' },
+    { t: '/5g6g', k: 'c', cap: tr ? 'dış diş (cıvata)' : 'external thread (bolt)', txt: tr ? '5g bölüm dairesi çapı, 6g diş üstü çapı' : '5g pitch diameter, 6g crest diameter' },
+    { t: '-N', k: 'l', cap: L.l, txt: tr ? 'normal; yazılmamışsa geçerli' : 'normal; applies when nothing is written', implicit: true },
+  ] },
+  { code: `M6 × ${dec('0.75')}-5h6h-S-LH`, toks: [
+    { t: 'M', k: 'm', cap: L.kind, txt: L.m },
+    { t: '6', k: 'd', cap: L.d, txt: 'd = 6 mm' },
+    { t: `× ${dec('0.75')}`, k: 'p', cap: L.p, txt: tr ? 'ince adım (normal adım 1)' : 'fine pitch (coarse is 1)' },
+    { t: '-5h6h', k: 'c', cap: tr ? 'dış diş' : 'external thread', txt: tr ? '5h bölüm dairesi çapı, 6h diş üstü çapı' : '5h pitch diameter, 6h crest diameter' },
+    { t: '-S', k: 'l', cap: L.l, txt: tr ? 'kısa' : 'short' },
+    { t: '-LH', k: 'h', cap: L.h, txt: tr ? 'sol diş' : 'left hand' },
+  ] },
+];
+---
+<div class="tcode" data-tcode>
+  <div class="pick" role="radiogroup" aria-label={L.pick}>
+    {ex.map((e, i) => <button type="button" role="radio" aria-checked={i === 2 ? 'true' : 'false'} data-i={i}>{e.code}</button>)}
+  </div>
+  {ex.map((e, i) => (
+    <div class="ex" data-ex={i} hidden={i !== 2}>
+      <ol class="toks" aria-label={e.code}>
+        {e.toks.map((k) => (
+          <li class:list={['tok', `k-${k.k}`, { imp: k.implicit }]}>
+            <span class="big">{k.t}</span>
+            <span class="cap">{k.implicit ? `${k.cap} · ${L.not}` : k.cap}</span>
+            <span class="txt">{k.txt}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tcode]').forEach((root) => {
+    root.querySelectorAll<HTMLButtonElement>('[data-i]').forEach((b) => b.addEventListener('click', () => {
+      root.querySelectorAll<HTMLElement>('[data-ex]').forEach((x) => (x.hidden = x.dataset.ex !== b.dataset.i));
+      root.querySelectorAll('[data-i]').forEach((x) => x.setAttribute('aria-checked', String(x === b)));
+    }));
+  });
+</script>
+
+<style>
+  .tcode { display: grid; gap: 1rem; padding: 1rem 1.1rem 1.1rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .pick button { font-family: var(--font-mono); font-size: 0.82rem; padding: 0.3rem 0.75rem; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink-2); transition: border-color 150ms, color 150ms, background-color 150ms; }
+  .pick button:hover { border-color: var(--ink-3); color: var(--ink); }
+  .pick button[aria-checked="true"] { border-color: var(--accent); color: var(--ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+  .ex[hidden] { display: none; }
+  .toks { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1rem 0.25rem; align-items: start; }
+  .tok { margin: 0; display: grid; gap: 0.3rem; min-width: 0; max-width: 10.5rem; padding-right: 0.5rem; animation: tok-in 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .tok::before { content: none; }
+  .tok:nth-child(2) { animation-delay: 40ms; } .tok:nth-child(3) { animation-delay: 80ms; } .tok:nth-child(4) { animation-delay: 120ms; } .tok:nth-child(5) { animation-delay: 160ms; } .tok:nth-child(6) { animation-delay: 200ms; }
+  @keyframes tok-in { from { opacity: 0; transform: translateY(6px); } }
+  @media (prefers-reduced-motion: reduce) { .tok { animation: none; } }
+  .big { font-family: var(--font-mono); font-size: clamp(1.6rem, 4.2vw, 2.15rem); line-height: 1.05; color: var(--ink); white-space: nowrap; padding-bottom: 0.35rem; border-bottom: 2px solid var(--c); }
+  .imp .big { color: var(--ink-3); border-bottom-style: dashed; }
+  .cap { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--c); }
+  .txt { font-size: 0.82rem; color: var(--ink-2); line-height: 1.3; }
+  .imp .txt { color: var(--ink-3); }
+  .k-m { --c: var(--ink-2); } .k-d { --c: #e2601a; } .k-p { --c: #1e6fd6; } .k-c { --c: #7a4fd0; } .k-l { --c: #13998a; } .k-h { --c: #be6299; }
+</style>

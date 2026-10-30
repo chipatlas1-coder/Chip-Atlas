@@ -1,0 +1,60 @@
+---
+/**
+ * S355 quality grades as required Charpy impact energy against test temperature (article table,
+ * EN 10025-2): JR 27 J at +20 °C, J0 27 J at 0 °C, J2 27 J at −20 °C, K2 40 J at −20 °C.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const G = [
+  { g: 'JR', t: 20, e: 27, no: '1.0045' },
+  { g: 'J0', t: 0, e: 27, no: '1.0553' },
+  { g: 'J2', t: -20, e: 27, no: '1.0577' },
+  { g: 'K2', t: -20, e: 40, no: '1.0596' },
+];
+const W = 420, L = 40, R = 16, T = 30, B = 66, H = 290;
+const X = (t: number) => L + ((t + 30) / 70) * (W - L - R);
+const Y = (e: number) => T + (1 - e / 50) * (H - T - B);
+const deg = (t: number) => `${t > 0 ? '+' : t < 0 ? '−' : ''}${Math.abs(t)} °C`;
+const Lb = tr
+  ? { x: 'deney sıcaklığı', y: 'en az darbe enerjisi KV (J)', cold: 'daha soğuk deney: daha tok sınıf', aria: 'S355 kalite sınıfları: deney sıcaklığına göre en az darbe enerjisi' }
+  : { x: 'test temperature', y: 'minimum impact energy KV (J)', cold: 'colder test: tougher grade', aria: 'S355 quality grades: minimum impact energy against test temperature' };
+---
+<div class="impact">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={Lb.aria}>
+    <defs>
+      <linearGradient id={`ig-${locale}`} x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#276ede" /><stop offset="0.5" stop-color="#949da6" /><stop offset="1" stop-color="#d4520f" />
+      </linearGradient>
+    </defs>
+    {[0, 10, 20, 30, 40, 50].map((e) => <g><line x1={L} x2={W - R} y1={Y(e)} y2={Y(e)} class="grid" /><text x={L - 8} y={Y(e) + 4} text-anchor="end" class="tick">{e}</text></g>)}
+    {[-30, -20, -10, 0, 10, 20, 30, 40].map((t, i) => <g><line x1={X(t)} x2={X(t)} y1={T} y2={H - B} class="grid" /><text x={X(t)} y={H - B + 18} text-anchor="middle" class="tick">{t > 0 ? '+' : t < 0 ? '−' : ''}{Math.abs(t)}</text></g>)}
+    <rect x={L} y={H - B + 30} width={W - L - R} height="6" rx="3" fill={`url(#ig-${locale})`} />
+    <text x={L} y={T - 12} class="ax">{Lb.y}</text>
+    <text x={W - R} y={H - 12} text-anchor="end" class="ax">{Lb.x} (°C)</text>
+    <line x1={X(16)} x2={X(-16)} y1={Y(47)} y2={Y(47)} class="arrow" marker-end="url(#ca-arr-data)" />
+    <text x={X(0)} y={Y(47) - 8} text-anchor="middle" class="note">{Lb.cold}</text>
+    {G.map((g) => (
+      <g>
+        <line x1={X(g.t)} x2={X(g.t)} y1={Y(g.e)} y2={Y(0)} class="stem" />
+        <circle cx={X(g.t)} cy={Y(g.e)} r="7" class="dot" />
+        <text x={X(g.t) + 12} y={Y(g.e) + (g.g === 'J2' ? 24 : -10)} class="gl">S355{g.g}</text>
+        <text x={X(g.t) + 12} y={Y(g.e) + (g.g === 'J2' ? 38 : 6)} class="gv">{g.e} J · {deg(g.t)}</text>
+      </g>
+    ))}
+  </svg>
+</div>
+
+<style>
+  .impact svg { width: 100%; max-width: 600px; margin: 0 auto; height: auto; display: block; }
+  .grid { stroke: var(--line); }
+  .tick { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-3); }
+  .ax { font-size: 10.5px; fill: var(--ink-3); }
+  .stem { stroke: #656e74; stroke-width: 1; stroke-dasharray: 2 3; }
+  .dot { fill: #1b1d1e; stroke: #fbfdff; stroke-width: 2.5; }
+  .gl { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; fill: var(--ink); paint-order: stroke; stroke: var(--bg); stroke-width: 4px; }
+  .gv { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-2); paint-order: stroke; stroke: var(--bg); stroke-width: 4px; }
+  .arrow { stroke: #1e6fd6; stroke-width: 1.6; }
+  .note { font-size: 10.5px; fill: var(--color-metro-400); }
+  @media (max-width: 40rem) { .tick { font-size: 12px; } .ax, .note { font-size: 12.5px; } .gl { font-size: 13px; } .gv { font-size: 12px; } }
+</style>

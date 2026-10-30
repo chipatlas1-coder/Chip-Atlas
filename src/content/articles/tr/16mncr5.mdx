@@ -1,0 +1,106 @@
+---
+key: 16mncr5
+locale: tr
+slug: 16mncr5
+title: '16MnCr5 — 1.7131 sementasyon çeliği'
+description: 'Mangan-krom sementasyon çeliği 16MnCr5: gösterimler, kimyasal bileşim, teslim durumlarında sertlik, karbürleme ve sertleştirme sıcaklıkları, kaynak kabiliyeti ve talaşlı işleme — ve çekirdek dayanımının neden tek bir değeri olmadığı.'
+section: 6
+subsection: steels
+order: 4
+updated: 2026-10-11
+tools: [turning, milling]
+glance:
+  - value: '0,14–0,19'
+    unit: '% C'
+    label: 'Karbon içeriği, EN ISO 683-3'
+  - value: '880–980'
+    unit: '°C'
+    label: 'Karbürleme sıcaklığı'
+  - value: '57–64'
+    unit: 'HRC'
+    label: 'Sementasyon sonrası yüzey sertliği (Lucefin)'
+  - value: '5115'
+    label: 'Yaklaşık AISI/SAE eşdeğeri'
+sources:
+  - label: 'EN ISO 683-3:2022, Heat-treatable steels — Part 3: Case-hardening steels (SIS katalog sayfası)'
+    url: https://www.sis.se/en/produkter/metallurgy/iron-and-steel-products/stainless-steels/ss-en-iso-683-32022/
+  - label: 'EN ISO 683-3:2022 (iTeh katalog kaydı)'
+    url: https://iteh.es/catalog/standards/cen/4b5d9cfd-6f83-4fec-9ebd-c397d5e8a2d3/en-iso-683-3-2022
+  - label: 'DIN EN ISO 683-3:2019-04 (DIN Media; yerini 2022-06 baskısı aldı)'
+    url: https://dinmedia.de/en/standard/din-en-iso-683-3/301622813
+  - label: 'Deutsche Edelstahlwerke, Carbodur 7131 / 7139 (16MnCr5 / 16MnCrS5) veri sayfası, 2016'
+    url: https://swisssteel-group.com/content-media/documents/Data-Sheets/Engineering-Steel/1.7131_1.7139_de.pdf
+  - label: 'Saarstahl, Werkstoffdatenblatt 16MnCr5 / 16MnCrS5'
+    url: https://www.saarstahl.com/app/uploads/2024/03/20160318114954-16MnCr5-16MnCrS5-.pdf
+  - label: 'Lucefin, teknik kart 16MnCr5 (ISO 683-3:2018), 2024'
+    url: https://lucefin.com/wp-content/uploads/2025/01/ENG-16MnCr5.pdf
+  - label: 'Ovako, Steel Navigator: 16MnCr5'
+    url: https://steelnavigator.ovako.com/steel-grades/16mncr5/
+---
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { mncrHeat } from '../../../data/steel-charts';
+import CaseRoute from '../../../components/mdx/CaseRoute.astro';
+
+16MnCr5, sementasyon için yapılmış düşük karbonlu bir mangan-krom çeliğidir. Karbürleme ince bir yüzey tabakasına karbon ekler; bu tabaka su verildiğinde sertleşirken düşük karbonlu çekirdek tok kalır. Sonuç, tok bir çekirdek üzerinde sert ve aşınmaya dayanıklı bir yüzeydir.
+
+## Gösterimler
+
+| Ad | Numara | Not |
+|---|---|---|
+| 16MnCr5 | 1.7131 | Temel kalite |
+| 16MnCrS5 | 1.7139 | Tanımlı kükürt aralığı %0,020–0,040; Deutsche Edelstahlwerke'ye göre talaşlı işlemeye özellikle uygun |
+
+Yaklaşık eşdeğer: AISI/SAE **5115**. JIS eşdeğeri doğrulanamadı.
+
+Geçerli standart **EN ISO 683-3:2022**'dir. 2019 ve 2018 baskılarının, onlardan önce de EN 10084:2008'in yerini almıştır. Birçok üretici veri sayfası hâlâ EN 10084'e atıf yapar.
+
+## Kimyasal bileşim
+
+Döküm analizi, kütlece %, EN ISO 683-3:
+
+| C | Si | Mn | P en çok | S en çok | Cr | Cu en çok |
+|---|---|---|---|---|---|---|
+| 0,14–0,19 | 0,15–0,40 | 1,00–1,30 | 0,025 | 0,035 | 0,80–1,10 | 0,40 |
+
+16MnCrS5'te S %0,020–0,040'tır. %0,15'lik silisyum alt sınırı Ovako ve Lucefin'in EN ISO 683-3'e dayanan sayfalarında yer alır; EN 10084 yalnızca en çok %0,40 veriyordu.
+
+## Teslim durumlarında sertlik
+
+| Durum | Sertlik (HB) |
+|---|---|
+| +A, yumuşatma tavlaması yapılmış | en çok 207 |
+| +FP, ferrit-perlit yapı ve sertlik aralığı için işlem görmüş | 140–187 |
+| +N, normalize edilmiş | 138–187 |
+| +TH, sertlik aralığı için işlem görmüş | 156–207 (Deutsche Edelstahlwerke) |
+
+## Isıl işlem
+
+| Adım | Sıcaklık (°C) | Notlar |
+|---|---|---|
+| Karbürleme | 880–980 | |
+| Çekirdek sertleştirme | 860–900 | Yağ ya da polimer |
+| Kabuk sertleştirme | 780–820 | Saarstahl ve DEW; Lucefin 810–840 verir |
+| Menevişleme | 150–200 | |
+| Yumuşatma tavlaması | 650–700 | Ovako 670–710 |
+
+<Figure caption="Yukarıdaki tablodaki ısıl işlem sıcaklıkları. Kalın çubuk bu sayfanın kullandığı aralık, ince çubuklar tek tek üreticilerin bastığı değerlerdir. Okumak için bir çubuğun üzerine gelin.">
+  <RangeChart locale="tr" rows={mncrHeat("tr")} min={100} max={1000} ticks={[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]} unit="°C" axisLabel="Sıcaklık" aria="Isıl işlem sıcaklık aralıkları" />
+</Figure>
+
+Lucefin, karbürleme ve sertleştirmeden sonra yaklaşık 57–64 HRC yüzey sertliği verir.
+
+<Note kind="warn" title="Çekirdek dayanımının standart bir değeri yoktur">
+Sementasyondan sonra çekirdeğin dayanımı kesit ölçüsüne ve uygulanan ısıl işleme bağlıdır. Üreticilerin tavsiye değerleri uyuşmaz: 11 mm'lik bir kesit için Deutsche Edelstahlwerke Rm 880–1180 MPa (yürürlükten kalkmış DIN 17210'un kör sertleştirme tavsiye değerleri), Lucefin 1030–1370 MPa verir. Hiçbiri standardın bir şartı değildir. Parçanın ihtiyaç duyduğu çekirdek dayanımını belirtin ve deneyle doğrulayın.
+</Note>
+
+## Kaynak kabiliyeti
+
+Deutsche Edelstahlwerke 16MnCr5'i genel olarak kaynak edilebilir sayar. Lucefin, kaynağın karbürlemeden önce yapılmasını, 150–350 °C ön ısıtmayı ve yaklaşık 600 °C'de gerilim gidermeyi önerir.
+
+## Talaşlı işleme
+
+Talaşlı işleme normalde karbürlemeden önce, +A, +FP ya da +N durumunda yapılır; takımın gördüğü sertlik bu yüzden yukarıdaki aralıklardır. İşlenebilirliğin önemli olduğu yerlerde kontrollü kükürtlü 16MnCrS5 ya da Ovako'nun kalsiyumla işlem görmüş sürümü sunulur. Sementasyondan sonra bitirme taşlama ya da sert tornalama ile yapılır. ISO 513'te yumuşak çelik P grubuna, sertleştirilmiş yüzey H grubuna girer.
+
+<Figure caption="Sementasyonla sertleştirilen bir parçanın yolu, bu sayfada anlatılan sırayla; sıcaklık ve sertlik değerleri yukarıdaki tablolardandır.">
+  <CaseRoute locale="tr" />
+</Figure>

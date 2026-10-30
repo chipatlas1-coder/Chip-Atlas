@@ -1,0 +1,72 @@
+---
+/**
+ * Typical Ra by machining process: a matrix of "average application" and "less frequent application" cells,
+ * transcribed from the chart in Autodesk Inventor 2020 help ("Press Fit Surface Quality"), an ASME B46.1-style chart.
+ * Single source; cell boundaries are approximate by nature of the chart.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const cols = [50, 25, 12.5, 6.3, 3.2, 1.6, 0.8, 0.4, 0.2, 0.1, 0.05, 0.025];
+type Row = { en: string; tr: string; avg: number[]; less: number[] };
+const rows: Row[] = [
+  { en: 'Sawing', tr: 'Testere ile kesme', avg: [25, 12.5, 6.3, 3.2], less: [50, 1.6] },
+  { en: 'Planing, shaping', tr: 'Planya, vargel', avg: [12.5, 6.3, 3.2], less: [25, 1.6, 0.8] },
+  { en: 'Drilling', tr: 'Delme', avg: [6.3, 3.2], less: [12.5, 1.6] },
+  { en: 'Milling', tr: 'Frezeleme', avg: [6.3, 3.2, 1.6], less: [25, 12.5, 0.8, 0.4] },
+  { en: 'Broaching', tr: 'Broşlama', avg: [3.2, 1.6], less: [6.3, 0.8] },
+  { en: 'Reaming', tr: 'Raybalama', avg: [3.2, 1.6], less: [6.3, 0.8] },
+  { en: 'Boring, turning', tr: 'Tornalama, delik tornalama', avg: [6.3, 3.2, 1.6, 0.8], less: [25, 12.5, 0.4, 0.2, 0.1, 0.05] },
+  { en: 'Roller burnishing', tr: 'Rulo ile ezme (roleleme)', avg: [0.4], less: [0.8, 0.2] },
+  { en: 'Grinding', tr: 'Taşlama', avg: [1.6, 0.8, 0.4, 0.2], less: [6.3, 3.2, 0.1, 0.05] },
+  { en: 'Honing', tr: 'Honlama', avg: [0.8, 0.4, 0.2], less: [1.6, 0.1, 0.05] },
+  { en: 'Polishing', tr: 'Polisaj', avg: [0.4, 0.2], less: [0.8, 0.1, 0.05, 0.025] },
+  { en: 'Lapping', tr: 'Lepleme', avg: [0.4, 0.2], less: [0.8, 0.1, 0.05, 0.025] },
+  { en: 'Superfinishing', tr: 'Süperfiniş', avg: [0.2, 0.1, 0.05], less: [0.8, 0.4, 0.025] },
+];
+const dec = (v: number) => (tr ? String(v).replace('.', ',') : String(v));
+---
+<div class="rap" role="table" aria-label={tr ? 'Proseslere göre tipik Ra aralıkları' : 'Typical Ra ranges by process'}>
+  <div class="r head" role="row">
+    <span role="columnheader">{tr ? 'Proses' : 'Process'}</span>
+    {cols.map((c) => <span class="c num" role="columnheader">{dec(c)}</span>)}
+  </div>
+  {rows.map((r) => (
+    <div class="r" role="row">
+      <span class="p" role="rowheader">{tr ? r.tr : r.en}</span>
+      {cols.map((c) => (
+        <span role="cell" class:list={['cell', { avg: r.avg.includes(c), less: r.less.includes(c) }]} aria-label={r.avg.includes(c) ? (tr ? 'olağan' : 'average') : r.less.includes(c) ? (tr ? 'daha seyrek' : 'less frequent') : ''}></span>
+      ))}
+    </div>
+  ))}
+  <div class="legend">
+    <span><i class="cell avg"></i> {tr ? 'olağan uygulama' : 'average application'}</span>
+    <span><i class="cell less"></i> {tr ? 'daha seyrek uygulama' : 'less frequent application'}</span>
+    <span class="unit">{tr ? '← daha kaba · Ra (µm) · daha ince →' : '← rougher · Ra (µm) · finer →'}</span>
+  </div>
+</div>
+
+<style>
+  .rap { display: grid; gap: 3px; font-size: 0.82rem; overflow-x: auto; }
+  .r { display: grid; grid-template-columns: minmax(8.5rem, 1.6fr) repeat(12, minmax(1.6rem, 1fr)); gap: 3px; align-items: center; min-width: 30rem; }
+  .head span { color: var(--ink-3); font-size: 0.72rem; text-align: center; }
+  .head span:first-child { text-align: left; }
+  .p { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cell { display: block; height: 1.15rem; border-radius: 2px; background: var(--bg-raised); }
+  .cell.avg { background: var(--data); }
+  .cell.less { background: color-mix(in oklab, var(--data) 35%, transparent); }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin-top: 0.5rem; color: var(--ink-3); font-size: 0.8rem; align-items: center; }
+  .legend i { display: inline-block; width: 1.2rem; height: 0.8rem; vertical-align: middle; margin-right: 0.3rem; }
+  .legend .unit { margin-left: auto; font-family: var(--font-mono); }
+  /* phones: name above each row, cells across the full width, every other size labelled */
+  @media (max-width: 40rem) {
+    .rap { overflow: visible; gap: 2px; }
+    .r { grid-template-columns: repeat(12, minmax(0, 1fr)); min-width: 0; gap: 2px; }
+    .p { grid-column: 1 / -1; margin-top: 0.4rem; font-size: 0.8rem; white-space: normal; }
+    .head span:first-child { display: none; }
+    .head span.c { font-size: 0.64rem; }
+    .head span.c:nth-child(odd) { visibility: hidden; }
+    .cell { height: 0.9rem; }
+    .legend .unit { margin-left: 0; }
+  }
+</style>

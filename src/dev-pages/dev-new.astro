@@ -1,0 +1,79 @@
+---
+// Development page for the night's new figures (not linked; moved aside before preview builds, deleted after).
+import Base from '../layouts/Base.astro';
+import Figure from '../components/mdx/Figure.astro';
+import Plate from '../components/plates/Plate.astro';
+import ChatterRegen from '../components/mdx/ChatterRegen.astro';
+import StabilityLobes from '../components/mdx/StabilityLobes.astro';
+import ChatterSpectrum from '../components/mdx/ChatterSpectrum.astro';
+import FaceMillPosition from '../components/mdx/FaceMillPosition.astro';
+import FaceKappa from '../components/mdx/FaceKappa.astro';
+import WiperFlat from '../components/mdx/WiperFlat.astro';
+import ChipSection from '../components/mdx/ChipSection.astro';
+import ChipOscillation from '../components/mdx/ChipOscillation.astro';
+import GcodePlayer from '../components/mdx/GcodePlayer.astro';
+import ChuckSpeed from '../components/mdx/ChuckSpeed.astro';
+import PartingCut from '../components/mdx/PartingCut.astro';
+import CoolantCheck from '../components/mdx/CoolantCheck.astro';
+import TrochoidSlot from '../components/mdx/TrochoidSlot.astro';
+import FluidTypes from '../components/mdx/FluidTypes.astro';
+import BallbarPlot from '../components/mdx/BallbarPlot.astro';
+import MqlFlow from '../components/mdx/MqlFlow.astro';
+import ToolAngles from '../components/mdx/ToolAngles.astro';
+import CutterComp from '../components/mdx/CutterComp.astro';
+import HolderClamp from '../components/mdx/HolderClamp.astro';
+import VernierRead from '../components/mdx/VernierRead.astro';
+import BueCycle from '../components/mdx/BueCycle.astro';
+import SpindleTaper from '../components/mdx/SpindleTaper.astro';
+import CoatingLayers from '../components/mdx/CoatingLayers.astro';
+import FixtureLocate from '../components/mdx/FixtureLocate.astro';
+import RunoutTeeth from '../components/mdx/RunoutTeeth.astro';
+---
+<Base locale="en" title="dev new" description="dev" path="/dev-new/" altPath="/tr/">
+  <main class="sheet" style="padding-block: 2rem">
+    <div style="max-width:760px"><Figure caption="coat dev"><CoatingLayers locale="en" /></Figure></div>
+    <div style="max-width:760px"><Figure caption="fixture dev"><FixtureLocate locale="en" /></Figure></div>
+    <div style="max-width: 32rem; display:grid; gap:1rem; margin-bottom:2rem" data-plates>
+      <Plate k="trochoidal-milling" locale="en" transition={false} />
+      <Plate k="chatter" locale="en" transition={false} />
+      <Plate k="chatter" locale="tr" transition={false} />
+      <Plate k="long-chips" locale="en" transition={false} />
+      <Plate k="gcode-motion" locale="en" transition={false} />
+      <Plate k="chuck-force" locale="en" transition={false} />
+      <Plate k="face-milling" locale="en" transition={false} />
+    </div>
+    <div class="body prose-article" style="max-width: 62rem">
+      <Figure caption="angles dev"><ToolAngles locale="en" /></Figure>
+      <Figure caption="taper dev"><SpindleTaper locale="en" /></Figure>
+      <Figure caption="bue dev"><BueCycle locale="en" /></Figure>
+      <Figure caption="vernier dev"><VernierRead locale="en" /></Figure>
+      <Figure caption="holder dev"><HolderClamp locale="en" /></Figure>
+      <Figure caption="comp dev"><CutterComp locale="en" /></Figure>
+      <Figure caption="comp dev tr"><CutterComp locale="tr" /></Figure>
+      <Figure caption="mql dev"><MqlFlow locale="en" /></Figure>
+      <Figure caption="ballbar dev"><BallbarPlot locale="en" /></Figure>
+      <Figure caption="fluid dev"><FluidTypes locale="en" /></Figure>
+      <Figure caption="fluid dev TR"><FluidTypes locale="tr" /></Figure>
+      <Figure caption="runout dev"><RunoutTeeth locale="en" /></Figure>
+      <Figure caption="troch dev"><TrochoidSlot locale="en" /></Figure>
+      <Figure caption="troch dev TR"><TrochoidSlot locale="tr" w={2} s={0.2} /></Figure>
+      <Figure caption="parting dev"><PartingCut locale="en" /></Figure>
+      <Figure caption="coolant dev"><CoolantCheck locale="en" /></Figure>
+      <Figure caption="chuck dev"><ChuckSpeed locale="en" fsp0={87} mc={0.197} n={4000} nScale={6000} nMarked={5000} fspz={10} /></Figure>
+      <Figure caption="gcode dev"><GcodePlayer locale="en" lines={['G90 G17', 'G00 X0 Y-10', 'G01 X40 Y-10 F200', 'G03 X60 Y10 I0 J20', 'G01 Y40', 'G02 X40 Y60 R20', 'G00 X0 Y0', 'M30']} notes={['abs', 'rapid', 'lin', 'ccw', 'lin', 'cw', 'rapid home', 'end']} /></Figure>
+      <Figure caption="osc EN"><ChipOscillation locale="en" /></Figure>
+      <Figure caption="osc TR"><ChipOscillation locale="tr" /></Figure>
+      <Figure caption="chipsec EN"><ChipSection locale="en" /></Figure>
+      <Figure caption="chipsec TR"><ChipSection locale="tr" /></Figure>
+      <Figure caption="regen EN"><ChatterRegen locale="en" /></Figure>
+      <Figure caption="wiper EN"><WiperFlat locale="en" /></Figure>
+      <Figure caption="kappa EN"><FaceKappa locale="en" /></Figure>
+      <Figure caption="kappa TR"><FaceKappa locale="tr" kr={90} /></Figure>
+      <Figure caption="fmpos EN"><FaceMillPosition locale="en" /></Figure>
+      <Figure caption="spectrum EN"><ChatterSpectrum locale="en" /></Figure>
+      <Figure caption="lobes EN"><StabilityLobes locale="en" /></Figure>
+      <Figure caption="lobes TR"><StabilityLobes locale="tr" /></Figure>
+      <Figure caption="regen TR"><ChatterRegen locale="tr" eps={180} /></Figure>
+    </div>
+  </main>
+</Base>

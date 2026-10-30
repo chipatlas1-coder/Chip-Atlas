@@ -1,0 +1,86 @@
+---
+/**
+ * Where the standard tap drill sits inside the 6H tolerance of the nut minor diameter D1,
+ * for every coarse thread whose TD1 is on file. 0 % = D1 min, 100 % = D1 max.
+ * Data: src/data/metric-threads.js (ISO 724 dimensions, DIN 336 drills, TD1(6) by pitch).
+ */
+import { COARSE, minor6H } from '../../data/metric-threads.js';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const rows = COARSE.map((c) => ({ c, l: minor6H(c.d, c.P) })).filter((r) => r.l).map(({ c, l }) => ({
+  name: `M${tr ? String(c.d).replace('.', ',') : c.d}`, drill: c.drill, min: l!.min, max: l!.max, pos: ((c.drill - l!.min) / (l!.max - l!.min)) * 100,
+}));
+const n = (v: number, k = 3) => (tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+const G = [false, true].map((narrow) => {
+  const W = narrow ? 360 : 640, L = narrow ? 46 : 52, R = narrow ? 58 : 118, T = 30, RH = narrow ? 21 : 19;
+  const H = T + rows.length * RH + 34;
+  const X = (p: number) => L + (p / 100) * (W - L - R);
+  return { narrow, W, L, R, T, RH, H, X };
+});
+const below = rows.filter((r) => r.pos < 50).length;
+---
+<div class="tapbands" data-tapbands>
+  {G.map(({ narrow, W, L, R, T, RH, H, X }) => (
+  <svg viewBox={`0 0 ${W} ${H}`} class={narrow ? 'narrow' : 'wide'} role="img" aria-label={tr ? `Standart matkapların 6H bandındaki konumu: ${rows.length} dişin ${below} tanesinde bandın ortasının altında` : `Position of the standard drill in the 6H band: below the middle for ${below} of ${rows.length} threads`}>
+    <text x={X(0)} y={T - 12} text-anchor={narrow ? 'start' : 'middle'} class="tick">D₁ min</text>
+    <text x={X(50)} y={T - 12} text-anchor="middle" class="tick">{tr ? 'orta' : 'middle'}</text>
+    <text x={X(100)} y={T - 12} text-anchor={narrow ? 'end' : 'middle'} class="tick">D₁ max</text>
+    <line x1={X(50)} y1={T - 4} x2={X(50)} y2={T + rows.length * RH} class="mid" />
+    {rows.map((r, i) => {
+      const y = T + i * RH;
+      return (
+        <g class="row" tabindex="0" role="img" aria-label={`${r.name}: ${tr ? 'matkap' : 'drill'} ${n(r.drill, 2)} mm, D1 ${n(r.min)}–${n(r.max)} mm, ${Math.round(r.pos)} %`}
+           data-t={`${n(r.drill, 2)} mm`} data-s={`${r.name}, D₁ ${n(r.min)} … ${n(r.max)} mm`} data-p={`${Math.round(r.pos)} %`}>
+          <rect class="hitrow" x="0" y={y} width={W} height={RH} />
+          <text x={L - 10} y={y + 13} text-anchor="end" class="lab">{r.name}</text>
+          <rect x={X(0)} y={y + 4} width={X(100) - X(0)} height={RH - 8} rx="4" class="band" />
+          <circle cx={X(r.pos)} cy={y + RH / 2} r="4.5" class="dot" />
+          <text x={W - 8} y={y + 13} text-anchor="end" class="val">{n(r.drill, 2)}</text>
+        </g>
+      );
+    })}
+    <text x={W - 8} y={T - 12} text-anchor="end" class="tick">{narrow ? (tr ? 'matkap' : 'drill') : tr ? 'matkap, mm' : 'drill, mm'}</text>
+  </svg>
+  ))}
+  <div class="tip" role="status" hidden><b data-tt></b><span data-ts></span><span data-tp></span></div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tapbands]').forEach((root) => {
+    const tip = root.querySelector<HTMLElement>('.tip')!;
+    const show = (g: SVGGElement) => {
+      (tip.querySelector('[data-tt]') as HTMLElement).textContent = g.dataset.t || '';
+      (tip.querySelector('[data-ts]') as HTMLElement).textContent = g.dataset.s || '';
+      (tip.querySelector('[data-tp]') as HTMLElement).textContent = g.dataset.p || '';
+      const rb = root.getBoundingClientRect(), dot = g.querySelector('circle')!.getBoundingClientRect();
+      tip.hidden = false;
+      tip.style.left = `${Math.min(rb.width - tip.offsetWidth - 4, Math.max(4, dot.left - rb.left - tip.offsetWidth / 2))}px`;
+      tip.style.top = `${Math.max(0, dot.top - rb.top - tip.offsetHeight - 8)}px`;
+      root.querySelectorAll('.row.on').forEach((r) => r.classList.remove('on'));
+      g.classList.add('on');
+    };
+    const hide = () => { tip.hidden = true; root.querySelectorAll('.row.on').forEach((r) => r.classList.remove('on')); };
+    root.querySelectorAll<SVGGElement>('.row').forEach((g) => { g.addEventListener('pointerenter', () => show(g)); g.addEventListener('focus', () => show(g)); g.addEventListener('blur', hide); });
+    root.addEventListener('pointerleave', hide);
+  });
+</script>
+
+<style>
+  .tapbands { position: relative; }
+  svg { width: 100%; height: auto; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } }
+  .tick { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); }
+  .lab { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-2); }
+  .val { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-2); }
+  .mid { stroke: var(--ink-3); stroke-dasharray: 3 4; }
+  .band { fill: color-mix(in oklab, #1e6fd6 22%, transparent); }
+  .dot { fill: #d4520f; stroke: var(--bg-sunk); stroke-width: 2; }
+  .hitrow { fill: transparent; }
+  .row { outline: none; cursor: crosshair; }
+  .row.on .hitrow, .row:focus-visible .hitrow { fill: color-mix(in oklab, var(--ink) 6%, transparent); }
+  .row.on .dot { r: 6; }
+  .tip { position: absolute; z-index: 2; pointer-events: none; display: grid; gap: 0.1rem; padding: 0.45rem 0.65rem; background: var(--bg-raised); border: 1px solid var(--line-strong); border-radius: 6px; font-size: 0.78rem; color: var(--ink-3); box-shadow: 0 8px 24px -6px rgba(21, 34, 48, 0.22); }
+  .tip b { font-family: var(--font-mono); font-size: 0.95rem; color: var(--ink); font-weight: 500; }
+</style>

@@ -1,0 +1,39 @@
+---
+/* Plateau-honed profile (left) and its material ratio curve (right) with the
+   ISO 13565-2 construction: 40 % secant of least gradient, Rk core, Rpk and Rvk triangles. */
+import { plateauProfile, rkFamily } from '../../../lib/profile.js';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const N = 320;
+const z = plateauProfile(N, 11);
+const k = rkFamily(z);
+const top = Math.max(...z), bot = Math.min(...z);
+const Y = (v: number) => 40 + ((top - v) / (top - bot)) * 230;
+const XP = (i: number) => 24 + (i / (N - 1)) * 196;
+const prof = z.map((v, i) => `${i ? 'L' : 'M'}${XP(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+const XM = (mr: number) => 260 + mr * 2;
+const curve = k.sorted.map((v, i) => `${i ? 'L' : 'M'}${XM(k.mr[i]).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+const z0 = k.z0, z100 = k.z100;
+const rpkTop = z0 + k.Rpk, rvkBot = z100 - k.Rvk;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <line class="h f" style="--i:0" x1="240" y1="28" x2="240" y2="292" stroke-opacity="0.4" />
+  <path class="b d" style="--i:1" pathLength="1" d={prof} />
+  <rect class="soft-data f" style="--i:4" x="260" y={Y(z0)} width="200" height={Y(z100) - Y(z0)} />
+  <path class="f" style="--i:5" d={`M260,${Y(rpkTop)} L260,${Y(z0)} L${XM(k.Mr1)},${Y(z0)} Z`} fill="#e2601a" fill-opacity="0.35" />
+  <path class="f" style="--i:5" d={`M460,${Y(rvkBot)} L460,${Y(z100)} L${XM(k.Mr2)},${Y(z100)} Z`} fill="#e2601a" fill-opacity="0.35" />
+  <path class="o d" style="--i:2" pathLength="1" d="M260,30 L260,280 L462,280" />
+  <path class="b d" style="--i:3" pathLength="1" d={curve} />
+  <line class="dash f" style="--i:5" x1="260" y1={Y(z0)} x2="460" y2={Y(z100)} />
+  <line class="h f" style="--i:6" x1={XM(k.Mr1)} y1={Y(z0)} x2={XM(k.Mr1)} y2="280" stroke-dasharray="3 3" />
+  <line class="h f" style="--i:6" x1={XM(k.Mr2)} y1={Y(z100)} x2={XM(k.Mr2)} y2="280" stroke-dasharray="3 3" />
+  <g class="lbl">
+    <text class="t-acc" x="266" y={Y(rpkTop) + 12}>Rpk</text>
+    <text class="t-data" x="372" y={(Y(z0) + Y(z100)) / 2 - 2}>Rk</text>
+    <text class="t-acc" x="404" y={Y(rvkBot) - 4}>Rvk</text>
+    <text class="t-sm" x={XM(k.Mr1) - 10} y="296">Mr1</text>
+    <text class="t-sm" x={XM(k.Mr2) - 10} y="296">Mr2</text>
+    <text class="t-sm" x="430" y="312">Mr %</text>
+    <text class="t-sm" x="26" y="300">{locale === 'tr' ? 'plato honlanmış profil' : 'plateau-honed profile'}</text>
+  </g>
+</svg>

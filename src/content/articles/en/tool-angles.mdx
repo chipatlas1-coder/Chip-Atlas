@@ -1,0 +1,95 @@
+---
+key: tool-angles
+locale: en
+slug: rake-clearance-wedge-angles
+title: 'Rake, clearance and wedge angles'
+description: 'The three angles of a cutting edge in the section square to it: how the rake angle γ, the clearance angle α and the wedge angle β are defined, why they add up to 90°, what a more positive or a negative rake does, what the clearance is for, the clearance letter in the insert code, and the honed edge.'
+section: 4
+subsection: tool-geometry
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'α + β + γ = 90°'
+    label: 'Clearance, wedge and rake angle together (Patras; Handwerk und Technik)'
+  - value: '≈ 1 %'
+    label: 'Less cutting power per degree of more positive rake (Mitsubishi; no conditions given)'
+  - value: '8–12°'
+    label: 'Clearance by work material in a German textbook table; other sources give 3–8°, 6–8° or 3–15°'
+  - value: 'N = 0°'
+    label: 'Clearance letter of a negative insert (Sumitomo; Mitsubishi); C = 7°, P = 11° (Sumitomo)'
+sources:
+  - label: 'Verlag Handwerk und Technik, sample pages of book no. 3030 (learning situations LS 1.1, LS 1.3, LS 3.2), pp. 16, 17 and 43, in German'
+    url: https://www.handwerk-technik.de/_files_media/probeseiten/3030_01.pdf
+  - label: 'University of Patras, Dept. of Mechanical & Aeronautical Engineering, G. Chryssolouris, K. Salonitis, Cutting Tool Geometry (course notes, in Greek)'
+    url: https://eclass.upatras.gr/modules/document/file.php/MECH1111/%CE%95%CE%BA%CF%80%CE%B1%CE%B9%CE%B4%CE%B5%CF%85%CF%84%CE%B9%CE%BA%CF%8C%20%CE%A5%CE%BB%CE%B9%CE%BA%CF%8C/Cutting%20Tool%20Geometry.pdf
+  - label: 'Veer Surendra Sai University of Technology (VSSUT), Dept. of Production Engineering, Theory of Metal Cutting (BPE 301), lecture notes'
+    url: https://vssut.ac.in/lecture_notes/lecture1424265177.pdf
+  - label: 'Mitsubishi Materials, Technical information: Function of Tool Features for Turning, rake angle'
+    url: https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/information/t_sukui.html
+  - label: 'Mitsubishi Materials, e-learning course 75, Advanced Turning: Tool geometry'
+    url: https://www.mmc-carbide.com/permanent/courses/75/tool-geometry.html
+  - label: 'Mitsubishi Materials, e-learning course 75, Advanced Turning: Importance of honing'
+    url: https://www.mmc-carbide.com/permanent/courses/75/importance-of-honing.html
+  - label: 'Mitsubishi Materials, e-learning course 85, Basic Turning: Insert turning identification code'
+    url: https://www.mmc-carbide.com/permanent/courses/85/insert-turning-identification-code.html
+  - label: 'Sumitomo Electric, General Catalog 2025–2026, p. 495, insert identification (relief angle)'
+    url: https://online.flippingbook.com/view/410142785/495/
+  - label: 'T.C. Millî Eğitim Bakanlığı, MEGEP, Alet Bileme İşlemleri (521MMI114), Ankara 2011, pp. 21 and 37, in Turkish'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/10121516_Alet_Bileme_YYlemleri.pdf
+  - label: 'Ankara Üniversitesi Açık Ders Malzemeleri, Torna tezgâhı ve torna işleri (resource 35038), in Turkish'
+    url: https://acikders.ankara.edu.tr/mod/resource/view.php?id=35038
+---
+import ToolAngles from '../../../components/mdx/ToolAngles.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Every cutting edge is a wedge, and three angles describe it in a section square to the edge. The lecture notes of VSSUT define the rake angle as the "Angle of inclination of rake surface from reference plane" and the clearance angle as the "Angle of inclination of clearance or flank surface from the finished surface". A German textbook from Verlag Handwerk und Technik puts the same in terms of the surfaces that bound each angle: the rake face and an imagined perpendicular to the cut surface enclose the rake angle γ, the cut surface and the flank enclose the clearance angle α, and the flank and the rake face enclose the wedge angle β, which gives the edge the stability it needs to cut.
+
+This page writes α for the clearance, β for the wedge and γ for the rake, as the Patras course notes, the German textbook and the Turkish vocational module do. Books on chip formation often write the rake angle as α instead; the [chip formation](/fundamentals/chip-formation/) page follows them, because the classic shear-angle equations are published that way.
+
+## Why they add up to 90°
+
+The Patras notes give the relation as α + β + γ = 90°, and the German textbook says that 90° in all is shared among the three angles. Make the rake negative, the book adds, and the total rises to somewhat over 90°. Its table shows what that means: for chilled cast iron it gives α 8°, β 97° and γ −15°. Clearance and wedge alone then come to 105°; counted with its sign, the rake brings the three back to 90°. That last step is this page's reading of the book's row.
+
+<Figure caption="A section square to the cutting edge, drawn from the two sliders: the rake angle γ from the reference line square to the machined surface, the clearance angle α between the flank and the machined surface, and the wedge angle β = 90° − α − γ that is left for the tool. Below 0°, γ tilts the rake face forward and the wedge grows beyond 90° − α. The arrow above the tool is the cutting direction of the tool relative to the work; in the drawing the tool stands still and the work slides past. The chip and the work are schematic; only the angles are drawn to value.">
+  <ToolAngles locale="en" />
+</Figure>
+
+## What the rake angle changes
+
+- **Force and power.** Mitsubishi: "Increasing rake angle by 1° in the positive (+) direction decreases cutting power by about 1%." The page gives no test conditions, and Mitsubishi's turning course states the same 1 % for cutting resistance. VSSUT: positive rake "helps reduce cutting force and thus cutting power requirement". The Turkish module of the Ministry of Education gives 8° to 10° as the normal rake of an HSS tool on steel; with less, it says, the chip presses harder on the tool. Sandvik Coromant gives a similar rule of thumb to Mitsubishi's; the [cutting forces](/fundamentals/cutting-forces/) page shows how ISCAR and Machining Doctor build it into the specific cutting force.
+- **Sharpness against strength.** Mitsubishi: "Increasing rake angle in the positive (+) direction improves sharpness.", and it lowers the strength of the cutting edge; in the negative direction the cutting resistance rises. VSSUT warns that too much rake "mechanically and thermally weakens the cutting edges", and the Turkish module adds that with too large a rake the wedge gets smaller and the tool dulls sooner.
+- **Temperature.** In the VSSUT notes a larger rake lowers the cutting temperature at first, but "too much increase in rake will raise the temperature again", because the wedge becomes thin. Of the sources read for this page, only VSSUT describes the reversal.
+- **The chip.** The shear angle "increases both directly and indirectly with the increase in tool rake angle" (VSSUT); the chip formation page gives the models. The German textbook ties a small rake to the torn chip of harder or more brittle materials, and Mitsubishi writes that the rake angle "has large effects on cutting resistance, chip disposal, cutting temperature and tool life".
+
+**Negative or positive.** Mitsubishi lists a negative rake for a "Hard workpiece." and "When cutting edge strength is required such as in interrupted cutting and uncut surface cutting.", and a positive rake for a "Soft workpiece.", when the "Workpiece is easily machined." and "When workpiece or the machine have poor rigidity." VSSUT gives negative rake "to increase edge-strength and life of the tool" and zero rake "to simplify design and manufacture of the form tools". The German textbook describes a negative rake as a scraping geometry for hard materials, and the Patras notes add that at high cutting speeds the rake is negative.
+
+## What the clearance angle is for
+
+The flank must not rub on the surface just cut. VSSUT gives the clearance "to avoid rubbing of the tool (flank) with the machined surface"; Mitsubishi writes that the side flank angle "avoids friction between the tool flank face and workpiece and leads the cutting edge into the component." The Turkish module of the Ministry of Education adds the other side: with too large a clearance the wedge angle shrinks and the tool dulls sooner, and milling teeth wear quickly and run noisily. A Turkish university text describes the optimum between the two: with cutting conditions unchanged, tool life first rises as the clearance and rake angles grow from zero, and falls after a maximum. Wear on the flank itself is covered on the [tool wear](/fundamentals/tool-wear/) page.
+
+How much clearance, the sources do not agree. VSSUT: it "must be positive", from 3° to 15° depending on the tool and work materials and the operation. The Patras notes give 6° to 8°, independent of the work and tool material, and the Turkish module 3° to 8° for machine construction steels. The German textbook's table changes it with the work material:
+
+| Work material (Handwerk und Technik) | Clearance α | Wedge β | Rake γ |
+|---|---|---|---|
+| Soft, e.g. aluminium alloys | 12° | 53° | 25° |
+| Firm, e.g. steel | 10° | 70° | 10° |
+| Hard and brittle, e.g. chilled cast iron | 8° | 97° | −15° |
+
+The textbook's table names no tool material, and no carbide maker's values by material were found for this page.
+
+## Clearance in the insert code
+
+On an indexable insert the clearance is the second letter of the ISO code. Sumitomo's list: N 0°, A 3°, B 5°, C 7°, P 11°, D 15°, E 20°, F 25° and G 30°, with O for special. Mitsubishi: "An insert with 0° clearance angle, which is shown by symbol N, is called a negative insert." and "An insert with a clearance angle other than 0° is called a positive insert." It adds that "Many turning inserts have clearance angles shown by symbols P, C and N.", and that a negative insert can have a chip breaker on one or both sides while a positive insert has it on one side only. With 0° on the insert itself, the clearance at the cut must come from how the holder tilts the insert. That is this page's reasoning: no source read for this page describes the tilt or gives the seat angle. To read a full designation, use the [insert code decoder](/tools/insert-code-decoder/).
+
+## The edge itself
+
+A sharp edge is often not left sharp. Mitsubishi names round and chamfer honing as the regular methods: "With the same honing width, round honing has higher cutting edge strength than chamfer honing.", and "The ideal honing width is generally about 50% of the feed rate." A wider hone makes the edge stronger but raises the cutting resistance, with a risk of vibration; for finishing at small depth and feed Mitsubishi uses a small hone, and "For soft workpiece materials such as aluminium alloys, a sharp cutting edge without honing needs to be used." No source read for this page states how much a hone or a land changes the effective rake.
+
+<CheckList id="tool-angles-before" locale="en" items={[
+  { icon: 'hard', title: 'Work material', check: 'How hard and how brittle the work is.', fix: 'Small or negative rake for hard work, larger rake for soft work (Mitsubishi; Handwerk und Technik).', src: 'Mitsubishi; Handwerk und Technik' },
+  { icon: 'edge', title: 'Interrupted cut', check: 'Interruptions, scale or an uncut skin.', fix: 'Negative rake where edge strength is needed (Mitsubishi); a larger hone for interrupted cutting (Mitsubishi).', src: 'Mitsubishi' },
+  { icon: 'align', title: 'Rigidity', check: 'A thin part or a light machine.', fix: 'Positive rake for poor rigidity of the workpiece or the machine (Mitsubishi).', src: 'Mitsubishi' },
+  { icon: 'depth', title: 'Clearance', check: 'Rubbing marks on the flank, or edges that dull fast.', fix: 'Enough clearance to stop the rubbing (VSSUT), not so much that the wedge gets weak (MEB).', src: 'VSSUT; MEB' },
+  { icon: 'feed', title: 'Hone', check: 'Edge preparation against the feed.', fix: 'About 50 % of the feed as hone width; no hone for aluminium alloys (Mitsubishi).', src: 'Mitsubishi' },
+]} />

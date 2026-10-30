@@ -1,0 +1,247 @@
+---
+key: thread-turning
+locale: tr
+slug: dis-tornalama
+title: 'Diş tornalama'
+description: 'Tornada diş kesici uçla diş açmak: hatveye eşit ilerleme ve iş mili enkoderi, tam profilli, kısmi profilli ve çok dişli uçlar, radyal, yanaktan, değiştirilmiş yanaktan ve dönüşümlü ilerleme, her pasonun derinliği (ISCAR’ın sabit talaş kesiti, √N kuralı, Mitsubishi tablosu), helis açısı ve 1,5°’lik altlık, kesme hızı, G76 çevrimi ve sık görülen hatalar.'
+section: 2
+subsection: turning
+order: 3
+updated: 2026-10-18
+tools: [turning]
+glance:
+  - value: 'f = P'
+    label: 'Devir başına ilerleme hatveye, tek ağızlı vidada adıma eşittir (ISCAR, Haas, Hoffmann)'
+  - value: 'Değiştirilmiş yanak'
+    label: 'ISCAR, Mitsubishi ve Kennametal’in önerdiği ilerleme yöntemi; sapma açısı üreticiye göre değişir'
+  - value: '≥ 0,05 mm'
+    label: 'Bir pasonun en küçük derinliği (ISCAR, Kennametal)'
+  - value: '1,5°'
+    label: 'Tutucuların çoğunun geldiği eğim (ISCAR, Kennametal, Korloy, Hoffmann)'
+sources:
+  - label: 'ISCAR, Threading Handbook (flip view), s. 22–23, 35–36, 43, 116–118, 120, 146–147'
+    url: https://iscar.com/Catalogs/flipview/reference-user-guides/Threading_Handbook/files/basic-html/page118.html
+  - label: 'ISCAR, Threading Catalog 62 ver. 3 (2023), kullanım kılavuzu “Thread turning”, flip view s. 28, 81–83'
+    url: https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page83.html
+  - label: 'ISCAR, “Threading Inserts Wear Troubleshooting”'
+    url: https://www.iscar.com/products.aspx/countryid/1/productid/12355
+  - label: 'ISCAR, “Types and Profiles of Threading Inserts”'
+    url: https://www.iscar.com/products.aspx/countryid/23/productid/58
+  - label: 'ISCAR, “Flank Clearance and Effective Inclination Angle”'
+    url: https://www.iscar.com/Products.aspx/CountryID/1/ProductId/60
+  - label: 'ISCAR E-Learning (Türkçe), “Diş açma” kursu: “Diş tornalama”, “İşleme metodları”, “Altlıklar”'
+    url: https://www.iscar.com/lms/tr/?p=518
+  - label: 'Kennametal, diş açma teknik verileri, s. C58–C68 (MSC Industrial Supply sitesinde)'
+    url: https://www1.mscdirect.com/images/solutions/kennametal/tnThreadingTechData.pdf
+  - label: 'Mitsubishi Materials, “Standard of depth of cut, external (radial infeed)”, ISO 60°'
+    url: https://www.mitsubishicarbide.net/contents/mhg/pl/html/product/product_guide/information/turning/threding_ex_01iso60.html
+  - label: 'Mitsubishi Materials, teknik bilgi “Threading methods”'
+    url: https://www.mmc-carbide.com/us/technical_information/tec_turning_tools/tec_threading/guide/tec_threading_methods
+  - label: 'Mitsubishi Materials, “Threading depth”'
+    url: https://mitsubishicarbide.net/contents/mhg/de/html/product/product_guide/information/turning/threding_depth.html
+  - label: 'Mitsubishi Materials, “Selecting cutting conditions” (diş açma)'
+    url: https://mitsubishicarbide.net/contents/mhg/pl/html/product/product_guide/information/turning/threding_recommended.html
+  - label: 'Sumitomo Electric, General Catalog 2025–2026, s. N52 “Technical Guidance: The Basics of Threading, Turning Edition”'
+    url: https://online.flippingbook.com/view/410142785/1258/
+  - label: 'Korloy, diş tornalama kataloğu, bölüm D (Cutwel sitesinde)'
+    url: https://www.cutwel.co.uk/media/product-pdfs/downloads/Korloy%20Thread%20Turning%20Inserts.pdf
+  - label: 'Vargus, “Thread Turning Overview”'
+    url: https://www.vargus.com/en/amis-corner/thread-turning-overview/
+  - label: 'Vargus, MACH kataloğu “NEW with Internal Applications” (DirectIndustry üzerinden)'
+    url: https://pdf.directindustry.com/pdf/vargus/mach-catalog-new-with-internal-applications/16116-1142493.html
+  - label: 'Hoffmann Group, “Thread turning – precise threads to optimally hold components in place”'
+    url: https://www.hoffmann-group.com/IE/en/brownlo/e/1448877
+  - label: 'HORN, “Gewindeübersicht / Thread Overview – Technische Hinweise” (diş tornalama)'
+    url: https://www.horn-group.com/fileadmin/main-website/Technical-Informations/Gewindedrehen.pdf
+  - label: 'CANELA, “Threading” katalog bölümü C'
+    url: https://cdn.shopify.com/s/files/1/0283/9796/1325/files/C_THREADING.pdf
+  - label: 'Haas Automation, torna G kodu başvurusu “G76 Threading Cycle, Multiple Pass”'
+    url: https://www.haascnc.com/service/codes-settings.type=gcode.machine=lathe.value=G76.html
+  - label: 'Haas Automation, torna G kodu başvurusu “G32 Thread Cutting”'
+    url: https://www.haascnc.com/service/codes-settings.type=gcode.machine=lathe.value=G32.html
+  - label: 'Haas Automation, Top Notch diş açma hızları ve paso sayıları (HU25 uç kalitesi)'
+    url: https://haascnc.com/content/dam/haascnc/ecommerce-assets/linedrawings/lathe_tooling/top_notch_threading_insert/top%20notch%20Thread%20speeds%20and%20number%20of%20passes%2002-0638%20to%2002-0643.pdf
+  - label: 'Siemens, SINUMERIK 802S/C base line, Operation and Programming – Turning, baskı 2003.08'
+    url: https://wiki.hsbne.org/_media/tools/metalshop/operation-programming.pdf
+  - label: 'MEB, “CNC Tornalama Çevrimleri” modülü, Ankara 2015'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/10121311_Cnc_Tornalama_Cevrimleri.pdf
+  - label: 'M. Nalbant, M. Günay, Y. Yıldız, “Modelling of the Effect of Different Infeed Angles and Cutting Areas on the Cutting Forces in External Threading”, Turkish J. Eng. Env. Sci. 32 (2008) 153–161'
+    url: https://aj.tubitak.gov.tr/engineering/issues/muh-08-32-3/muh-32-3-4-0708-1.pdf
+---
+import ThreadInfeed from '../../../components/mdx/ThreadInfeed.astro';
+import ThreadPasses from '../../../components/mdx/ThreadPasses.astro';
+import HelixShim from '../../../components/mdx/HelixShim.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { passCounts } from '../../../data/threadturn-charts';
+
+Diş tornalama ucu dişin profilini taşır; torna, parçanın her devrinde ucu eksen boyunca bir hatve kadar ilerletir. ISCAR kesme verilerinde devir başına ilerlemeyi sabit ve diş adımına eşit kabul ediyor; Haas da ilerlemenin dişin hatvesine eşit olduğunu yazıyor. Tek ağızlı vidada hatve adımın kendisidir, çok ağızlı vidada adım × ağız sayısıdır.
+
+Diş tek seferde açılmaz. Uç diş boyunca tekrar tekrar geçer, her pasoda biraz daha derine iner; Hoffmann Group son pasonun hafif bir finiş paso olduğunu belirtiyor. Bu sayfanın büyük kısmı o pasolarla ilgili: uç dişe hangi yönden girer, her paso ne kadar derine iner ve uç helisi izlemek için nasıl eğilmelidir.
+
+## İş mili ile takım aynı adımda
+
+Her paso önceki pasoların açtığı kanala tam oturmalıdır. Kumanda bunu ilerlemeyi iş milinin kendi konumundan başlatarak sağlar. Haas’a göre G32 bloğunun ilk satırında eksen ilerlemesi iş mili enkoderinin dönüş sinyaline senkronlanır. Aynı sayfa, ardışık pasoların ancak iş mili devri her seferinde tam olarak aynıysa aynı yolu izlediğini söylüyor ve diş açarken devrin değiştirilmemesi gerektiği uyarısını yapıyor. İlerleme ayarı (override) da devre dışıdır: G32 etkinken dikkate alınmaz.
+
+Bu yüzden diş tornalama sabit kesme hızıyla değil, sabit devirle (G97) yapılır; farkı [tornalama işlemleri](/tr/prosesler/tornalama-islemleri/) sayfası anlatıyor. Çok ağızlı vida başlangıç açısı kaydırılarak açılır: Haas G32 ve G76’ya bir Q (diş başlangıç açısı) adresi veriyor; Siemens’in 802S/C kılavuzu da başlangıç açısını değiştirip işlemi tekrarlayarak çok ağızlı vida açılabileceğini söylüyor.
+
+İlerleme hızı mm/dak cinsinden hatve × devirdir; kaba adımlarda eksenin sınırına çabuk ulaşılır. Kennametal, en yüksek kesme hızının tezgâhın takıma izin verdiği en yüksek ilerleme hızıyla (mm/dak) sınırlanabileceğini belirtiyor.
+
+## Üç tür kesici uç
+
+| Uç | Neyi keser | Lehine | Aleyhine |
+|---|---|---|---|
+| **Tam profilli** (*full profile*) | Diş üstü dahil bütün profili | ISCAR: dişi tek işlemde bitirir; büyük köşe yarıçapı daha uzun takım ömrü demektir. Kennametal: büyük ve küçük çap aynı anda işlendiği için diş eş merkezliliği yüksektir. | Her adım ve standart için ayrı uç; ISCAR atölyede daha çok çeşit gerektirdiğini belirtiyor. |
+| **Kısmi profilli** (*partial profile*) | Yanakları ve dibi, diş üstünü değil | Bir uç bir adım aralığını karşılar (ISCAR, Kennametal, Hoffmann) | ISCAR: küçük köşe yarıçapı takım ömrünü kısaltır; ek işlem gerekir. |
+| **Çok dişli** (*multi-tooth*) | Bütün profili, iki ya da üç kesici dişle (ISCAR) | ISCAR: paso sayısını azaltır, takım ömrünü uzatır. | ISCAR: omuza yakın çalışamaz; geniş bir diş çıkış kanalı ister; kesme kuvvetleri yüksektir. |
+
+ISCAR tam profilli uçları seri üretim için öneriyor, kısmi profillileri önermiyor; kısmi profilli uç, dış dişte büyük çapı, iç dişte küçük çapı başka bir işleme bırakır.
+
+## Dişe girmenin dört yolu
+
+Her paso ucu daha derine taşır ve ucun hangi yönde ilerlediği, iki kenarından hangisinin keseceğini belirler. ISCAR dört yöntem sayıyor: radyal, yanaktan, değiştirilmiş yanaktan ve dönüşümlü yanaktan ilerleme. ISCAR’ın Türkçe e-öğrenme kursu bunları “İşleme metodları” başlığı altında anlatıyor.
+
+<Figure caption="Dört ilerleme yöntemi, canlı. Uç kanala her seferinde bir paso girer ve her paso kaldırdığı malzemeyi boyar (önce sıcak renkler, sonra soğuk); çubuklar her pasonun ne kadarının ucun sol ve sağ kenarına geldiğini gösterir. Yanaktan ilerlemede (30°) sol kenar yalnızca bitmiş yanak boyunca kayar (kırmızı çizgi), bütün kesmeyi sağ kenar yapar; değiştirilmiş yanaktan ilerleme yolu yanaktan birkaç derece saptırır, böylece sol kenar sürtmek yerine ince bir talaş alır. Derinlikler Mitsubishi’nin radyal ilerleme için verdiği ISO 60° dış diş değerleridir; yalnızca yön değişsin diye dört yöntemde de aynen kullanılır. Keskin V, köşe yarıçapı yok.">
+  <ThreadInfeed locale="tr" />
+</Figure>
+
+**Radyal ilerleme** (*radial infeed*). Uç eksene dik olarak doğrudan içeri girer. Vargus’a göre ilerleme tornalama eksenine diktir ve ucun iki yanağı da keser. Sumitomo bunu en yaygın diş açma tekniği olarak anıyor, çoğunlukla küçük adımlarda kullanıldığını söylüyor ve uzun temasın tırlamaya yatkın olduğu, talaş kontrolünün zorlaştığı, arka kenarın kolay hasar gördüğü uyarısını yapıyor. Kennametal: dişin sonunda bütün kesici kenar kesmeye girer, bu da tırlama eğilimini artırır. ISCAR radyal ilerlemeyi ince adımlarda ve profilin doğru çıkması gereken finiş pasolarında kabul ediyor; Hoffmann 1,0 mm’nin altındaki adımlarda, sert işlemede ve pekleşen ya da kısa talaşlı malzemelerde öneriyor.
+
+**Yanaktan ilerleme** (*flank infeed*). Uç dişin bir yanağı boyunca ilerler; bir kenar keser, öteki kayar. HORN’a göre talaş daha kolay oluşur ve ısı daha iyi dağılır. ISCAR daha derin pasoların mümkün olduğunu ekliyor; ama aşınma eşit değildir ve kayan kenar sürter, bu da yüzeyi bozabilir ve titreşime yol açabilir. Sumitomo büyük adımlı dişlerde ve yüzeyi kolay bozulan malzemelerde etkili buluyor; arka kenarda yanak aşınmasına dikkat çekiyor.
+
+**Değiştirilmiş yanaktan ilerleme** (*modified flank infeed*). Yol yanaktan birkaç derece saptırılır, böylece ikinci kenar sürtmek yerine ince bir talaş alır. ISCAR değiştirilmiş yanaktan ilerlemeyi bütün diş tornalama işleri için önerilen yöntem olarak gösteriyor. Mitsubishi’ye göre yanaktan ilerlemeden değiştirilmiş yanaktan ilerlemeye geçmek takım ömrünü ve yüzey kalitesini artırabilir. Sumitomo arka kenardaki yanak aşınmasını önlediğini söylüyor.
+
+**Dönüşümlü yanaktan ilerleme** (*alternating flank infeed*). Pasolar bir yanaktan ötekine geçer, iki kenar da eşit aşınır. ISCAR bunun takım ömrünü çok uzatabileceğini, ama değişen talaş yönünün yüzey kalitesini düşürebileceğini söylüyor; yöntemi esas olarak çok büyük adımlarda ve Acme ile trapez dişlerde kullanıyor. Vargus özellikle büyük adımlarda ve uzun talaşlı malzemelerde öneriyor. Hoffmann bu yöntem için bunu destekleyen bir diş çekme çevriminin ön koşul olduğunu belirtiyor.
+
+“Değiştirilmiş” ne kadar sapma demek? Üreticiler anlaşamıyor ve değerlerinin ortalaması alınmamalı:
+
+| Kaynak | Yanak açısından sapma |
+|---|---|
+| ISCAR, Threading Catalog 62 | 0,5° ile 5° |
+| ISCAR, sorun giderme sayfası | 3° ile 5° (kötü talaş kontrolüne çare olarak) |
+| Kennametal | İlerleme açısı dişin açısından 3° ile 5° küçük olmalı |
+| Hoffmann Group | Dişin yanak açısına göre yaklaşık 1–5° küçültülür |
+| Mitsubishi, “Threading methods” | 1° ile 3° (örnek: M12 × 1,0, beş paso) |
+| Mitsubishi, “Threading depth” | 5° (aynı örnek) |
+
+Kennametal talaş kırıcılı uçlarının en iyi 28° ile 29,5° ilerleme açısında çalıştığını ve 0° ilerleme açısında son pasoda talaşın kırılmayacağını ekliyor. Bir laboratuvar çalışması (Gazi Üniversitesi, AISI 1050, P = 2 mm, dokuz paso) ana kesme kuvvetini 0° ile 30° arasındaki ilerleme açılarında ölçtü: kuvvet 15°’de en yüksek, pasoların çoğunda 30°’de en düşük çıktı; yazarlar kesme kuvvetleri açısından en uygun açının 30° olduğunu belirtiyor.
+
+## Her paso ne kadar derine iner
+
+60°’lik bir dişin kanalı V biçimindedir, bu yüzden kesit alanı derinliğin karesiyle büyür. Eşit derinlikli pasolar giderek daha çok metal kaldırır: ISCAR’ın örneğinde 60°’lik dişte paso başına 0,25 mm ile ikinci paso birincinin üç katı metal kaldırır. Yükü eşit tutmak için pasolar kanal derinleştikçe incelmelidir.
+
+ISCAR’ın formülü talaş kesitini sabit tutar. Toplam derinlik a<sub>p</sub> ve n<sub>a</sub> paso ile i’inci pasodan sonra ulaşılan derinlik
+
+$$
+\Delta a_p(i) = \frac{a_p}{\sqrt{n_a - 1}} \cdot \sqrt{C}
+$$
+
+olup C ilk paso için 0,3, ikinci paso için 1, üçüncüden itibaren i − 1’dir. ISCAR buna ∆a<sub>p</sub>(i) diyor, ama kendi çözümlü örneği bunun pasonun derinliği değil, ulaşılan derinlik olduğunu gösteriyor: P 1,25 mm, a<sub>p</sub> = 0,78 mm, altı paso için 0,19, 0,35, 0,49, 0,60, 0,70 ve 0,78 mm. ISCAR bunun en yaygın ve genellikle önerilen yöntem olduğunu, çoğu durumda yüksek verimlilik sağladığını, kesici kenara sabit yük ve düzgün aşınma getirerek takım ömrünü artırdığını söylüyor.
+
+Haas ve Kennametal aynı fikri en yalın biçimiyle kullanıyor. Haas’a göre her ardışık kesme D·√N denklemiyle belirlenir; N, diş boyunca N’inci pasodur. Kennametal buna birikmiş derinlik diyor: ilk paso × paso numarasının karekökü. Paso başına sabit derinliğin de kullanıcıları var: Korloy’un örneği 0,92 mm’yi 0,092 mm’lik on pasoya bölüyor, Vargus da MACH takımları için sabit derinlikli pasoları öneriyor. ISCAR sabit derinliği, daha çok paso pahasına, talaş kontrolünün sorun olduğu işlere ayırıyor.
+
+<Figure caption="Paso derinliği için üç kural, canlı. Her V diş kanalıdır; bantları pasolardır, önce sıcak renkler. ISCAR formülü ve √N kuralı kanal derinleştikçe bantları sıklaştırır; sabit derinlik bantları eşit aralıklarla dizer. Altta her pasonun kaldırdığı kesit (keskin 60° V, radyal ilerleme): √N’de düz, ISCAR’da üçüncü pasodan itibaren düz (ilk iki pasosu daha hafiftir), sabit derinlikte yükselen. Tablo her pasonun derinliğini ve parantez içinde ondan sonraki toplamı verir; bir Mitsubishi başlangıç değeri seçilince Mitsubishi’nin kendi derinlikleri de eklenir. 0,05 mm’nin altındaki pasolar işaretlenir.">
+  <ThreadPasses locale="tr" />
+</Figure>
+
+**Son paso.** ISCAR’a göre finiş paso olacak son paso 0,05–0,1 mm’dir ve hiçbir paso 0,05 mm’nin altında olmamalıdır. Kennametal son pasolarda en az 0,05 mm (0,002 inç) ilerleme korunmasını istiyor; 0,001–0,003 inçlik bir boş (spring) paso yüzeyi iyileştirebilir, ama talaş kırma etkisi zayıflayabilir. Mitsubishi daha ince gidiyor: son pasonun derinliğini 0,05–0,025 mm olarak öneriyor. Sumitomo’nun sorun giderme tablosu da son pasonun derinliği çok küçükse büyütülmesini öneriyor.
+
+**Sert ve pekleşen malzemeler.** Mitsubishi sertleştirilmiş çelik ve östenitik paslanmaz çelik gibi malzemelerde, dış katmanın yol açtığı erken aşınmayı ve kırılmayı önlemek için kesme derinliğinin yeterince büyük tutulmasını istiyor. Talaş için: pasoların ikinci yarısında kesme derinliğini artırmak talaş kontrolünü iyileştirebilir.
+
+Mitsubishi’nin radyal ilerlemeyle ISO metrik dış diş tablosu:
+
+| P (mm) | Toplam (mm) | Pasoların derinliği (mm) |
+|---|---|---|
+| 0,5 | 0,31 | 0,10 · 0,08 · 0,07 · 0,06 |
+| 0,75 | 0,46 | 0,16 · 0,14 · 0,10 · 0,06 |
+| 1,0 | 0,61 | 0,18 · 0,15 · 0,12 · 0,10 · 0,06 |
+| 1,25 | 0,77 | 0,19 · 0,17 · 0,14 · 0,11 · 0,10 · 0,06 |
+| 1,5 | 0,92 | 0,22 · 0,21 · 0,17 · 0,14 · 0,12 · 0,06 |
+| 1,75 | 1,07 | 0,22 · 0,21 · 0,16 · 0,13 · 0,11 · 0,09 · 0,09 · 0,06 |
+| 2,0 | 1,23 | 0,24 · 0,23 · 0,17 · 0,16 · 0,14 · 0,12 · 0,11 · 0,06 |
+| 2,5 | 1,53 | 0,26 · 0,23 · 0,19 · 0,17 · 0,15 · 0,13 · 0,12 · 0,11 · 0,11 · 0,06 |
+| 3,0 | 1,84 | 0,27 · 0,25 · 0,20 · 0,18 · 0,16 · 0,14 · 0,13 · 0,12 · 0,12 · 0,11 · 0,10 · 0,06 |
+
+Toplamlar adımın 0,61–0,62 katıdır; bu, tasarım profilinde dış dişin derinliği olan 0,613 P’dir (bkz. [ISO metrik vida dişleri](/tr/teknik-resim-ve-toleranslar/iso-metrik-vida-disleri/)). Korloy’un dış diş uçları için verdiği en küçük derinlikler (P 1,5, 2,0 ve 3,0 için 0,92, 1,23 ve 1,84 mm) aynı. Mitsubishi tam profilli uçla çapta yaklaşık 0,1 mm finiş payı bırakılmasını öneriyor.
+
+Peki kaç paso? Üreticilerin sayıları örtüşüyor ama aynı değil:
+
+<Figure caption="ISO metrik dişte adıma göre paso sayısı, her üreticinin verdiği gibi: Mitsubishi’nin tablosu (tek değer), Korloy’un aralığı ve Haas’ın HU25 ucu için aralığı (Haas’ın satırları adım bantlarını kapsar). Haas aynı sayıları bütün malzemeler için veriyor. Üreticisi için bir bandın üzerine gelin.">
+  <RangeChart locale="tr" {...passCounts("tr")} min={0} max={20} ticks={[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]} unit="" axisLabel="Paso" labelWidth={90} aria="Adıma göre diş tornalama paso sayısı: Mitsubishi, Korloy ve Haas" />
+</Figure>
+
+Hoffmann bunu tek cümlede özetliyor: küçük adımlarda genellikle beş paso, çok büyük adımlarda 20 pasoya kadar.
+
+## Helis açısı ve altlık
+
+Diş, parçanın çevresinde bir helis boyunca dolanır; bu yüzden yanakları eğiktir. ISCAR helis açısını
+
+$$
+\varphi = \arctan \frac{P}{\pi \cdot d_2}
+$$
+
+olarak veriyor; d<sub>2</sub> bölüm dairesi çapıdır, çok ağızlı vidada P’nin yerini hatve n × P alır (ISCAR, Kennametal, Korloy). ISCAR’ın örneği: Ø20 × 2,5, d<sub>2</sub> = 18,376 mm, φ ≈ 2,5°. Hoffmann Group hızlı bir tahmin veriyor: derece cinsinden a ≈ 20 · P / D.
+
+Uç dik dursaydı bir yanı eğik yanağa sürterdi. ISCAR’a göre ucu helis açısı kadar eğmek uca eşit yük dağılımı ve kesici kenarın iki yanında düzgün aşınma sağlar, ucun diş profilinin yanına sürtmesini önler. Eğimi ucun altındaki altlık verir; ISCAR’ın Türkçe kursunda bu konu “Altlıklar” başlığını taşıyor. Kennametal bütün tutucularının 1,5°’lik eğimle geldiğini, Hoffmann takımların çoğunun 1,5°’lik eğim için standart altlıklarla geldiğini yazıyor. Korloy ve ISCAR da 1,5°’yi standart alıyor; Korloy, kesici kenar yüksekliği H1’in her uç–altlık birleşiminde aynı kaldığını belirtiyor.
+
+<Figure caption="Standart altlığa göre helis açısı, canlı. Dış çapı, adımı ve ağız sayısını seçin: kadran tam helis açısı φ’yi (ibre; ISO bölüm dairesi çapı d₂ = d − 0,6495 P ile), Hoffmann’ın 20·P/D tahminini (mavi işaret) ve tutucuların çoğunun geldiği 1,5°’yi (yeşil) gösterir; turuncu yay altlığın kapatması gereken farktır. Sağda farklı adımlar için φ’nin çapa göre değişimi, logaritmik eksende: büyük çaplarda ince adımlar 1,5°’nin altında kalır, küçük çaplarda kaba adımlar çok üstüne çıkar. Çok ağızlı vidada iki formülde de P’nin yerini hatve n·P alır.">
+  <HelixShim locale="tr" />
+</Figure>
+
+1,5°’den uzak bir diş başka bir altlık ister. Hoffmann yanlış altlıkları diş tornalamadaki sorunların en sık nedeni sayıyor: yanaklarda eşit olmayan ya da çok küçük boşluk açısı sürtünmeyi, ısıyı ve titreşimi artırır. Sumitomo kesici kenar eğiminin diş helis açısına uygun olup olmadığının kontrol edilmesini istiyor. ISCAR’ın el kitabı her altlığı bir helis açısı aralığıyla eşleştiriyor; tahmin etmek yerine tutucu üreticisinin kendi tablosuna bakın.
+
+## Kesme hızı
+
+Diş açma tornalamadan biraz daha yavaş yapılır. CANELA’ya göre diş açma hızları normalde tornalama hızlarının en az %80–90’ı olmalı. Hoffmann biraz daha düşük devrin kesici ucun kenarlarını koruyacağını söylüyor. ISCAR kalite ve malzemeye göre bir temel hızdan başlayıp onu ölçekliyor: Vc = Ks × Vo; normal kararlılıkta Ks = 1, uzun sarkma ya da zayıf bağlama gibi kararsız işlerde Ks = 0,7. Kalite mantığı: daha sert karbür kalite aşınmaya daha dayanıklıdır ve daha yüksek hıza izin verir; darbe dayanımı daha iyi olan daha tok kalite daha düşük hız içindir. Mitsubishi verim için hızı tezgâhın devir ve rijitlik sınırları içinde artırıyor, radyal ilerleme titreşirse düşürüyor.
+
+Bir üreticinin değerleri, örnek olarak: Haas’ın HU25 diş açma ucu için tablosu, kendi malzeme gruplarına göre.
+
+| Haas grubu | vc (sfm) | vc (m/dak) |
+|---|---|---|
+| P1–P3 | 200–600 | 61–183 |
+| P4–P6 | 200–520 | 61–158 |
+| M1–M3 | 150–480 | 46–146 |
+| K1–K3 | 200–480 | 61–146 |
+| N1–N7 | 300–1.800 | 91–549 |
+| S1–S3 | 40–300 | 12–91 |
+| H1–H4 | 50–200 | 15–61 |
+
+Haas önerilen hız aralığının ortasından başlanmasını öneriyor.
+
+## Programdaki çevrim
+
+Bir diş çevrimi pasoları kendiliğinden tekrarlar. Haas’ın G76’sı tek bloktur:
+
+| Adres | Haas G76 |
+|---|---|
+| X | X ekseni mutlak konumu, en büyük diş derinliği çapı |
+| Z | Z ekseni mutlak konumu, en büyük diş boyu |
+| K | Diş yüksekliği; diş derinliğini tanımlar, yarıçap ölçüsü |
+| D | İlk pasonun kesme derinliği |
+| F (E) | İlerleme, dişin hatvesi |
+| A | Takım ucu açısı (0–120°), ondalık nokta kullanılmaz |
+| I | Diş koniklik miktarı, yarıçap ölçüsü |
+| P | Kesme biçimi; P1–P4 ilerlemeyi seçer |
+| Q | Diş başlangıç açısı, ondalık nokta kullanılmaz |
+
+P1 tek kenarla ve paso başına sabit miktarla, P2 iki kenarla ve sabit miktarla, P3 tek kenarla ve sabit derinlikle, P4 iki kenarla ve sabit derinlikle keser. Haas, sektör deneyimine göre iki kenarla kesen P2’nin daha iyi sonuç verebileceğini yazıyor. K derinliğinden finiş payı (Setting 86) düşülür; Haas tırlamaya karşı 60°’lik dişte A59 öneriyor. İnç cinsinden örneği: `G76 X0.913 Z-0.85 K0.042 D0.0115 F0.0714`, öncesinde `G97 S500 M03`.
+
+FANUC kumandalarda G76 genellikle iki blokla yazılır (testlerini FANUC kumandaya göre yapan Gazi Üniversitesi makalesinde: G76 çok pasolu diş çevrimi, eksiksiz bir diş açma işlemini iki blokluk bilgiyle verir). İki biçim birbirinin yerine kullanılamaz; kumandanın kendi kılavuzuna bakın. Siemens’in 802S/C kılavuzu diş çevrimini LCYC97, sabit hatveli diş çekme komutunu G33 olarak adlandırıyor; MEB modülü de SIEMENS kumandadaki CYCLE97’yi “vida çekme” çevrimi olarak anıyor.
+
+## Diş bozuk çıktığında
+
+ISCAR’ın sorun giderme sayfası her hata için nedenleri ve çareleri ayrı ayrı sıralıyor:
+
+| Hata | ISCAR’ın saydığı nedenler | ISCAR’ın saydığı çareler |
+|---|---|---|
+| Plastik deformasyon | Aşırı ısı; kesme derinliği çok büyük; kesme hızı çok yüksek; köşe yarıçapı çok küçük | Kesme hızını düşürmek; kesme derinliğini azaltmak ya da paso eklemek; kaplamalı ya da daha sert kalite; mümkünse daha büyük yarıçap |
+| Erken aşınma | İlerleme derinliği çok küçük; yanlış eğim altlığı; uç eksenin üstünde | Değiştirilmiş yanaktan ilerleme ya da daha büyük kesme derinliği; altlığı yeniden seçmek; eksen yüksekliğini kontrol etmek |
+| Uç kırılması | Kötü talaş kontrolü; yanlış eksen yüksekliği | Daha tok kalite; değiştirilmiş yanaktan ilerlemeyle M/B tipi uçlar |
+| Yığıntı talaş | Kesici kenar çok soğuk | Daha yüksek devir ya da kesme derinliği; kaplamalı kalite |
+| Titreşim | İş parçası bağlama; takım ayarı | Yumuşak ayna çeneleri; sarkmayı kontrol, titreşim önleyici bara |
+| Kötü yüzey | Yanlış eğim altlığı; takım sarkması çok uzun | Değiştirilmiş yanaktan ilerleme; altlığı yeniden seçmek; sarkmayı kısaltmak |
+| Kötü talaş kontrolü | Yanlış ilerleme yöntemi | 3–5°’lik değiştirilmiş yanaktan ilerleme |
+| Profil çok sığ | Yanlış eksen yüksekliği; uç diş üstüne ulaşmıyor; aşınmış uç | Eksen yüksekliğini ve iş parçası çapını kontrol etmek; radyal ilerlemeyi artırmak |
+| İlk pasoda uç burnu kırılıyor | Kesme derinliği çok büyük | Daha az derinlik, daha çok paso |
+| Yanlış profil | Uygun olmayan uç; programda yanlış adım | Doğru uç, altlık ve takım; programı düzeltmek |
+
+Öteki üreticiler ana noktalarda aynı fikirde. Yanlış altlık eşit olmayan aşınma ve kötü yüzey olarak görünür (ISCAR, Korloy, Sumitomo); Korloy eşit olmayan kenar aşınmasına doğru altlığı seçmeyi ve dönüşümlü yanaktan ilerlemeyi öneriyor. Kırılmaya karşı daha çok ve daha sığ pasolar; Sumitomo da paso sayısını artırıp paso başına derinliği azaltmayı öneriyor. Yığıntı talaşa karşı daha yüksek hız (ISCAR, Sumitomo) ya da kaplamalı kalite (ISCAR). Çok sığ çıkan diş eksen yüksekliğine ya da çapa işaret eder (ISCAR, Korloy). Freze ile açılan dişler için bkz. [diş frezeleme](/tr/prosesler/dis-frezeleme/).

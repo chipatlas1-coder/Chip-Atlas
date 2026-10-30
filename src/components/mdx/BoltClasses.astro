@@ -1,0 +1,85 @@
+---
+/**
+ * ISO 898-1:2013 minimum tensile strength Rm,min and minimum yield by property class, with the
+ * yield quantity each class is specified by (ReL, Rpf for the full-size fastener, or Rp0.2).
+ * Values as in the article's table. Wide and narrow layouts.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const p02 = tr ? 'Rp0,2' : 'Rp0.2';
+const rows: { c: string; q?: string; rm: number; re: number; y: string }[] = [
+  { c: '4.6', rm: 400, re: 240, y: 'ReL' }, { c: '4.8', rm: 420, re: 340, y: 'Rpf' }, { c: '5.6', rm: 500, re: 300, y: 'ReL' },
+  { c: '5.8', rm: 520, re: 420, y: 'Rpf' }, { c: '6.8', rm: 600, re: 480, y: 'Rpf' },
+  { c: '8.8', q: 'd ≤ 16', rm: 800, re: 640, y: p02 }, { c: '8.8', q: 'd > 16', rm: 830, re: 660, y: p02 },
+  { c: '9.8', q: 'd ≤ 16', rm: 900, re: 720, y: p02 }, { c: '10.9', rm: 1040, re: 940, y: p02 }, { c: '12.9', rm: 1220, re: 1100, y: p02 },
+];
+const T = tr
+  ? { re: 'en küçük akma: ReL, Rpf ya da Rp0,2', rm: 'en küçük çekme dayanımı Rm,min', aria: 'Cıvata mukavemet sınıflarına göre en küçük çekme ve akma dayanımı, ISO 898-1', unit: 'MPa' }
+  : { re: 'minimum yield: ReL, Rpf or Rp0.2', rm: 'minimum tensile strength Rm,min', aria: 'Minimum tensile and yield strength by bolt property class, ISO 898-1', unit: 'MPa' };
+function layout(narrow: boolean) {
+  const W = narrow ? 360 : 640, x0 = narrow ? 84 : 156, x1 = W - (narrow ? 40 : 56), top = 8, rowH = narrow ? 25 : 27;
+  const X = (v: number) => x0 + (v / 1300) * (x1 - x0);
+  const H = top + rows.length * rowH + 34;
+  return { W, x0, x1, top, rowH, X, H };
+}
+const geo = [false, true].map((n) => ({ narrow: n, ...layout(n) }));
+---
+<div class="bc">
+  <p class="key"><span><i class="k-re"></i>{T.re}</span><span><i class="k-rm"></i>{T.rm}</span></p>
+  {geo.map((g) => (
+    <svg viewBox={`0 0 ${g.W} ${g.H}`} role="img" aria-label={T.aria} class:list={['plot', g.narrow ? 'narrow' : 'wide']}>
+      {[0, 200, 400, 600, 800, 1000, 1200].map((v) => (
+        <g>
+          <line x1={g.X(v)} x2={g.X(v)} y1={g.top - 2} y2={g.top + rows.length * g.rowH} class="grid" />
+          {(!g.narrow || v % 400 === 0) && <text x={g.X(v)} y={g.top + rows.length * g.rowH + 16} text-anchor="middle" class="tick">{v}</text>}
+        </g>
+      ))}
+      {rows.map((r, i) => {
+        const y = g.top + i * g.rowH, bh = g.rowH - 9, mid = y + 3 + bh / 2 + 4;
+        return (
+          <g class="row">
+            <title>{`${r.c}${r.q ? ` (${r.q} mm)` : ''}: Rm,min ${r.rm} MPa · ${r.y} ${r.re} MPa`}</title>
+            <rect x="0" y={y} width={g.W} height={g.rowH} class="hit" />
+            {g.narrow
+              ? <text x={g.x0 - 8} y={mid} text-anchor="end" class="cls">{r.c}{r.q && <tspan class="q"> {r.q}</tspan>}</text>
+              : <>
+                  <text x="14" y={mid} class="cls">{r.c}{r.q && <tspan class="q"> {r.q}</tspan>}</text>
+                  <text x={g.x0 - 10} y={mid} text-anchor="end" class="yq">{r.y}</text>
+                </>}
+            <rect x={g.x0} y={y + 3} width={g.X(r.rm) - g.x0} height={bh} rx="1.5" class="rm" />
+            <rect x={g.x0} y={y + 3} width={g.X(r.re) - g.x0} height={bh} rx="1.5" class="re" />
+            <text x={g.X(r.re) - 5} y={mid} text-anchor="end" class="vre">{r.re}</text>
+            <text x={g.X(r.rm) + 6} y={mid} class="vrm">{r.rm}</text>
+          </g>
+        );
+      })}
+      <text x={g.x1 + (g.narrow ? 36 : 50)} y={g.top + rows.length * g.rowH + 16} text-anchor="end" class="tick">{T.unit}</text>
+    </svg>
+  ))}
+</div>
+
+<style>
+  .bc { display: grid; gap: 0.5rem; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } }
+  .key { margin: 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; font-size: 0.8rem; color: var(--ink-2); max-width: none; }
+  .key span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .key i { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+  .k-re { background: #d4520f; }
+  .k-rm { background: color-mix(in oklab, #1e6fd6 30%, transparent); border: 1px solid #1e6fd6; }
+  .grid { stroke: var(--line); }
+  .hit { fill: transparent; }
+  .row:hover .hit { fill: color-mix(in oklab, var(--ink) 5%, transparent); }
+  .rm { fill: color-mix(in oklab, #1e6fd6 26%, transparent); stroke: #1e6fd6; stroke-width: 1; }
+  .re { fill: #d4520f; }
+  .tick { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-3); }
+  .cls { font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; fill: var(--ink); }
+  .q { fill: var(--ink-3); font-weight: 400; font-size: 11px; }
+  .yq { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); }
+  .vre { font-family: var(--font-mono); font-size: 11px; fill: #fffcfb; font-weight: 500; }
+  .vrm { font-family: var(--font-mono); font-size: 11.5px; fill: #2a78d6; }
+  .narrow .cls { font-size: 13px; }
+  .narrow .vre, .narrow .vrm, .narrow .q { font-size: 12px; }
+  .narrow .tick { font-size: 12px; }
+</style>

@@ -1,0 +1,253 @@
+---
+key: hardness-testing
+locale: en
+slug: hardness-testing
+title: 'Hardness testing: Brinell, Vickers, Rockwell'
+description: 'How the three indentation tests work and what each one measures: the Brinell ball and its force-diameter index, the Vickers pyramid and its force ranges, the Rockwell scales and the depth reading; test times, test-piece thickness and spacing, designations, which test suits which part, Knoop and Leeb in brief, why converted hardness values are approximate, and how testers are verified.'
+section: 10
+subsection: measuring-instruments
+order: 1
+updated: 2026-10-18
+glance:
+  - value: '0.24 D – 0.6 D'
+    label: 'Valid Brinell indentation diameter (ZwickRoell, Metkon)'
+  - value: '136°'
+    label: 'Vickers pyramid; HV ≈ 0.1891 F / d², F in N (NITK; Shimadzu gives the same constant)'
+  - value: '0.002 mm'
+    label: 'Depth of one Rockwell point on the regular scales (PTB, NIST)'
+  - value: '10–15 s'
+    label: 'Dwell at full force, Brinell and Vickers (ZwickRoell, Metkon)'
+sources:
+  - label: 'ISO, ISO 6506-1:2014 Metallic materials — Brinell hardness test — Part 1: Test method (catalogue page)'
+    url: https://www.iso.org/es/contents/data/standard/05/96/59671.html
+  - label: 'ISO, ISO/WD 6506-1 (edition 4, will replace ISO 6506-1:2014)'
+    url: https://www.iso.org/standard/95161.html
+  - label: 'BSI, BS EN ISO 6506-1:2014 (preview, via ANSI webstore)'
+    url: https://webstore.ansi.org/preview-pages/BSI/preview_30263771.pdf
+  - label: 'ISO, ISO 6506-1:2005 (preview: foreword and introduction, via ANSI webstore)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+6506-1-2005.pdf
+  - label: 'ISO, ISO 6507-1:2023 Metallic materials — Vickers hardness test — Part 1: Test method (catalogue page)'
+    url: https://www.iso.org/standard/83898.html
+  - label: 'STN EN ISO 6507-1:2024 = EN ISO 6507-1:2023 (preview: scope, Table 1, foreword)'
+    url: https://normy.normoff.gov.sk/norma/137868/nahlad
+  - label: 'ISO, ISO 6507-1:2018 (preview: foreword, via ANSI webstore)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+6507-1-2018.pdf
+  - label: 'ISO, ISO 6508-1:2023 Metallic materials — Rockwell hardness test — Part 1: Test method (catalogue page)'
+    url: https://www.iso.org/es/contents/data/standard/08/43/84343.html
+  - label: 'SCC Canada, ISO 6508-2:2023 (abstract)'
+    url: https://scc-ccn.ca/standardsdb/standards/8185448
+  - label: 'ISO, ISO/DIS 6506-2 (abstract)'
+    url: https://www.iso.org/standard/83895.html
+  - label: 'ISO, ISO 4545-1:2023 Knoop hardness test (catalogue page)'
+    url: https://www.iso.org/standard/83897.html
+  - label: 'ISO, ISO 16859-1:2015 Leeb hardness test (catalogue page)'
+    url: https://committee.iso.org/standard/57828.html?browse=tc
+  - label: 'ISO, ISO 18265:2013 Conversion of hardness values (catalogue page)'
+    url: https://www.iso.org/standard/53810.html
+  - label: 'Institute for Standardization of Serbia, ISO 18265:2013 (abstract)'
+    url: https://iss.rs/en/project/show/iso:proj:53810
+  - label: 'NSAI, EN ISO 18265:2013 (abstract and annexes)'
+    url: https://shop.standards.ie/standards/en-iso-18265-2013-331340_saig_cen_cen_761992
+  - label: 'ASTM, E10 Brinell hardness (product page: scope, significance and use)'
+    url: https://store.astm.org/e0010-15a.html
+  - label: 'ASTM, E18-25 Rockwell hardness (product page: scope, significance and use)'
+    url: https://store.astm.org/e0018-25.html
+  - label: 'ASTM, E92 Vickers and Knoop hardness (product page)'
+    url: https://store.astm.org/standards/e92
+  - label: 'ASTM, E384 microindentation hardness (product page)'
+    url: https://store.astm.org/e0384-11e01.html
+  - label: 'ASTM, E140 hardness conversion tables (product page)'
+    url: https://store.astm.org/e0140-12b.html
+  - label: 'ASTM newsroom, “Brinell, Rockwell Hardness Test Methods Revised by ASTM International”'
+    url: https://newsroom.astm.org/node/1565/printable/print
+  - label: 'S. R. Low (NIST), Rockwell Hardness Measurement of Metallic Materials, SP 960-5, 2001'
+    url: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication960-5.pdf
+  - label: 'NIST MSEL, “Hardness Standardization”'
+    url: https://www.nist.gov/document/8551224bpdf
+  - label: 'S. Low, T. Hattori, A. Germak, A. Knott, “Proposed definition for the Brinell hardness indentation edge”, Acta IMEKO 3(3), 2014'
+    url: https://iris.inrim.it/retrieve/dd2573c2-5ed3-e71c-e053-d805fe0ad5dc/Proposed_definition_for_the_Brinell_hardness_indentation_edge.pdf
+  - label: 'PTB, “Rockwell (DIN EN ISO 6508)” method page'
+    url: https://www.ptb.de/cms/en/ptb/fachabteilungen/abt5/fb-51/test/haertepruefverfahren/rockwell.html
+  - label: 'PTB, “Knoop (DIN EN ISO 4545-1)” method page'
+    url: https://www.ptb.de/cms/en/ptb/fachabteilungen/abt5/fb-51/test/haertepruefverfahren/knoop.html
+  - label: 'NPL, “Rockwell Hardness Sensitivity Coefficients HRB”'
+    url: https://www.npl.co.uk/getattachment/bfd3a604-e208-4e95-bf78-2cd45896c81a/rockwell_hardness_co_hrb.pdf?lang=en-US
+  - label: 'ZwickRoell, “Brinell hardness testing: ISO 6506, ASTM E10”'
+    url: https://www.zwickroell.com/industries/metals/metals-standards/brinell-test-iso-6506/
+  - label: 'ZwickRoell, “Vickers hardness testing: ISO 6507, ASTM E384”'
+    url: https://www.zwickroell.com/industries/metals/metals-standards/vickers-test-iso-6507/
+  - label: 'ZwickRoell, “Rockwell hardness testing: ISO 6508, ASTM E18”'
+    url: https://www.zwickroell.com/industries/metals/metals-standards/rockwell-test-iso-6508/
+  - label: 'ZwickRoell, “Leeb hardness test ISO 16859 / ASTM A956”'
+    url: https://www.zwickroell.com/industries/metals/metals-standards/leeb-hardness-test-iso-16859-astm-a965
+  - label: 'Instron (Wilson hardness), “Hardness testers FAQ”'
+    url: https://www.instron.com/en/service-and-support/technical-support/faqs/hardness-testers-faq/
+  - label: 'Metkon, “What is Brinell hardness test”'
+    url: https://www.metkon.com/what-is-brinell-hardness-test/
+  - label: 'Metkon, “Vickers hardness test”, 19 June 2025'
+    url: https://www.metkon.com/vickers-hardness-test/
+  - label: 'Shimadzu, HMV micro-Vickers, “System Functions”'
+    url: https://www.shimadzu.com/an/industries/automotive/metals/hmv/index.html
+  - label: 'Virtual Labs (NITK), “Vickers Hardness Test – theory”'
+    url: https://sm-nitk.vlabs.ac.in/exp/vickers-hardness-test/theory.html
+  - label: 'FBI Laboratory, METAL-510-05 “Rockwell Hardness Testing”, 2022'
+    url: https://fbilabqsd.fbi.gov/file-repository/chemistry/metal-510-05-rockwell-hardness-testing.pdf
+  - label: 'D. Schwenk, M. Bandel, “Calibration of the Impact Velocity at Portable Hardness Testing Devices in Accordance with Leeb”, IMEKO 2014'
+    url: https://imeko.org/publications/tc5-2014/IMEKO-TC5-2014-003.pdf
+  - label: 'JSA, JIS Z 2245:2021 Rockwell hardness test (preview, based on ISO 6508-1:2016)'
+    url: https://webdesk.jsa.or.jp/preview/pre_jis_z_02245_000_000_2021_e_ed10_ch.pdf
+  - label: 'GlobalSpec, ASTM A956/A956M-22 Leeb hardness (scope)'
+    url: https://standards.globalspec.com/std/14621865/astm-a956-a956m-22
+  - label: 'TÜRKAK, accreditation scope AB-0980-T (TÜRASAŞ test laboratory), 2024 (Turkish)'
+    url: https://www.turasas.gov.tr/images/belgeler/pdf/52199323-ffae-4b52-8b72-852d38225186.pdf
+---
+import HardnessMethods from '../../../components/mdx/HardnessMethods.astro';
+import RockwellCycle from '../../../components/mdx/RockwellCycle.astro';
+import HardnessCalc from '../../../components/mdx/HardnessCalc.astro';
+
+A hardness test presses an indenter of known shape into the surface with a known force and measures what is left: the size of the indentation (Brinell, Vickers) or its depth (Rockwell). Each method defines its own number, so a hardness value is only complete with its method and test conditions: 210 HBW 5/250, 610 HV 10, 60 HRC. Converting from one scale to another is possible only approximately, and only for the materials the conversion tables were made for. In Turkey laboratories are accredited for the three tests to TS EN ISO 6506-1, 6507-1 and 6508-1, as, for example, TÜRKAK scope AB-0980-T lists them.
+
+<Figure caption="The three methods, each indenter pressing once. Brinell: a carbide ball, and the diameter d of the round indentation is measured (ball and indentation to scale, d = 0.59 D). Vickers: a 136° diamond pyramid, and the two diagonals of the square indentation are measured (section across the faces; depth to scale, about 1/7 of the diagonal). Rockwell: a 120° diamond cone under the preliminary force, the total force and the preliminary force again; the permanent depth h is read (schematic).">
+  <HardnessMethods
+    aria="Brinell, Vickers and Rockwell indenters pressing into a test piece, with what each method measures"
+    t={{ brinell: 'Brinell', vickers: 'Vickers', rockwell: 'Rockwell', bMeas: 'diameter of the indentation, d', vMeas: 'two diagonals, d₁ and d₂', rMeas: 'permanent depth, h', f0: 'F₀', f: 'F', replay: 'Replay' }}
+  />
+</Figure>
+
+| | Brinell | Vickers | Rockwell |
+|---|---|---|---|
+| Indenter | Tungsten carbide ball, 10, 5, 2.5 or 1 mm | Diamond square pyramid, 136° | Diamond cone 120°, or carbide ball 1/16 or 1/8 in |
+| Measured | Indentation diameter | Indentation diagonals | Permanent depth |
+| Hardness | Force / surface of the indentation | Force / surface of the indentation | Read from the depth |
+| Standard (current edition) | ISO 6506-1:2014; ASTM E10-23 | ISO 6507-1:2023; ASTM E92, E384 | ISO 6508-1:2023; ASTM E18-25 |
+
+## Brinell
+
+**Principle.** "An indenter (tungsten carbide composite ball with diameter, D) is forced into the surface of a test piece", and after the force is removed the diameter d of the indentation is measured; the indentation "is assumed to take the shape of the unloaded ball indenter" (ISO 6506-1). The hardness is the test force divided by the surface of the indentation:
+
+$$
+\text{HBW} = 0.102 \cdot \frac{2F}{\pi D \left(D - \sqrt{D^2 - d^2}\right)}
+$$
+
+with F in N and D and d in mm (Metkon); the 0.102 converts newtons to kilograms-force. The 2005 edition of ISO 6506-1 already specified "only the use of the hardmetal ball indenter", hence the symbol HBW; the former HB or HBS for steel balls is not to be confused with it. Steel balls, NIST notes of Rockwell ball indenters, "tend to flatten over time at the contact point with the test specimen."
+
+**Ball and force go together.** The balls are 10, 5, 2.5 and 1 mm. The force is chosen through the force-diameter index 0.102 · F / D², so that different balls give comparable results: "Testing of a material with different ball diameters and test forces must be conducted within the same force-diameter index" (ZwickRoell). ZwickRoell lists five indices:
+
+| 0.102 · F / D² | Materials (ZwickRoell) | Forces, 1 mm to 10 mm ball | Recommended range (HBW) |
+|---|---|---|---|
+| 30 | Steel, iron | 294.2 N to 29.42 kN | 95.5–653 |
+| 10 | Light metals, copper, aluminium and their alloys | 98.07 N to 9.807 kN | 31.8–218 |
+| 5 | Copper, aluminium, copper alloys without heat treatment | 49.03 N to 4.903 kN | 15.9–109 |
+| 2.5 | Light metals | 24.52 N to 2.452 kN | 7.96–54.5 |
+| 1 | Light metals, lead, tin | 9.807 N to 980.7 N | 3.18–21.8 |
+
+The ranges, ZwickRoell says, follow EN ISO 6506-4, Table 2. Metkon puts steel and cast iron at 30 (10 mm ball, 3,000 kgf) and aluminium alloys at 5.
+
+**The indentation must be the right size.** "The test force is to be selected so that the average indentation diameter d is between 0.24 D and 0.6 D" (ZwickRoell; Metkon gives the same window). The measurement of d dominates the accuracy: "Brinell hardness measurement accuracy is primarily related to measurement of the indentation diameter", write the authors from NIST, NMIJ, INRIM and NPL.
+
+**Times.** The force rises to its final value in 2 to 8 s; "Generally, the dwell time for the test load is 10 to 15 seconds" (ZwickRoell, Metkon). The metrology institutes' paper notes the change from the old "recommendation for a 30 s time application, now shortened to between 10 s and 15 s". A different dwell is written into the designation.
+
+**Thickness and spacing.** The test piece "must be at least eight times thicker than the indentation depth of the Brinell ball" (ZwickRoell; Metkon gives 8 × for ISO and 10 × for ASTM E10). ZwickRoell’s example: a 6.0 mm indentation from a 10 mm ball is 1.0 mm deep, so the part must be 8.00 mm thick. Metkon gives at least 3 × d between indentation centres and 2.5 × d to the edge.
+
+**Designation.** "210 HBW 5/250/30" is 210 Brinell hardness, measured with a 5 mm ball at 250 kgf held for 30 s; without the last number the dwell was the normal 10–15 s (ZwickRoell, Metkon).
+
+Brinell is the test for "materials with large grain size, rough test surface or inhomogeneous materials, such as castings, alloys and forged components" (ZwickRoell): the large indentation averages over the structure. ASTM E10 calls Brinell tests "satisfactory for acceptance testing of commercial shipments".
+
+## Vickers
+
+**Principle.** A diamond square-based pyramid whose opposite faces "meet at the apex at an angle of α = 136°" is pressed in, and the two diagonals of the square indentation are measured (ZwickRoell). With the mean diagonal d in mm and F in N,
+
+$$
+\text{HV} = 0.102 \cdot \frac{2F \sin(136°/2)}{d^2} \approx 0.1891 \cdot \frac{F}{d^2}
+$$
+
+(NITK; same constant in Shimadzu); with F in kgf the factor is 1.8544 (Metkon). The indentation is shallow, about 1/7 of its diagonal (Instron), and one indenter covers the whole hardness range: "The Vickers method can be used with any and all materials and test specimens, from soft to hard" (ZwickRoell).
+
+**Three force ranges** (ISO 6507-1:2023, Table 1):
+
+| Test force F | Symbol | Name |
+|---|---|---|
+| F ≥ 49.03 N | ≥ HV 5 | Vickers hardness test |
+| 1.961 N ≤ F < 49.03 N | HV 0.2 to < HV 5 | Low-force Vickers hardness test |
+| 0.009807 N ≤ F < 1.961 N | HV 0.001 to < HV 0.2 | Vickers microhardness test |
+
+The standard covers diagonals from 0.020 to 1.400 mm; smaller indentations belong to ISO 14577-1. Its 2023 edition extends the scope to metallic and other inorganic coatings. The usual macro forces, ZwickRoell says, are 49, 98, 196, 294, 490 or 980 N (HV 5 to HV 100), with 294 N (HV 30) the most used. ASTM keeps the micro range in E384 (1 to 1,000 gf) and the full range in E92.
+
+**Times and thickness.** Force applied in 2 to 8 s (ZwickRoell), held for 10 to 15 s (ZwickRoell, Metkon). The test piece must be at least 1.5 times as thick as the diagonal (NITK, Metkon).
+
+**Designation.** "610 HV 10/30": 610 Vickers hardness at 10 kgf (98.07 N), held for 30 s (ZwickRoell).
+
+The price is preparation and time: the surface must be ground and polished, and "The test cycle takes somewhere between 30 and 60 seconds" (ZwickRoell). At very low forces, Metkon warns of the indentation size effect, roughly between 0.01 and 0.2 kgf.
+
+<Figure caption="Brinell and Vickers hardness from the indentation. Brinell: pick the ball and the force-diameter index, then the measured diameter; the window shows whether d is inside 0.24 D–0.6 D. Vickers: pick the force step and enter both diagonals. The least thickness is 8 × the depth (Brinell) and 1.5 × the diagonal (Vickers); the Brinell spacing is Metkon’s.">
+  <HardnessCalc locale="en" />
+</Figure>
+
+## Rockwell
+
+**Principle.** Rockwell reads depth, not area. First "a preliminary force (formally referred to as the minor load) is applied to the indenter", which sets a datum; then the force is raised to the total force, "The total force is held constant for a set time period, after which the additional force is removed" (NIST). The permanent increase in depth h, read under the preliminary force again, gives the hardness:
+
+$$
+\text{HR} = N - \frac{h}{S}
+$$
+
+with h in mm, N = 100 for the diamond scales and the superficial scales or 130 for the regular ball scales, and S = 0.002 mm for the regular scales or 0.001 mm for the superficial scales (PTB). One Rockwell point is 2 µm of depth on a regular scale: "0.002 mm error in depth = 1 HR unit error" (NIST). HRC 60 means a permanent depth of (100 − 60) × 0.002 = 0.080 mm.
+
+<Figure caption="The Rockwell cycle: depth of the indenter against time. The preliminary force sets the datum, the additional force drives the indenter deeper, and when it is removed the elastic part springs back; the remaining depth h below the datum is the reading. Pick a scale and a permanent depth. Depth shapes are schematic; the forces, N and S are the standard values; the times are ISO 6508-1’s as NPL restates them, without naming the edition.">
+  <RockwellCycle locale="en" />
+</Figure>
+
+**Forces.** Regular scales: preliminary force 98.07 N (10 kgf), total force 588.4, 980.7 or 1,471 N (60, 100 or 150 kgf). Superficial scales: 29.42 N (3 kgf), then 147.1, 294.2 or 441.3 N (15, 30 or 45 kgf) (NIST, ZwickRoell, FBI).
+
+| Scale | Indenter | Total force (kgf) | N | S (mm) | Typical use (PTB) |
+|---|---|---|---|---|---|
+| HRA | Diamond cone 120° | 60 | 100 | 0.002 | Hardmetals, thin hardened layers, sheet from 0.4 mm |
+| HRBW | Ball 1.5875 mm (1/16 in) | 100 | 130 | 0.002 | Non-ferrous metals, structural steels |
+| HRC | Diamond cone 120° | 150 | 100 | 0.002 | Hardened and tempered steels |
+| HRD | Diamond cone 120° | 100 | 100 | 0.002 | Medium-depth case-hardened parts |
+| HREW | Ball 3.175 mm (1/8 in) | 100 | 130 | 0.002 | Cast iron, aluminium and magnesium alloys, bearing metals |
+| HRFW | Ball 1.5875 mm | 60 | 130 | 0.002 | Annealed copper alloys, sheet from 0.6 mm |
+| HRGW | Ball 1.5875 mm | 150 | 130 | 0.002 | Phosphor bronze, beryllium copper, malleable iron |
+| HRHW | Ball 3.175 mm | 60 | 130 | 0.002 | Aluminium, zinc, lead |
+| HRKW | Ball 3.175 mm | 150 | 130 | 0.002 | Bearing metals, very soft metals |
+| HR15N, 30N, 45N | Diamond cone | 15, 30, 45 | 100 | 0.001 | As A, C and D, for very thin layers or sheet |
+| HR15TW, 30TW, 45TW | Ball 1.5875 mm | 15, 30, 45 | 100 | 0.001 | As E, F and G, for very thin sheet, down to 0.25 mm |
+
+These are the scales of ISO 6508-1:2023. ZwickRoell counts 30 Rockwell scales standardized across ISO 6508 and ASTM E18; ASTM E18 adds larger balls.
+
+**Ball material.** The W in HRBW marks a tungsten carbide ball; S marks steel. ISO 6508-2 treats carbide as "the standard type". NIST and Instron say a carbide ball reads lower than a steel ball; how much is disputed: "up to 1 point lower than normal" (Instron), "very small differences" (ASTM), "may be significantly different" (note in the Japanese JIS Z 2245). ASTM E18 keeps steel balls only for thin tin-mill products.
+
+**Times.** As NPL restates ISO 6508-1 (the note gives no edition): the preliminary force is held for no more than 3 s, the additional force is applied in 1 to 8 s, and "total test force F shall be maintained for a duration of 4 s ± 2 s". NIST: "the Rockwell hardness number is most affected by the total force dwell time."
+
+**Thickness, spacing, curved surfaces.** For a diamond indenter the test piece must be at least 10 times as thick as the indentation depth (Instron, FBI); for a ball indenter Instron gives 15 times, attributing it to ASTM, while the FBI procedure uses 10 times for any indenter in homogeneous material. ASTM E18 asks for indentation centres at least three indentation diameters apart and two and a half diameters from the edge. On convex cylinders a correction is added, on concave surfaces subtracted, and NIST says regular-scale tests "should not be made on convex cylinders below 6.4 mm" in diameter (3.2 mm for superficial scales); even corrected, the FBI procedure treats such results as approximate.
+
+Rockwell is fast: no specimen preparation and a direct reading (ZwickRoell). The cost is sensitivity, since a small error in depth is a large error in hardness, and the spot must be free of scale and oil. For thin hardened layers and thin sheet, the superficial scales (N, T) take the place of the regular ones (PTB, Instron). For a part of unknown hardness, Instron recommends starting on HRA, a diamond with 60 kg.
+
+## Knoop and Leeb
+
+**Knoop** uses a rhombic diamond pyramid whose long diagonal is "7.114 times longer than the short diagonal" (ASTM), and measures that long diagonal (PTB). ISO 4545-1:2023 covers forces from 0.009807 to 19.613 N. The narrow, shallow indentations can be placed close together, which suits steep hardness gradients (ASTM E92).
+
+**Leeb** is a rebound test for portable instruments: "The ratio of rebound velocity vr to impact velocity vi, multiplied by a factor of 1000, gives the Leeb hardness" (ZwickRoell). ISO 16859-1 defines seven scales, HLD, HLS, HLE, HLDL, HLD+15, HLC and HLG; the impact velocity is 2.05 m/s for the D, S and E devices, 1.4 m/s for C and 3.0 m/s for G (Schwenk and Bandel, ZwickRoell). ASTM A956 calls it "a superficial determination only".
+
+## Which test for which part
+
+| Situation | Test | Sources |
+|---|---|---|
+| Castings, forgings, coarse-grained or uneven material, rough surface | Brinell | ZwickRoell, Metkon |
+| Any hardness, thin or small parts, single phases, hardness profiles | Vickers, low-force or micro | ZwickRoell, Metkon, ASTM E92 |
+| Fast checks in production, no preparation | Rockwell | ZwickRoell |
+| Thin hardened layers, thin sheet | Superficial Rockwell (N, T), low-force Vickers | PTB, Instron, Metkon |
+| Steep hardness gradients | Knoop | ASTM E92 |
+| On site, portable instruments | Leeb (rebound) | Schwenk and Bandel, ISO 16859-1 |
+
+In every case, ASTM E18 warns that a test at one spot "may not represent the physical characteristics of the whole part or end product".
+
+## Converting between scales
+
+ISO 18265 gives conversions between hardness scales and to tensile strength, with tables for groups of materials: plain carbon, low-alloy and cast steels, quenched-and-tempered steels, cold-working steels, high-speed steels, hardmetals, non-ferrous metals and tool steels. Its own caveats are plain: "Converted values obtained using ISO 18265:2013 are only directly applicable to the exact material tested"; "In all cases, the converted values are not intended as replacements for values obtained by the correct standard method"; and "tensile strength estimates are the least reliable converted values". ASTM E140, the American counterpart, calls conversion "only an approximate process". Where a drawing asks for HRC, measure HRC.
+
+## Checking the tester
+
+A hardness tester is verified in two ways: directly, by checking its force, depth measurement and test cycle against limits, and indirectly, with calibrated reference blocks (ISO 6508-2, ISO 6506-2). ISO 6508-2 allows ±2.0 % on the preliminary force and ±1.0 % on the total force (as NPL restates it). National institutes pass their scales on through reference blocks: NIST, for example, through blocks at 25, 45 and 63 HRC. Day to day, the FBI laboratory checks its tester with a certified block at power-up and after every change of indenter or scale.
+
+For the surfaces that hardness tests leave untouched, see [surface roughness parameters](/metrology/surface-roughness-parameters/).

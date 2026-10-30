@@ -1,0 +1,146 @@
+---
+key: gcode-motion
+locale: tr
+slug: g00-g01-g02-g03-hareket-komutlari
+title: 'G00, G01, G02, G03: hareket komutları'
+description: 'Bir CNC programının dört hareket kodu: hızlı hareket, düz hat üzerinde ilerleme ve dairesel interpolasyon. Yay yönünün ve düzlemin nasıl tanımlandığı, yay merkezinin I J K ya da R ile verilmesi, mutlak ve artışlı koordinatlar ve tornalardaki istisnalar, ilerleme türleri ve bekleme, modal kodlar, FANUC, Haas, Siemens, HEIDENHAIN ve LinuxCNC’nin farkları ve kaynakların uyardığı hatalar. Satır satır oynayan bir programla.'
+section: 9
+subsection: g-code-reference
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'G00–G03'
+    label: 'Tek modal grup: bir hareket kodu, yerine aynı gruptan bir başkası gelene kadar geçerlidir (FANUC, Haas)'
+  - value: 'I J K'
+    label: 'Yay başlangıcından yay merkezine olan uzaklık (Haas, NIST, MEB)'
+  - value: 'R < 0'
+    label: 'Eksi yarıçap 180°’den büyük yayı verir (Haas, NIST)'
+  - value: 'ISO 6983-1'
+    label: 'Program biçimi standardı; 2009 baskısı 2025’te yeniden onaylandı (ISO)'
+sources:
+  - label: 'Productivity Inc (Haas Factory Outlet), HAAS Mill Programming Manual, rev. 06/26, s. 9, 15–18, 24, 34–35, 83–84 (Haas Automation içeriğini izinle kullanan eğitim kitabı)'
+    url: https://productivity.com/wp-content/uploads/2025/10/Mill-Programming-2026.pdf
+  - label: 'Productivity Inc (Haas Factory Outlet), Haas Lathe Programming Manual, rev. 12/2024, s. 8–14, 25–26, 55, 68'
+    url: https://www.productivity.com/wp-content/uploads/2025/05/Lathe-Programming.pdf
+  - label: 'FANUC, User’s Manual (For Lathe System) B-64304EN-1/01, açıklama notları ve G kodu listesi, s. 16–19 (üçüncü taraf bir kopyadan okundu, bu yüzden bağlantı verilmedi)'
+  - label: 'FANUC Corp. (M. Ito, H. Minami), US 10,444,728 B2, “Numerical controller performing positioning for avoiding interference with workpiece”'
+    url: https://patents.google.com/patent/US10444728B2/en
+  - label: 'T. R. Kramer, F. M. Proctor, E. Messina, The NIST RS274/NGC Interpreter – Version 3, NISTIR 6556, NIST, 2000'
+    url: https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir6556.pdf
+  - label: 'LinuxCNC belgeleri, “G-Codes”'
+    url: https://www.linuxcnc.org/docs/html/gcode/g-code.html
+  - label: 'ISO 6983-1:2009, Automation systems and integration — Numerical control of machines — Program format and definitions of address words — Part 1 (katalog sayfası)'
+    url: https://committee.iso.org/standard/34608.html
+  - label: 'Siemens, SINUMERIK Handbook: G codes & M codes (tornalama), C101'
+    url: https://assets.new.siemens.com/siemens/assets/api/uuid:a27afac9-4273-43a7-bd63-ab4867e1805c/2-C101-G-codes-M-codes.pdf
+  - label: 'Siemens, SINUMERIK 840D sl/840D/840Di/810D Fundamentals, Programming Manual, 08/2005 baskısı (içindekiler ve 1. bölüm)'
+    url: https://cache.industry.siemens.com/dl/files/233/108869233/att_825441/v1/PG_0805_en.pdf
+  - label: 'DR. JOHANNES HEIDENHAIN GmbH, TNC 410 User’s Manual, Conversational Programming, 6/2001'
+    url: https://content.heidenhain.de/doku/tnc_guide/pdf_files/TNC400/286060-xx/bhb/309_740-25.pdf
+  - label: 'CIMCO, CIMCO Edit v8 belgeleri, “Exercises – Turning – Circular Interpolation”'
+    url: https://www.cimco.com/docs/cimco_edit/v8/en/ExercisesTurningOSCircularInterpolation.html
+  - label: 'L. Hillyard, Support for CNC, Mt. Hood Community College, “G00, G01 (Code Practice)”, CC BY 4.0'
+    url: https://mhcc.pressbooks.pub/supportcnc/?p=143
+  - label: 'T.C. Millî Eğitim Bakanlığı, MEGEP, CNC Tornada Programlama (521MMI121), Ankara 2012'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/10121138_Cnc_Tornada_Programlama.pdf
+---
+import GcodePlayer from '../../../components/mdx/GcodePlayer.astro';
+import ArcPlanes from '../../../components/mdx/ArcPlanes.astro';
+
+Bir CNC programı takımı başlıca dört sözcükle hareket ettirir: konuma hızlı hareket için G00, ilerleme hızında düz bir kesme için G01, yaylar için G02 ve G03. Dördü de FANUC’un G kodu listesinde aynı gruptadır, 01 grubunda; Haas’ın listesinde de dördü bu gruptadır (buradaki Haas ifadeleri Haas Factory Outlet eğitim kitaplarından gelir). Bu gruptan bir kod, yerine aynı gruptan bir başkası gelene kadar geçerli kalır. Program biçimini ve adres sözcüklerini tanımlayan ISO standardı ISO 6983-1’dir: konumlama, doğrusal hareket ve kontur denetimi yapan sistemler için veri biçimi. 2009 tarihli ikinci baskısı 1982 baskısının yerini almış ve 2025’te yeniden onaylanmıştır. ABD’de dil RS274 adıyla standartlaştırıldı; NIST’e göre (2000) RS274’ün en son standart sürümü 1979’da tamamlanan RS274-D’dir.
+
+| Kod | Ne yapar | Üreticilerin anlatımıyla |
+|---|---|---|
+| G00 | Hızlı hareket (konumlama) | FANUC: konumlama (hızlı hareket); MEB: "kesici takımın bir noktadan diğer bir noktaya doğrusal olarak hızlı hareketini sağlar" |
+| G01 | İlerleme hızında düz hat | Haas: eksenleri komut verilen ilerlemede hareket ettirir, esas olarak kesme içindir |
+| G02 | Yay, saat ibresi yönünde | MEB: "Saat ibresi yönünde dairesel hareket/interpolasyon" |
+| G03 | Yay, saat ibresine ters yönde | MEB: "Saat ibresine ters yönde dairesel hareket/interpolasyon" |
+
+<Figure caption="Bu sayfa için yazılmış, milimetre cinsinden bir program, satır satır oynuyor: bir hızlı hareket, düz bir ilerleme, I J ile saat ibresine ters bir yay, düz bir ilerleme, R ile saat ibresi yönünde bir yay ve başlangıca hızlı dönüş. Yay satırlarında merkez ve başlangıç noktasından merkeze giden çizgi (I J vektörü) çiziliyor. Hızlı hareketin yolunu “eksen eksen”e alın: her eksen kendi hızlı hareket hızıyla gittiğinde kumandanın çizdiği kırık yol görünür (burada hızlar eşit kabul edildi). Bir tezgâh programı değildir: takım, iş mili ve Z hareketi yoktur.">
+  <GcodePlayer locale="tr" unit="mm"
+    lines={['G90 G17', 'G00 X0 Y-10', 'G01 X40 Y-10 F200', 'G03 X60 Y10 I0 J20', 'G01 Y40', 'G02 X40 Y60 R20', 'G00 X0 Y0']}
+    notes={[
+      'G90: koordinatlar mutlaktır, program sıfırından ölçülür. G17: yaylar XY düzleminde.',
+      'G00: tezgâhın hızlı hareket hızıyla X0 Y−10’a. F burada geçerli değildir.',
+      'G01: F200 ile (G94’te mm/dak) X40’a düz. F sonraki satırlar için de geçerli kalır.',
+      'G03: saat ibresine ters yönde X60 Y10’a. Merkez, başlangıç noktası artı I0 J20, yani X40 Y10; yarıçap 20.',
+      'G01: X yok, X 60’ta kalır; Y40’a düz.',
+      'G02: R20 ile saat ibresi yönünde X40 Y60’a. R artı olduğu için kumanda 180° ya da daha küçük yayı alır; merkez X60 Y60’tadır.',
+      'G00: başlangıca hızlı dönüş. Kumandaya göre yol düz olmayabilir.',
+    ]} />
+</Figure>
+
+## G00: hızlı, ama her zaman düz değil
+
+G00 programlanan ilerlemeyle değil, tezgâhın hızlı hareket hızıyla gider. Hangi yoldan gittiği kumandaya bağlıdır. Haas’a göre hızlı hareket genellikle düz bir çizgide olmaz ve eksenlerin hepsi hareketlerini aynı anda bitirmeyebilir. Bir FANUC patenti de aynısını anlatır: eksenler kesme komutundaki gibi eş zamanlı gitmezse yol düz bir çizgi olmaz; patent iki türü de adlandırır: başlangıçla bitişi birleştiren yoldan giden doğrusal interpolasyonlu konumlama ve doğrusal olmayan interpolasyonlu konumlama. NIST’in RS274/NGC yorumlayıcısı ise hedefe o anki hızlı hareket hızında koordineli doğrusal bir hareket üretir; LinuxCNC de onu izler ama yolun yön değişimlerinde yuvarlanabileceğini not eder. MEB modülü G00’ı doğrusal bir hızlı hareket diye tanımlar. Haas, kumandanın sonraki satıra geçmeden bütün eksenlerin hareketini bitirmesini beklediğini ekler.
+
+Bu yüzden kural Mt. Hood Community College’ın verdiği kuraldır: iş parçasına çok yakın bir konuma ya da o konumdan hızlı hareket yapmayın. Kırılan bir hızlı hareket, programcının beklemediği bir köşeyi kesebilir; FANUC patentinin deyişiyle takım ve iş parçası birbiriyle çakışabilir. Kolej metni, hızlı hareketin yolunu düz bir çizgi sanmaya karşı uyarırken bunu daha açık söyler: bu, gerçekleşmeyi bekleyen bir çarpışmadır.
+
+## G01, ilerleme ve bekleme
+
+G01 kesme hareketidir ve bir ilerleme ister: kolej metni F olmazsa çoğu tezgâhın hata vereceğini uyarır. F modaldır, yani önceki bir satırda verilmiş olabilir (Haas). Birimini başka bir grup belirler. Frezelerde, Siemens kumandalarda ve G kodu sistemi B ya da C olan FANUC kumandalarda G94 dakikada ilerleme, G95 devirde ilerleme verir (FANUC, Haas, Siemens); Haas’ta ayrıca ters zaman ilerlemesi (*inverse time*) G93 vardır ve onda her satırda F gerekir. G kodu sistemi A olan FANUC tornalarda ve Haas tornalarda aynı çift G98 (dakikada) ve G99’dur (devirde); MEB modülü bunları "(G98) mm/dak: Dakikada aldığı milimetre cinsinden ilerleme değeridir." ve "(G99) mm/dv : Bir devirde aldığı milimetre cinsinden ilerleme değeridir." diye açıklar. Frezelerde G98 ve G99 başka bir şey demektir: delme gibi sabit çevrimlerin (*canned cycle*) geri dönüş seviyesi.
+
+G04 beklemedir: eksenler bir süre durur ve kod yalnızca kendi satırında geçerlidir. Süre LinuxCNC’de ve NIST’te saniyedir, P de saniye olarak yazılır; Siemens de saniye cinsinden beklemeyi G04 F1 diye yazar. MEB modülü de bekleme süresini saniye cinsinden verir ("Kesicinin bekleme süresi saniye cinsindendir."), ama P’yi ondalıksız, binde bir olarak yazar: aynı 2,5 saniyelik bekleme örnekte G04 X2.5 ve G04 P2500 diye verilir. P’nin nasıl okunduğunu kumandanın kitabından kontrol edin.
+
+## G02 ve G03: yön ve düzlem
+
+Saat ibresi yönü bir bakış noktası ister. LinuxCNC tanımlar: yön, dairesel hareketin çevresinde döndüğü eksenin artı ucundan bakılarak belirlenir; NIST de XY düzlemi için aynısını, artı Z ekseninden bakılarak diye söyler. Düzlemi G17 (XY), G18 (ZX) ve G19 (YZ) seçer; FANUC, Haas, Siemens ve LinuxCNC listelerinde aynıdır. G18 tornalama düzlemidir (Siemens: XZ düzlemi, tornalama G18) ve yay etkin düzlemde olmalıdır: Haas’a göre dairesel interpolasyon iki eksende hareket ister ve doğru düzlemi (G17–G19) kullanmalıdır.
+
+<Figure caption="Üç düzlem, her biri ona dik eksenin artı ucundan bakılarak çizildi; o eksen izleyiciye doğru bakar. Nokta her yayın çevresinde kendi yönünde döner. Bu, LinuxCNC’nin verdiği tanımdır (NIST aynısını XY düzlemi için verir). Tornada yönü tezgâhın kendi kitabından kontrol edin: Haas G02 eksen tanımlarını taretli tornalar (*turret lathes*) ve *table lathes* için ayrı çizer.">
+  <ArcPlanes locale="tr" />
+</Figure>
+
+## Yay merkezi: I J K ya da R
+
+Yayın merkezini söylemenin iki yolu vardır. I, J ve K ile: Haas’a göre I, J ve K başlangıç noktasından yay merkezine olan bağıl uzaklıklardır; NIST, LinuxCNC, CIMCO ve MEB modülü de aynısını söyler ("I:Yay başlangıcından yay merkezine X ekseninde artışlı (eklemeli) uzaklık"). Haas’ın torna kitabına göre I ya da K’dan yalnızca biri verilirse öteki sıfır sayılır. Tam bir daireyi yalnızca bu yöntem kesebilir: Haas’a göre bitiş noktası yazılmayıp yalnızca I, J ya da K verilirse tam daire çıkar. LinuxCNC merkezi G90.1 ve G91.1 ile mutlak koordinat olarak da alabilir; varsayılanı artışlıdır.
+
+R ile merkezi kumanda kendisi bulur ve işaret, uyan iki yaydan birini seçer: Haas’a göre artı R 180° ya da daha küçük, eksi R 180°’den büyük yaylar içindir; NIST de aynı kuralı verir. R’nin iki sınırı var. Haas: tam daire için I, J, K yöntemi kullanılmalıdır, R değeri tam bir daire veremez. Bu durumlara yakınken de R hassas değildir; NIST’e göre tam daireye yakın yaylar son derece kötüdür, yarım daireler ve yarım daireye yakın olanlar ise yalnızca çok kötüdür. LinuxCNC merkez biçimli yayları yarıçap biçimlilerden daha hassas sayar. Bir satırda ikisinden biri kullanılır: Haas’a göre I ve K kullanılınca R kullanılamaz. Siemens yarıçapı CR= diye yazar ve bir ara noktadan geçen yay da sunar, CIP.
+
+<Figure caption="Haas Factory Outlet’in freze programlama kitabındaki G02/G03 örneği (1. yöntem, inç cinsinden), satır satır: I J ile saat ibresine ters yarım daire. Basıldığı gibi bir öğretim parçasıdır: iş mili başlatma, düzlem ya da ofset satırı yoktur, olduğu gibi çalıştırılacak bir program değildir.">
+  <GcodePlayer locale="tr" unit="inç"
+    lines={['%', 'T01 M06 ;', 'G00 X4. Y2. ;', 'G01 F20.0 Z-0.1 ;', 'G03 F20.0 I-2.0 J0. X0. Y2. ;', 'M30 ;', '%']}
+    notes={[
+      '% programın başladığını gösterir (Haas).',
+      'T01 M06: takım değiştirici 1 numaralı takımı iş miline takar.',
+      'G00: yayın başlangıcı olan X4 Y2’ye hızlı hareket (burada X0 Y0’dan çizildi; kitap takımın nereden başladığını söylemez).',
+      'G01: F20 ile, dakikada 20 inç, Z−0,1’e iner. Üstten görünüş Z’yi göstermez.',
+      'G03: saat ibresine ters yönde X0 Y2’ye. Merkez, başlangıç artı I−2 J0, yani X2 Y2: X2 Y4’ten geçen, yarıçapı 2 olan yarım daire.',
+      'M30 programı bitirir ve kumandada imleci programın başına götürür.',
+      '% programın bittiğini gösterir.',
+    ]} />
+</Figure>
+
+## Mutlak ve artışlı
+
+G90 koordinatları mutlak, G91 artışlı yapar. Haas’a göre G90’da komut verilen konumlar etkin koordinat sisteminin orijinine göre yorumlanır; G91’de ise o anki konumdan sayılır. Siemens: artışlı ölçüler bir önceki noktanın konumuna göredir. MEB modülü ikisi için mutlak ve artışlı ölçülendirme der: "Mutlak ölçülendirmede bütün noktalar, koordinat sisteminde belirlenmiş olan sıfır noktasına göre alınır."
+
+Tornalar istisnadır. G kodu sistemi A olan bir FANUC tornada mutlak ya da artışlı oluş bir G koduyla (G90/G91) değil adresle belirlenir: X ve Z mutlak, U ve W artışlıdır. Haas tornalar da böyle çalışır (X ya da Z yerine U ya da W yazılırsa artışlı programlama yapılır), MEB modülü de: "Fanuc kontrollü tezgahlarda X için (U) , Z için (W) kullanılır." Bu tornalarda G90 mutlak programlama değil, bir tornalama çevrimidir (FANUC sistem A; Haas). G kodu sistemi B ya da C olan FANUC tornalarda kumandanın G90 ile mi G91 ile mi açılacağını No. 3402#3 parametresi belirler.
+
+## Modal kodlar ve yalnızca kendi satırında geçerli kodlar
+
+FANUC’a göre bir G kodu, aynı gruptan başka bir G kodu verilene kadar geçerlidir; bu modal koddur. MEB modülü de bu kodlar için "Başka bir G kodu kullanılıncaya kadar aktif kalırlar." der. Bazı kodlar ise yalnızca verildiği satırda geçerlidir (FANUC; İngilizcesi *one-shot*); bekleme böyledir. Haas modal kuralı uygulamayla anlatır: G00 olan bir satırdan sonraki bütün satırlar, başka bir hareket kodu gelene kadar hızlı harekettir. Farklı gruplardan kodlar aynı satırda olabilir, yukarıdaki G90 G17 gibi (FANUC). Aynı gruptan iki kodu kumandalar farklı ele alır: Haas’a göre aynı gruptan iki G kodu bir program satırına konamaz, NIST de aynısını söyler; FANUC’un torna kitabına göre ise bu durumda yalnızca en son yazılan G kodu geçerlidir.
+
+## Kumandalar nasıl ayrışır
+
+| | FANUC | Haas | Siemens SINUMERIK | HEIDENHAIN (*conversational*) | LinuxCNC |
+|---|---|---|---|---|---|
+| Hızlı hareket | G00; türüne göre düz ya da değil | G00, genellikle düz değil | G0, RTLION ve RTLIOF ile | ilerleme olarak FMAX | G0, koordineli |
+| Düz hat | G01 | G01 | G1 | L | G1 |
+| Yay | G02 / G03 | G02 / G03, I J K ya da R ile | G2 / G3, I J K ya da CR= ile; CIP | merkez CC çevresinde C; yarıçapla CR; teğet CT | G2 / G3, I J K ya da R ile |
+| Yön | G02 saat ibresi yönünde, G03 ters | aynı | aynı | DR– saat ibresi yönünde, DR+ ters yönde | aynı |
+| Artışlı | G91 (sistem B ve C) ya da U W (sistem A) | frezede G91, tornada U W | G91 | burada ele alınmadı | G91 |
+| İlerleme türü | G94 / G95 (B, C), G98 / G99 (A) | frezede G93 / G94 / G95, tornada G98 / G99 | G94 mm/dak, G95 mm/dv | burada ele alınmadı | G93 / G94 / G95 |
+
+TNC 410 kitabına göre HEIDENHAIN’in kendi programlama dilinin (*conversational*) yanında ISO biçiminde ya da DNC kipinde programlamak da mümkündür.
+
+## Kaynakların uyardığı hatalar
+
+- **Parçaya fazla yakın hızlı hareket.** Yol düz olmayabilir (Haas, FANUC); iş parçasına yakın bir konuma ya da o konumdan hızlı hareket yapmayın (Mt. Hood Community College).
+- **Geçerli kalmış bir hareket kodu.** Hareket kodları modaldır: CIMCO’ya göre bir yaydan sonra sonraki hareket G01 ya da G00 ile doğrusalsa G02 ya da G03 iptal edilmelidir.
+- **Yanlış düzlemde yay.** Doğru düzlemi, G17–G19, kullanmalıdır (Haas).
+- **Tam daire ya da yarım daireye yakın yay için R.** Tam daire I J K ister (Haas); 180°’ye ve 360°’ye yakın yarıçaplı yaylar hassas değildir (NIST, LinuxCNC).
+- **I K ile R birlikte.** Bir satırda olmaz (Haas).
+- **F’siz G01.** Ne satırda ne de daha önce F verilmemişse çoğu tezgâh hata verir (Mt. Hood Community College); G93’te her satırda F gerekir (Haas).
+- **Ondalık nokta.** Ondalık noktaya dikkat (Mt. Hood Community College). MEB’in bekleme örneğinde X2.5 ile P2500 aynı 2,5 saniyedir.
+- **Tornada G90.** FANUC sistem A’da ve Haas tornalarda bir tornalama çevrimidir, mutlak programlama değil.

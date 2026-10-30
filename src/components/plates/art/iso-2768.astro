@@ -1,0 +1,111 @@
+---
+/* A part drawn without tolerances on its dimensions; ISO 2768-mK in the title block supplies them
+   (blue). Values from the article's tables:
+   class m, linear: over 6 to 30 → ±0.2 (25, 20, Ø12); over 30 to 120 → ±0.3 (100, 70, 40, 35).
+   class m, chamfer heights 0.5 to 3 → ±0.2 (C2); angles, shorter side up to 10 → ±1° (45° of C2).
+   class K, flatness over 30 to 100 → 0.2 (bottom face, 100).
+   Main view 2.6 px per mm; detail A at 30:1 of that, so ±0.2 mm is ±15.6 px. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const dec = (s: string) => (tr ? s.replace(/(\d)\.(\d)/g, '$1,$2') : s);
+const k = 2.6, x0 = 64, yb = 232;
+const X = (mm: number) => x0 + mm * k, Y = (mm: number) => yb - mm * k;
+const c = 2 * k; // C2 chamfer
+const part = `M${X(0)},${Y(40) + c} L${X(0) + c},${Y(40)} L${X(70)},${Y(40)} L${X(70)},${Y(25)} L${X(100)},${Y(25)} L${X(100)},${Y(0)} L${X(0)},${Y(0)} Z`;
+const hx = X(35), hy = Y(20), hr = 6 * k;
+// detail A: the step face at 25 mm, nominal line, ±0.2 zone and a measured surface inside it
+const bx = 404, by = 84, br = 50, zw = 0.2 * k * 30;
+let seed = 5; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+const prof: [number, number][] = [];
+for (let x = bx - br - 4, v = 0; x <= bx + br + 4; x += 3) { v = 0.55 * v + (rnd() - 0.5) * 7; prof.push([x, by + Math.max(-zw + 3, Math.min(zw - 3, v + 4 * Math.sin((x - bx) / 13)))]); }
+const surf = prof.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+const mat = `${surf} L${bx + br + 4},${by + br + 4} L${bx - br - 4},${by + br + 4} Z`;
+const ax = X(86), ay = Y(25);
+const lead = (() => { const dx = ax - bx, dy = ay - by, d = Math.hypot(dx, dy); return [bx + (dx / d) * br, by + (dy / d) * br]; })();
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs><clipPath id={`iso2768-a-${locale}`}><circle cx={bx} cy={by} r={br} /></clipPath></defs>
+  <path class="f" style="--i:0" d={part} fill="#f5f9fd" />
+  <path class="o2 d" style="--i:1" pathLength="1" d={part} />
+  <circle class="o2 d" style="--i:2" pathLength="1" cx={hx} cy={hy} r={hr} />
+  <g class="f" style="--i:3">
+    <line class="c" x1={hx} y1={hy - hr - 12} x2={hx} y2={hy + hr + 12} />
+    <line class="c" x1={hx - hr - 12} y1={hy} x2={hx + hr + 12} y2={hy} />
+  </g>
+
+  <!-- dimension and extension lines (kept on the thumbnail) -->
+  <g class="f" style="--i:4">
+    <!-- 100 -->
+    <line class="h" x1={X(0)} y1={yb + 4} x2={X(0)} y2={yb + 56} /><line class="h" x1={X(100)} y1={yb + 4} x2={X(100)} y2={yb + 56} />
+    <line class="h" x1={X(0) + 2} y1={yb + 48} x2={X(100) - 2} y2={yb + 48} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <!-- 40 -->
+    <line class="h" x1={X(0) - 4} y1={Y(40)} x2={X(0) - 34} y2={Y(40)} /><line class="h" x1={X(0) - 4} y1={yb} x2={X(0) - 34} y2={yb} />
+    <line class="h" x1={X(0) - 26} y1={Y(40) + 2} x2={X(0) - 26} y2={yb - 2} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <!-- 25 -->
+    <line class="h" x1={X(100) + 4} y1={Y(25)} x2={X(100) + 42} y2={Y(25)} /><line class="h" x1={X(100) + 4} y1={yb} x2={X(100) + 42} y2={yb} />
+    <line class="h" x1={X(100) + 34} y1={Y(25) + 2} x2={X(100) + 34} y2={yb - 2} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <!-- 70 and 35 -->
+    <line class="h" x1={X(0)} y1={Y(40) + c - 6} x2={X(0)} y2={Y(40) - 54} />
+    <line class="h" x1={X(70)} y1={Y(40) - 4} x2={X(70)} y2={Y(40) - 54} />
+    <line class="h" x1={hx} y1={hy - hr - 14} x2={hx} y2={Y(40) - 28} />
+    <line class="h" x1={X(0) + 2} y1={Y(40) - 46} x2={X(70) - 2} y2={Y(40) - 46} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <line class="h" x1={X(0) + 2} y1={Y(40) - 20} x2={hx - 2} y2={Y(40) - 20} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <!-- 20: hole height above the bottom face -->
+    <line class="h" x1={hx + hr + 14} y1={hy} x2={X(52) + 4} y2={hy} />
+    <line class="h" x1={X(52)} y1={hy + 2} x2={X(52)} y2={yb - 2} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <!-- Ø12 leader -->
+    <line class="h" x1={hx + hr * 0.72} y1={hy - hr * 0.7} x2={hx + 22} y2={hy - 30} /><line class="h" x1={hx + 22} y1={hy - 30} x2={hx + 26} y2={hy - 30} />
+    <!-- C2 leader -->
+    <line class="h" x1={X(0) + c / 2} y1={Y(40) + c / 2} x2={X(0) - 14} y2={Y(40) - 16} /><line class="h" x1={X(0) - 14} y1={Y(40) - 16} x2="6" y2={Y(40) - 16} />
+    <!-- implied flatness on the bottom face -->
+    <line class="b" style="stroke-width:1" x1={X(22)} y1={yb + 2} x2={X(22)} y2={yb + 11} />
+    <rect x={X(22) - 4} y={yb + 11} width="58" height="16" rx="1" fill="#f9fbfe" stroke="#1e6fd6" stroke-dasharray="3 2" />
+    <line x1={X(22) + 19} y1={yb + 11} x2={X(22) + 19} y2={yb + 27} stroke="#1e6fd6" stroke-dasharray="3 2" />
+    <path d={`M${X(22) + 1},${yb + 23.5} L${X(22) + 6},${yb + 14.5} L${X(22) + 15},${yb + 14.5} L${X(22) + 10},${yb + 23.5} Z`} fill="none" stroke="#2a78d6" stroke-width="1.1" />
+    <!-- detail A marker and leader -->
+    <circle cx={ax} cy={ay} r="9" fill="none" stroke="#e2601a" stroke-width="1.2" />
+    <line x1={ax + 6.4} y1={ay - 6.4} x2={lead[0]} y2={lead[1]} stroke="#e2601a" stroke-width="1.2" />
+  </g>
+
+  <!-- detail A -->
+  <g class="f" style="--i:6">
+    <circle cx={bx} cy={by} r={br} fill="#f9fbfe" />
+    <g clip-path={`url(#iso2768-a-${locale})`}>
+      <rect x={bx - br} y={by - zw} width={br * 2} height={zw * 2} class="soft-data" />
+      <path d={mat} class="hatch" />
+      <line x1={bx - br} y1={by - zw} x2={bx + br} y2={by - zw} stroke="#1e6fd6" stroke-width="1.2" />
+      <line x1={bx - br} y1={by + zw} x2={bx + br} y2={by + zw} stroke="#1e6fd6" stroke-width="1.2" />
+      <line x1={bx - br} y1={by} x2={bx + br} y2={by} class="c" style="stroke: #2c3033" />
+      <path d={surf} class="a" style="stroke-width:1.8" />
+    </g>
+    <circle cx={bx} cy={by} r={br} fill="none" stroke="#e2601a" stroke-width="1.4" />
+  </g>
+
+  <!-- title block -->
+  <g class="f" style="--i:7">
+    <rect x="338" y="270" width="134" height="40" rx="1" fill="#f9fbfe" stroke="#a5aeb6" />
+    <line class="h" x1="338" y1="287" x2="472" y2="287" opacity="0.5" />
+  </g>
+
+  <g class="lbl">
+    <text class="t-ink" x={(X(0) + X(100)) / 2 - 30} y={yb + 42}>100</text><text class="t-data t-sm" x={(X(0) + X(100)) / 2 - 2} y={yb + 42}>{dec('±0.3')}</text>
+    <text class="t-ink" x="8" y={(Y(40) + yb) / 2 - 2}>40</text><text class="t-data t-sm" x="4" y={(Y(40) + yb) / 2 + 13}>{dec('±0.3')}</text>
+    <text class="t-ink" x={X(100) + 40} y={(Y(25) + yb) / 2 - 2}>25</text><text class="t-data t-sm" x={X(100) + 38} y={(Y(25) + yb) / 2 + 13}>{dec('±0.2')}</text>
+    <text class="t-ink" x={(X(0) + X(70)) / 2 - 26} y={Y(40) - 51}>70</text><text class="t-data t-sm" x={(X(0) + X(70)) / 2 - 6} y={Y(40) - 51}>{dec('±0.3')}</text>
+    <text class="t-ink" x={(X(0) + hx) / 2 - 24} y={Y(40) - 25}>35</text><text class="t-data t-sm" x={(X(0) + hx) / 2 - 5} y={Y(40) - 25}>{dec('±0.3')}</text>
+    <text class="t-ink" x={hx + 28} y={hy - 26}>Ø12</text><text class="t-data t-sm" x={hx + 56} y={hy - 26}>{dec('±0.2')}</text>
+    <text class="t-ink" x={X(52) + 5} y={(hy + yb) / 2 - 1}>20</text><text class="t-data t-sm" x={X(52) + 5} y={(hy + yb) / 2 + 13}>{dec('±0.2')}</text>
+    <text class="t-ink" x="6" y={Y(40) - 34}>C2</text><text class="t-data t-sm" x="26" y={Y(40) - 34}>{dec('±0.2')}</text>
+    <text class="t-data t-sm" x="6" y={Y(40) - 20}>45° ±1°</text>
+    <text class="t-data t-sm" x={X(22) + 23} y={yb + 23}>{dec('0.2')}</text>
+    <text class="t-acc t-sm" x={ax - 3.5} y={ay + 3.6}>A</text>
+    <text class="t-acc t-sm" x={bx - 26} y={by + br + 15}>A (30:1)</text>
+    <text class="t-data t-sm" x={bx + 14} y={by - zw - 4}>{dec('+0.2')}</text>
+    <text class="t-data t-sm" x={bx + 14} y={by + zw + 12}>{dec('−0.2')}</text>
+    <text class="t-sm" x="345" y="282">{tr ? 'Genel toleranslar' : 'General tolerances'}</text>
+    <text class="t-acc" x="345" y="303">ISO 2768-mK</text>
+    <rect x="6" y="10" width="9" height="9" rx="1" fill="#1e6fd6" opacity="0.85" />
+    <text class="t-sm" x="21" y="18.5">{tr ? 'antet bloğundaki nottan gelir' : 'supplied by the title-block note'}</text>
+  </g>
+</svg>

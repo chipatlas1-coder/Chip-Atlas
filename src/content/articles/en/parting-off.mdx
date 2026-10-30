@@ -1,0 +1,111 @@
+---
+key: parting-off
+locale: en
+slug: parting-off-and-grooving
+title: 'Parting off and grooving'
+description: 'Cutting a part off the bar and cutting grooves on a lathe: the tools, why the cutting speed runs out at the centre, how much the makers cut the feed there, where to stop, the pip, centre height and overhang, chips and coolant in a narrow slot, and how to cut wide, deep and face grooves.'
+section: 2
+subsection: turning
+order: 4
+updated: 2026-10-30
+tools: [turning]
+glance:
+  - value: '−50 to −75 %'
+    label: 'Feed reduction near the centre, maker by maker (Mitsubishi, Sumitomo, Sandvik Coromant interview)'
+  - value: '0 to +0.2 mm'
+    label: 'Centre height for cut-off (Sumitomo; the Sandvik Coromant interview gives ±0.1 mm)'
+  - value: '8–10 × width'
+    label: 'Recommended blade overhang (Sandvik Coromant specialist, interview)'
+  - value: '1–1.5 mm'
+    label: 'How far short of the end point a wide-groove cross-feed stops when a ring would remain; the ring is then plunged out (Mitsubishi)'
+sources:
+  - label: 'Mitsubishi Materials, technical information, GY series: notes on multi-functional machining and cut-off'
+    url: https://www.mmc-carbide.com/br/technical_information/tec_turning_tools/tec_grooving/guide/tec_grooving_gy_external_machining
+  - label: 'C. Koepfer, “Five process security tips when parting off”, Production Machining, 23 May 2014 (interview with S. Lewis, Sandvik Coromant)'
+    url: https://productionmachining.com/articles/five-process-security-tips-when-parting-off
+  - label: 'Sandvik Coromant, “How to choose the right tool for parting and grooving”, catalogue pp. B2–B26 (distributor copy)'
+    url: https://docs.steinerelectric.com/Sandvik_5736826_Catalog.pdf
+  - label: 'ISCAR, “Parting from the Smallest to the Largest Diameter with ISCAR’s Square Blades”, 3375101, G 5/2019'
+    url: https://www.iscar.com/Catalogs/Publication/english_1/parting_4_productivity_3375101/parting_4_productivity_3375101.pdf
+  - label: 'ISCAR, “The evolution of parting and grooving tools”, MSC Knowledge Center, 2026'
+    url: https://www.mscdirect.com/knowledge-center/articles/the-evolution-of-parting-and-grooving-tools
+  - label: 'ISCAR, “Parting & Grooving”, new product announcement, 2019 (DirectIndustry)'
+    url: https://pdf.directindustry.com/pdf/iscar-tools/parting-grooving/5692-896865.html
+  - label: 'Paul Horn GmbH, “New parting-off geometry for high feed rates”, 26 January 2021'
+    url: https://www.horn-group.com/news/news/detail-page/new-parting-off-geometry-for-high-feed-rates
+  - label: 'Tungaloy, GrooveLine grooving and parting-off tool, Report No. 391-US'
+    url: https://tungaloy.com/wpdata/wp-content/uploads/391-u_TungCut.pdf
+  - label: 'Sumitomo Electric, General Catalog 2025-2026, Grooving Tools GND: recommended cutting conditions (F15)'
+    url: https://online.flippingbook.com/view/410142785/377
+  - label: 'Sumitomo Electric, General Catalog 2025-2026, Grooving Tools GND: key points (F17)'
+    url: https://online.flippingbook.com/view/410142785/379
+  - label: 'T.C. Millî Eğitim Bakanlığı, CNC Tornalama Çevrimleri, Ankara 2015'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/10121311_Cnc_Tornalama_Cevrimleri.pdf
+---
+import PartingCut from '../../../components/mdx/PartingCut.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Parting off cuts a finished part off the bar with a narrow blade fed across the axis towards the centre; grooving uses the same kind of tool to cut a groove to depth. Sandvik Coromant lists the family as "Parting off, grooving, profiling and turning", and Tungaloy describes one of its geometries as able to do "external, internal, and face grooving, as well as side turning operations". In the Turkish MEB module both are one cycle: G75 is used for grooving on an outside or inside diameter or for cutting a part off.
+
+Many of the tools are blades that carry a replaceable insert, such as ISCAR's TANG-GRIP square blades ("Tangentially Clamped Inserts") and its DO-GRIP blades, with single-edged inserts (Horn, Tungaloy) or double-sided ones (ISCAR); for deep grooves Tungaloy says "please use 1-cornered insert" once the groove is deeper than the insert length minus 1.5 mm. The front of the insert is either square to the feed (neutral) or angled to one side (right- or left-handed): Sandvik Coromant codes them N, R and L and gives the front angle, for example 0° for a neutral insert. Mitsubishi sets out the trade-off: where there is a centre stub on solid bar or burrs form on tube, "it is possible to decrease them by using a handed insert", but "With a handed insert, machining tends to be less stable when compared to using a neutral insert." The narrower the blade, the less bar it turns into chips: ISCAR writes that "the desire to reduce material loss necessitates minimizing the cutting width", and its product limits pair each width with a largest diameter, for example "Parting up to 120mm diameter with 3 mm insert".
+
+## Parting to the centre
+
+The cut gets harder as it goes in. ISCAR: "If spindle velocity remains constant, the cutting speed will drop accordingly, reaching zero at the central point", and "Modern CNC machines allow for adjustable spindle velocity as a function of diameter reduction". As the [turning operations](/processes/turning-operations/) page shows with Siemens's G96/LIMS example, the spindle then stays at its programmed limit and the cutting speed still falls to zero at the centre. Mitsubishi recommends a limit of its own for cut-off at constant cutting speed: "limit the spindle speed to 80% of maximum to ensure stability". It also advises lowering the spindle speed before the cut is finished, so that the part is not thrown out.
+
+The three makers quoted here all cut the feed before the centre; they differ on how much:
+
+| Maker | Near the centre |
+|---|---|
+| Mitsubishi | "When the cutting edge approaches the centre, reduce the feed by 50%." |
+| Sumitomo | "In cut-off applications, reduce the feed rate to around 30% to 50% near the center of the workpiece." |
+| Sandvik Coromant (interview) | operators should "slow down their feed by up to 75 percent", starting about 0.080 in (2 mm) from the centre |
+
+Only the Sandvik interview gives a distance. Then stop short of the centre. The interview recommends "stopping before the tool hits the centerline of the part": the weight of the part then makes it wobble and fall off, and "once the part breaks free, it is more likely to strike and damage the insert" if the tool has gone past the centre. Mitsubishi stops early for the opposite reason: "If necessary, stop the feed prior to reaching the centre of the workpiece to prevent it falling under its own weight." If you want to feed past the centre, the interview's advice is to "not feed more than center plus the value of the insert corner radius."
+
+<Figure caption="Parting off, section through the bar, played as a time-lapse: the blade plunges, the groove deepens all round and the core shrinks; at the slow-down point the feed drops to the level of the chosen maker, the feed stops short of the centre and the part comes off. Below, the feed against the remaining radius. The slow-down distance is set by the slider; only the Sandvik interview gives one (2 mm). For Sandvik the figure uses the full 75 %, for Sumitomo the middle of its range. The point where the feed stops (0.4 mm before the centre) is chosen for the drawing; no source gives one. The cutting speed shown is for a constant spindle speed of 1200 min⁻¹ on a Ø40 mm bar, programmed feed 0.12 mm/rev: example values.">
+  <PartingCut locale="en" />
+</Figure>
+
+What is left at the centre has a name. ISCAR calls it the pip and writes that "this pip occurs with every parting operation"; Sumitomo calls it the nib, and links it to the centre height: "A lower center height will result in a larger nib at the center."
+
+## Centre height and overhang
+
+Sumitomo gives two settings: for grooving, "adjust the center height of the cutting edge to as close to ±0mm as possible" "(Within ±0.1mm is recommended.)", and "In cut-off applications, adjust the center height of the cutting edge to a value from 0 to +0.2mm." The Sandvik Coromant interview gives a single figure for parting, "within ± 0.004 inch (0.1 mm)". The two differ on whether the edge may sit below centre. The interview also gives the effects: "The more over center the tool is, the less clearance there is underneath the insert edge", while "if the tool is below center, the cutting forces increase on the cutting edge and can chip the insert."
+
+The blade should stick out as little as the job allows. Sumitomo: "The overhang of the holder should be as short as possible." ISCAR: "A slender, protruding tool has low rigidity, which negatively affects machining stability", and the overhang has to grow with the diameter to be cut off. The Sandvik interview puts a number on it: "In general, the recommended overhang is 8 to 10 times the insert width". Horn adds that the high feed rates of its EH geometry "require a stable machine for grooving and parting off".
+
+## Chips and coolant in a narrow slot
+
+ISCAR: the chips "must flow smoothly, ensuring their easy removal from the deepening, narrow groove", and creating an effective chip-forming and chip-breaking topology on the rake face "is therefore another significant challenge". Horn writes that "Reliable chip evacuation and control is ensured by the special chip formation." For long, tangling chips in general, see the [long chips](/troubleshooting/long-chips/) page. Inside a bore there is even less room. Sumitomo: "As there is less space for chip evacuation when machining internal diameters", it recommends its ML, GL and GF chipbreakers. For face grooving it gives "cutting conditions closer to the lower limit of the recommended cutting conditions".
+
+Getting coolant into the cut is hard: ISCAR writes that "the nature of these operations complicates effective coolant delivery, reducing cooling and lubricity effect." Makers therefore build the coolant into the blade or holder: ISCAR offers a pinpointed supply "including an HPC option, directed at the cutting zone", and Tungaloy lists grooving holders for high-pressure coolant.
+
+## Grooves that are wide, deep or on the face
+
+- **Narrow grooves: several plunges.** Mitsubishi: "It is recommended to carry out plunging in several passes." Following its steps "makes it difficult for chips to elongate", and "This also improves the accuracy of workpiece wall surface."
+- **Deep grooves: pecking.** The MEB module's G75 cycle advances in short steps and retracts after each one (pecking).
+- **Wide: plunge, then cross-feed.** For grooves wider than the insert Mitsubishi recommends cross-feed machining; where a ring would remain at the end, it stops the cross-feed 1–1.5 mm short of the end point and plunges the ring out. To keep chips from jamming at a wall it also stops short of the wall and plunges the rest, and for accurate walls with its MS or MM breakers it says "do not carry out back turning."
+- **Copying (profiling).** For its BM breaker inserts, with which "3 dimensional copying is possible", Mitsubishi says "Set the depth of cut (APMX) to 40% less than the insert width."
+- **On the face: from outside in, and the first cut decides the tool.** Sumitomo: "Considering the rigidity of the holder, we recommend machining from the outside to the inside", and choose the holder for the outer diameter of the first groove; Sandvik Coromant's tables give a minimum first-cut diameter for each face-grooving holder, and Tungaloy warns that "The tool will interfere with the workpiece when grooving larger diameters than øDmax."
+
+## Starting values
+
+No two makers' figures could be compared on the same width and material, so these are single examples, as published: two high-feed geometries (ISCAR TAG N3HF, Horn EH) and one general ISCAR parting insert (TAG N4C).
+
+| Maker, geometry | Feed |
+|---|---|
+| ISCAR TAG N3HF | 0.25–0.35 mm/rev |
+| ISCAR TAG N4C | 0.10–0.30 mm/rev; for grade IC20 "decreased by 50%" |
+| Horn EH (S100 system, 3 and 4 mm inserts) | 0.25–0.4 mm/rev; from 0.3 mm/rev, reduce the infeed for the first 3–4 mm |
+
+Take the starting values for a real job from the catalogue of the insert in use.
+
+<CheckList id="parting-before" locale="en" items={[
+  { icon: 'align', title: 'Centre height', check: 'Edge height against the spindle axis.', fix: 'Cut-off: 0 to +0.2 mm (Sumitomo) or within ±0.1 mm (Sandvik Coromant interview); grooving: within ±0.1 mm (Sumitomo). A lower edge leaves a larger nib (Sumitomo).', src: 'Sumitomo; Sandvik Coromant (interview)' },
+  { icon: 'overhang', title: 'Overhang', check: 'How far the blade sticks out of its holder.', fix: 'As short as possible (Sumitomo, ISCAR); about 8–10 × the insert width (Sandvik Coromant interview).', src: 'Sumitomo; ISCAR; Sandvik Coromant (interview)' },
+  { icon: 'speed', title: 'Spindle speed limit', check: 'The speed limit programmed for constant cutting speed.', fix: 'Set one; for cut-off Mitsubishi recommends 80 % of the maximum.', src: 'Mitsubishi' },
+  { icon: 'feed', title: 'Feed near the centre', check: 'Whether the program slows the feed before the centre.', fix: 'Reduce it: by 50 % (Mitsubishi), to about 30–50 % (Sumitomo), or by up to 75 % from 2 mm (Sandvik Coromant interview).', src: 'Mitsubishi; Sumitomo; Sandvik Coromant (interview)' },
+  { icon: 'depth', title: 'End point', check: 'Where the feed stops.', fix: 'Stop short of the centre (Sandvik Coromant interview; Mitsubishi, where the part must not fall); never feed more than the centre plus the corner radius (interview).', src: 'Mitsubishi; Sandvik Coromant (interview)' },
+  { icon: 'coolant', title: 'Coolant at the edge', check: 'Whether the coolant reaches the cut.', fix: 'Use a blade or holder with coolant aimed at the cutting zone, with high pressure where available (ISCAR, Tungaloy).', src: 'ISCAR; Tungaloy' },
+]} />

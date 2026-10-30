@@ -1,0 +1,84 @@
+---
+/* Thread turning on a lathe, front view: the bar held in the chuck, the thread already cut to the right
+   of the insert (pitch 20 units, depth 0.613 P), the 60° insert in the groove it is cutting, the feed of
+   one pitch per revolution towards the chuck. Inset: the groove in section with the passes, warm first,
+   the insert coming in along the flank as in modified-flank infeed. Schematic. */
+import { passColor } from '../../../lib/threadturn';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { chuck: 'ayna', work: 'iş parçası', insert: '60° diş ucu', feed: 'f = P / devir', passes: 'pasolar', infeed: 'değiştirilmiş yanak', rot: 'n sabit (G97)' }
+  : { chuck: 'chuck', work: 'workpiece', insert: '60° threading insert', feed: 'f = P per rev', passes: 'passes', infeed: 'modified flank', rot: 'constant n (G97)' };
+const f1 = (v: number) => v.toFixed(1);
+const p = 20, h = 0.613 * p, cy = 150, R = 52, yT = cy - R, yB = cy + R;
+const x0 = 232, x1 = 424;                       // thread from the insert to the bar end
+const n = Math.floor((x1 - x0) / p);
+const T30 = Math.tan(Math.PI / 6);
+// top silhouette: V grooves (flank 30°), small crest flats; bottom shifted by P/2 (the helix)
+const sil = (y0: number, dir: number, shift: number) => {
+  const pts: string[] = [];
+  const w = h * T30, flat = (p - 2 * w) / 2;
+  for (let k = 0; k <= n; k++) {
+    const xs = x0 + shift + k * p;
+    if (xs > x1) break;
+    pts.push(`${f1(xs)},${f1(y0)}`, `${f1(Math.min(x1, xs + flat))},${f1(y0)}`);
+    const xr = xs + flat + w;
+    if (xr <= x1) pts.push(`${f1(xr)},${f1(y0 + dir * h)}`, `${f1(Math.min(x1, xr + w))},${f1(y0)}`);
+  }
+  return pts;
+};
+const top = sil(yT, 1, -p / 2 + 0.5), bot = sil(yB, -1, 0);
+const grooveX = (k: number) => x0 - p / 2 + 0.5 + (p - 2 * h * T30) / 2 + h * T30 + k * p;   // root x of groove k on top
+const gx = grooveX(0);
+// helix lines across the bar: from a root on top to the root half a pitch on below
+const helix = Array.from({ length: n }, (_, k) => grooveX(k)).filter((x) => x > x0 && x + p / 2 < x1);
+// inset: groove in section with four passes (cumulative depth ∝ √i), modified flank 3° off the flank
+const ix = 392, iy = 240, iH = 54, passes = [1, 2, 3, 4].map((i) => Math.sqrt(i / 4) * iH);
+const th = (27 * Math.PI) / 180;
+const tips = passes.map((d) => ({ x: ix - (iH - d) * Math.tan(th), y: iy + d }));
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <!-- chuck and bar -->
+  <rect class="metal f" style="--i:0" x="22" y="62" width="44" height="176" rx="4" />
+  <rect class="face f" style="--i:1" x="58" y="84" width="16" height="22" rx="2" />
+  <rect class="face f" style="--i:1" x="58" y="194" width="16" height="22" rx="2" />
+  <path class="metal-h f" style="--i:2" d={`M66,${yT} L${x0 - 2},${yT} L${top.join(' L')} L${x1},${yT} L${x1 + 8},${yT + 8} L${x1 + 8},${yB - 8} L${x1},${yB} L${[...bot].reverse().join(' L')} L${x0 - 2},${yB} L66,${yB} Z`} />
+  <path class="o2 d" style="--i:3" pathLength="1" d={`M66,${yT} L${x0 - 2},${yT} L${top.join(' L')} L${x1},${yT} L${x1 + 8},${yT + 8} L${x1 + 8},${yB - 8} L${x1},${yB} L${[...bot].reverse().join(' L')} L${x0 - 2},${yB} L66,${yB}`} />
+  <g class="f" style="--i:4">
+    {helix.map((x) => <line x1={f1(x)} y1={f1(yT + h)} x2={f1(x + p / 2)} y2={f1(yB - h)} stroke="#7d8893" stroke-opacity="0.55" stroke-width="1" />)}
+  </g>
+  <line class="c f" style="--i:5" x1="14" y1={cy} x2="466" y2={cy} />
+
+  <!-- holder and insert in the groove -->
+  <rect class="carbide f" style="--i:6" x={f1(gx - 14)} y="8" width="58" height="46" rx="3" />
+  <path class="coat f" style="--i:7" d={`M${f1(gx)},${f1(yT + h)} L${f1(gx - (h + 44) * T30)},${f1(yT - 44)} L${f1(gx + (h + 44) * T30)},${f1(yT - 44)} Z`} stroke="#8a6420" stroke-width="1.2" stroke-linejoin="round" />
+  <path class="a d" style="--i:8" pathLength="1" d={`M${f1(gx - 18 * T30)},${f1(yT + h - 18)} L${f1(gx)},${f1(yT + h)} L${f1(gx + 18 * T30)},${f1(yT + h - 18)}`} />
+
+  <!-- feed towards the chuck, rotation -->
+  <line class="a d" style="--i:9" pathLength="1" x1={f1(gx - 44)} y1="72" x2={f1(gx - 112)} y2="72" marker-end="url(#ca-arr-acc)" />
+  <path class="b d" style="--i:10" pathLength="1" d={`M${x1 + 26},${cy - 46} A16,48 0 0,1 ${x1 + 26},${cy + 46}`} marker-end="url(#ca-arr-data)" />
+
+  <!-- inset: the groove in section, passes warm first -->
+  <rect class="sunk f" style="--i:11" x="292" y="212" width="176" height="100" rx="6" stroke="var(--line-strong)" stroke-width="1" />
+  <path class="hatch f" style="--i:12" d={`M296,${iy} L${f1(ix - iH * T30)},${iy} L${ix},${iy + iH} L${f1(ix + iH * T30)},${iy} L464,${iy} L464,308 L296,308 Z`} />
+  <g class="f" style="--i:13">
+    {[...tips].reverse().map((t, j) => {
+      const i = tips.length - 1 - j, w = (t.y - iy) * T30;
+      return <path d={`M${f1(t.x - w)},${iy} L${f1(t.x)},${f1(t.y)} L${f1(t.x + w)},${iy} Z`} fill={passColor(i, tips.length)} fill-opacity="0.9" stroke="#fff" stroke-width="0.6" />;
+    })}
+  </g>
+  <line class="a d" style="--i:14" pathLength="1" x1={f1(tips[0].x - 30 * Math.tan(th) - 30)} y1={f1(iy - 24)} x2={f1(tips[0].x - 30)} y2={f1(iy + 6)} marker-end="url(#ca-arr-acc)" />
+
+  <g class="lbl">
+    <text class="t-sm" x="24" y="256">{T.chuck}</text>
+    <text class="t-sm" x="96" y={yB + 22}>{T.work}</text>
+    <text class="t-acc" x={f1(gx - 150)} y="60">{T.feed}</text>
+    <text class="t-ink" x={f1(gx + 50)} y="30">{T.insert}</text>
+    <line class="h" x1={f1(grooveX(3))} y1={f1(yT - 12)} x2={f1(grooveX(4))} y2={f1(yT - 12)} marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <text class="t-ink" x={f1((grooveX(3) + grooveX(4)) / 2 - 4)} y={f1(yT - 18)}>P</text>
+    <text class="t-data t-sm" x={x1 - 80} y={cy - 56}>{T.rot}</text>
+    <text class="t-sm" x="462" y="229" text-anchor="end">{T.passes}</text>
+    <text class="t-acc t-sm" x="300" y="302">{T.infeed}</text>
+  </g>
+</svg>

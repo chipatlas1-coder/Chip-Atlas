@@ -1,0 +1,149 @@
+---
+/**
+ * Stock allowance before reaming, on diameter, as four sources print it (Gühring by work material,
+ * Newman/ICS, Kennametal Tech Tip #8, Kennametal's 3 % rule) plus Hoffmann's per-tool values;
+ * pick a reamer size and read the allowance and the pre-drill diameter each source gives.
+ * Data and drawing in src/lib/ream.ts.
+ */
+import { drawAllow, allowRead, type AState } from '../../lib/ream';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { d: 'Rayba Ø (mm)', mm: 'Raybalama payı, çapta (mm)', g: 'Gühring', n: 'Newman / ICS', k: 'Kennametal', p: 'Kennametal %3', h: 'Hoffmann', size: 'Rayba çapı', mat: 'Gühring satırı', all: 'Tüm malzemeler', h48: 'Sertleştirilmiş, ≤ 48 HRC', h63: 'Sertleştirilmiş, ≤ 63 HRC', allow: 'pay', drill: 'ön delik', none: 'tablo burada bitiyor', aria: 'Rayba çapına göre raybalama payı: Gühring, Newman/ICS ve Kennametal tabloları, Kennametal’in %3 kuralı ve Hoffmann takım değerleri' }
+  : { d: 'Reamer Ø (mm)', mm: 'Stock allowance on diameter (mm)', g: 'Gühring', n: 'Newman / ICS', k: 'Kennametal', p: 'Kennametal 3 %', h: 'Hoffmann', size: 'Reamer size', mat: 'Gühring row', all: 'All materials', h48: 'Hardened, ≤ 48 HRC', h63: 'Hardened, ≤ 63 HRC', allow: 'stock', drill: 'pre-drill', none: 'table ends here', aria: 'Stock allowance against reamer diameter: the Gühring, Newman/ICS and Kennametal tables, Kennametal’s 3 % rule and Hoffmann’s per-tool values' };
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+const st: AState = { d: 16, mat: 'all' };
+const G = [drawAllow(st, T, false, dec), drawAllow(st, T, true, dec)];
+const r = allowRead(st);
+const rng = (a: number, b: number) => (Math.abs(a - b) < 1e-9 ? dec(a.toFixed(2)) : `${dec(a.toFixed(2))}–${dec(b.toFixed(2))}`);
+const rows = [
+  { k: 'g', name: T.g },
+  { k: 'n', name: T.n },
+  { k: 'k', name: T.k },
+  { k: 'p', name: T.p },
+] as const;
+---
+<div class="ra" data-ra data-locale={locale} data-anim>
+  <div class="controls">
+    <label class="field grow"><span>{T.size} <output data-o="d">{dec(String(st.d))}</output> mm</span>
+      <input type="range" min="1" max="50" step="0.5" value={st.d} data-i="d" /></label>
+    <label class="field"><span>{T.mat}</span>
+      <select data-i="mat">
+        <option value="all" selected>{T.all}</option>
+        <option value="h48">{T.h48}</option>
+        <option value="h63">{T.h63}</option>
+      </select></label>
+  </div>
+  <svg viewBox={`0 0 ${G[0].W} ${G[0].H}`} class="wide" role="img" aria-label={T.aria} data-svg="w" set:html={G[0].svg} />
+  <svg viewBox={`0 0 ${G[1].W} ${G[1].H}`} class="narrow" role="img" aria-label={T.aria} data-svg="n" set:html={G[1].svg} />
+  <dl class="read">
+    {rows.map(({ k, name }, i) => {
+      const v = r[k];
+      return (
+        <div class={k} data-h={k} tabindex="0" style={`--i:${i}`}>
+          <dt><i></i>{name}</dt>
+          <dd class="num" data-o={k}>{v ? <><b>{rng(v.lo, v.hi)}</b> <span>{T.allow}</span><br /><b>{rng(v.dlo, v.dhi)}</b> <span>{T.drill}</span></> : <span class="none">{T.none}</span>}</dd>
+        </div>
+      );
+    })}
+  </dl>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .ra { display: grid; gap: 0.8rem; }
+  .ra > svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .narrow { display: none !important; }
+  @media (max-width: 40rem) { .wide { display: none !important; } .narrow { display: block !important; } }
+  .controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.7rem 1.2rem; align-items: end; }
+  @media (max-width: 40rem) { .controls { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.35rem; min-width: 0; }
+  .field > span { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  select { width: 100%; font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--bg-sunk); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.35rem 0.5rem; min-height: 2.1rem; }
+  .read { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+  @media (max-width: 40rem) { .read { grid-template-columns: 1fr 1fr; } }
+  .read > div { border-radius: 4px; padding: 0.35rem 0.5rem; margin: -0.35rem -0.5rem; transition: background-color 150ms; }
+  .read > div:hover, .read > div:focus-visible { background: color-mix(in oklab, var(--data) 8%, transparent); }
+  .read > div:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .read dt { font-size: 0.8rem; color: var(--ink-2); display: flex; align-items: center; gap: 0.4rem; }
+  .read dt i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .read dd { margin: 0.2rem 0 0; font-size: 0.8rem; color: var(--ink-3); line-height: 1.5; }
+  .read dd :global(b) { font: 500 1rem var(--font-mono); color: var(--ink); }
+  .read :global(.none) { font-style: italic; }
+  .g dt i { background: #e2601a; } .n dt i { background: #13998a; } .k dt i { background: #2a78d6; } .p dt i { background: #c98a0a; }
+  .g dd :global(b:first-child) { color: #e2601a; } .n dd :global(b:first-child) { color: #13998a; } .k dd :global(b:first-child) { color: #2a78d6; } .p dd :global(b:first-child) { color: #c98a0a; }
+  .ra :global(.ra-grid) { stroke: var(--line); stroke-width: 1; }
+  .ra :global(.ra-axis) { stroke: var(--line-strong); stroke-width: 1; }
+  .ra :global(.ra-tick) { font: 11px var(--font-mono); fill: var(--ink-3); }
+  .ra :global(.ra-ax) { font-size: 11.5px; fill: var(--ink-3); }
+  .ra :global(.ra-lab) { font-size: 12px; font-weight: 500; }
+  .ra :global(.ra-lab.g) { fill: #e2601a; } .ra :global(.ra-lab.n) { fill: #13998a; } .ra :global(.ra-lab.k) { fill: #2a78d6; } .ra :global(.ra-lab.p) { fill: #c98a0a; }
+  .ra :global(.ra-band.g) { fill: #e2601a; fill-opacity: 0.22; }
+  .ra :global(.ra-band.n) { fill: #13998a; fill-opacity: 0.2; }
+  .ra :global(.g .ra-edge) { stroke: #e2601a; stroke-width: 2.2; fill: none; }
+  .ra :global(.n .ra-edge) { stroke: #13998a; stroke-width: 1.6; fill: none; }
+  .ra :global(.ra-line) { stroke: #2a78d6; stroke-width: 2.2; fill: none; }
+  .ra :global(.ra-pct) { stroke: #c98a0a; stroke-width: 1.6; fill: none; stroke-dasharray: 6 4; }
+  .ra :global(.ra-hof) { stroke: #1e2123; stroke-width: 3; stroke-linecap: round; }
+  .ra :global(.ra-curl) { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 3 3; }
+  .ra :global(.ra-curt) { font: 500 11.5px var(--font-mono); fill: var(--ink); }
+  .ra :global(.ra-curb) { fill: #f7fbfe; stroke: var(--line-strong); stroke-width: 1; }
+  .ra :global(.ra-hofl) { font-size: 11px; fill: #1e2123; }
+  .read dd :global(span) { white-space: nowrap; }
+  .ra :global(.ra-dot) { stroke: #f7fbfe; stroke-width: 1.4; }
+  .ra :global(.ra-dot.g) { fill: #e2601a; } .ra :global(.ra-dot.n) { fill: #13998a; } .ra :global(.ra-dot.k) { fill: #2a78d6; } .ra :global(.ra-dot.p) { fill: #c98a0a; }
+  .ra .narrow :global(.ra-tick) { font-size: 10.5px; }
+  /* hovering a readout brings its source forward */
+  .ra :global(.ra-s) { transition: opacity 160ms; }
+  .ra[data-h] :global(.ra-s) { opacity: 0.18; }
+  .ra[data-h='g'] :global(.ra-s.g), .ra[data-h='n'] :global(.ra-s.n), .ra[data-h='k'] :global(.ra-s.k), .ra[data-h='p'] :global(.ra-s.p) { opacity: 1; }
+  /* entry: the bands rise, the lines draw, the cursor and readouts follow */
+  .ra :global(.ra-band) { transform-box: fill-box; transform-origin: 50% 100%; }
+  :global(html.anim) .ra[data-anim]:not([data-in]) :global(:is(.ra-band, .ra-edge, .ra-line, .ra-pct, .ra-hof, .ra-cur)) { opacity: 0; }
+  :global(html.anim) .ra[data-anim][data-in]:not(.settled) :global(.ra-band) { animation: ca-grow-y 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+  :global(html.anim) .ra[data-anim][data-in]:not(.settled) :global(.n .ra-band) { animation-delay: 0.2s; }
+  :global(html.anim) .ra[data-anim][data-in]:not(.settled) :global(:is(.ra-edge, .ra-line, .ra-pct)) { stroke-dasharray: 1; animation: ca-draw 1s 0.3s ease-out backwards; }
+  :global(html.anim) .ra[data-anim][data-in]:not(.settled) :global(.ra-hof) { animation: ca-pop 0.4s 1s backwards; }
+  :global(html.anim) .ra[data-anim][data-in]:not(.settled) :global(.ra-cur) { animation: ca-fade 0.5s 1.2s backwards; }
+  :global(html.anim) .ra[data-anim]:not([data-in]) .read > div { opacity: 0; }
+  :global(html.anim) .ra[data-anim][data-in]:not(.settled) .read > div { animation: ca-rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(1.3s + var(--i) * 0.12s); }
+</style>
+
+<script>
+  import { drawAllow, allowRead } from '../../lib/ream';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-ra]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const svgs = [q<SVGSVGElement>('[data-svg="w"]'), q<SVGSVGElement>('[data-svg="n"]')];
+    const range = q<HTMLInputElement>('[data-i="d"]'), mat = q<HTMLSelectElement>('[data-i="mat"]');
+    const rng = (a: number, b: number) => (Math.abs(a - b) < 1e-9 ? dec(a.toFixed(2)) : `${dec(a.toFixed(2))}–${dec(b.toFixed(2))}`);
+    const render = () => {
+      root.classList.add('settled');
+      const st = { d: Number(range.value), mat: mat.value as 'all' | 'h48' | 'h63' };
+      svgs.forEach((svg, i) => { const g = drawAllow(st, T, i === 1, dec); svg.setAttribute('viewBox', `0 0 ${g.W} ${g.H}`); svg.innerHTML = g.svg; });
+      const r = allowRead(st) as Record<string, { lo: number; hi: number; dlo: number; dhi: number } | null>;
+      q('[data-o="d"]').textContent = dec(String(st.d));
+      ['g', 'n', 'k', 'p'].forEach((k) => {
+        const v = r[k], dd = q<HTMLElement>(`[data-o="${k}"]`);
+        dd.innerHTML = v ? `<b>${rng(v.lo, v.hi)}</b> <span>${T.allow}</span><br><b>${rng(v.dlo, v.dhi)}</b> <span>${T.drill}</span>` : `<span class="none">${T.none}</span>`;
+      });
+    };
+    range.addEventListener('input', render);
+    mat.addEventListener('change', render);
+    root.querySelectorAll<HTMLElement>('.read > div').forEach((d) => {
+      const on = () => { root.dataset.h = d.dataset.h; };
+      const off = () => { delete root.dataset.h; };
+      d.addEventListener('mouseenter', on);
+      d.addEventListener('mouseleave', off);
+      d.addEventListener('focus', on);
+      d.addEventListener('blur', off);
+    });
+    whenIn(root, () => setTimeout(() => root.classList.add('settled'), 2400));
+  });
+</script>

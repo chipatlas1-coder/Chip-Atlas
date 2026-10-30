@@ -1,0 +1,123 @@
+---
+key: chip-types
+locale: en
+slug: chip-types
+title: 'Chip types and chip forms'
+description: 'The four chip types (continuous, built-up edge, discontinuous, serrated), the eight chip forms of ISO 3685, and how a chip breaker makes a long chip break.'
+section: 1
+subsection: chip-formation
+order: 2
+updated: 2026-10-11
+tools: [turning]
+glance:
+  - value: '4'
+    label: 'Chip types by the way the material deforms'
+  - value: '8'
+    label: 'Chip forms in ISO 3685, Annex G'
+  - value: '4.2, 6.2, 7'
+    label: 'Forms rated favourable in a study using ISO 3685'
+  - value: 'ISO 10910'
+    label: 'Classifies chip control zones of chip breakers'
+sources:
+  - label: 'S. Kalpakjian, S. R. Schmid, Manufacturing Engineering and Technology, ch. 21, chip types (lecture slides, Isfahan University of Technology)'
+    url: https://people.iut.ac.ir/sites/default/files/users/mosafavi/course_files/fundamental_of_machining.pdf
+  - label: 'University of Babylon, lecture notes on chip formation (after Groover)'
+    url: https://cdnx.uobabylon.edu.iq/lectures/dPzBspFeUFZ4HKEd2beQ.pdf
+  - label: 'University of Cambridge, 3M1 examination crib 2013 (chip types, built-up edge)'
+    url: https://teaching.eng.cam.ac.uk/system/files/3met2013p2_crib.pdf
+  - label: 'ISO 3685:1993, Tool-life testing with single-point turning tools, Annex G "Chip characteristics"'
+    url: https://www.iso.org/standard/9151.html
+  - label: 'Hennig, Chip and coolant management overview (reproduces the ISO 3685 chip form table)'
+    url: https://hennigworldwide.com/assets/literature/en/chip-and-coolant-management-overview-usa.pdf
+  - label: 'H. Skrijelj, S. Jović, "Chip form prediction by computational intelligence techniques", Journal of Production Engineering 21(1), 2018'
+    url: https://jged.uns.ac.rs/index.php/jpe/article/download/1162/1211
+  - label: 'Tungaloy, "Fundamentals of chipbreakers — from basic theory to selection"'
+    url: https://tungaloy.com/?p=722658
+  - label: 'ISO 10910:1995, Classification and designation of approximate chip control zones for indexable inserts with chipbreakers'
+    url: https://www.iso.org/standard/2696.html
+  - label: 'Mitsubishi Materials, technical information on chip control'
+    url: https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/information/kirikuzu.html
+  - label: 'C. Healy, S. Koch, C. Siemers, D. Mukherji, G. J. Ackland, "Shear melting and high temperature embrittlement: theory and application to machining titanium", arXiv:1503.08662, 2015'
+    url: https://arxiv.org/abs/1503.08662
+---
+import ChipForms from '../../../components/mdx/ChipForms.astro';
+import ChipBreaker from '../../../components/mdx/ChipBreaker.astro';
+import ChipWindow from '../../../components/mdx/ChipWindow.astro';
+
+The chip is the most honest report a cut gives. Its type tells you how the material deformed; its form tells you whether it will leave the machine on its own or wrap around the tool and the part.
+
+## Four chip types
+
+Textbooks group chips into four types by the way the material deforms in the shear zone.
+
+| Type | How it forms | Typical conditions | What it means |
+|---|---|---|---|
+| **Continuous** | Continuous plastic deformation without fracture | Ductile materials, high cutting speed and/or large rake angle, sharp edge | Stable cutting and good surface, but the chip must be broken or it wraps around tool and part |
+| **Continuous with built-up edge (BUE)** | Work material welds to the rake face, grows, becomes unstable and breaks away | Ductile materials at low to medium speed, high friction, small rake angle, ineffective cutting fluid | Fragments of the BUE stick to the surface and roughen it; the effective tool geometry keeps changing |
+| **Discontinuous** | The chip fractures into separate segments | Brittle materials such as grey cast iron, hard inclusions, small rake angle, large depth of cut, low machine stiffness | Normal for cast iron; on ductile steel it signals unsuitable conditions |
+| **Serrated (segmented)** | Semicontinuous chip with narrow bands of very high shear strain between wide zones of low strain | Titanium alloys, nickel superalloys and austenitic stainless steel at higher speeds | Cyclic force, a sawtooth chip and heavy edge loading |
+
+In serrated chips, heat cannot leave the primary shear zone fast enough. The material softens locally and the shear concentrates in a thin **adiabatic shear band**.
+
+<Note kind="note" title="Discontinuous chips and speed">
+Sources disagree on speed. Groover associates discontinuous chips with low cutting speed; Kalpakjian lists very low or very high speeds. Both agree on the main causes: a brittle work material and a small rake angle.
+</Note>
+
+<Note kind="key" title="Removing a built-up edge">
+Raise the cutting speed, use a sharp edge and a larger rake angle, apply an effective cutting fluid, or choose a tool material with low chemical affinity to the work. Each of these makes it harder for work material to weld to the rake face.
+</Note>
+
+## The eight chip forms of ISO 3685
+
+Annex G of ISO 3685, titled "Chip characteristics", classifies chip forms for tool-life testing in turning. Six of the eight forms have sub-forms: four by length (long, short, snarled), the spiral by shape, and the arc by whether the pieces stay connected.
+
+<Figure caption="Chip forms after ISO 3685:1993 Annex G, drawn schematically. Sub-forms: 1, 2, 4 and 5 are long, short or snarled; 3 is flat or conical; 6 is connected or loose.">
+  <ChipForms locale="en" />
+</Figure>
+
+| No. | Form | Sub-forms |
+|---|---|---|
+| 1 | Ribbon | 1.1 long, 1.2 short, 1.3 snarled |
+| 2 | Tubular | 2.1 long, 2.2 short, 2.3 snarled |
+| 3 | Spiral | 3.1 flat, 3.2 conical |
+| 4 | Washer-type helical | 4.1 long, 4.2 short, 4.3 snarled |
+| 5 | Conical helical | 5.1 long, 5.2 short, 5.3 snarled |
+| 6 | Arc | 6.1 connected, 6.2 loose |
+| 7 | Elemental | — |
+| 8 | Needle | — |
+
+Long and snarled forms tangle around the tool, the part and the chuck, and they are hard to remove from the machine. A study that classified chips according to ISO 3685 lists short washer-type helical (4.2), loose arc (6.2) and elemental (7) chips as favourable, and long ribbon (1.1), snarled tubular (2.3), flat spiral (3.1) and long or snarled washer-type helical (4.1, 4.3) chips as unfavourable.
+
+<Note kind="warn" title="Do not mix numbering schemes">
+Several manufacturers publish their own chip charts with letters (A to H) or their own classes. Those are not the ISO 3685 numbers. When a chip form is quoted by number, check which chart it comes from.
+</Note>
+
+## How a chip breaker works
+
+A chip breaker does not cut the chip. It bends it until it breaks. Tungaloy describes the sequence in four steps:
+
+1. The material is sheared and lifted off the work.
+2. The groove and wall of the chip breaker force the chip to curl tightly.
+3. The tighter the curl, the larger the bending strain inside the chip.
+4. When that strain exceeds the fracture strain of the material, the chip breaks.
+
+<Figure caption="The four steps on an insert with a land, a groove and a backwall, drawn schematically. The bar under each step shows how the bending strain in the chip rises as the curl tightens, until it passes the fracture strain of the material. It shows the order of events, not values.">
+  <ChipBreaker locale="en" />
+</Figure>
+
+The chip breaks in one of three ways: against the tool, against the workpiece, or by bending on its own.
+
+### The chip-breaking window
+
+Every chip breaker works only within a range of feed and depth of cut. Tungaloy puts the limits plainly: if the feed is too low, the chip is thin and hard to break; if it is too high, the chip is restrained too much and the edge is overloaded. If the depth of cut is too shallow, the chip is not wide enough for the breaker to act on. Tool makers draw the working range as an area on a chart of feed against depth of cut, and ISO 10910 defines how such chip control zones are classified and designated. Both Tungaloy and Mitsubishi note that the range generally becomes narrower as cutting speed rises: the hotter chip is softer and harder to break.
+
+<Figure caption="The chip-breaking window, drawn schematically after the limits above. Each chip breaker has its own chart with real values for feed and depth of cut; the dashed area stands for the narrower range at higher cutting speed.">
+  <ChipWindow locale="en" />
+</Figure>
+
+## Reading the chip at the machine
+
+- **Long ribbon or snarled chips:** the feed or depth of cut is probably below the breaker's range. Raise the feed, or choose a chip breaker designed for lower feeds; the full list in order is on the [long, tangling chips](/troubleshooting/long-chips/) page.
+- **Shiny material welded on the rake face, torn surface:** built-up edge. Raise the cutting speed and use a sharper, more positive edge.
+- **Sawtooth chip on titanium or a nickel alloy:** expected for these materials. Keep the edge strong and the setup rigid.
+- **Short arcs or tight short helices:** the chip breaker is working.

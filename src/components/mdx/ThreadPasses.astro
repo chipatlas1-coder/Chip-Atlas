@@ -1,0 +1,140 @@
+---
+/**
+ * Depth of each pass under three rules (ISCAR's constant chip area, the √N law of Haas and Kennametal,
+ * constant depth) for a chosen total depth and number of passes; the V sections show the passes as bands,
+ * the chart the chip area each pass removes (sharp 60° V, radial infeed), and the table the depths, with
+ * passes under 0.05 mm marked. Arithmetic in src/lib/threadturn.ts.
+ */
+import { MMC, RULES, schedule, perPass, radialAreas, drawRings, drawAreas } from '../../lib/threadturn';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { preset: 'Başlangıç değerleri', iscarEx: 'ISCAR örneği: P 1,25 · 0,78 mm · 6 paso', fl: ['ilk', 'son'], short: ['ISCAR', '√N', 'Sabit derinlik'], mmc: 'Mitsubishi', ap: 'Toplam derinlik ap', n: 'Paso sayısı', iscar: 'ISCAR: sabit kesit', sqrt: '√N (Haas, Kennametal)', const: 'Sabit derinlik', pass: 'Paso', x: 'paso', y: 'kesit mm²', mmcCol: 'Mitsubishi tablosu', thin: '0,05 mm’nin altında', aria: 'Üç kurala göre paso derinlikleri: dişin kesitinde bantlar ve paso başına kaldırılan kesit', note: 'Hücrede: pasonun derinliği, parantez içinde o pasodan sonraki toplam derinlik (mm).' }
+  : { preset: 'Start from', iscarEx: 'ISCAR example: P 1.25 · 0.78 mm · 6 passes', fl: ['first', 'last'], short: ['ISCAR', '√N', 'Constant depth'], mmc: 'Mitsubishi', ap: 'Total depth ap', n: 'Number of passes', iscar: 'ISCAR: constant area', sqrt: '√N (Haas, Kennametal)', const: 'Constant depth', pass: 'Pass', x: 'pass', y: 'area mm²', mmcCol: 'Mitsubishi table', thin: 'under 0.05 mm', aria: 'Depth of each pass under three rules: the passes as bands in the thread section, and the area each pass removes', note: 'In each cell: the depth of that pass, and in brackets the total depth after it (mm).' };
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+const ap0 = 0.78, n0 = 6;
+const cums = RULES.map((r) => schedule(r, ap0, n0));
+const labels = [T.iscar, T.sqrt, T.const];
+const G = [drawRings(cums, labels, false, dec, 1, T.fl), drawRings(cums, T.short, true, dec, 1, T.fl)];
+const A = [drawAreas(cums.map(radialAreas), false, T, dec), drawAreas(cums.map(radialAreas), true, T, dec)];
+const rows = Array.from({ length: n0 }, (_, i) => i);
+const per = cums.map(perPass);
+const presets = [{ label: T.iscarEx, ap: 0.78, n: 6 }, ...MMC.map((r) => ({ label: `${T.mmc}: P ${dec(String(r.P))} · ${dec(r.total.toFixed(2))} mm · ${r.passes.length} ${T.x}${tr ? '' : 'es'}`, ap: r.total, n: r.passes.length }))];
+---
+<div class="tp" data-tp data-locale={locale} data-anim>
+  <div class="controls">
+    <label class="field"><span>{T.preset}</span>
+      <select data-i="pre">{presets.map((p, i) => <option value={i} selected={i === 0}>{p.label}</option>)}</select>
+    </label>
+    <label class="field"><span>{T.ap} <output data-o="ap">{dec(ap0.toFixed(2))}</output> mm</span><input type="range" min="0.2" max="2" step="0.01" value={ap0} data-i="ap" /></label>
+    <label class="field"><span>{T.n} <output data-o="n">{n0}</output></span><input type="range" min="3" max="16" step="1" value={n0} data-i="n" /></label>
+  </div>
+  <svg viewBox={`0 0 ${G[0].W} ${G[0].H}`} class="wide" role="img" aria-label={T.aria} data-s="rw" set:html={G[0].svg} />
+  <svg viewBox={`0 0 ${G[1].W} ${G[1].H}`} class="narrow" role="img" aria-label={T.aria} data-s="rn" set:html={G[1].svg} />
+  <svg viewBox={`0 0 ${A[0].W} ${A[0].H}`} class="wide" aria-hidden="true" data-s="aw" set:html={A[0].svg} />
+  <svg viewBox={`0 0 ${A[1].W} ${A[1].H}`} class="narrow" aria-hidden="true" data-s="an" set:html={A[1].svg} />
+  <div class="table-scroll">
+    <table class="num">
+      <thead><tr><th>{T.pass}</th><th class="c-iscar">{T.iscar}</th><th class="c-sqrt">{T.sqrt}</th><th class="c-const">{T.const}</th><th class="c-mmc" data-mmc hidden>{T.mmcCol}</th></tr></thead>
+      <tbody data-rows>
+        {rows.map((i) => <tr><td>{i + 1}</td>{per.map((p, r) => <td class:list={[{ thin: p[i] < 0.05 - 1e-9 }]}>{dec(p[i].toFixed(2))} <small>({dec(cums[r][i].toFixed(2))})</small></td>)}<td data-mmc hidden></td></tr>)}
+      </tbody>
+    </table>
+  </div>
+  <p class="foot">{T.note} <span class="thin-key">■</span> {T.thin}</p>
+  <script type="application/json" data-text set:html={JSON.stringify({ ...T, presets, mmcRows: MMC.map((r) => r.passes) })} />
+</div>
+
+<style>
+  .tp { display: grid; gap: 0.75rem; }
+  .controls { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0.7rem 1rem; align-items: end; }
+  @media (max-width: 40rem) { .controls { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  select { width: 100%; font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--bg-sunk); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.35rem 0.5rem; min-height: 2.1rem; }
+  svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  svg.narrow { display: none; }
+  @media (max-width: 40rem) { svg.wide { display: none; } svg.narrow { display: block; } }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { padding: 0.3rem 0.55rem; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { font-weight: 500; font-size: 0.78rem; color: var(--ink-2); }
+  th:first-child, td:first-child { text-align: left; color: var(--ink-3); }
+  td small { color: var(--ink-3); font-size: 0.75rem; }
+  th.c-iscar { color: #e2601a; } th.c-sqrt { color: #2a78d6; } th.c-const { color: #8b52c9; } th.c-mmc { color: #13998a; }
+  td.thin, .thin-key { color: #c2413b; }
+  .foot { margin: 0; font-size: 0.78rem; color: var(--ink-3); }
+  .tp :global(.tr-work) { fill: url(#ca-hatch); }
+  .tp :global(.tr-band) { stroke: #f7fbfe; stroke-width: 0.7; stroke-linejoin: round; }
+  .tp :global(.tr-final) { fill: none; stroke: #1e2123; stroke-width: 1; stroke-dasharray: 4 3; opacity: 0.7; }
+  .tp :global(.tr-crest) { stroke: #555d63; stroke-width: 1; }
+  .tp :global(.tr-grid) { stroke: var(--line); stroke-width: 1; }
+  .tp :global(.tr-line) { fill: none; stroke-width: 2; stroke-linejoin: round; }
+  .tp :global(.tr-dot) { stroke: #f7fbfe; stroke-width: 1.2; }
+  .tp :global(.tr-t) { font: 11px var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; }
+  .tp :global(.tr-t.s) { font-size: 10.5px; fill: var(--ink-3); }
+  .tp :global(.tr-t.h) { font-size: 11.5px; font-weight: 600; }
+  :global(html.anim) .tp[data-anim][data-in]:not(.settled) :global(.tr-line) { stroke-dasharray: 1; animation: ca-draw 1.1s 0.6s ease-out backwards; }
+  :global(html.anim) .tp[data-anim]:not([data-in]) :global(.tr-dot) { opacity: 0; }
+  :global(html.anim) .tp[data-anim][data-in]:not(.settled) :global(.tr-dot) { animation: ca-pop 0.3s 1.4s backwards; }
+</style>
+
+<script>
+  import { RULES, schedule, perPass, radialAreas, drawRings, drawAreas } from '../../lib/threadturn';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-tp]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const apIn = q<HTMLInputElement>('[data-i="ap"]'), nIn = q<HTMLInputElement>('[data-i="n"]'), pre = q<HTMLSelectElement>('[data-i="pre"]');
+    const labels = [T.iscar, T.sqrt, T.const];
+    const rings = (grow: number) => {
+      const ap = Number(apIn.value), n = Number(nIn.value);
+      const cums = RULES.map((r) => schedule(r, ap, n));
+      q('[data-s="rw"]').innerHTML = drawRings(cums, labels, false, dec, grow, T.fl).svg;
+      q('[data-s="rn"]').innerHTML = drawRings(cums, T.short, true, dec, grow, T.fl).svg;
+    };
+    const render = () => {
+      rings(1);
+      const ap = Number(apIn.value), n = Number(nIn.value);
+      const cums = RULES.map((r) => schedule(r, ap, n));
+      q('[data-s="aw"]').innerHTML = drawAreas(cums.map(radialAreas), false, T, dec).svg;
+      q('[data-s="an"]').innerHTML = drawAreas(cums.map(radialAreas), true, T, dec).svg;
+      q('[data-o="ap"]').textContent = dec(ap.toFixed(2));
+      q('[data-o="n"]').textContent = String(n);
+      // the Mitsubishi column only while the chosen row is unchanged
+      const pi = Number(pre.value) - 1, p = T.presets[pi + 1];
+      const mm: number[] | null = pi >= 0 && p && Math.abs(p.ap - ap) < 1e-9 && p.n === n ? T.mmcRows[pi] : null;
+      root.querySelectorAll<HTMLElement>('th[data-mmc]').forEach((e) => (e.hidden = !mm));
+      const per = cums.map(perPass);
+      let mc = 0;
+      q('[data-rows]').innerHTML = Array.from({ length: n }, (_, i) => {
+        const cells = per.map((pp, r) => `<td${pp[i] < 0.05 - 1e-9 ? ' class="thin"' : ''}>${dec(pp[i].toFixed(2))} <small>(${dec(cums[r][i].toFixed(2))})</small></td>`).join('');
+        let m = '';
+        if (mm) { mc += mm[i]; m = `<td>${dec(mm[i].toFixed(2))} <small>(${dec(mc.toFixed(2))})</small></td>`; }
+        return `<tr><td>${i + 1}</td>${cells}${m}</tr>`;
+      }).join('');
+    };
+    pre.addEventListener('change', () => {
+      const p = T.presets[Number(pre.value)];
+      apIn.value = String(p.ap); nIn.value = String(p.n); root.classList.add('settled'); render();
+    });
+    [apIn, nIn].forEach((e) => e.addEventListener('input', () => { root.classList.add('settled'); render(); }));
+    // entry: the passes fill the three sections one after another
+    if (document.documentElement.classList.contains('anim')) {
+      rings(0);
+      whenIn(root, () => {
+        const t0 = performance.now(), dur = 1400;
+        const step = (now: number) => {
+          const u = Math.min(1, (now - t0) / dur);
+          rings(u);
+          if (u < 1) requestAnimationFrame(step); else setTimeout(() => root.classList.add('settled'), 1400);
+        };
+        requestAnimationFrame(step);
+      });
+    }
+  });
+</script>

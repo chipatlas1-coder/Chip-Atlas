@@ -1,0 +1,76 @@
+---
+/**
+ * Shared SVG paint for the plates: metal and chip gradients, section hatching
+ * (ISO 128 style, 45°) and arrowheads. Rendered once per page; every inline
+ * plate refers to these ids.
+ */
+---
+<svg class="plate-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="ca-metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#78828b" />
+      <stop offset="0.16" stop-color="#f1f4f6" />
+      <stop offset="0.34" stop-color="#cdd3d8" />
+      <stop offset="0.72" stop-color="#939ca4" />
+      <stop offset="1" stop-color="#66707a" />
+    </linearGradient>
+    <linearGradient id="ca-metal-h" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#78828b" />
+      <stop offset="0.2" stop-color="#eceff2" />
+      <stop offset="0.45" stop-color="#c3cad0" />
+      <stop offset="0.8" stop-color="#8a939b" />
+      <stop offset="1" stop-color="#66707a" />
+    </linearGradient>
+    <linearGradient id="ca-face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c0c7cd" />
+      <stop offset="1" stop-color="#818b94" />
+    </linearGradient>
+    <linearGradient id="ca-carbide" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#bcc5cd" />
+      <stop offset="1" stop-color="#7d8893" />
+    </linearGradient>
+    <linearGradient id="ca-coat" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d7a94a" />
+      <stop offset="1" stop-color="#8a6420" />
+    </linearGradient>
+    <linearGradient id="ca-chip" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#f0c27a" />
+      <stop offset="0.45" stop-color="#c1672b" />
+      <stop offset="0.8" stop-color="#6f4a8c" />
+      <stop offset="1" stop-color="#3f62a8" />
+    </linearGradient>
+    <linearGradient id="ca-heat" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e2601a" stop-opacity="0" />
+      <stop offset="0.5" stop-color="#e2601a" stop-opacity="0.85" />
+      <stop offset="1" stop-color="#e2601a" stop-opacity="0" />
+    </linearGradient>
+    <pattern id="ca-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#eef2f5" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#aeb9c4" stroke-width="1.1" />
+    </pattern>
+    <pattern id="ca-hatch-x" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+      <rect width="8" height="8" fill="#eef2f5" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#aeb9c4" stroke-width="1.1" />
+    </pattern>
+    <pattern id="ca-hatch-acc" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" fill="#fdeee4" />
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#e2601a" stroke-width="1.2" />
+    </pattern>
+    <marker id="ca-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+      <path d="M0,1 L10,5 L0,9 z" fill="#5f6c79" />
+    </marker>
+    <marker id="ca-arr-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+      <path d="M0,1 L10,5 L0,9 z" fill="#e2601a" />
+    </marker>
+    <marker id="ca-arr-data" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+      <path d="M0,1 L10,5 L0,9 z" fill="#1e6fd6" />
+    </marker>
+    <marker id="ca-arr-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+      <path d="M0,1 L10,5 L0,9 z" fill="#152230" />
+    </marker>
+  </defs>
+</svg>
+
+<style is:global>
+  .plate-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+</style>

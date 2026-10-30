@@ -1,0 +1,54 @@
+---
+/* G-code motion commands. A control screen with the program on the left, and on the right the path it draws in
+   the XY plane: a dashed rapid, a straight feed, a clockwise and a counter-clockwise arc, the arc centre with its
+   I J vector, and the tool. Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr ? { cw: 'saat ibresi yönünde', ccw: 'saat ibresine ters' } : { cw: 'clockwise', ccw: 'counter-clockwise' };
+const lines = [
+  ['G00', ' X0 Y-10', '#2a6fd6'],
+  ['G01', ' X40 F200', '#e2601a'],
+  ['G03', ' X60 Y10 I0 J20', '#13998a'],
+  ['G01', ' Y40', '#e2601a'],
+  ['G02', ' X40 Y60 R20', '#8b52c9'],
+  ['G00', ' X0 Y0', '#2a6fd6'],
+];
+// plan: origin at (262, 254), 3 px per mm, grid every 10 mm
+const O = [262, 254], k = 3;
+const P = (x: number, y: number) => `${(O[0] + x * k).toFixed(1)},${(O[1] - y * k).toFixed(1)}`;
+const arc = (x0: number, y0: number, x1: number, y1: number, r: number, sweep: 0 | 1) => `M${P(x0, y0)} A${(r * k).toFixed(1)},${(r * k).toFixed(1)} 0 0,${sweep} ${P(x1, y1)}`;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <rect class="sunk f" style="--i:0" x="18" y="34" width="190" height="252" rx="10" stroke="var(--line-strong)" />
+  <rect class="f" style="--i:0" x="18" y="34" width="190" height="24" rx="10" fill="#152230" />
+  <circle class="f" style="--i:1" cx="34" cy="46" r="4" fill="#e2601a" /><circle class="f" style="--i:1" cx="48" cy="46" r="4" fill="#e3b23c" /><circle class="f" style="--i:1" cx="62" cy="46" r="4" fill="#13998a" />
+  {lines.map(([g, rest, col], i) => (
+    <g class="f" style={`--i:${2 + i}`}>
+      <rect x="28" y={74 + i * 34} width="4" height="20" rx="2" fill={col} />
+      <text x="40" y={89 + i * 34} font-family="var(--font-mono)" font-size="14" font-weight="700" fill={col}>{g}</text>
+      <text x="74" y={89 + i * 34} font-family="var(--font-mono)" font-size="13" fill="#364554">{rest}</text>
+    </g>
+  ))}
+  <!-- plan view -->
+  <g class="f" style="--i:1">
+    {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <line x1={232 + i * 30} x2={232 + i * 30} y1="40" y2="296" stroke="#e3e8ee" />)}
+    {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => <line x1="226" x2="466" y1={44 + i * 30} y2={44 + i * 30} stroke="#e3e8ee" />)}
+  </g>
+  <line class="h f" style="--i:2" x1="226" x2="466" y1={O[1]} y2={O[1]} />
+  <line class="h f" style="--i:2" x1={O[0]} x2={O[0]} y1="40" y2="296" />
+  <path class="f" style="--i:3" d={`M${P(0, 0)} L${P(0, -10)}`} fill="none" stroke="#2a6fd6" stroke-width="2.4" stroke-dasharray="5 4" />
+  <path class="d" style="--i:4" pathLength="1" d={`M${P(0, -10)} L${P(40, -10)}`} fill="none" stroke="#e2601a" stroke-width="4" stroke-linecap="round" />
+  <path class="d" style="--i:5" pathLength="1" d={arc(40, -10, 60, 10, 20, 0)} fill="none" stroke="#13998a" stroke-width="4" stroke-linecap="round" />
+  <path class="d" style="--i:6" pathLength="1" d={`M${P(60, 10)} L${P(60, 40)}`} fill="none" stroke="#e2601a" stroke-width="4" stroke-linecap="round" />
+  <path class="d" style="--i:7" pathLength="1" d={arc(60, 40, 40, 60, 20, 1)} fill="none" stroke="#8b52c9" stroke-width="4" stroke-linecap="round" />
+  <path class="flow" d={`M${P(40, 60)} L${P(0, 0)}`} fill="none" stroke="#2a6fd6" stroke-width="2" />
+  <line class="f" style="--i:8" x1={O[0] + 40 * k} y1={O[1] + 10 * k} x2={O[0] + 40 * k} y2={O[1] - 10 * k} stroke="#13998a" stroke-width="1.4" stroke-dasharray="3 3" marker-end="url(#ca-arr)" />
+  <circle class="f" style="--i:8" cx={O[0] + 40 * k} cy={O[1] - 10 * k} r="3.5" fill="#fff" stroke="#152230" stroke-width="1.5" />
+  <circle class="f" style="--i:9" cx={O[0] + 40 * k} cy={O[1] - 60 * k} r="8" fill="#e3b23c" stroke="#8a6420" stroke-width="1.5" />
+  <circle class="f" style="--i:9" cx={O[0] + 40 * k} cy={O[1] - 60 * k} r="2" fill="#152230" />
+  <g class="lbl">
+    <text class="t-sm" x="470" y={O[1] - 69 * k} fill="#8b52c9" text-anchor="end">G02 {T.cw}</text>
+    <text class="t-sm" x={O[0] + 6 * k} y={O[1] + 17 * k} fill="#0f7a6e">G03 {T.ccw}</text>
+  </g>
+</svg>

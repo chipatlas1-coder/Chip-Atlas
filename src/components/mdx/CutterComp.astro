@@ -1,0 +1,173 @@
+---
+/**
+ * Cutter radius compensation, animated. One programmed step profile (top face, inside fillet R20, wall, outside
+ * corner, upper face); the tool centre path is computed by src/lib/cuttercomp.ts for the chosen side and direction.
+ * Modes: G41 travelling left to right (tool on the left = outside), G42 with the direction reversed (outside again),
+ * G42 in the same direction (tool on the material side: the swept area inside the part is shown in red). The
+ * program on the right highlights the block being executed. Tool radius slider; a radius ≥ the fillet is flagged.
+ * Outside corner: a transition arc (Siemens G450, Haas Setting 58 YASNAC mode) or the two offset lines extended to
+ * their intersection (G451, Haas Fanuc mode). The lead-out is longer than the largest tool diameter (LinuxCNC rule).
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { modes: { g41: 'G41 · sol', g42: 'G42 · sağ, ters yönde', bad: 'G42 · sağ, aynı yönde' }, r: 'Takım yarıçapı', mm: 'mm', prog: 'programlanan kontur', path: 'takım merkezi yolu', part: 'iş parçası', start: 'başlangıç', end: 'bitiş', trans: 'geçiş yayı', sharp: 'kesişme noktası', corner: 'Dış köşe', cornerOpts: { arc: 'yay (G450)', sharp: 'kesişme (G451)' }, gouge: 'fazla kesme', notes: { g41: 'Takım, ilerleme yönüne bakıldığında programlanan konturun solunda; kontur dışında kalır.', g42: 'Yön ters çevrilince sağ taraf yine konturun dışıdır.', bad: 'Aynı yönde G42: takım malzeme tarafına geçer ve parçayı keser (kırmızı).' }, inter: 'Takım yarıçapı iç yayın yarıçapından (R20) büyük: takım sığmaz; Haas’ta yay yarıçapı ofsetten küçükse kumanda alarm verir.', panel: 'Program (FANUC/Haas biçiminde)', aria: 'Takım yarıçap telafisi: programlanan kontur, takım merkezi yolu ve hareket eden takım' }
+  : { modes: { g41: 'G41 · left', g42: 'G42 · right, reversed', bad: 'G42 · right, same direction' }, r: 'Tool radius', mm: 'mm', prog: 'programmed contour', path: 'tool centre path', part: 'workpiece', start: 'start', end: 'end', trans: 'transition arc', sharp: 'intersection', corner: 'Outside corner', cornerOpts: { arc: 'arc (G450)', sharp: 'intersection (G451)' }, gouge: 'gouge', notes: { g41: 'The tool runs to the left of the programmed contour, seen in the direction of travel: outside the part.', g42: 'With the direction reversed, the right side is the outside again.', bad: 'G42 in the same direction puts the tool on the material side and cuts into the part (red).' }, inter: 'Tool radius larger than the inside arc (R20): the tool does not fit; a Haas control alarms when the arc radius is smaller than the offset.', panel: 'Program (FANUC/Haas style)', aria: 'Cutter radius compensation: programmed contour, tool centre path and the moving tool' };
+const PROG = {
+  fwd: ['G00 X14. Y110.', 'G41 D01 G01 X45. Y60. F500', 'X150.', 'G03 X170. Y80. R20.', 'G01 Y140.', 'X270.', 'G40 G01 X302. Y182.'],
+  rev: ['G00 X302. Y182.', 'G42 D01 G01 X270. Y140. F500', 'X170.', 'Y80.', 'G02 X150. Y60. R20.', 'G01 X45.', 'G40 G01 X14. Y110.'],
+};
+---
+<div class="crc" data-crc data-locale={locale} data-anim>
+  <div class="seg" data-g="m">{(['g41', 'g42', 'bad'] as const).map((k, i) => <button type="button" data-v={k} aria-pressed={String(i === 0)}>{T.modes[k]}</button>)}</div>
+  <div class="top">
+    <svg class="sc" viewBox="0 -36 670 416" role="img" aria-label={T.aria} data-sc></svg>
+    <div class="pn">
+      <p class="pt">{T.panel}</p>
+      <ol class="code" data-code>{PROG.fwd.map((l, i) => <li data-l={i}><span class="n">N{(i + 1) * 10}</span> <span data-t>{l}</span></li>)}</ol>
+    </div>
+  </div>
+  <p class="note" data-o="n"></p>
+  <div class="row">
+  <div class="seg sm" data-g="c" role="group" aria-label={T.corner}><span class="lab">{T.corner}</span>{(['arc', 'sharp'] as const).map((k, i) => <button type="button" data-v={k} aria-pressed={String(i === 0)}>{T.cornerOpts[k]}</button>)}</div>
+  <label class="field"><span>{T.r} <output data-o="r">8</output> {T.mm}</span><input type="range" min="3" max="26" step="1" value="8" data-i="r" /></label>
+  </div>
+  <script type="application/json" data-text set:html={JSON.stringify({ ...T, PROG })} />
+</div>
+
+<style>
+  .crc { display: grid; gap: 0.7rem; }
+  .seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1 1 10rem; font: inherit; font-size: 0.84rem; padding: 0.4rem 0.5rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.3rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) 16.5rem; gap: 1rem; align-items: start; }
+  @media (max-width: 44rem) { .top { grid-template-columns: 1fr; } }
+  .sc { width: 100%; height: auto; display: block; }
+  .pn { border: 1px solid var(--line); border-radius: 8px; padding: 0.6rem 0.7rem; background: var(--bg-raised); }
+  .pt { margin: 0 0 0.4rem; font-size: 0.75rem; color: var(--ink-3); }
+  .code { list-style: none; margin: 0; padding: 0; font: 0.78rem/1.6 var(--font-mono); color: var(--ink-2); }
+  .code li { padding: 0 0.35rem; border-radius: 4px; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+  .code li .n { color: var(--ink-3); }
+  .code li.on { background: color-mix(in oklab, var(--accent) 16%, transparent); color: var(--ink); }
+  .row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.8rem 1.4rem; align-items: end; }
+  @media (max-width: 40rem) { .row { grid-template-columns: 1fr; } }
+  .seg.sm { align-items: stretch; flex-wrap: nowrap; }
+  .seg.sm .lab { font-size: 0.78rem; color: var(--ink-3); padding: 0 0.6rem; display: flex; align-items: center; border-right: 1px solid var(--line-strong); background: var(--bg-sunk); }
+  .seg.sm button { flex: 0 1 auto; font-size: 0.8rem; min-height: 2.1rem; padding: 0.3rem 0.7rem; }
+  @media (max-width: 30rem) { .seg.sm .lab { display: none; } .seg.sm button { flex: 1 1 auto; } }
+  .note { margin: 0; font-size: 0.85rem; color: var(--ink-2); min-height: 2.6em; }
+  .note.warn { color: #b23a34; }
+  .field { display: grid; gap: 0.3rem; max-width: 30rem; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .crc :global(.tx) { font: 12px var(--font-mono); fill: #364554; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+  .crc.narrow :global(.tx) { font-size: 19px; }
+</style>
+
+<script>
+  import { offsetProfile, reverse, elLength, elPoint, type Seg, type El, type Pt } from '../../lib/cuttercomp';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-crc]').forEach((root, idx) => {
+    const D = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const sc = q<SVGSVGElement>('[data-sc]');
+    const X = (x: number) => 30 + x * 1.9, Y = (y: number) => 362 - y * 1.9, S = 1.9;
+    const P = (p: Pt) => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`;
+    const prof: Seg[] = [
+      { type: 'line', a: [45, 60], b: [150, 60] },
+      { type: 'arc', a: [150, 60], b: [170, 80], c: [150, 80], ccw: true },
+      { type: 'line', a: [170, 80], b: [170, 140] },
+      { type: 'line', a: [170, 140], b: [270, 140] },
+    ];
+    const START: Pt = [14, 110], END: Pt = [302, 182];
+    const part = `M${P([5, 10])} L${P([5, 60])} L${P([150, 60])} A${20 * S},${20 * S} 0 0 0 ${P([170, 80])} L${P([170, 140])} L${P([300, 140])} L${P([300, 10])} Z`;
+    const progD = `M${P([45, 60])} L${P([150, 60])} A${20 * S},${20 * S} 0 0 0 ${P([170, 80])} L${P([170, 140])} L${P([270, 140])}`;
+    let mode: 'g41' | 'g42' | 'bad' = 'g41', corner: 'arc' | 'sharp' = 'arc', r = 8, s = 0, last = 0, spin = 0;
+    let route: El[] = [], total = 0, inter = false, corners: { at: Pt; kind: string }[] = [];
+    const elD = (e: El, first: boolean) => {
+      const m = first ? `M${P(e.a)} ` : '';
+      if (e.type === 'line') return `${m}L${P(e.b)}`;
+      const L = elLength(e), large = L / e.r > Math.PI ? 1 : 0;
+      return `${m}A${(e.r * S).toFixed(2)},${(e.r * S).toFixed(2)} 0 ${large} ${e.ccw ? 0 : 1} ${P(e.b)}`;
+    };
+    const build = () => {
+      const rev = mode === 'g42';
+      const segs = rev ? reverse(prof) : prof;
+      const side: 1 | -1 = mode === 'g41' ? 1 : -1;
+      const o = offsetProfile(segs, r, side, [2, 3, 4, 5], corner);
+      inter = o.interference && mode !== 'bad'; corners = o.corners;
+      const a = rev ? END : START, b = rev ? START : END;
+      route = [{ type: 'line', a, b: o.els[0].a, block: 1 }, ...o.els, { type: 'line', a: o.els[o.els.length - 1].b, b, block: 6 }];
+      total = route.reduce((t, e) => t + elLength(e), 0);
+      const lines = rev ? D.PROG.rev : D.PROG.fwd;
+      root.querySelectorAll<HTMLElement>('[data-code] li').forEach((li, i) => {
+        let t = lines[i]; if (mode === 'bad' && i === 1) t = t.replace('G41', 'G42');
+        (li.querySelector('[data-t]') as HTMLElement).textContent = t;
+      });
+      const n = q<HTMLElement>('[data-o="n"]');
+      n.textContent = inter ? D.inter : D.notes[mode];
+      n.classList.toggle('warn', inter || mode === 'bad');
+      q('[data-o="r"]').textContent = String(r);
+    };
+    const at = (dist: number): { p: Pt; block: number } => {
+      let d = Math.max(0, Math.min(total, dist));
+      for (const e of route) { const L = elLength(e); if (d <= L) return { p: elPoint(e, d), block: e.block }; d -= L; }
+      const e = route[route.length - 1]; return { p: e.b, block: e.block };
+    };
+    const draw = () => {
+      const pathD = route.map((e, i) => elD(e, i === 0)).join(' ');
+      const cur = at(s);
+      const pts: string[] = [];
+      for (let d = 0; d < s; d += 2) pts.push(P(at(d).p));
+      pts.push(P(cur.p));
+      const done = `M${pts.join(' L')}`;
+      const tc = cur.p, tx = X(tc[0]), ty = Y(tc[1]), tr = r * S;
+      let spokes = '';
+      for (let k = 0; k < 3; k++) { const a = spin + (k * 2 * Math.PI) / 3; spokes += `<line x1="${tx.toFixed(1)}" y1="${ty.toFixed(1)}" x2="${(tx + tr * 0.85 * Math.cos(a)).toFixed(1)}" y2="${(ty + tr * 0.85 * Math.sin(a)).toFixed(1)}" stroke="#c94f0c" stroke-width="1.6"/>`; }
+      const oc = corners.find((c) => c.kind === 'outside');
+      const cornerLbl = oc ? `<text x="${(X(oc.at[0]) + (mode === 'g42' ? -10 : 10)).toFixed(1)}" y="${(Y(oc.at[1]) - r * S - 10).toFixed(1)}" class="tx" text-anchor="${mode === 'g42' ? 'end' : 'start'}">${corner === 'arc' ? D.trans : D.sharp}</text>` : '';
+      const ix = X(170 - r), iy = Y(60 + r);                   // where the two straight offsets meet when the arc is dropped
+      const fil = inter ? `<g stroke="#b23a34" stroke-width="3"><line x1="${ix - 9}" y1="${iy - 9}" x2="${ix + 9}" y2="${iy + 9}"/><line x1="${ix + 9}" y1="${iy - 9}" x2="${ix - 9}" y2="${iy + 9}"/></g>` : '';
+      sc.innerHTML = `
+        <defs><clipPath id="cc-part-${idx}"><path d="${part}"/></clipPath></defs>
+        <path d="${part}" fill="url(#ca-metal-h)"/>
+        <path d="${done}" fill="none" stroke="#e2601a" stroke-opacity="0.13" stroke-width="${(2 * r * S).toFixed(1)}" stroke-linejoin="round" stroke-linecap="round"/>
+        ${mode === 'bad' ? `<path d="${done}" fill="none" stroke="#c2413b" stroke-opacity="0.6" stroke-width="${(2 * r * S).toFixed(1)}" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#cc-part-${idx})"/>` : ''}
+        <path d="${progD}" fill="none" stroke="#1e5fc4" stroke-width="3" stroke-linejoin="round"/>
+        <path d="${pathD}" fill="none" stroke="#e2601a" stroke-width="1.8" stroke-dasharray="7 5"/>
+        <circle cx="${X(START[0])}" cy="${Y(START[1])}" r="4" fill="#364554"/><circle cx="${X(END[0])}" cy="${Y(END[1])}" r="4" fill="#364554"/>
+        <text x="${X(START[0]) - 8}" y="${Y(START[1]) - (mode === 'g42' ? 12 : r * S + 10)}" class="tx">${mode === 'g42' ? D.end : D.start}</text>
+        <text x="${X(END[0]) - 12}" y="${Y(END[1]) + (mode === 'g42' ? r * S + 22 : 22)}" class="tx" text-anchor="end">${mode === 'g42' ? D.start : D.end}</text>
+        <text x="${X(60)}" y="${Y(60) + 34}" class="tx" style="fill:#1e5fc4">${D.prog}</text>
+        <text x="${X(40) + 14}" y="${Y(92)}" class="tx" style="fill:#c94f0c">${D.path}</text>
+        <text x="${X(214)}" y="${Y(40)}" class="tx">${D.part}</text>
+        ${mode === 'bad' ? `<text x="${X(92)}" y="${Y(60) + 62}" class="tx" style="fill:#b23a34">${D.gouge}</text>` : ''}
+        ${cornerLbl}${fil}
+        <circle cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="${tr.toFixed(1)}" fill="#e2601a" fill-opacity="0.22" stroke="#c94f0c" stroke-width="1.8"/>
+        ${spokes}<circle cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="2.6" fill="#c94f0c"/>`;
+      root.querySelectorAll<HTMLElement>('[data-code] li').forEach((li, i) => li.classList.toggle('on', i === cur.block));
+    };
+    const reset = () => { build(); s = 0; draw(); };
+    root.querySelectorAll<HTMLButtonElement>('[data-g="c"] button').forEach((b, _, all) => b.addEventListener('click', () => { corner = b.dataset.v as typeof corner; all.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); build(); draw(); }));
+    root.querySelectorAll<HTMLButtonElement>('[data-g="m"] button').forEach((b, _, all) => b.addEventListener('click', () => { mode = b.dataset.v as typeof mode; all.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); reset(); }));
+    q<HTMLInputElement>('[data-i="r"]').addEventListener('input', (e) => { r = +(e.target as HTMLInputElement).value; build(); draw(); });
+    const fit = () => root.classList.toggle('narrow', sc.getBoundingClientRect().width > 0 && sc.getBoundingClientRect().width < 480);
+    new ResizeObserver(fit).observe(sc);
+    build(); s = total * 0.32; draw(); fit();
+    let visible = false, hold = 0;
+    new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+    const step = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if (visible) {
+        spin += dt * 9;                                         // clockwise on screen, as seen from the spindle
+        if (hold > 0) { hold -= dt; if (hold <= 0) s = 0; } else { s += dt * 70; if (s >= total) { s = total; hold = 0.9; } }
+        draw();
+      }
+      requestAnimationFrame(step);
+    };
+    whenIn(root, () => { last = performance.now(); s = 0; requestAnimationFrame(step); });
+  });
+</script>

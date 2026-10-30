@@ -1,0 +1,123 @@
+---
+key: chip-types
+locale: tr
+slug: talas-tipleri
+title: 'Talaş tipleri ve talaş formları'
+description: 'Dört talaş tipi (sürekli, yığıntılı, kesikli, testere dişli), ISO 3685''in sekiz talaş formu ve talaş kırıcının uzun bir talaşı nasıl kırdığı.'
+section: 1
+subsection: chip-formation
+order: 2
+updated: 2026-10-11
+tools: [turning]
+glance:
+  - value: '4'
+    label: 'Malzemenin şekil değiştirmesine göre talaş tipi'
+  - value: '8'
+    label: 'ISO 3685 Ek G''deki talaş formu'
+  - value: '4.2, 6.2, 7'
+    label: 'ISO 3685''i kullanan bir çalışmada elverişli bulunan formlar'
+  - value: 'ISO 10910'
+    label: 'Talaş kırıcıların talaş kontrol bölgelerini sınıflandırır'
+sources:
+  - label: 'S. Kalpakjian, S. R. Schmid, Manufacturing Engineering and Technology, bölüm 21, talaş tipleri (ders slaytları, Isfahan Teknoloji Üniversitesi)'
+    url: https://people.iut.ac.ir/sites/default/files/users/mosafavi/course_files/fundamental_of_machining.pdf
+  - label: 'Babil Üniversitesi, talaş oluşumu ders notları (Groover''a göre)'
+    url: https://cdnx.uobabylon.edu.iq/lectures/dPzBspFeUFZ4HKEd2beQ.pdf
+  - label: 'Cambridge Üniversitesi, 3M1 sınavı çözüm anahtarı 2013 (talaş tipleri, yığıntı talaş)'
+    url: https://teaching.eng.cam.ac.uk/system/files/3met2013p2_crib.pdf
+  - label: 'ISO 3685:1993, Tool-life testing with single-point turning tools, Ek G "Chip characteristics"'
+    url: https://www.iso.org/standard/9151.html
+  - label: 'Hennig, Chip and coolant management overview (ISO 3685 talaş formu tablosunu yeniden verir)'
+    url: https://hennigworldwide.com/assets/literature/en/chip-and-coolant-management-overview-usa.pdf
+  - label: 'H. Skrijelj, S. Jović, "Chip form prediction by computational intelligence techniques", Journal of Production Engineering 21(1), 2018'
+    url: https://jged.uns.ac.rs/index.php/jpe/article/download/1162/1211
+  - label: 'Tungaloy, "Fundamentals of chipbreakers — from basic theory to selection"'
+    url: https://tungaloy.com/?p=722658
+  - label: 'ISO 10910:1995, Classification and designation of approximate chip control zones for indexable inserts with chipbreakers'
+    url: https://www.iso.org/standard/2696.html
+  - label: 'Mitsubishi Materials, talaş kontrolü teknik bilgisi'
+    url: https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/information/kirikuzu.html
+  - label: 'C. Healy, S. Koch, C. Siemers, D. Mukherji, G. J. Ackland, "Shear melting and high temperature embrittlement: theory and application to machining titanium", arXiv:1503.08662, 2015'
+    url: https://arxiv.org/abs/1503.08662
+---
+import ChipForms from '../../../components/mdx/ChipForms.astro';
+import ChipBreaker from '../../../components/mdx/ChipBreaker.astro';
+import ChipWindow from '../../../components/mdx/ChipWindow.astro';
+
+Talaş, bir kesmenin verdiği en dürüst rapordur. Tipi, malzemenin nasıl şekil değiştirdiğini söyler; formu ise tezgâhtan kendiliğinden mi çıkacağını yoksa takıma ve parçaya mı sarılacağını.
+
+## Dört talaş tipi
+
+Ders kitapları talaşları, kayma bölgesinde malzemenin nasıl şekil değiştirdiğine göre dört tipe ayırır.
+
+| Tip | Nasıl oluşur | Tipik koşullar | Ne anlama gelir |
+|---|---|---|---|
+| **Sürekli** | Kırılma olmadan sürekli plastik şekil değişimi | Sünek malzemeler, yüksek kesme hızı ve/veya büyük talaş açısı, keskin kenar | Kararlı kesme ve iyi yüzey; ama talaş kırılmazsa takıma ve parçaya sarılır |
+| **Yığıntılı sürekli talaş (BUE)** | İş malzemesi talaş yüzeyine kaynar, büyür, kararsızlaşır ve kopar | Düşük-orta hızda sünek malzemeler, yüksek sürtünme, küçük talaş açısı, etkisiz kesme sıvısı | Kopan yığıntı parçaları yüzeye yapışır ve onu pürüzlendirir; etkin takım geometrisi sürekli değişir |
+| **Kesikli** | Talaş ayrı parçalara kırılır | Lamel grafitli dökme demir gibi gevrek malzemeler, sert kalıntılar, küçük talaş açısı, büyük kesme derinliği, düşük tezgâh rijitliği | Dökme demirde normaldir; sünek çelikte uygunsuz koşulların işaretidir |
+| **Testere dişli (segmentli)** | Çok yüksek kayma şekil değişimli dar bantların, düşük şekil değişimli geniş bölgeleri ayırdığı yarı sürekli talaş | Daha yüksek hızlarda titanyum alaşımları, nikel esaslı süper alaşımlar ve östenitik paslanmaz çelik | Periyodik değişen kuvvet, testere dişli talaş ve ağır kenar yükü |
+
+Testere dişli talaşta ısı birincil kayma bölgesinden yeterince hızlı uzaklaşamaz. Malzeme yerel olarak yumuşar ve kayma ince bir **adyabatik kayma bandında** yoğunlaşır.
+
+<Note kind="note" title="Kesikli talaş ve hız">
+Kaynaklar hız konusunda ayrışır. Groover kesikli talaşı düşük kesme hızıyla ilişkilendirir; Kalpakjian çok düşük ya da çok yüksek hızları sayar. İkisi ana nedenlerde hemfikirdir: gevrek bir iş malzemesi ve küçük talaş açısı.
+</Note>
+
+<Note kind="key" title="Yığıntı talaştan kurtulmak">
+Kesme hızını artırın, keskin bir kenar ve daha büyük talaş açısı kullanın, etkili bir kesme sıvısı uygulayın ya da iş malzemesine kimyasal yatkınlığı düşük bir takım malzemesi seçin. Bunların her biri iş malzemesinin talaş yüzeyine kaynamasını zorlaştırır.
+</Note>
+
+## ISO 3685'in sekiz talaş formu
+
+ISO 3685'in "Chip characteristics" başlıklı Ek G'si, tornalamada takım ömrü deneyleri için talaş formlarını sınıflandırır. Sekiz formun altısının alt formları vardır: dördü uzunluğa göre (uzun, kısa, dolaşık), spiral biçimine göre, yay ise parçaların bağlı kalıp kalmamasına göre ayrılır.
+
+<Figure caption="ISO 3685:1993 Ek G'ye göre talaş formları, şematik çizim. Alt formlar: 1, 2, 4 ve 5 uzun, kısa ya da dolaşık; 3 düz ya da konik; 6 bağlı ya da serbest.">
+  <ChipForms locale="tr" />
+</Figure>
+
+| No. | Form | Alt formlar |
+|---|---|---|
+| 1 | Şerit | 1.1 uzun, 1.2 kısa, 1.3 dolaşık |
+| 2 | Boru | 2.1 uzun, 2.2 kısa, 2.3 dolaşık |
+| 3 | Spiral | 3.1 düz, 3.2 konik |
+| 4 | Rondela tipi helis | 4.1 uzun, 4.2 kısa, 4.3 dolaşık |
+| 5 | Konik helis | 5.1 uzun, 5.2 kısa, 5.3 dolaşık |
+| 6 | Yay | 6.1 bağlı, 6.2 serbest |
+| 7 | Parçacık | — |
+| 8 | İğne | — |
+
+Uzun ve dolaşık formlar takıma, parçaya ve aynaya dolanır; tezgâhtan çıkarılmaları zordur. Talaşları ISO 3685'e göre sınıflandıran bir çalışma kısa rondela tipi helis (4.2), serbest yay (6.2) ve parçacık (7) talaşlarını uygun; uzun şerit (1.1), dolaşık boru (2.3), düz spiral (3.1) ile uzun veya dolaşık rondela tipi helis (4.1, 4.3) talaşlarını uygunsuz sayar.
+
+<Note kind="warn" title="Numaralandırma sistemlerini karıştırmayın">
+Birçok üretici kendi talaş tablolarını harflerle (A'dan H'ye) ya da kendi sınıflarıyla yayımlar. Bunlar ISO 3685 numaraları değildir. Bir talaş formu numarayla anıldığında hangi tablodan geldiğini kontrol edin.
+</Note>
+
+## Talaş kırıcı nasıl çalışır
+
+Talaş kırıcı talaşı kesmez; kırılana kadar büker. Tungaloy süreci dört adımda anlatır:
+
+1. Malzeme kayarak ayrılır ve iş parçasından kalkar.
+2. Talaş kırıcının oluğu ve duvarı talaşı sıkıca kıvrılmaya zorlar.
+3. Kıvrılma yarıçapı küçüldükçe talaşın içindeki eğilme şekil değişimi büyür.
+4. Bu şekil değişimi malzemenin kırılma şekil değişimini aştığında talaş kırılır.
+
+<Figure caption="Pah, oluk ve duvarı olan bir uçta dört adım, şematik çizim. Her adımın altındaki çubuk, kıvrım daraldıkça talaştaki eğilme şekil değişiminin nasıl arttığını ve sonunda malzemenin kırılma şekil değişimini aştığını gösterir. Değer değil, olayların sırasını gösterir.">
+  <ChipBreaker locale="tr" />
+</Figure>
+
+Talaş üç yoldan biriyle kırılır: takıma çarparak, iş parçasına çarparak ya da yalnızca kendi eğilmesiyle.
+
+### Talaş kırma penceresi
+
+Her talaş kırıcı yalnızca belirli bir ilerleme ve kesme derinliği aralığında çalışır. Tungaloy sınırları açıkça koyar: ilerleme çok düşükse talaş incedir ve zor kırılır; çok yüksekse talaş akışı aşırı kısıtlanır ve kenar aşırı yüklenir. Kesme derinliği çok küçükse talaş, kırıcının etki edebileceği kadar geniş değildir. Takım üreticileri bu çalışma aralığını ilerlemeye karşı kesme derinliği grafiğinde bir alan olarak çizer; ISO 10910 bu talaş kontrol bölgelerinin nasıl sınıflandırılıp gösterileceğini tanımlar. Tungaloy ve Mitsubishi, kesme hızı arttıkça bu aralığın genellikle daraldığını belirtir: daha sıcak talaş daha yumuşaktır ve daha zor kırılır.
+
+<Figure caption="Talaş kırma penceresi, yukarıdaki sınırlara göre şematik çizim. Her talaş kırıcının ilerleme ve kesme derinliği için gerçek değerler içeren kendi grafiği vardır; kesikli alan, yüksek kesme hızındaki daha dar aralığı temsil eder.">
+  <ChipWindow locale="tr" />
+</Figure>
+
+## Tezgâhta talaşı okumak
+
+- **Uzun şerit ya da dolaşık talaş:** ilerleme veya kesme derinliği muhtemelen kırıcının aralığının altında. İlerlemeyi artırın ya da düşük ilerleme için tasarlanmış bir talaş kırıcı seçin; sırasıyla bütün liste [uzun ve dolanan talaş](/tr/problem-cozme/uzun-talas/) sayfasında.
+- **Talaş yüzeyine kaynamış parlak malzeme, yırtık yüzey:** yığıntı talaş. Kesme hızını artırın, daha keskin ve daha pozitif bir kenar kullanın.
+- **Titanyum ya da nikel alaşımında testere dişli talaş:** bu malzemeler için beklenen durum. Kenarı dayanıklı, bağlamayı rijit tutun.
+- **Kısa yaylar ya da sıkı kısa helisler:** talaş kırıcı çalışıyor.

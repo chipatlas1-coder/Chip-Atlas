@@ -1,0 +1,177 @@
+---
+/**
+ * Gripping force against spindle speed, for a jaw chuck. Left: the chuck from the front, turning at a speed that
+ * follows n (slowed down for the eye), with each jaw's centrifugal force (orange, outwards) and gripping force (blue)
+ * drawn to scale. Right: Fsp against n, a parabola Fsp = Fsp0 ∓ Σ(m·r)·(π·n/30)², with the static force, the level at
+ * which the centrifugal force has taken 2/3 of it, the speed marked on the chuck, and the permissible speed for the
+ * force the cut needs (Sz = Ssp = 1.5). Physics in src/lib/chuck.ts; the defaults come from the page.
+ */
+interface Props {
+  locale: 'en' | 'tr';
+  fsp0: number;        // static gripping force, kN
+  mc: number;          // Σ m·r of all jaws, kg·m
+  n: number;           // starting speed, min⁻¹
+  nScale: number;      // end of the speed scale, min⁻¹
+  nMarked: number;     // speed marked on the chuck, min⁻¹
+  fspz: number;        // gripping force the cut needs, kN
+  z?: number;          // number of jaws (drawing only)
+}
+const { locale, fsp0, mc, n, nScale, nMarked, fspz, z = 3 } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { n: 'Devir n', fsp0: 'Statik sıkma kuvveti Fsp0', mc: 'Ayakların Σ m·r değeri', fspz: 'Kesmenin gerektirdiği kuvvet Fspz', od: 'dıştan sıkma', id: 'içten sıkma', fc: 'Merkezkaç kuvveti Fc', fsp: 'Dinamik sıkma kuvveti Fsp', left: 'Statik kuvvete oranı', n23: 'Fc = ⅔ Fsp0 devri', np: 'İzin verilen devir (Sz = Ssp = 1,5)', none: 'yetmiyor', capped: 'aynada yazan devirle sınırlı', marked: 'aynada yazan', axisN: 'n (dev/dak)', axisF: 'Fsp (kN)', l23: '⅔ kayıp', aria: 'Ayna sıkma kuvvetinin devirle değişimi: ayakların merkezkaç kuvveti dıştan sıkmada kuvveti azaltır', kn: 'kN', kgm: 'kg·m', rpm: 'dev/dak' }
+  : { n: 'Speed n', fsp0: 'Static gripping force Fsp0', mc: 'Σ m·r of the jaws', fspz: 'Force the cut needs Fspz', od: 'gripping outside', id: 'gripping inside', fc: 'Centrifugal force Fc', fsp: 'Dynamic gripping force Fsp', left: 'Share of static force', n23: 'Speed at Fc = ⅔ Fsp0', np: 'Permissible speed (Sz = Ssp = 1.5)', none: 'not enough', capped: 'limited by the marked speed', marked: 'marked on the chuck', axisN: 'n (min⁻¹)', axisF: 'Fsp (kN)', l23: '⅔ lost', aria: 'Chuck gripping force against speed: the centrifugal force of the jaws reduces it when gripping from outside', kn: 'kN', kgm: 'kg·m', rpm: 'min⁻¹' };
+const cfg = { T, fsp0, mc, n, nScale, nMarked, fspz, z };
+const num = (v: number, d = 0) => (tr ? v.toFixed(d).replace('.', ',') : v.toFixed(d));
+---
+<div class="ck" data-ck data-locale={locale} data-anim>
+  <div class="views">
+    <svg class="face" viewBox="0 0 300 300" role="img" aria-label={T.aria} data-face></svg>
+    <svg class="chart" viewBox="0 0 420 300" aria-hidden="true" data-chart></svg>
+  </div>
+  <div class="ctl">
+    <label class="field"><span>{T.n} <output data-o="n">{num(n)}</output> {T.rpm}</span><input type="range" min="0" max={nScale} step="10" value={n} data-i="n" /></label>
+    <label class="field"><span>{T.fsp0} <output data-o="f0">{num(fsp0)}</output> {T.kn}</span><input type="range" min={Math.round(fsp0 * 0.3)} max={fsp0} step="1" value={fsp0} data-i="f0" /></label>
+    <label class="field"><span>{T.mc} <output data-o="mc">{num(mc, 3)}</output> {T.kgm}</span><input type="range" min="0.05" max={+(mc * 2.5).toFixed(2)} step="0.0001" value={mc} data-i="mc" /></label>
+    <label class="field"><span>{T.fspz} <output data-o="fz">{num(fspz)}</output> {T.kn}</span><input type="range" min="1" max={Math.round(fsp0 * 0.6)} step="1" value={fspz} data-i="fz" /></label>
+    <div class="seg" role="group"><button type="button" data-od="1" aria-pressed="true">{T.od}</button><button type="button" data-od="0" aria-pressed="false">{T.id}</button></div>
+  </div>
+  <dl class="read">
+    <div><dt>{T.fc}</dt><dd class="num" data-o="fc">—</dd></div>
+    <div><dt>{T.fsp}</dt><dd class="num" data-o="fsp">—</dd></div>
+    <div><dt>{T.left}</dt><dd class="num" data-o="pc">—</dd></div>
+    <div><dt>{T.n23}</dt><dd class="num" data-o="n23">—</dd></div>
+    <div><dt>{T.np}</dt><dd class="num" data-o="np">—</dd></div>
+  </dl>
+  <script type="application/json" data-cfg set:html={JSON.stringify(cfg)} />
+</div>
+
+<style>
+  .ck { display: grid; gap: 0.8rem; }
+  .views { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 0.8rem; align-items: center; }
+  @media (max-width: 40rem) { .views { grid-template-columns: 1fr; } .face { max-width: 18rem; margin: 0 auto; } }
+  svg { width: 100%; height: auto; display: block; }
+  .ctl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 1.2rem; align-items: end; }
+  @media (max-width: 40rem) { .ctl { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .seg { display: flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; align-self: end; }
+  .seg button { flex: 1; font: inherit; font-size: 0.85rem; padding: 0.4rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.2rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .read { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem 1rem; margin: 0; }
+  @media (max-width: 48rem) { .read { grid-template-columns: 1fr 1fr; } }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; font: 600 1.02rem var(--font-mono); color: var(--ink); }
+  .ck :global(.gl) { stroke: #eef2f6; }
+  .ck :global(.ax) { stroke: #9aa6b2; }
+  .ck :global(.t) { font: 11px var(--font-mono); fill: var(--ink-3); }
+  .ck :global(.tk) { font: 600 11px var(--font-sans); fill: var(--ink-2); }
+  .ck :global(.tl) { font: 600 10.5px var(--font-sans); }
+  .ck :global(.cv) { fill: none; stroke: #1e5fc4; stroke-width: 3; stroke-linecap: round; }
+  .ck :global(.ar) { fill: color-mix(in oklab, #1e5fc4 9%, transparent); }
+  .ck :global(.f0) { stroke: #5f6c79; stroke-dasharray: 5 4; }
+  .ck :global(.l23) { stroke: #8b52c9; stroke-dasharray: 3 3; stroke-width: 1.4; }
+  .ck :global(.np) { stroke: #c2413b; stroke-dasharray: 6 3; stroke-width: 1.6; }
+  .ck :global(.mk) { stroke: #364554; stroke-width: 1.4; }
+  .ck :global(.pt) { fill: #e2601a; stroke: #fff; stroke-width: 2; }
+  .ck :global(.fcA) { stroke: #e2601a; stroke-width: 3; stroke-linecap: round; }
+  .ck :global(.fsA) { stroke: #1e5fc4; stroke-width: 3; stroke-linecap: round; }
+</style>
+
+<script>
+  import { centrifugal, gripping, speedAtShare, permissibleSpeed } from '../../lib/chuck';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-ck]').forEach((root) => {
+    const cfg = JSON.parse((root.querySelector('[data-cfg]') as HTMLElement).textContent || '{}');
+    const T = cfg.T, tr = root.dataset.locale === 'tr';
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const I = (k: string) => q<HTMLInputElement>(`[data-i="${k}"]`);
+    const face = q<SVGSVGElement>('[data-face]'), chart = q<SVGSVGElement>('[data-chart]');
+    let od = true, angle = 0, last = 0, raf = 0, visible = false;
+    const dec = (v: number, d = 1) => (tr ? v.toFixed(d).replace('.', ',') : v.toFixed(d));
+    const f1 = (v: number) => v.toFixed(1);
+    const get = () => ({ n: +I('n').value, f0: +I('f0').value * 1000, mc: +I('mc').value, fz: +I('fz').value * 1000 });
+    const drawFace = (fcJ: number, fsJ: number, f0J: number) => {
+      const c = 150, R = 128, z = cfg.z, k = 46 / Math.max(f0J, 1e-6);
+      let s = `<circle cx="${c}" cy="${c}" r="${R}" fill="url(#ca-metal)" stroke="#364554" stroke-width="2"/>
+        <circle cx="${c}" cy="${c}" r="${R - 14}" fill="none" stroke="#9aa6b2"/>
+        ${od ? `<circle cx="${c}" cy="${c}" r="30" fill="url(#ca-metal-h)" stroke="#364554" stroke-width="1.6"/>`
+          : `<path d="M${c - 109},${c} a109,109 0 1,0 218,0 a109,109 0 1,0 -218,0 M${c - 124},${c} a124,124 0 1,1 248,0 a124,124 0 1,1 -248,0" fill="url(#ca-metal-h)" fill-rule="evenodd" stroke="#364554" stroke-width="1.4"/>`}`;
+      for (let j = 0; j < z; j++) {
+        const a = angle + (j * 2 * Math.PI) / z, ux = Math.cos(a), uy = Math.sin(a);
+        const p = (d: number, w: number) => [c + ux * d - uy * w, c + uy * d + ux * w];
+        const P = (d: number, w: number) => p(d, w).map(f1).join(',');
+        s += `<path d="M${P(32, -13)} L${P(108, -13)} L${P(108, 13)} L${P(32, 13)} Z" fill="url(#ca-carbide)" stroke="#5f6c79"/>
+          <path d="M${P(32, -13)} L${P(64, -13)} L${P(64, 13)} L${P(32, 13)} Z" fill="#c8d0d9" stroke="#5f6c79"/>`;
+        const lc = Math.max(0, fcJ * k), ls = Math.min(30, Math.max(0, fsJ * k));
+        if (lc > 2) { const [x1, y1] = p(110, 0), [x2, y2] = p(110 + Math.min(lc, 60), 0); s += `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}" class="fcA" marker-end="url(#ca-arr-acc)"/>`; }
+        if (ls > 2) {
+          // gripping outside: the jaw face at r = 32 presses on the bar; inside: the outer face at r = 108 on the bore
+          const [a0, a1] = od ? [32 + ls, 32] : [108 - ls, 108];
+          const [x1, y1] = p(a0, 0), [x2, y2] = p(a1, 0);
+          s += `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}" class="fsA" marker-end="url(#ca-arr-data)"/>`;
+        }
+      }
+      s += `<circle cx="${c}" cy="${c}" r="3" fill="#152230"/>`;
+      face.innerHTML = s;
+    };
+    const drawChart = (v: ReturnType<typeof get>) => {
+      const L = 46, Rr = 408, Tp = 22, B = 262, N = cfg.nScale;
+      const fMax = (Math.max(v.f0, cfg.fsp0 * 1000, gripping(v.f0, v.mc, N, od)) * 1.15) / 1000;
+      const X = (n: number) => L + (n / N) * (Rr - L), Y = (f: number) => B - (Math.max(0, f) / fMax) * (B - Tp);
+      let s = '';
+      const fStep = [5, 10, 20, 25, 50, 100, 200].find((kk) => fMax / kk <= 6) || 500;
+      for (let i = 0; i <= 5; i++) { const n = (i * N) / 5; s += `<line x1="${f1(X(n))}" x2="${f1(X(n))}" y1="${Tp}" y2="${B}" class="gl"/><text x="${f1(X(n))}" y="${B + 15}" class="t" text-anchor="${i === 5 ? 'end' : 'middle'}">${Math.round(n)}</text>`; }
+      for (let f = 0; f <= fMax; f += fStep) s += `<line x1="${L}" x2="${Rr}" y1="${f1(Y(f))}" y2="${f1(Y(f))}" class="gl"/><text x="${L - 6}" y="${f1(Y(f) + 4)}" class="t" text-anchor="end">${f}</text>`;
+      s += `<line x1="${L}" x2="${L}" y1="${Tp}" y2="${B}" class="ax"/><line x1="${L}" x2="${Rr}" y1="${B}" y2="${B}" class="ax"/>`;
+      s += `<text x="${Rr}" y="${B + 30}" class="tk" text-anchor="end">${T.axisN}</text><text x="${L}" y="${Tp - 8}" class="tk">${T.axisF}</text>`;
+      const pts: string[] = [];
+      for (let i = 0; i <= 90; i++) { const n = (N * i) / 90; pts.push(`${f1(X(n))},${f1(Y(gripping(v.f0, v.mc, n, od) / 1000))}`); }
+      s += `<path d="M${f1(X(0))},${B} L${pts.join(' L')} L${f1(X(N))},${B} Z" class="ar"/>`;
+      s += `<line x1="${L}" x2="${Rr}" y1="${f1(Y(v.f0 / 1000))}" y2="${f1(Y(v.f0 / 1000))}" class="f0"/>`;
+      if (od) s += `<line x1="${L}" x2="${Rr}" y1="${f1(Y(v.f0 / 3000))}" y2="${f1(Y(v.f0 / 3000))}" class="l23"/><text x="${Rr - 4}" y="${f1(Y(v.f0 / 3000) - 5)}" class="tl" fill="#8b52c9" text-anchor="end">${T.l23}</text>`;
+      if (cfg.nMarked <= N) s += `<line x1="${f1(X(cfg.nMarked))}" x2="${f1(X(cfg.nMarked))}" y1="${Tp}" y2="${B}" class="mk"/><text x="${f1(X(cfg.nMarked) - 4)}" y="${Tp + 10}" class="tl" fill="#364554" text-anchor="end">${T.marked}</text>`;
+      const np = od ? permissibleSpeed(v.f0, v.mc, v.fz) : 0;
+      const npc = Math.min(np, cfg.nMarked);
+      if (od && npc > 0 && npc <= N) s += `<line x1="${f1(X(npc))}" x2="${f1(X(npc))}" y1="${Tp + 16}" y2="${B}" class="np"/>`;
+      s += `<polyline points="${pts.join(' ')}" class="cv"/>`;
+      const fsp = gripping(v.f0, v.mc, v.n, od) / 1000;
+      s += `<line x1="${f1(X(v.n))}" x2="${f1(X(v.n))}" y1="${Tp}" y2="${B}" stroke="#e2601a" stroke-width="1" stroke-dasharray="2 3"/><circle cx="${f1(X(v.n))}" cy="${f1(Y(fsp))}" r="6" class="pt"/>`;
+      chart.innerHTML = s;
+    };
+    const update = () => {
+      const v = get();
+      const fc = centrifugal(v.mc, v.n), fsp = gripping(v.f0, v.mc, v.n, od);
+      q('[data-o="n"]').textContent = dec(v.n, 0); q('[data-o="f0"]').textContent = dec(v.f0 / 1000, 0);
+      q('[data-o="mc"]').textContent = dec(v.mc, 3); q('[data-o="fz"]').textContent = dec(v.fz / 1000, 0);
+      q('[data-o="fc"]').textContent = `${dec(fc / 1000, 1)} ${T.kn}`;
+      q('[data-o="fsp"]').textContent = `${dec(Math.max(0, fsp) / 1000, 1)} ${T.kn}`;
+      const pc = Math.round((Math.max(0, fsp) / v.f0) * 100);
+      q('[data-o="pc"]').textContent = tr ? `%${pc}` : `${pc} %`;
+      q('[data-o="n23"]').textContent = od ? `${dec(speedAtShare(v.f0, v.mc, 2 / 3), 0)} ${T.rpm}` : '—';
+      const np = permissibleSpeed(v.f0, v.mc, v.fz);
+      q('[data-o="np"]').textContent = od ? (np <= 0 ? T.none : np > cfg.nMarked ? `${dec(cfg.nMarked, 0)} ${T.rpm} (${T.capped})` : `${dec(np, 0)} ${T.rpm}`) : '—';
+      drawChart(v); drawFace(fc / 1000 / cfg.z, Math.max(0, fsp) / 1000 / cfg.z, v.f0 / 1000 / cfg.z);
+    };
+    ['n', 'f0', 'mc', 'fz'].forEach((k) => I(k).addEventListener('input', update));
+    root.querySelectorAll<HTMLButtonElement>('[data-od]').forEach((b, _, all) => b.addEventListener('click', () => { od = b.dataset.od === '1'; all.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); update(); }));
+    update();
+    // the chuck turns at a speed that follows n, slowed down so it stays visible
+    const spin = (now: number) => {
+      const dt = last ? (now - last) / 1000 : 0; last = now;
+      angle += dt * (+I('n').value / 60) * 2 * Math.PI * 0.02;
+      const v = get();
+      drawFace(centrifugal(v.mc, v.n) / 1000 / cfg.z, Math.max(0, gripping(v.f0, v.mc, v.n, od)) / 1000 / cfg.z, v.f0 / 1000 / cfg.z);
+      if (visible) raf = requestAnimationFrame(spin);
+    };
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting && document.documentElement.classList.contains('anim'); cancelAnimationFrame(raf); last = 0; if (visible) raf = requestAnimationFrame(spin); }).observe(root);
+    whenIn(root, () => {
+      const n1 = +I('n').value, t0 = performance.now(), ms = 2600;
+      const step = (t: number) => { const u = Math.min(1, (t - t0) / ms), e = 1 - (1 - u) ** 3; I('n').value = String(Math.round((n1 * e) / 10) * 10); update(); if (u < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    });
+  });
+</script>

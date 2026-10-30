@@ -1,0 +1,38 @@
+---
+/**
+ * Links to the Chip Atlas channels, as brand icons. The glyphs come from Simple Icons (CC0), the standard set for
+ * linking to a profile; the URLs live in src/data/site.ts and an empty one is skipped.
+ */
+import { siInstagram, siYoutube, siTiktok } from 'simple-icons';
+import { site } from '../data/site';
+
+interface Props { variant?: 'header' | 'footer' }
+const { variant = 'footer' } = Astro.props;
+const icons: Record<string, { path: string; hex: string }> = { Instagram: siInstagram, YouTube: siYoutube, TikTok: siTiktok };
+const list = Object.entries(site.channels).filter(([name, url]) => url && icons[name]);
+---
+{list.length > 0 && (
+  <ul class:list={['social', variant]}>
+    {list.map(([name, url]) => (
+      <li>
+        <a href={url} target="_blank" rel="noopener me" aria-label={`Chip Atlas — ${name}`} title={name} style={`--brand:#${icons[name].hex}`}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={icons[name].path} /></svg>
+          {variant === 'footer' && <span>{name}</span>}
+        </a>
+      </li>
+    ))}
+  </ul>
+)}
+
+<style>
+  .social { display: flex; align-items: center; list-style: none; margin: 0; padding: 0; }
+  .social a { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--ink-2); text-decoration: none; transition: color 0.2s, background 0.2s; }
+  .social svg path { fill: var(--brand); }
+  .social svg { width: 1.15rem; height: 1.15rem; flex: none; transition: transform 0.2s; }
+  .social a:hover, .social a:focus-visible { color: var(--ink); }
+  .social a:hover svg { transform: scale(1.08); }
+  .header { gap: 0.15rem; }
+  .header a { width: 2.25rem; height: 2.25rem; justify-content: center; border-radius: 8px; }
+  .header a:hover { background: color-mix(in oklab, var(--brand) 9%, transparent); }
+  .footer { flex-direction: column; align-items: flex-start; gap: 0.55rem; font-size: 0.92rem; }
+</style>

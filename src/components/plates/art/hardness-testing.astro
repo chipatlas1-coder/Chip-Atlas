@@ -1,0 +1,62 @@
+---
+/* The three indentation tests side by side on one test block: Brinell (carbide ball, the indentation
+   diameter d is measured), Vickers (136° diamond pyramid, the diagonals), Rockwell (120° diamond cone,
+   the permanent depth h). Indenters and indentations schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { ball: 'karbür bilye', pyr: 'elmas piramit', cone: 'elmas koni', d: 'çap d', diag: 'köşegenler', h: 'derinlik h', block: 'deney parçası' }
+  : { ball: 'carbide ball', pyr: 'diamond pyramid', cone: 'diamond cone', d: 'diameter d', diag: 'diagonals', h: 'depth h', block: 'test piece' };
+const f1 = (v: number) => v.toFixed(1);
+const yS = 210, xs = [92, 240, 388];
+// Brinell: ball radius 34, indentation chord 0.59 D → depth from the circle
+const R = 34, dB = 0.59 * 2 * R, hB = R - Math.sqrt(R * R - (dB / 2) ** 2);
+// Vickers: 136° → flank half-angle 68° from the axis; drawn depth 14
+const hV = 14, wV = hV * Math.tan((68 * Math.PI) / 180);
+// Rockwell: 120° cone with a rounded tip, permanent depth 12
+const hR = 12, wR = hR * Math.tan((60 * Math.PI) / 180);
+const block = `M24,${yS} L${f1(xs[0] - dB / 2)},${yS} A${R},${R} 0 0,0 ${f1(xs[0] + dB / 2)},${yS} L${f1(xs[1] - wV)},${yS} L${xs[1]},${yS + hV} L${f1(xs[1] + wV)},${yS} L${f1(xs[2] - wR)},${yS} L${f1(xs[2] - 3)},${yS + hR - 1} Q${xs[2]},${yS + hR + 1} ${f1(xs[2] + 3)},${yS + hR - 1} L${f1(xs[2] + wR)},${yS} L456,${yS}`;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id={`hd-dia-${locale}`} x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9cc3ef" /><stop offset="0.5" stop-color="#e8f2fc" /><stop offset="1" stop-color="#7fa9d9" />
+    </linearGradient>
+  </defs>
+  <path class="hatch f" style="--i:0" d={`${block} L456,290 L24,290 Z`} />
+  <path class="o2 d" style="--i:1" pathLength="1" d={block} />
+
+  <!-- Brinell: the ball sits in its indentation -->
+  <rect class="metal-h f" style="--i:2" x={xs[0] - 12} y="40" width="24" height={f1(yS + hB - 2 * R + 8 - 40)} />
+  <circle class="metal f" style="--i:3" cx={xs[0]} cy={f1(yS + hB - R)} r={R} stroke="#66707a" stroke-width="0.8" />
+  <!-- Vickers: the pyramid in its indentation, faces 68° from the axis -->
+  <rect class="metal-h f" style="--i:4" x={xs[1] - 12} y="40" width="24" height={yS + hV - 26 - 40} />
+  <path class="f" style="--i:5" d={`M${f1(xs[1] - 26 * Math.tan((68 * Math.PI) / 180))},${yS + hV - 26} L${f1(xs[1] + 26 * Math.tan((68 * Math.PI) / 180))},${yS + hV - 26} L${xs[1]},${yS + hV} Z`} fill={`url(#hd-dia-${locale})`} stroke="#2a5a96" stroke-width="1" stroke-linejoin="round" />
+  <!-- Rockwell: the cone, faces 60° from the axis, rounded tip -->
+  <rect class="metal-h f" style="--i:6" x={xs[2] - 12} y="40" width="24" height={yS + hR - 28 - 40} />
+  <path class="f" style="--i:7" d={`M${f1(xs[2] - 28 * Math.tan(Math.PI / 3))},${yS + hR - 28} L${f1(xs[2] + 28 * Math.tan(Math.PI / 3))},${yS + hR - 28} L${f1(xs[2] + 3)},${yS + hR - 1} Q${xs[2]},${yS + hR + 1} ${f1(xs[2] - 3)},${yS + hR - 1} Z`} fill={`url(#hd-dia-${locale})`} stroke="#2a5a96" stroke-width="1" stroke-linejoin="round" />
+
+  <!-- forces -->
+  {xs.map((x, i) => <line class="a d" style={`--i:${8 + i}`} pathLength="1" x1={x + 26} y1="34" x2={x + 26} y2="78" marker-end="url(#ca-arr-acc)" />)}
+
+  <!-- what is measured -->
+  <line class="b d" style="--i:11" pathLength="1" x1={f1(xs[0] - dB / 2)} y1={yS + 22} x2={f1(xs[0] + dB / 2)} y2={yS + 22} marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+  <line class="b d" style="--i:12" pathLength="1" x1={f1(xs[1] - wV)} y1={yS + 22} x2={f1(xs[1] + wV)} y2={yS + 22} marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+  <line class="b d" style="--i:13" pathLength="1" x1={xs[2] + wR + 8} y1={yS} x2={xs[2] + wR + 8} y2={yS + hR} marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+
+  <g class="lbl">
+    <text class="t-mid" x={xs[0]} y="306" text-anchor="middle">HBW</text>
+    <text class="t-mid" x={xs[1]} y="306" text-anchor="middle">HV</text>
+    <text class="t-mid" x={xs[2]} y="306" text-anchor="middle">HR</text>
+    <text class="t-sm" x={xs[0]} y="28" text-anchor="middle">{T.ball}</text>
+    <text class="t-sm" x={xs[1]} y="28" text-anchor="middle">{T.pyr}</text>
+    <text class="t-sm" x={xs[2]} y="28" text-anchor="middle">{T.cone}</text>
+    <text class="t-data t-sm" x={xs[0]} y={yS + 40} text-anchor="middle">{T.d}</text>
+    <text class="t-data t-sm" x={xs[1]} y={yS + 40} text-anchor="middle">{T.diag}</text>
+    <text class="t-data t-sm" x={xs[2] + wR + 14} y={yS + 30}>{T.h}</text>
+    <text class="t-acc" x={xs[1] + 22} y="182">136°</text>
+    <text class="t-acc" x={xs[2] + 18} y="182">120°</text>
+    <text class="t-acc t-sm" x={xs[0] + 32} y="60">F</text>
+  </g>
+</svg>

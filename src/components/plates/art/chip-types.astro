@@ -1,0 +1,92 @@
+---
+/* The four chip types of the article's table, each leaving the same wedge (rake 10°), drawn with
+   the orthogonal-cutting geometry: continuous, continuous with a built-up edge, discontinuous
+   (the chip breaks along successive shear planes), serrated (narrow shear bands between segments). */
+import { chipGeom, type Pt } from '../chipgeom';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const names = tr
+  ? ['Sürekli', 'Yığıntılı (BUE)', 'Kesikli', 'Testere dişli (segmentli)']
+  : ['Continuous', 'Built-up edge (BUE)', 'Discontinuous', 'Serrated (segmented)'];
+const T: Pt = [140, 106], h = 13, yS = T[1] - h;
+const tH = 62, tR = 222;
+const tool = `M${T[0]},${T[1]} L${(T[0] + tH * Math.tan(Math.PI / 18)).toFixed(1)},${T[1] - tH} L${tR},${T[1] - tH} L${tR},${(T[1] - (tR - T[0]) * Math.tan((7 * Math.PI) / 180)).toFixed(1)} Z`;
+const work = (S: Pt) => `M8,${yS} L${S[0].toFixed(1)},${yS} L${T[0]},${T[1]} L240,${T[1]} L240,156 L8,156 Z`;
+const workEdge = (S: Pt) => `M8,${yS} L${S[0].toFixed(1)},${yS} L${T[0]},${T[1]} L240,${T[1]}`;
+// 1 continuous, 2 with BUE (thicker chip: lower shear angle)
+const g1 = chipGeom({ T, h, rake: 10, phi: 27, contact: 26, curlR: 13, sweep: -112 });
+const g2 = chipGeom({ T, h, rake: 10, phi: 23, contact: 26, curlR: 11, sweep: -100 });
+// 3 discontinuous: straight chip cut into slices along the shear direction
+const g3 = chipGeom({ T, h, rake: 10, phi: 30, contact: 60, curlR: 30, sweep: 0 });
+const sh: Pt = [(T[0] - g3.S[0]), (T[1] - g3.S[1])];
+const slice = (s0: number, s1: number, dx: number, dy: number, rot: number) => {
+  const a = g3.add(g3.S, g3.u, s0), b = g3.add(g3.S, g3.u, s1);
+  const pts: Pt[] = [a, b, g3.add(b, sh), g3.add(a, sh)];
+  const c: Pt = [(pts[0][0] + pts[2][0]) / 2, (pts[0][1] + pts[2][1]) / 2];
+  const rr = (rot * Math.PI) / 180;
+  const m = pts.map(([x, y]) => [c[0] + (x - c[0]) * Math.cos(rr) - (y - c[1]) * Math.sin(rr) + dx, c[1] + (x - c[0]) * Math.sin(rr) + (y - c[1]) * Math.cos(rr) + dy]);
+  return 'M' + m.map((p) => p.map((v) => v.toFixed(1)).join(',')).join(' L') + ' Z';
+};
+const first = `M${g3.f(g3.S)} L${g3.f(T)} L${g3.f(g3.add(T, g3.u, 8))} L${g3.f(g3.add(g3.S, g3.u, 8))} Z`;
+const pieces = [slice(9, 22, -2, -2, -6), slice(23, 36, -8, -6, -16), slice(37, 50, -18, -12, -30)];
+// 4 serrated: sawtooth free side, shear bands between segments
+const g4 = chipGeom({ T, h, rake: 10, phi: 26, contact: 62, curlR: 30, sweep: 0 });
+const seg = 10.5, nseg = 6;
+const free: string[] = [];
+for (let j = 0; j < nseg; j++) {
+  const a = g4.add(g4.S, g4.u, j * seg), tip = g4.add(g4.add(g4.S, g4.u, j * seg + seg * 0.78), g4.n, 6.5), b = g4.add(g4.S, g4.u, (j + 1) * seg);
+  free.push(g4.f(a), g4.f(tip), g4.f(b));
+}
+const contactTop = g4.add(T, g4.u, nseg * seg + 16.6);
+const serr = `M${g4.f(g4.S)} L${g4.f(T)} L${g4.f(contactTop)} L${free.reverse().join(' L')} Z`;
+const bands = Array.from({ length: nseg }, (_, j) => { const a = g4.add(g4.S, g4.u, (j + 1) * seg); return `M${g4.f(a)} L${g4.f(g4.add(a, [T[0] - g4.S[0], T[1] - g4.S[1]]))}`; }).join(' ');
+const cells = [
+  { x: 0, y: 0, g: g1 }, { x: 240, y: 0, g: g2 }, { x: 0, y: 160, g: g3 }, { x: 240, y: 160, g: g4 },
+];
+const bue = `M${T[0]},${T[1]} C${T[0] - 9},${T[1] - 1} ${T[0] - 12},${T[1] - 10} ${T[0] - 7},${T[1] - 16} C${T[0] - 2},${T[1] - 22} ${T[0] + 4},${T[1] - 20} ${T[0] + 3},${T[1] - 17} Z`;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <line class="h f" style="--i:0" x1="240" y1="10" x2="240" y2="310" stroke-opacity="0.45" />
+  <line class="h f" style="--i:0" x1="10" y1="160" x2="470" y2="160" stroke-opacity="0.45" />
+  {cells.map((c, k) => (
+    <g transform={`translate(${c.x} ${c.y})`}>
+      <path class="f" style={`--i:${k}`} d={work(c.g.S)} fill="#e7edf2" />
+      <g class="f" style={`--i:${k}`} stroke="#9fa8b0" stroke-width="0.9" stroke-opacity="0.7">
+        {[116, 128, 142].map((y) => <line x1="10" y1={y} x2="238" y2={y} />)}
+      </g>
+      <path class="o d" style={`--i:${k + 1}`} pathLength="1" d={workEdge(c.g.S)} />
+      <line class="f" style={`--i:${k + 3}`} x1={c.g.S[0]} y1={c.g.S[1]} x2={T[0]} y2={T[1]} stroke="#e2601a" stroke-opacity="0.35" stroke-width="7" stroke-linecap="round" />
+      {k === 0 && <>
+        <path class="chip f" style="--i:3" d={g1.chip} />
+        <path d={g1.stream(0.35, 10)} class="d" style="--i:4" pathLength="1" fill="none" stroke="#1b1d1e" stroke-opacity="0.5" />
+        <path d={g1.stream(0.75, 10)} class="d" style="--i:5" pathLength="1" fill="none" stroke="#1b1d1e" stroke-opacity="0.5" />
+        <path class="o d" style="--i:4" pathLength="1" d={g1.chip} />
+      </>}
+      {k === 1 && <>
+        <path class="chip f" style="--i:4" d={g2.chip} />
+        <path d={g2.stream(0.5, 10)} class="d" style="--i:5" pathLength="1" fill="none" stroke="#1b1d1e" stroke-opacity="0.5" />
+        <path class="o d" style="--i:5" pathLength="1" d={g2.chip} />
+        <path class="metal f" style="--i:6" d={bue} />
+        <path class="a d" style="--i:6" pathLength="1" d={bue} stroke-width="1.6" />
+        {[164, 183, 205].map((x, j) => <path class="metal f" style={`--i:${7 + j}`} d={`M${x - 5},${T[1]} Q${x},${T[1] - 5} ${x + 5},${T[1]} Z`} />)}
+      </>}
+      {k === 2 && <>
+        <path class="chip f" style="--i:5" d={first} />
+        {pieces.map((p, j) => <path class="chip f" style={`--i:${6 + j}`} d={p} />)}
+        {pieces.map((p, j) => <path class="o d" style={`--i:${6 + j}`} pathLength="1" d={p} />)}
+        <path class="o d" style="--i:6" pathLength="1" d={first} />
+      </>}
+      {k === 3 && <>
+        <path class="chip f" style="--i:6" d={serr} />
+        <path class="f" style="--i:7" d={bands} stroke="#e2601a" stroke-width="1.6" fill="none" />
+        <path class="o d" style="--i:7" pathLength="1" d={serr} />
+      </>}
+      <path class="carbide f" style={`--i:${k + 1}`} d={tool} />
+      <path class="o2 d" style={`--i:${k + 2}`} pathLength="1" d={tool} />
+      <text class="t-ink lbl" x="14" y="148">{names[k]}</text>
+      {k === 1 && <g class="lbl"><line class="h" x1={T[0] + 2} y1={T[1] - 9} x2="178" y2="122" stroke="#e2601a" /><text class="t-acc t-sm" x="180" y="128">BUE</text></g>}
+      {k === 3 && <g class="lbl"><line class="h" x1="112" y1="52" x2="64" y2="40" stroke="#e2601a" /><text class="t-acc t-sm" x="14" y="38">{tr ? 'kayma bantları' : 'shear bands'}</text></g>}
+    </g>
+  ))}
+</svg>

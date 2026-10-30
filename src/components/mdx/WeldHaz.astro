@@ -1,0 +1,211 @@
+---
+/**
+ * Strength across a fusion weld in a heat-treatable aluminium alloy, as Eurocode 9 gives it: the
+ * parent value away from the weld, one reduced value in the heat-affected zone (HAZ). Above the
+ * chart and aligned with it, a schematic single-V butt weld in section: weld metal with a crown and
+ * a root bead, columnar grains growing in from the fusion lines, and the HAZ shaded from hot (at the
+ * fusion line) to cool. Eurocode 9 measures the HAZ extent from the centre line of a butt weld, so
+ * its outer limit is a vertical line, carried down into the chart. Widths are schematic (the extent
+ * depends on the process and the thickness); the strength values come from the article through props.
+ * With motion allowed the weld glows and cools, the HAZ spreads out from it, then the lines draw in.
+ */
+interface Line { name: string; color: string; parent: number; haz: number; rho: string; faint?: boolean }
+interface Props { locale: 'en' | 'tr'; lines: Line[]; yMax?: number; ticks?: number[]; aria: string }
+const { locale, lines, yMax = 350, ticks = [0, 100, 200, 300], aria } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { wm: 'kaynak metali', haz: 'ITAB', pm: 'ana malzeme', y: 'dayanım (MPa)', not: 'genişlikler ölçeksiz', rho: 'ρ' }
+  : { wm: 'weld metal', haz: 'HAZ', pm: 'parent metal', y: 'strength (MPa)', not: 'widths not to scale', rho: 'ρ' };
+const f = (n: number) => n.toFixed(1);
+// HAZ shading: isotherms between the fusion line (0) and the HAZ limit (1), hot to cool
+const ISO = [0, 0.13, 0.3, 0.52, 0.76, 1];
+const HEAT: [string, number][] = [['#a36700', 0.62], ['#b56200', 0.5], ['#c45d00', 0.38], ['#d85a00', 0.26], ['#d4520f', 0.15]];
+function layout(narrow: boolean) {
+  const W = narrow ? 360 : 660, x0 = narrow ? 40 : 58, x1 = W - (narrow ? 10 : 18);
+  const xc = (x0 + x1) / 2, wm = narrow ? 14 : 20, hz = narrow ? 66 : 132;
+  const sTop = 30, sBot = 64;                            // the plates in section
+  const yTop = 110, y0 = 316, H = y0 + 34;
+  const Y = (v: number) => y0 - (v / yMax) * (y0 - yTop);
+  return { narrow, id: narrow ? 'n' : 'w', W, H, x0, x1, xc, wm, hz, sTop, sBot, yTop, y0, Y };
+}
+type G = ReturnType<typeof layout>;
+/** The weld in section. The fusion zone is ±wm wide at mid-thickness, where the chart's weld-metal
+ *  band is, wider at the face and narrower at the root, as a single-V groove of about 60° fills. */
+function sketch(g: G) {
+  const { xc, wm, hz, sTop, sBot, x0, x1 } = g;
+  const t = sBot - sTop, wTop = wm * 1.5, wRoot = wm * 0.5, bulge = g.narrow ? 1 : 1.6;
+  const crownH = g.narrow ? 3.5 : 4.5, rootH = g.narrow ? 2.5 : 3.2, k = 4 / 3;
+  const fw = (y: number) => wRoot + ((wTop - wRoot) * (sBot - y)) / t + bulge * Math.sin((Math.PI * (y - sTop)) / t);
+  const N = 17, ys = Array.from({ length: N + 1 }, (_, i) => sTop + (t * i) / N);
+  // isotherm u on side s, top to bottom: the fusion line at 0, the vertical HAZ limit at 1
+  const iso = (s: number, u: number) => ys.map((y) => `${f(xc + s * ((1 - u) * fw(y) + u * hz))},${f(y)}`);
+  const L = iso(-1, 0), R = iso(1, 0);
+  const crownC = `C${f(xc - wTop * 0.45)},${f(sTop - crownH * k)} ${f(xc + wTop * 0.45)},${f(sTop - crownH * k)} ${f(xc + wTop)},${sTop}`;
+  const rootC = `C${f(xc + wRoot * 0.5)},${f(sBot + rootH * k)} ${f(xc - wRoot * 0.5)},${f(sBot + rootH * k)} ${f(xc - wRoot)},${sBot}`;
+  const weld = `M${f(xc - wTop)},${sTop} ${crownC} L${R.slice(1).join(' L')} ${rootC} L${[...L].reverse().slice(1).join(' L')} Z`;
+  const beads = `M${f(xc - wTop)},${sTop} ${crownC} M${f(xc + wRoot)},${sBot} ${rootC}`;
+  const fusion = `M${L.join(' L')} M${R.join(' L')}`;
+  const plateL = `M${x0 - 1},${sTop} L${L.join(' L')} L${x0 - 1},${sBot} Z`;
+  const plateR = `M${x1 + 1},${sTop} L${R.join(' L')} L${x1 + 1},${sBot} Z`;
+  const faces = `M${x0},${sTop} H${f(xc - wTop)} M${f(xc + wTop)},${sTop} H${x1} M${x0},${sBot} H${f(xc - wRoot)} M${f(xc + wRoot)},${sBot} H${x1}`;
+  const bands = (s: number) => HEAT.map((_, i) => `M${iso(s, ISO[i]).join(' L')} L${iso(s, ISO[i + 1]).reverse().join(' L')} Z`);
+  const isoLines = [-1, 1].map((s) => ISO.slice(1, -1).map((u) => `M${iso(s, u).join(' L')}`).join(' ')).join(' ');
+  // columnar grains: in from the fusion line along its normal, bending up to meet at the centre line
+  const slope = (wTop - wRoot) / t, nG = g.narrow ? 6 : 8;
+  const grains = [-1, 1].flatMap((s) => Array.from({ length: nG }, (_, i) => {
+    const y = sTop + 1.5 + ((t - 2) * (i + 0.5)) / nG, w = fw(y), x = xc + s * w;
+    return `M${f(x)},${f(y)} Q${f(x - s * w * 0.55)},${f(y - slope * w * 0.55)} ${f(xc)},${f(Math.max(sTop - crownH + 1.5, y - slope * w * 1.5))}`;
+  })).join(' ');
+  return { weld, beads, fusion, plateL, plateR, faces, bands, isoLines, grains, t, wTop };
+}
+const G2 = [layout(false), layout(true)];
+---
+<div class="weldhaz" data-anim>
+  <div class="legend" aria-hidden="true">
+    {lines.map((l) => <span><i class:list={{ fa: l.faint }} style={`background:${l.color}`}></i>{l.name}</span>)}
+  </div>
+  {G2.map((g) => {
+    const { x0, x1, xc, wm, hz, sTop, sBot, Y, y0, yTop, id } = g;
+    const zl = xc - hz, zr = xc + hz, wl = xc - wm, wr = xc + wm;
+    const s = sketch(g), ym = (sTop + sBot) / 2;
+    return (
+      <svg viewBox={`0 0 ${g.W} ${g.H}`} role="img" aria-label={aria} class:list={['wh', g.narrow ? 'narrow' : 'wide']}>
+        <defs>
+          <linearGradient id={`whFade-${id}`} gradientUnits="userSpaceOnUse" x1={x0} x2={x1} y1="0" y2="0">
+            <stop offset="0" stop-color="#fff" stop-opacity="0" />
+            <stop offset={f(34 / (x1 - x0))} stop-color="#fff" />
+            <stop offset={f(1 - 34 / (x1 - x0))} stop-color="#fff" />
+            <stop offset="1" stop-color="#fff" stop-opacity="0" />
+          </linearGradient>
+          <mask id={`whM-${id}`} maskUnits="userSpaceOnUse" x={x0 - 4} y={sTop - 12} width={x1 - x0 + 8} height={sBot - sTop + 24}>
+            <rect x={x0 - 4} y={sTop - 12} width={x1 - x0 + 8} height={sBot - sTop + 24} fill={`url(#whFade-${id})`} />
+          </mask>
+          <clipPath id={`whPl-${id}`}><rect x={x0} y={sTop} width={x1 - x0} height={sBot - sTop} /></clipPath>
+          <clipPath id={`whW-${id}`}><path d={s.weld} /></clipPath>
+          <linearGradient id={`whMetal-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#a0a9b1" /><stop offset="0.5" stop-color="#8d979e" /><stop offset="1" stop-color="#818991" />
+          </linearGradient>
+          <radialGradient id={`whHot-${id}`} gradientUnits="userSpaceOnUse" cx={xc} cy={sTop + s.t * 0.35} r={s.wTop * 1.15}>
+            <stop offset="0" stop-color="#846b00" /><stop offset="0.5" stop-color="#9c6c00" /><stop offset="1" stop-color="#cc5800" />
+          </radialGradient>
+          <radialGradient id={`whGlow-${id}`} gradientUnits="userSpaceOnUse" cx={xc} cy={ym} r={hz}>
+            <stop offset="0" stop-color="#a96800" stop-opacity="0.95" /><stop offset="0.45" stop-color="#cc5800" stop-opacity="0.45" /><stop offset="1" stop-color="#e2601a" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+
+        {/* sketch: two plates in section (hatched in opposite directions), the HAZ shaded by peak
+            temperature, the weld metal with its grains; the plates fade out at the ends */}
+        <g mask={`url(#whM-${id})`}>
+          <g class="plates">
+            <path d={s.plateL} fill="url(#ca-hatch)" />
+            <path d={s.plateR} fill="url(#ca-hatch-x)" />
+          </g>
+          <ellipse class="glow" cx={xc} cy={ym} rx={hz} ry={s.t} fill={`url(#whGlow-${id})`} clip-path={`url(#whPl-${id})`} />
+          <g class="haz l">{s.bands(-1).map((d, i) => <path d={d} fill={HEAT[i][0]} fill-opacity={HEAT[i][1]} />)}</g>
+          <g class="haz r">{s.bands(1).map((d, i) => <path d={d} fill={HEAT[i][0]} fill-opacity={HEAT[i][1]} />)}</g>
+          <path class="haz iso" d={s.isoLines} />
+          <g class="weld">
+            <path d={s.weld} fill={`url(#whMetal-${id})`} />
+            <path d={s.grains} class="grain" clip-path={`url(#whW-${id})`} />
+          </g>
+          <path class="hot" d={s.weld} fill={`url(#whHot-${id})`} />
+          <path class="plates face" d={s.faces} />
+          <path class="weld bead" d={s.beads} />
+          <path class="weld fusion" d={s.fusion} />
+        </g>
+        <line class="cl" x1={xc} x2={xc} y1={sTop - 9} y2={sBot + 9} />
+
+        {/* zone tints and boundaries through the chart; the HAZ limit runs from the sketch down */}
+        <rect x={wl} y={yTop - 6} width={wr - wl} height={y0 - yTop + 6} class="wmz" />
+        <rect x={zl} y={yTop - 6} width={wl - zl} height={y0 - yTop + 6} class="hzz" />
+        <rect x={wr} y={yTop - 6} width={zr - wr} height={y0 - yTop + 6} class="hzz" />
+        {[zl, zr].map((x) => <line x1={x} x2={x} y1={sTop - 6} y2={y0} class="zb" />)}
+        {[wl, wr].map((x) => <line x1={x} x2={x} y1={yTop - 6} y2={y0} class="zb wb" />)}
+        {/* zone names */}
+        <text x={xc} y={14} text-anchor="middle" class="zn wm">{T.wm}</text>
+        <text x={(wr + zr) / 2} y={sBot + 19} text-anchor="middle" class="zn acc">{T.haz}</text>
+        <text x={(wl + zl) / 2} y={sBot + 19} text-anchor="middle" class="zn acc">{T.haz}</text>
+        <text x={(zr + x1) / 2} y={sBot + 19} text-anchor="middle" class="zn">{T.pm}</text>
+        {!g.narrow && <text x={(x0 + zl) / 2} y={sBot + 19} text-anchor="middle" class="zn">{T.pm}</text>}
+        {/* axes */}
+        {ticks.map((t) => (
+          <g>
+            <line x1={x0} x2={x1} y1={Y(t)} y2={Y(t)} class="grid" />
+            <text x={x0 - 7} y={Y(t) + 4} text-anchor="end" class="tick">{t}</text>
+          </g>
+        ))}
+        <text transform={`translate(${g.narrow ? 10 : 14} ${(yTop + y0) / 2}) rotate(-90)`} text-anchor="middle" class="lab">{T.y}</text>
+        <text x={x1} y={y0 + 22} text-anchor="end" class="lab mut">{T.not}</text>
+        {/* strength lines, drawn from the parent metal in: the step into the HAZ, broken across the weld metal */}
+        {lines.map((l, i) => {
+          const yp = Y(l.parent), yh = Y(l.haz);
+          const low = l.haz === Math.min(...lines.map((m) => m.haz)) && lines.some((m) => m !== l && Math.abs(m.haz - l.haz) < 40);
+          const dl = `M${x0},${yp} L${zl},${yp} L${zl},${yh} L${wl},${yh}`;
+          const dr = `M${x1},${yp} L${zr},${yp} L${zr},${yh} L${wr},${yh}`;
+          return (
+            <g style={`--i:${i}`}>
+              <path d={dl} pathLength={l.faint ? undefined : 1} class:list={['ln', l.faint ? 'fa' : 'draw']} style={`stroke:${l.color}`} />
+              <path d={dr} pathLength={l.faint ? undefined : 1} class:list={['ln', l.faint ? 'fa' : 'draw']} style={`stroke:${l.color}`} />
+              <text x={x1 - 4} y={yp - 6} text-anchor="end" class="v" style={`fill:${l.color}`}>{l.parent}</text>
+              <text x={(wr + zr) / 2} y={low ? yh + 16 : yh - 6} text-anchor="middle" class="v" style={`fill:${l.color}`}>{l.haz}{!g.narrow && <tspan class="rho"> · {T.rho} {l.rho}</tspan>}</text>
+            </g>
+          );
+        })}
+      </svg>
+    );
+  })}
+</div>
+
+<style>
+  .weldhaz { display: grid; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1.2rem; font-size: 0.8rem; color: var(--ink-2); margin: 0 0 0.3rem 0.2rem; }
+  .legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .legend i { width: 16px; height: 2.5px; border-radius: 2px; display: inline-block; }
+  .legend i.fa { height: 1.5px; opacity: 0.75; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } }
+  .face { fill: none; stroke: #565e63; stroke-width: 1; }
+  .iso { fill: none; stroke: #a75f00; stroke-width: 0.6; stroke-opacity: 0.32; }
+  .grain { fill: none; stroke: #272b2e; stroke-width: 0.65; stroke-opacity: 0.42; stroke-linecap: round; }
+  .bead { fill: none; stroke: #2f3438; stroke-width: 1.1; }
+  .fusion { fill: none; stroke: #a36300; stroke-width: 1.2; stroke-linejoin: round; }
+  .cl { stroke: var(--ink-3); stroke-width: 0.8; stroke-dasharray: 9 3 2 3; }
+  .hot, .glow { opacity: 0; }
+  .haz.l { transform-origin: 100% 50%; }
+  .haz.r { transform-origin: 0 50%; }
+  .haz.l, .haz.r, .zb { transform-box: fill-box; }
+  .zb { stroke: #e2601a; stroke-opacity: 0.55; stroke-dasharray: 3 4; transform-origin: 50% 0; }
+  .zb.wb { stroke: var(--ink-3); stroke-opacity: 0.7; }
+  .wmz { fill: color-mix(in oklab, var(--ink) 5%, transparent); }
+  .hzz { fill: color-mix(in oklab, #d4520f 5%, transparent); }
+  .zn { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-2); }
+  .zn.acc { fill: #e2601a; }
+  .zn.wm { fill: var(--ink-2); }
+  .grid { stroke: var(--line); }
+  .tick { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); }
+  .lab { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-2); }
+  .mut { fill: var(--ink-3); }
+  .ln { fill: none; stroke-width: 2.4; stroke-linejoin: round; }
+  .ln.fa { stroke-width: 1.5; stroke-dasharray: 6 3; stroke-opacity: 0.8; }
+  .v { font-family: var(--font-mono); font-size: 12px; font-weight: 500; paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; }
+  .rho { fill: var(--ink-3); font-weight: 400; }
+  .narrow .zn, .narrow .lab { font-size: 11px; }
+
+  /* motion: the weld glows and cools, the HAZ spreads out from it, then the zones and the lines come in */
+  :global(html.anim) .weldhaz[data-anim]:not([data-in]) :is(.plates, .weld, .haz, .cl, .zb, .zn, .wmz, .hzz, .ln, .v) { opacity: 0; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .plates { animation: ca-fade 0.5s backwards; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .weld { animation: ca-fade 0.35s 0.15s backwards; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .hot { animation: wh-cool 2.4s 0.15s ease-out; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .glow { animation: wh-glow 2.8s 0.25s ease-out; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .haz { animation: ca-grow-x 1.5s 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .haz.iso { animation: ca-fade 0.8s 1.1s backwards; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .cl { animation: ca-fade 0.4s 0.5s backwards; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .zn { animation: ca-fade 0.4s 1s backwards; }
+  :global(html.anim) .weldhaz[data-anim][data-in] :is(.wmz, .hzz) { animation: ca-fade 0.8s 1.2s backwards; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .zb { animation: ca-grow-y 0.8s 1.1s cubic-bezier(0.3, 0.7, 0.3, 1) backwards; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .ln.draw { stroke-dasharray: 1; animation: ca-draw 1s calc(1.5s + var(--i) * 0.15s) cubic-bezier(0.45, 0, 0.25, 1) backwards; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .ln.fa { animation: ca-fade 0.6s calc(1.7s + var(--i) * 0.1s) backwards; }
+  :global(html.anim) .weldhaz[data-anim][data-in] .v { animation: ca-fade 0.4s calc(2.2s + var(--i) * 0.1s) backwards; }
+  @keyframes wh-cool { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes wh-glow { 0% { opacity: 0; } 20% { opacity: 0.9; } 100% { opacity: 0; } }
+</style>

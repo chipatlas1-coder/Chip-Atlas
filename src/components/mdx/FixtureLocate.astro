@@ -1,0 +1,180 @@
+---
+/**
+ * The 3-2-1 principle on a prismatic part, in isometric view: a free part drifts in all six degrees of freedom;
+ * three locators under the primary plane, two on the secondary and one on the tertiary take them away one group at
+ * a time (the part keeps moving in whatever is still free); clamps then hold it against the locators. The six
+ * chips below the drawing show which freedoms are left. Schematic; the part is drawn translucent so the locators
+ * behind it stay visible.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { steps: ['Serbest', '3 nokta', '+2', '+1', 'Bağlama'], free: 'serbest hareket', of: '/ 12', tx: 'X boyunca', ty: 'Y boyunca', tz: 'Z boyunca', rx: 'X çevresinde', ry: 'Y çevresinde', rz: 'Z çevresinde', p: 'ilk düzlem: 3', s: 'ikinci düzlem: 2', t: 'üçüncü düzlem: 1', clamp: 'bağlama', aria: 'Blok biçimli bir parçanın altı serbestlik derecesi ve on iki hareketi 3-2-1 yerleştirme noktalarıyla sırayla engellenir, kalan üçünü bağlama elemanları tutar' }
+  : { steps: ['Free', '3 points', '+2', '+1', 'Clamp'], free: 'free movements', of: 'of 12', tx: 'along X', ty: 'along Y', tz: 'along Z', rx: 'about X', ry: 'about Y', rz: 'about Z', p: 'first plane: 3', s: 'second plane: 2', t: 'third plane: 1', clamp: 'clamps', aria: 'The six degrees of freedom, twelve movements, of a block-shaped part are stopped in turn by 3-2-1 locators; clamps hold the last three' };
+// each degree of freedom has two directions: − (towards the locators in this drawing) and +
+const dofs = [['tx', '−', '+'], ['ty', '−', '+'], ['tz', '−', '+'], ['rx', '↺', '↻'], ['ry', '↺', '↻'], ['rz', '↺', '↻']] as const;
+---
+<div class="fxl" data-fxl data-locale={locale} data-anim>
+  <div class="seg" data-g="st">{T.steps.map((k, i) => <button type="button" data-v={i} aria-pressed={String(i === 4)}>{k}</button>)}</div>
+  <svg class="sc" viewBox="0 -20 640 380" role="img" aria-label={T.aria} data-sc></svg>
+  <ul class="lg" aria-hidden="true">{(['p', 's', 't'] as const).map((g) => <li data-lg={g}><i class={g}></i>{T[g]}</li>)}</ul>
+  <div class="dof" aria-live="polite">
+    <span class="cnt"><b data-n>0</b> {T.free} <span>{T.of}</span></span>
+    <ul>{dofs.map(([k, m, p]) => <li><span class="lb">{T[k]}</span><span class="dir" data-d={`${k}-`}>{m}</span><span class="dir" data-d={`${k}+`}>{p}</span></li>)}</ul>
+  </div>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .fxl { display: grid; gap: 0.7rem; }
+  .seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+  .seg button { flex: 1 1 5.5rem; font: inherit; font-size: 0.84rem; padding: 0.4rem 0.5rem; border: 0; background: var(--bg-raised); color: var(--ink-2); cursor: pointer; min-height: 2.3rem; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+  .sc { width: 100%; height: auto; display: block; }
+  .lg { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; list-style: none; margin: -0.3rem 0 0; padding: 0; font: 0.78rem var(--font-mono); color: var(--ink-2); }
+  .lg li { display: inline-flex; align-items: center; gap: 0.4rem; transition: opacity 0.4s; }
+  .lg li.dim { opacity: 0.4; }
+  .lg i { width: 1.1rem; height: 0.6rem; border-radius: 3px; display: inline-block; }
+  .lg i.p { background: #13998a; } .lg i.s { background: #1e5fc4; } .lg i.t { background: #8b52c9; }
+  .dof { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+  .cnt { font-size: 0.9rem; color: var(--ink-2); }
+  .cnt b { font-family: var(--font-mono); font-size: 1.3rem; color: var(--accent); }
+  .cnt span { color: var(--ink-3); }
+  .dof ul { display: flex; flex-wrap: wrap; gap: 0.35rem; list-style: none; margin: 0; padding: 0; }
+  .dof li { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; padding: 0.15rem 0.3rem 0.15rem 0.55rem; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--ink-2); }
+  .dof .dir { display: inline-grid; place-items: center; min-width: 1.45rem; height: 1.45rem; border-radius: 999px; font-family: var(--font-mono); font-size: 0.85rem; border: 1.5px solid var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); transition: all 0.4s; }
+  .dof .dir.off { color: #fff; text-decoration: none; }
+  .dof .dir.p { background: #13998a; border-color: #13998a; } .dof .dir.s { background: #1e5fc4; border-color: #1e5fc4; }
+  .dof .dir.t { background: #8b52c9; border-color: #8b52c9; } .dof .dir.c { background: #c94f0c; border-color: #c94f0c; }
+  .fxl :global(.tx) { font: 12px var(--font-mono); fill: #364554; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+  .fxl.narrow :global(.tx) { font-size: 18px; }
+</style>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-fxl]').forEach((root) => {
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const sc = root.querySelector('[data-sc]') as SVGSVGElement;
+    const f = (n: number) => n.toFixed(1);
+    // part and fixture in mm-like units; isometric projection
+    const L = 220, W = 110, H = 70, CX = 330, CY = 260, K = 0.866;
+    type V = [number, number, number];
+    // seen from the -X, -Y, +Z side: the faces at x = 0 and y = 0 and the top face face the viewer
+    const P = ([x, y, z]: V): [number, number] => [CX + (x - y) * K, CY - (x + y) * 0.5 - z];
+    const pt = (v: V) => P(v).map(f).join(',');
+    // locators: contact point on the part and the direction back to the fixture
+    const LOC = {
+      p: [[28, 24, 0], [28, W - 24, 0], [L - 28, W / 2, 0]] as V[],
+      s: [[40, 0, H / 2], [L - 40, 0, H / 2]] as V[],
+      t: [[0, W / 2 + 15, H / 2]] as V[],
+    };
+    const COL = { p: '#13998a', s: '#1e5fc4', t: '#8b52c9' };
+    // the 12-movement count (Carr Lane): primary 5, secondary 3, tertiary 1, the clamps the last 3
+    const removes: Record<string, string[]> = { p: ['tz-', 'rx-', 'rx+', 'ry-', 'ry+'], s: ['ty-', 'rz-', 'rz+'], t: ['tx-'], c: ['tx+', 'ty+', 'tz+'] };
+    let stage = 4, auto = false, t = 0, tStage = 0, last = 0, visible = false;
+    const DUR = [3, 3, 3, 3, 3.5];
+    const narrow = () => root.classList.contains('narrow');
+    // rigid-body motion of the part for the freedoms still open (small, smooth, looping)
+    const pose = (st: number, time: number, k: number) => {
+      const a = (w: number, ph: number) => Math.sin(time * w + ph);
+      const amp = k;                                              // 0…1: fades the motion in and out
+      const free = (d: string) => !(['p', 's', 't'].slice(0, Math.min(st, 3)).some((g) => removes[g].some((x) => x.startsWith(d))));
+      return {
+        tx: free('tx') ? 12 * amp * a(1.3, 0) + 4 * amp : 0,
+        ty: free('ty') ? 8 * amp * a(1.1, 1) + 4 * amp : 0,
+        tz: free('tz') ? 16 + 8 * amp * a(1.7, 2) : 0,
+        rx: free('rx') ? 0.06 * amp * a(1.5, 0.5) : 0,
+        ry: free('ry') ? 0.06 * amp * a(1.2, 2.2) : 0,
+        rz: free('rz') ? 0.06 * amp * a(0.9, 1.4) : 0,
+      };
+    };
+    const xf = (v: V, q: ReturnType<typeof pose>): V => {
+      const c: V = [L / 2, W / 2, H / 2];
+      let [x, y, z] = [v[0] - c[0], v[1] - c[1], v[2] - c[2]];
+      [y, z] = [y * Math.cos(q.rx) - z * Math.sin(q.rx), y * Math.sin(q.rx) + z * Math.cos(q.rx)];
+      [x, z] = [x * Math.cos(q.ry) + z * Math.sin(q.ry), -x * Math.sin(q.ry) + z * Math.cos(q.ry)];
+      [x, y] = [x * Math.cos(q.rz) - y * Math.sin(q.rz), x * Math.sin(q.rz) + y * Math.cos(q.rz)];
+      return [x + c[0] + q.tx, y + c[1] + q.ty, z + c[2] + q.tz];
+    };
+    const draw = () => {
+      const st = stage;
+      // with motion: ease from the previous stage's pose into this one (the part settles onto the new locators)
+      let q = auto ? pose(st, t, 1) : pose(st, 0.9, 0.6);
+      if (auto && st > 0 && st < 4 && tStage < 0.7) {
+        const e = Math.min(1, tStage / 0.7), m = e * e * (3 - 2 * e), q0 = pose(st - 1, t, 1);
+        q = Object.fromEntries(Object.keys(q).map((key) => [key, q0[key as keyof typeof q] * (1 - m) + q[key as keyof typeof q] * m])) as typeof q;
+      }
+      let s = '';
+      // fixture base plate
+      const B = (x: number, y: number, z = -26): V => [x, y, z];
+      s += `<path d="M${pt(B(-60, -60))} L${pt(B(L + 30, -60))} L${pt(B(L + 30, W + 30))} L${pt(B(-60, W + 30))} Z" fill="#e7ecf1" stroke="#9aa6b2"/>`;
+      s += `<path d="M${pt(B(-60, -60))} L${pt(B(L + 30, -60))} L${pt(B(L + 30, -60, -40))} L${pt(B(-60, -60, -40))} Z" fill="#cfd7df" stroke="#9aa6b2"/>`;
+      s += `<path d="M${pt(B(-60, -60))} L${pt(B(-60, W + 30))} L${pt(B(-60, W + 30, -40))} L${pt(B(-60, -60, -40))} Z" fill="#dbe2e9" stroke="#9aa6b2"/>`;
+      const on = (g: 'p' | 's' | 't') => ({ p: 1, s: 2, t: 3 }[g] <= Math.min(st, 3));
+      const rise = (g: 'p' | 's' | 't') => (auto && { p: 1, s: 2, t: 3 }[g] === st ? Math.min(1, tStage / 0.5) : 1);
+      const line = (a: V, b: V, col: string, w: number, extra = '') => { const [x1, y1] = P(a), [x2, y2] = P(b); return `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"${extra}/>`; };
+      // the part: far faces first, then the near ones and the top
+      const V8 = (i: number): V => [i & 1 ? L : 0, i & 2 ? W : 0, i & 4 ? H : 0];
+      const faces: [number[], string][] = [[[0, 1, 3, 2], '#b9c4cf'], [[1, 3, 7, 5], '#c3cdd7'], [[2, 3, 7, 6], '#c3cdd7'], [[0, 2, 6, 4], '#a9b6c3'], [[0, 1, 5, 4], '#c9d2db'], [[4, 5, 7, 6], '#eef2f6']];
+      const pv = Array.from({ length: 8 }, (_, i) => xf(V8(i), q));
+      // primary locators stand under the part: drawn first, and again as hidden (dashed) lines over it
+      const prim = (extra: string, w: number) => LOC.p.map((c) => line(B(c[0], c[1]), [c[0], c[1], -26 + 26 * rise('p')], '#13998a', w, extra)).join('');
+      if (on('p')) s += prim('', 9);
+      faces.forEach(([fc, col]) => { s += `<path d="M${fc.map((j) => pt(pv[j])).join(' L')} Z" fill="${col}" fill-opacity="0.9" stroke="#364554" stroke-width="1.4" stroke-linejoin="round"/>`; });
+      if (on('p')) s += prim(' stroke-dasharray="5 4" opacity="0.75"', 3);
+      // secondary and tertiary locators stand in front of the part: a post from the base, then a pin to the face
+      const side = (g: 's' | 't', c: V) => {
+        const r = rise(g);
+        const out: V = g === 's' ? [c[0], -40, c[2]] : [-40, c[1], c[2]];
+        const tip: V = g === 's' ? [c[0], -40 + 40 * r, c[2]] : [-40 + 40 * r, c[1], c[2]];
+        return line([out[0], out[1], -26], out, '#7d8a97', 7) + line(out, tip, COL[g], 9);
+      };
+      (['s', 't'] as const).forEach((g) => { if (on(g)) LOC[g].forEach((c) => (s += side(g, c))); });
+      // contact points
+      (['p', 's', 't'] as const).forEach((g) => { if (on(g) && rise(g) > 0.98) LOC[g].forEach((c) => { const [x, y] = P(c); s += `<circle cx="${f(x)}" cy="${f(y)}" r="5" fill="#e2601a" stroke="#fff" stroke-width="1.5"${g === 'p' ? ' opacity="0.8"' : ''}/>`; }); });
+      // clamps: push the part onto the locators (over the primary locators, against the secondary and tertiary)
+      if (st === 4) {
+        const ck = auto ? Math.min(1, tStage / 0.7) : 1;
+        const arrow = (from: V, to: V) => { const [x1, y1] = P(from), [x2, y2] = P(to); return `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x1 + (x2 - x1) * ck)}" y2="${f(y1 + (y2 - y1) * ck)}" stroke="#e2601a" stroke-width="4" marker-end="url(#ca-arr-acc)"/>`; };
+        // each clamp directly over a primary locator or directly opposite a secondary or tertiary one
+        s += arrow([28, 24, H + 60], [28, 24, H + 8]) + arrow([L - 28, W / 2, H + 60], [L - 28, W / 2, H + 8]);
+        s += arrow([L - 40, W + 70, H / 2], [L - 40, W + 10, H / 2]) + arrow([L + 70, W / 2 + 15, H / 2], [L + 10, W / 2 + 15, H / 2]);
+        if (ck > 0.98) s += line([L - 40, W, H / 2], [L - 40, 0, H / 2], '#e2601a', 1.5, ' stroke-dasharray="3 4" opacity="0.6"') + line([L, W / 2 + 15, H / 2], [0, W / 2 + 15, H / 2], '#e2601a', 1.5, ' stroke-dasharray="3 4" opacity="0.6"');
+        const [lx, ly] = P([L - 28, W / 2, H + 60]);
+        s += `<text x="${f(lx + 10)}" y="${f(ly + 4)}" class="tx" style="fill:#c94f0c">${T.clamp}</text>`;
+      }
+      sc.setAttribute('viewBox', narrow() ? '110 -20 520 382' : '0 -20 640 380');
+      root.querySelectorAll<HTMLElement>('[data-lg]').forEach((li) => li.classList.toggle('dim', !on(li.dataset.lg as 'p' | 's' | 't')));
+      sc.innerHTML = s;
+      // the chips: which group has stopped each direction
+      let n = 0;
+      root.querySelectorAll<HTMLElement>('[data-d]').forEach((el) => {
+        const d = el.dataset.d as string;
+        const g = (['p', 's', 't', 'c'] as const).find((x) => (x === 'c' ? st === 4 : on(x)) && removes[x].includes(d));
+        el.className = g ? `dir off ${g}` : 'dir';
+        if (!g) n++;
+      });
+      (root.querySelector('[data-n]') as HTMLElement).textContent = String(n);
+    };
+    const setStage = (i: number) => { stage = i; tStage = 0; root.querySelectorAll<HTMLButtonElement>('[data-g="st"] button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.v! === i))); draw(); };
+    root.querySelectorAll<HTMLButtonElement>('[data-g="st"] button').forEach((b) => b.addEventListener('click', () => { auto = document.documentElement.classList.contains('anim') ? auto : false; userSet = true; setStage(+b.dataset.v!); }));
+    let userSet = false;
+    const fit = () => { const w = sc.getBoundingClientRect().width, was = narrow(); root.classList.toggle('narrow', w > 0 && w < 480); if (was !== narrow()) draw(); };
+    new ResizeObserver(fit).observe(sc);
+    draw(); fit();
+    new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+    // with motion on: run through the stages on a loop until a stage is picked; the free part keeps moving in whatever is left
+    const step = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if (visible) {
+        t += dt; tStage += dt;
+        if (!userSet && tStage > DUR[stage]) setStage((stage + 1) % 5);
+        draw();
+      }
+      requestAnimationFrame(step);
+    };
+    whenIn(root, () => { auto = true; last = performance.now(); setStage(0); requestAnimationFrame(step); });
+  });
+</script>

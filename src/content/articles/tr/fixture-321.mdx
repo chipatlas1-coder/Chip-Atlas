@@ -1,0 +1,107 @@
+---
+key: fixture-321
+locale: tr
+slug: 3-2-1-yerlestirme-prensibi
+title: '3-2-1 yerleştirme prensibi'
+description: 'Bir bağlama kalıbı her parçayı nasıl aynı yere koyar: altı serbestlik derecesi, ilk düzlemde üç, ikincide iki, üçüncüde bir yerleştirme noktası ve parçayı onlara karşı tutan bağlama elemanları. Fazla yerleştirme, ek destekler, delikler için pimler, V-Blok ve yalnızca tek kaynağın söylediği noktalar.'
+section: 5
+subsection: fixture-design
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: '3 + 2 + 1'
+    label: 'Birbirine dik üç düzlemde yerleştirme noktaları (Tekiner ve Şeker); yerleştirmenin asgari şartı (Applied Engineering notları)'
+  - value: '6 ya da 12'
+    label: 'Serbest bir cismin serbestlik derecesi; iki yön ayrı sayılınca on iki hareket (ASEE; Carr Lane; Tekiner ve Şeker)'
+  - value: '9 + 3'
+    label: 'On iki hareketin dokuzunu altı yerleştirme noktası, kalan üçünü bağlama elemanları engeller (Carr Lane; GCE Kalahandi ders notları; dokuz sayısı IRIMEE’de de)'
+  - value: '%20–50'
+    label: 'Bağlama kalıbı toleransının parça toleransına oranı (Carr Lane); Applied Engineering notlarındaki pratik kuralda yaklaşık %40'
+sources:
+  - label: 'Z. Tekiner, U. Şeker, “Bağlama Kalıbı Tasarımında Bağlama Kuvveti Hesaplarının Otomasyonu”, Turkish Journal of Engineering and Environmental Sciences 25, 2001, 19–30'
+    url: https://aj.tubitak.gov.tr/engineering/issues/muh-01-25-1/muh-25-1-3-9904-3.pdf
+  - label: 'Carr Lane Manufacturing, Guide To Locating & Clamping Principles'
+    url: https://www.carrlane.com/engineering-resources/fixture-design-principles/locating-clamping-principles
+  - label: 'Carr Lane Manufacturing, Types of Locating Pins & Their Applications'
+    url: https://carrlane.com/engineering-resources/technical-information/manual-workholding/locating-devices/locating-pins
+  - label: 'Carr Lane Manufacturing, Workpiece Fixture & Design Principles'
+    url: https://www.carrlane.com/engineering-resources/fixture-design-priciples
+  - label: 'N. Schroeder, Jig and Fixture Design, Applied Engineering Inc., 2009 (E. K. Hendriksen, Jig and Fixture Design Manual, Industrial Press, 1973’e dayanır)'
+    url: https://go-applied.com/wp-content/uploads/2014/12/Jig-and-Fixture-Design.pdf
+  - label: 'IRIMEE (Indian Railways Institute of Mechanical & Electrical Engineering), Jigs and Fixtures (sunum)'
+    url: https://rskr.irimee.in/sites/default/files/Jigs%20and%20Fixtures_0.pDF
+  - label: 'D. K. Bagal, Product Design and Production Tooling, Module III (ders notları), Government College of Engineering, Kalahandi'
+    url: https://gcekbpatna.ac.in/assets/documents/lecturenotes/MODULE_3-PDPT_NOTE_BY_DILIP_compressed.pdf
+  - label: 'McGraw-Hill Education, Web Chapter 5 – Jigs and Fixtures (ders kitabı web eki)'
+    url: https://highered.mheducation.com/sites/dl/free/0070659923/579530/MDW5_Jigs.pdf
+  - label: 'S. Sivaloganathan, R. Ganithi, “Teaching Work-Holding in Undergraduate Classes”, ASEE Annual Conference, 2016'
+    url: https://peer.asee.org/27354.pdf
+  - label: 'W. W. Cai, Optimal fixture configuration design for deformable sheet metal part assembly, doktora tezi, University of Michigan, 1996 (özet)'
+    url: https://deepblue.lib.umich.edu/items/555bdaf2-81aa-4ef2-ba36-ad9d60986fa0/full
+  - label: 'J. A. Camelio, S. J. Hu, “Multiple Fault Diagnosis for Sheet Metal Fixtures Using Designated Component Analysis”, Journal of Manufacturing Science and Engineering 126, 2004'
+    url: https://research.me.mtu.edu/pubs/Camelio-%20Multiple%20Fault%20Diagnosis%20for%20Sheet%20Metal%20Fixtures.pdf
+  - label: 'CNCCookbook, Beginner’s Guide to GD&T: Datums'
+    url: https://s3.amazonaws.com/s3.cnccookbook.com/GD&T/GD&TDatums.html
+  - label: 'C. Bemis, The Datum Reference Frame, GD&T Basics, 2022'
+    url: https://www.gdandtbasics.com/datum-reference-frame/
+---
+import FixtureLocate from '../../../components/mdx/FixtureLocate.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Bir bağlama kalıbının (*fixture*) iki işi vardır: her parçayı aynı yere koymak ve kesme sürerken orada tutmak. Birincisi yerleştirme, ikincisi bağlama ve desteklemedir. Blok biçimli bir parçada birinci iş için olağan yol 3-2-1 prensibidir. Gazi Üniversitesi’nden Tekiner ve Şeker, serbest cismin altı serbestliğini ve on iki hareketini esas alan 3-2-1 yerleştirme prensibini bağlama kalıbı tasarımında en çok kullanılan yöntem olarak niteler. Hendriksen’in kitabına dayanan Applied Engineering notları (Schroeder, 2009) ise sınırını açıkça koyar: 3-2-1 yerleştirme, yerleştirmenin asgari şartıdır; dengeyi sağlar, kararlılığı ise mutlaka sağlamaz.
+
+## Altı serbestlik derecesi ya da on iki hareket
+
+Tekiner ve Şeker: "Uzaydaki serbest bir cisim, her üç eksende (x,y,z) dönme ve öteleme olmak üzere altı serbestlik derecesine sahiptir". ASEE’deki Sivaloganathan ve Ganithi bildirisi de katı bir cismin üçü öteleme, üçü dönme olmak üzere altı serbestlik derecesi olduğunu yazar. Bazı kaynaklar her birini iki yönde sayar ve on ikiye varır: Carr Lane altı eksenel (*axial*) ve altı radyal (*radial*) serbestlik derecesinden söz eder (eksenel doğrusal hareket, radyal dönme için), IRIMEE sunumu bazı araştırmacıların her kategorideki +/− hareketleri sayarak on iki serbestlik derecesi dediğini not eder, Tekiner ve Şeker de altı serbestlikten ve on iki hareketten söz eder. İki sayım aynı düzeni anlatır. On iki hareketlik sayım bir şeyi görünür kılar: Carr Lane’in anlatımında her yerleştirme noktası (*locator*) hareketi yalnızca kendine doğru durdurur (ilk düzlemdeki üç nokta aşağı doğru eksenel hareketi engeller), bu yüzden parçayı onlara karşı bağlama elemanlarının tutması gerekir.
+
+## Üç, iki, bir
+
+- **İlk düzlemde üç nokta.** Aynı doğru üzerinde olmayan üç nokta bir düzlem tanımlar: GCE Kalahandi ders notlarına göre yatay düz bir yüzeyi yerleştirmek için en az üç nokta gerekir. Bu noktalar düzleme dik ötelemeyi ve düzlem içindeki iki eksen çevresindeki dönmeyi durdurur: ASEE bildirisi 1–3 numaralı noktalara düzlemsel bir kısıt (*planar constraint*) der, GD&T Basics de birincil (*primary*) *datum* olan A’nın üç serbestlik derecesini kilitlediğini yazar (bir öteleme: Y; iki dönme: u ve w). IRIMEE sunumu, noktaların yerleştirileceği yüzey seçilirken parçanın en geniş yüzeyinin göz önüne alınmasını önerir; bunu söyleyen tek bağlama kalıbı kaynağı odur. Tekiner ve Şeker ise ilk düzlemin genellikle iş parçasının referans düzlemi olduğunu yazar.
+- **İkinci düzlemde iki nokta.** ASEE: 4 ve 5 numaralı noktalar bir dönme (Rz) ve bir öteleme (Dx) serbestlik derecesini daha kaldırır.
+- **Üçüncü düzlemde bir nokta.** ASEE: 6 numaralı nokta son öteleme serbestlik derecesini (Dy) kaldırır. Eksen harfleri her kaynağın kendi gösterimidir; şekilde Z ilk düzleme, Y ikinci düzleme, X üçüncü düzleme diktir.
+- **Dik düzlemler.** Tekiner ve Şeker: "Seçilen bu düzlemler, bir birine dik düzlemlerdir".
+
+On iki hareketlik sayımda Carr Lane, ilk düzlemdeki üç noktanın beş serbestlik derecesini, sonraki iki noktanın üç serbestlik derecesini daha engellediğini, altı noktanın birlikte dokuz serbestlik derecesini engellediğini yazar. Kalan üçü, yani yerleştirme noktalarından uzaklaşan hareketler, bağlama elemanlarına kalır; GCE Kalahandi ders notları ve IRIMEE sunumu da aynı dokuza varır.
+
+<Figure caption="Blok biçimli bir parça ve altı yerleştirme noktası, izometrik görünüşte. Serbest parça her yöne kayar; ilk düzlemin üç noktası onu o düzlem içinde kaymaya ve dönmeye (ve kalkmaya) serbest bırakır, ikincinin iki noktası tek bir kayma bırakır, üçüncünün tek noktası yalnızca yerleştirme noktalarından uzaklaşan hareketleri bırakır. En alttaki hareket etiketleri Carr Lane’in on iki hareketlik sayımının on iki hareketini gösterir: her nokta grubu kendi rengindekileri, bağlama elemanları da son üçünü alır. Dört bağlama elemanının her biri bir yerleştirme noktasına doğru iter: üstte doğrudan ilk düzlemdeki bir noktanın üstünden, yanlarda doğrudan bir noktanın karşısından. Parça yarı saydam çizildi; altındaki noktalar kesikli çizgiyle görünür.">
+  <FixtureLocate locale="tr" />
+</Figure>
+
+**Aralık.** Carr Lane’e göre yerleştirme noktaları hataları önlemek ve kararlılığı sağlamak için olabildiğince birbirinden uzak konmalıdır; geniş aralık, noktalardaki ya da iş parçasındaki düzensizlikleri telafi eder ve en yüksek kararlılığı sağlar. IRIMEE sunumu ve GCE Kalahandi ders notları da aynısını söyler.
+
+## Yerleştirmek bağlamak değildir
+
+- **Kesme kuvvetini yerleştirme noktaları taşır.** Carr Lane: yerleştirme noktaları işleme sırasındaki ana kesme kuvvetlerini taşımak için tasarlanır, bağlama elemanları değil; IRIMEE: bağlama elemanları takım kuvvetlerine (*tool forces*) karşı koymak için kullanılmamalıdır; ASEE: ana kesme kuvvetine dayanmak yerleştirme noktalarının işidir, bağlama elemanlarının değil. Carr Lane’in örneği: frezelemede kesme kuvvetleri mengenenin sabit çenesine ve tabanına yönelmelidir.
+- **Bağlama elemanları yerleştirme noktalarına doğru iter.** Carr Lane: bağlama elemanları, bağlama kuvvetini her zaman desteklere ya da yerleştirme noktalarına yöneltecek biçimde konmalıdır; GCE Kalahandi ders notları da sıkma kuvvetinin desteğe ya da yerleştirme noktalarına yönelmesini ister.
+- **Desteğin üstünden, parçayı bozmadan.** Carr Lane: şekil bozulmasını önlemek için bağlama elemanlarını sağlam destek noktalarının üstüne koyun; GCE Kalahandi ders notları: desteksiz kısımdan bağlamak ince parçaları büker ve işlemin hassasiyetini bozar; Tekiner ve Şeker: "Bağlama kuvveti, iş parçasında herhangi bir şekil bozukluğuna (çarpılmaya) engel olmak maksadı ile, doğrudan doğruya iş parçasının rijit kısımlarına temas etmelidir."
+- **Sürtünme güvence değildir.** McGraw-Hill bölümü: bağlama kuvvetleri genellikle yalnızca sürtünmeden gelir ve onlara tümüyle güvenilemez.
+
+## Bir nokta fazla
+
+Carr Lane: fazla yerleştirmeden (*redundant locating*), yani aynı hareketi birden çok noktayla denetlemekten kaçınmak önemlidir. Gerekçesi: parçaların boyutları biraz farklı olduğu için iki noktaya birden aynı anda değmeleri olası değildir. IRIMEE sunumuna göre de ilk düzleme bir nokta daha eklemek hiçbir işe yaramaz.
+
+Ek destek, ek yerleştirmeden farklı bir şeydir. GCE Kalahandi ders notları ek destek pimlerinin (*additional supporting pins*) yaylı ya da ayarlı (*spring loaded or adjustable*) olmasını ister; Carr Lane ayarlı destekleri daha çok oturma yüzeyi düzensiz döküm ya da dövme parçalarda kullanır, dengeleyici desteklerin (*equalizing supports*) de parçadan parçaya farklara uymak için serbestçe hareket ettiğini (yüzdüğünü) yazar. Applied Engineering notlarındaki dengeleyici, kuvveti eşit ya da orantılı dağıtmak ve fazlalığı ortadan kaldırmak içindir. Tekiner ve Şeker ekler: "Rijit olmayan cisimler için ise daima fazladan desteklemeye ihtiyaç vardır." Esnek sac parçalar için Cai (1996) bir N-2-1 prensibi önermiştir: sac yüzeyine dik doğrultuda esnek olduğu için ilk düzlemde genellikle üçten fazla yerleştirme noktası gerekir. Aynı araştırma grubundan Camelio ve Hu (2004) bunun sanayide yaygın kullanıldığını yazar.
+
+Mümkünse işlenmiş yüzeylerden yerleştirin: Carr Lane yerleştirme noktalarını her zaman iş parçasının işlenmiş yüzeyine koymaya çalışmayı söyler. Applied Engineering notları: genellikle işlenmiş yüzeyler için düz butonlar (*flat buttons*), işlenmemiş yüzeyler için bombeli butonlar (*crowned buttons*).
+
+## Delikler ve yuvarlak parçalar
+
+- **İki delik: bir silindirik pim, bir *diamond pin*.** GCE Kalahandi ders notlarına göre delikler arası mesafenin toleransını karşılamak için pimlerden biri elmas biçimli olmalıdır. IRIMEE: ikinci pim delikten biraz küçük yapılır ve iki yanından boşaltılır. Carr Lane’in elmas pimi dört işlenmiş düz yüzeye sahiptir; yalnız bir eksende yerleştirdiği için temas yüzeyleri doğru yöne bakacak biçimde konmalıdır.
+- **Yuvarlak parçalar: V-Blok.** Tekiner ve Şeker bir V-Blok içinde bağlanan iş parçasını ele alır; GCE Kalahandi ders notları dolu ve içi boş silindirik parçalar için V-Blok ve konileri kendiliğinden yerleştiren (*self-locating*) elemanlar olarak önerir; Applied Engineering notları V-Blok’u, kendiliğinden merkezleyen aynalar (*self-centering chucks*) ve konik yerleştirme elemanlarıyla (*conical locators*) birlikte merkezleyiciler (*centralizers*) arasında sayar.
+
+## *Datum*’larla bağ
+
+GD&T’nin kendi 3-2-1 kuralı vardır. CNCCookbook: 3-2-1 kuralı bir parça *datum* elemanı (*datum feature*) için gereken asgari temas noktası sayısını tanımlar; birincil için en az üç, ikincil (*secondary*) için iki, üçüncül (*tertiary*) için bir nokta; kural yalnızca düzlemsel *datum* elemanları için geçerlidir. GD&T Basics: önceliği düşük *datum*’lar yalnızca daha yüksek öncelikli *datum*’ların denetlemediği serbestlik derecelerini denetler. Carr Lane’in fazla yerleştirmeye karşı önerisi teknik resimden başlar: hangi iş parçası elemanının referans olduğunu bulmak için atölye resmine (*shop print*) bakın. Bu sayfa için okunan kaynaklar, yerleştirme noktalarının resimdeki *datum* referans çerçevesini (*datum reference frame*) kopyalaması gerektiğini söyleyen bir kural koymuyor.
+
+## Bağlama kalıbı ne kadar hassas olmalı
+
+Carr Lane: bağlama düzeninin (*workholder*) toleransı genellikle iş parçası toleransının %20’si ile %50’si arasındadır; bir toleransı iki kat sıkılaştırmak maliyeti beş katına çıkarabilir. Applied Engineering notlarındaki pratik kural: bağlama kalıbının toleransı bitmiş parçanın toleransının kabaca %40’ı olmalıdır.
+
+<CheckList id="fixture-321" locale="tr" items={[
+  { icon: 'align', title: '3-2-1', check: 'İlk düzlemde üç, ikincide iki, üçüncüde bir sabit nokta: fazlası değil.', fix: 'Fazla noktayı kaldırın ya da ayarlı, yaylı veya dengeleyici bir desteğe çevirin (Carr Lane; GCE Kalahandi ders notları).', src: 'Carr Lane; GCE Kalahandi' },
+  { icon: 'support', title: 'Aralık', check: 'Yerleştirme noktalarının parçanın izin verdiği kadar uzak olması.', fix: 'Geniş aralık düzensizlikleri telafi eder; aralığı açın (Carr Lane; IRIMEE).', src: 'Carr Lane; IRIMEE' },
+  { icon: 'clamp', title: 'Bağlama', check: 'Her bağlama elemanının desteklenen bir bölgenin üstünden, bir yerleştirme noktasına ya da desteğe doğru itmesi.', fix: 'Bağlama elemanını desteğin üstüne alın ve yerleştirme noktalarına yöneltin; desteksiz açıklıkta ince bir parçayı bükebilir (Carr Lane; GCE Kalahandi ders notları).', src: 'Carr Lane; GCE Kalahandi' },
+  { icon: 'feed', title: 'Kesme kuvveti', check: 'Ana kesme kuvvetinin nereye gittiği.', fix: 'Yerleştirme noktalarına ya da sabit çeneye, bağlama elemanına değil (Carr Lane; IRIMEE; ASEE).', src: 'Carr Lane; IRIMEE; ASEE' },
+  { icon: 'chips', title: 'Talaş', check: 'Yerleştirme yüzeylerindeki talaş.', fix: 'Boşaltılmış yerleştirme elemanları (*relieved locators*) talaşın yol açtığı yerleştirme sorunlarını azaltır (Carr Lane).', src: 'Carr Lane' },
+]} />

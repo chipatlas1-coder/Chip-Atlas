@@ -1,0 +1,163 @@
+---
+/**
+ * The chamfer forms of DIN 2197, one row each: the tip of a tap in side view with its chamfer
+ * (the cone that grinds the first threads down; orange: the teeth that cut) over the number of
+ * threads tap makers print, and a hole in section that suits it. A blind hole must be deeper the
+ * longer the chamfer, because the chamfer threads leave incomplete threads at the bottom: the
+ * holes are drawn with the same full-thread depth plus the chamfer length, so this shows. Where
+ * makers print a range the drawing uses `mid`. Texts come from the article through `forms`.
+ */
+interface F { k: string; threads: string; mid: number; use: string; hole: 'through' | 'short-through' | 'blind'; point?: boolean }
+interface Props { forms: F[]; aria: string; head: { form: string; threads: string; use: string } }
+const { forms, aria, head } = Astro.props;
+const f = (n: number) => n.toFixed(1);
+const pts = (q: [number, number][]) => q.map(([x, y]) => `${f(x)},${f(y)}`).join(' L');
+function layout(narrow: boolean) {
+  const W = narrow ? 360 : 700, row = narrow ? 66 : 58, top = narrow ? 6 : 26;
+  const x0 = narrow ? 36 : 62, len = narrow ? 200 : 236;        // tip of the tap and drawn length
+  const p = narrow ? 10 : 12, R = narrow ? 13 : 15;             // pitch and major radius in px
+  const r = R - 0.54 * p;                                       // minor radius: ISO profile depth
+  const H = top + forms.length * row + 4;
+  return { narrow, W, row, top, x0, len, p, R, r, H };
+}
+type G = ReturnType<typeof layout>;
+const G = [layout(false), layout(true)];
+// radius of the thread silhouette at x: trapezoid (crest p/8, root p/4, 60° flanks), phase in pitches
+const profile = (g: G, x: number, phase: number) => {
+  const u = ((((x - g.x0) / g.p + phase) % 1) + 1) % 1;            // 0..1 along one pitch
+  const c = 1 / 16, fl = (1 - 1 / 8 - 1 / 4) / 2;                 // half crest, flank share
+  if (u < c || u > 1 - c) return g.R;
+  if (u < c + fl) return g.R - ((u - c) / fl) * (g.R - g.r);
+  if (u < c + fl + 1 / 4) return g.r;
+  return g.r + ((u - c - fl - 1 / 4) / fl) * (g.R - g.r);
+};
+const tip = (g: G, cy: number, n: number) => {
+  const xc = g.x0 + n * g.p, r0 = g.r - 1.2;                       // end of the chamfer; cone starts below the minor Ø
+  const cone = (x: number) => r0 + ((g.R - r0) * (x - g.x0)) / (xc - g.x0);
+  const rad = (x: number, ph: number) => Math.min(profile(g, x, ph), x < xc ? cone(x) : g.R);
+  const N = Math.round(g.len / (g.p / 48));
+  const xs = Array.from({ length: N + 1 }, (_, i) => g.x0 + (i * g.len) / N);
+  const upper = xs.map((x) => [x, cy - rad(x, 0)] as [number, number]);
+  const lower = xs.map((x) => [x, cy + rad(x, 0.5)] as [number, number]);
+  const end = g.x0 + g.len;
+  const body = `M${pts(upper)} L${pts([...lower].reverse())} Z`;
+  // the cutting teeth: silhouette minus the core, over the chamfer only
+  const inC = (q: [number, number][]) => q.filter(([x]) => x <= xc + 0.01);
+  const teeth = `M${f(g.x0)},${f(cy - g.r + 0.3)} L${pts(inC(upper))} L${f(xc)},${f(cy - g.r + 0.3)} Z M${f(g.x0)},${f(cy + g.r - 0.3)} L${pts(inC(lower))} L${f(xc)},${f(cy + g.r - 0.3)} Z`;
+  const coneLn = `M${f(g.x0)},${f(cy - r0)} L${f(xc)},${f(cy - g.R)} M${f(g.x0)},${f(cy + r0)} L${f(xc)},${f(cy + g.R)}`;
+  return { body, teeth, coneLn, xc, end };
+};
+// flute seen from the side: a dark band along the axis; with a spiral point it bends across the tip
+const flute = (g: G, cy: number, point: boolean, end: number) => {
+  const w = g.r * 0.34;
+  if (!point) return `M${f(g.x0 - 2)},${f(cy - w)} H${f(end)} V${f(cy + w)} H${f(g.x0 - 2)} Z`;
+  const xg = g.x0 + 2.6 * g.p;
+  return `M${f(end)},${f(cy - w)} H${f(xg)} L${f(g.x0 - 2)},${f(cy + g.R * 0.35)} V${f(cy + g.R * 0.35 + 2.4 * w)} L${f(xg + 2.2 * w)},${f(cy + w)} H${f(end)} Z`;
+};
+// the hole in section: same full-thread depth for every blind hole, plus the incomplete threads the
+// chamfer leaves (n pitches), a little clearance and the drill point
+const hole = (g: G, fm: F, x: number, cy: number) => {
+  const pi = g.narrow ? 2.6 : 3, w = g.narrow ? 30 : 34, dh = g.narrow ? 10 : 12, full = g.narrow ? 12 : 14;
+  const hShort = full + 8, hBlock = g.narrow ? 46 : 50;
+  const through = fm.hole !== 'blind';
+  const bh = fm.hole === 'short-through' ? hShort : hBlock;
+  const T = fm.hole === 'short-through' ? cy - bh / 2 : cy - (g.narrow ? 22 : 24), L = x, xm = L + w / 2;
+  const depth = through ? bh : full + fm.mid * pi + 3;
+  const blk = `M${f(L)},${f(T)} H${f(L + w)} V${f(T + bh)} H${f(L)} Z`;
+  const a = xm - dh / 2, b = xm + dh / 2;
+  const cut = through
+    ? `M${f(a)},${f(T)} V${f(T + bh)} H${f(b)} V${f(T)} Z`
+    : `M${f(a)},${f(T)} V${f(T + depth)} L${f(xm)},${f(T + depth + dh * 0.3)} L${f(b)},${f(T + depth)} V${f(T)} Z`;
+  // thread teeth on both walls: full depth, then shrinking over the chamfer zone (blind only)
+  const zig = (s: number) => {
+    const q: [number, number][] = [];
+    const stop = through ? bh : full + fm.mid * pi;
+    for (let y = 0; y <= stop + 0.01; y += pi / 2) {
+      const k = Math.round(y / (pi / 2));
+      const fade = !through && y > full ? 1 - (y - full) / (fm.mid * pi) : 1;
+      const xw = s < 0 ? a : b;
+      q.push([xw + s * (k % 2 === 0 ? 0 : 2.6 * fade), T + y]);
+    }
+    return q;
+  };
+  const thr = `M${pts(zig(-1))} M${pts(zig(1))}`;
+  return { blk, cut, thr, T, depth, bh, w, through, full };
+};
+---
+<div class="cf" data-anim role="img" aria-label={aria}>
+  {G.map((g) => (
+    <svg viewBox={`0 0 ${g.W} ${g.H}`} class={g.narrow ? 'narrow' : 'wide'} aria-hidden="true">
+      <defs>
+        <linearGradient id={`cf-g-${g.narrow ? 'n' : 'w'}`} gradientUnits="userSpaceOnUse" x1={g.x0 + g.len - 70} x2={g.x0 + g.len} y1="0" y2="0"><stop offset="0" stop-color="#fff" /><stop offset="1" stop-color="#000" /></linearGradient>
+        <mask id={`cf-m-${g.narrow ? 'n' : 'w'}`} maskUnits="userSpaceOnUse" x="0" y="0" width={g.W} height={g.H}><rect width={g.W} height={g.H} fill={`url(#cf-g-${g.narrow ? 'n' : 'w'})`} /></mask>
+        {forms.map((fm, i) => {
+          const cy = g.top + i * g.row + g.row / 2 + (g.narrow ? 6 : 6);
+          return <clipPath id={`cf-${g.narrow ? 'n' : 'w'}-${i}`}><path d={tip(g, cy, fm.mid).body} /></clipPath>;
+        })}
+      </defs>
+      {!g.narrow && <g class="head"><text x="16" y="15">{head.form}</text><text x={g.x0} y="15">{head.threads}</text><text x={g.x0 + g.len + 50} y="15">{head.use}</text></g>}
+      {forms.map((fm, i) => {
+        const cy = g.top + i * g.row + g.row / 2 + 6;
+        const t = tip(g, cy, fm.mid);
+        const hx = g.narrow ? g.W - 46 : g.x0 + g.len + 50;
+        const h = hole(g, fm, hx, cy);
+        const by = cy - g.R - 6;
+        const lx = Math.max((g.x0 + t.xc) / 2, g.x0 + 16);
+        return (
+          <g class="row" style={`--i:${i}`}>
+            {i > 0 && <line x1="12" x2={g.W - 12} y1={g.top + i * g.row + 2} y2={g.top + i * g.row + 2} class="sep" />}
+            <text x={g.narrow ? 12 : 18} y={cy + 6} class="lt">{fm.k}</text>
+            <g mask={`url(#cf-m-${g.narrow ? 'n' : 'w'})`}>
+              <path d={t.body} class="body" />
+              <g clip-path={`url(#cf-${g.narrow ? 'n' : 'w'}-${i})`}><path d={flute(g, cy, !!fm.point, t.end)} class="flute" /></g>
+              <g class="grow" style={`transform-origin: ${f(g.x0)}px ${f(cy)}px`}><path d={t.teeth} class="teeth" /></g>
+              <path d={t.body} class="edge" />
+              <path d={t.coneLn} class="cone" />
+            </g>
+            <g class="dim">
+              <path d={`M${f(g.x0)},${f(by + 4)} V${f(by)} H${f(t.xc)} V${f(by + 4)}`} class="br" />
+              <text x={f(lx)} y={f(by - 4)} text-anchor="middle" class="n">{fm.threads}</text>
+            </g>
+            <path d={h.blk} class="hblk" /><path d={h.cut} class="hcut" /><path d={h.thr} class="hthr" />
+            {!g.narrow && (() => {
+              const ln = fm.use.split('; ');
+              return <text x={hx + h.w + 16} y={cy + 4 - (ln.length - 1) * 8} class="use">{ln.map((l, j) => <tspan x={hx + h.w + 16} dy={j ? 16 : 0}>{l}{j < ln.length - 1 ? ';' : ''}</tspan>)}</text>;
+            })()}
+          </g>
+        );
+      })}
+    </svg>
+  ))}
+  <ul class="uses">{forms.map((fm) => <li><b>{fm.k}</b><span>{fm.threads}</span> {fm.use}</li>)}</ul>
+</div>
+
+<style>
+  .cf { display: grid; gap: 0.4rem; }
+  svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .narrow, .uses { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } .uses { display: grid; } }
+  .uses { margin: 0; padding: 0; list-style: none; gap: 0.3rem; font-size: 0.82rem; color: var(--ink-2); }
+  .uses li { padding-left: 0; display: grid; grid-template-columns: 1.1rem 3.2rem 1fr; align-items: baseline; }
+  .uses li::before { content: none; }
+  .uses b { color: var(--color-spark-400); font-family: var(--font-sans); margin-right: 0.4rem; }
+  .uses span { font: 500 0.75rem var(--font-mono); color: #e2601a; margin-right: 0.35rem; }
+  .head text { font: 500 10px var(--font-mono); fill: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; }
+  .sep { stroke: var(--line); stroke-width: 0.6; }
+  .lt { font: 600 18px var(--font-sans); fill: var(--color-spark-400); }
+  .body { fill: url(#ca-metal); }
+  .flute { fill: #f3f8fd; opacity: 0.62; }
+  .edge { fill: none; stroke: #282b2e; stroke-width: 0.8; stroke-linejoin: round; }
+  .teeth { fill: #e2601a; opacity: 0.88; }
+  .cone { stroke: #b8460a; stroke-width: 0.8; stroke-dasharray: 2.5 2; fill: none; opacity: 0.8; }
+  .br { fill: none; stroke: #e2601a; stroke-width: 1; }
+  .n { font: 500 11px var(--font-mono); fill: #e2601a; }
+  .use { font: 12px var(--font-sans); fill: var(--ink-2); }
+  .hblk { fill: url(#ca-hatch); stroke: #767e86; stroke-width: 0.8; }
+  .hcut { fill: var(--bg-sunk); stroke: #474e54; stroke-width: 0.8; stroke-linejoin: round; }
+  .hthr { stroke: #e2601a; stroke-width: 0.9; fill: none; stroke-linejoin: round; }
+  .grow { transform-box: view-box; }
+  :global(html.anim) .cf[data-anim]:not([data-in]) .grow { transform: scaleX(0); }
+  :global(html.anim) .cf[data-anim][data-in] .grow { animation: ca-grow-x 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(0.2s + var(--i) * 0.09s); }
+  :global(html.anim) .cf[data-anim][data-in] .row { animation: ca-fade 0.4s backwards; animation-delay: calc(var(--i) * 0.07s); }
+  :global(html.anim) .cf[data-anim][data-in] .dim { animation: ca-fade 0.4s backwards; animation-delay: calc(0.7s + var(--i) * 0.09s); }
+</style>

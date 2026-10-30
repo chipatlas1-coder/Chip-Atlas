@@ -1,0 +1,145 @@
+---
+key: tool-wear
+locale: en
+slug: tool-wear
+title: 'Tool wear — types, mechanisms and criteria'
+description: 'How a cutting edge wears out. The wear curve, the five wear mechanisms, the eight wear types you can see on an insert with their causes and remedies, and the tool-life criteria of ISO 3685 and ISO 8688.'
+section: 1
+subsection: tool-wear
+order: 1
+updated: 2026-10-11
+tools: []
+glance:
+  - value: '0.3'
+    unit: 'mm'
+    label: 'ISO 3685 criterion for carbide: average flank wear VB'
+  - value: '0.14'
+    unit: 'mm'
+    label: 'Crater criterion KT at f = 0.25 mm/rev'
+  - value: '5'
+    label: 'Wear mechanisms'
+  - value: '8'
+    label: 'Wear types you can see on an insert'
+sources:
+  - label: 'Sandvik Coromant, "Diagnosing insert wear — causes, signs, remedies", reprinted with permission on Fastenal Blue Print, 2025'
+    url: https://blueprint.fastenal.com/diagnosing-insert-wear-causes-signs-remedies.html
+  - label: 'Seco Tools, "Tool wear patterns & how to optimize them"'
+    url: https://www.secotools.com/article/122073
+  - label: 'ISCAR, "ISO Turning — Insert wear troubleshooting"'
+    url: https://www.iscar.com/products.aspx/countryid/1/productid/12344
+  - label: 'Mitsubishi Materials, "Tool damage form" (technical information)'
+    url: https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/information/wear.html
+  - label: 'Kennametal, troubleshooting turning (technical tips)'
+    url: https://stage65.kennametal.com/nl/en/resources/technical-tips/technical-tips--turning/troubleshooting-turning.html
+  - label: 'Kennametal, troubleshooting indexable milling (technical tips)'
+    url: https://stage65.kennametal.com/ca/en/resources/technical-tips/milling/troubleshooting-indexable-milling.html
+  - label: 'J. A. Arsecularatne, L. C. Zhang, C. Montross, "Wear and tool life of tungsten carbide, PCBN and PCD cutting tools", Int. J. Machine Tools & Manufacture 46, 482–491, 2006'
+    url: https://www.precision-manufacturing.unsw.edu.au/sites/pm/files/uploads/Publications/Cutting_Drilling_Polishing/wear_and_tool_life_of_tungsten_carbide_pcbn_and_pcd_cutting_tools.pdf
+  - label: 'Gaziantep University, lecture notes on tool wear and tool life'
+    url: https://akbis.gantep.edu.tr/yonetim/upload/files/26786-8194.pdf
+  - label: 'ACS College of Engineering, Metal cutting module 3 (wear mechanisms, Taylor exponent)'
+    url: https://www.acsce.edu.in/acsce/wp-content/uploads/2020/04/Metal-Cutting-Forming-Module-3.pdf
+  - label: 'King Saud University, lecture 2 part 2, "Tool wear and tool life"'
+    url: https://faculty.ksu.edu.sa/sites/default/files/lecture-02-part-2-tool_wear_and_tool_life.pdf
+  - label: 'ISO 3685:1993, Tool-life testing with single-point turning tools (official preview)'
+    url: https://cdn.standards.iteh.ai/samples/9151/fa7bcfc3345a409091210d0fafe0676d/ISO-3685-1993.pdf
+  - label: 'Annals of the Faculty of Engineering Hunedoara 2017/4, paper 17 (states the ISO 3685 tool-life criteria)'
+    url: https://annals.fih.upt.ro/pdf-full/2017/ANNALS-2017-4-17.pdf
+  - label: 'ISO 8688-2:1989, Tool life testing in milling — Part 2: End milling (iTeh preview)'
+    url: https://standards.iteh.ai/catalog/standards/iso/fcfc12ce-1d33-4e59-92a8-f45fcfecc6b4/iso-8688-2-1989
+  - label: 'University of Padova, lecture on tool life after Kalpakjian & Schmid (textbook wear-land limits)'
+    url: https://stem.elearning.unipd.it/mod/resource/view.php?id=314998
+---
+import WearCurve from '../../../components/mdx/WearCurve.astro';
+import WearTypes from '../../../components/mdx/WearTypes.astro';
+import WearMeasures from '../../../components/mdx/WearMeasures.astro';
+import Model3D from '../../../components/mdx/Model3D.astro';
+
+Every cutting edge wears from the first second of its life. What matters is how fast, in which way, and when to stop. A worn edge raises forces and temperature, spoils dimensions and surface, and if it is left too long it breaks and can take the part with it. Reading the wear on a used insert is the quickest way to tell what is wrong with a cut.
+
+## The wear curve
+
+Plot the width of the flank wear land VB against cutting time and almost every tool gives the same three-part curve.
+
+<Figure caption="Schematic flank wear curve. The tool is changed when VB reaches the chosen criterion; ISO 3685 uses an average VB of 0.3 mm for carbide.">
+  <WearCurve locale="en" />
+</Figure>
+
+1. **Break-in.** A new edge wears quickly at first while the small unevenness of the newly sharpened edge is smoothed away.
+2. **Steady wear.** Wear grows roughly linearly with time. The slope depends on the cutting speed, the tool geometry, the work material and the coolant. This is where the tool spends most of its life.
+3. **Accelerated wear.** The worn edge runs hotter and is loaded harder, so wear accelerates; thermal cracks and plastic deformation follow, and finally the edge fails.
+
+A sensible tool-change point sits in the steady region, before the curve turns upward.
+
+## Five mechanisms
+
+Several physical mechanisms remove material from the tool. Which one dominates depends mainly on the cutting temperature, and therefore on the cutting speed.
+
+- **Abrasion.** Hard particles in the work material scratch the tool like an abrasive. It dominates at low speeds and temperatures.
+- **Adhesion.** Under high pressure and temperature, work material welds to the tool, and when the weld breaks it tears tool particles away. At low cutting temperatures the same mechanism builds up a built-up edge.
+- **Diffusion.** At high temperature, atoms move across the tool–chip interface and the tool loses its hardening elements. Diffusion is regarded as the main mechanism of crater wear. For carbide tools cutting steel at practical speeds, Arsecularatne and co-authors identify it as the dominant wear mechanism.
+- **Oxidation.** At high temperature an oxide layer forms on exposed tool surfaces. Being softer than the tool material, it is sheared away.
+- **Thermal fatigue.** Repeated heating and cooling, as in milling and interrupted cuts, cracks the edge and can eventually break it.
+
+Plastic deformation of the edge is often listed alongside these: the binder softens at high temperature and the load pushes the edge out of shape.
+
+<Note kind="note" title="Order with rising speed">
+In the scheme of Opitz and König, cited by Arsecularatne and co-authors, abrasion dominates at the lowest speeds, adhesion next, and diffusion at the highest. Treat it as a tendency: several mechanisms usually act at once.
+</Note>
+
+## Eight wear types on the insert
+
+The table summarises the wear types that the troubleshooting guides of Sandvik Coromant, Seco, ISCAR, Mitsubishi and Kennametal describe. It lists only causes and remedies on which several of those makers agree.
+
+| Wear type | What it looks like | Typical causes | First remedies |
+|---|---|---|---|
+| **Flank wear** | Wear land on the flank, starting at the edge line and growing downward | Abrasion; speed too high; grade not wear resistant enough | Lower the cutting speed; use a more wear-resistant grade |
+| **Crater wear** | A smooth depression on the rake face behind the edge | Diffusion at high temperature; speed or feed too high | Lower the speed and the feed; a wear-resistant coating (Seco names thick Al₂O₃); a more positive geometry |
+| **Notch wear** | Local damage at the depth-of-cut line | Work-hardened, scaled or hard surface layer; burr formation; oxidation | Vary the depth of cut between passes; use a smaller entering angle |
+| **Plastic deformation** | The edge sags or is pushed in; the shape changes permanently | High temperature together with high force; the binder softens | A grade with higher hot hardness; lower speed and feed |
+| **Chipping** | Small pieces broken from the edge line; the insert can still cut | Vibration, interrupted cuts, hard inclusions, a weak edge, built-up edge | A tougher grade; a stronger edge (hone or chamfer); a more rigid setup; lower feed at entry and exit |
+| **Thermal cracks** | Cracks roughly perpendicular to the edge, like the teeth of a comb | Rapid temperature swings in milling, interrupted cuts or intermittent coolant | A tougher grade; lower speed and feed; avoid intermittent coolant (see below) |
+| **Built-up edge** | Work material welded to the rake face or edge | Cutting temperature or speed too low; sticky materials such as low-carbon steel, stainless steel, aluminium | Raise the cutting speed (all makers agree); a sharper, more positive edge; coolant |
+| **Fracture** | A large part of the edge broken away; the insert is finished | Load beyond the strength of the edge, often after excessive wear or with wrong cutting data | A tougher grade or stronger geometry; lower feed and depth of cut; index earlier; check rigidity |
+
+<Figure wide caption="The eight wear types of the table, drawn on the same insert corner with the main cutting edge on the right. Damaged areas are outlined in orange.">
+  <WearTypes locale="en" />
+</Figure>
+
+<Figure caption="The same three wear types in 3D on an 80° rhombic insert: the flank wear land under the main cutting edge, the crater on the rake face behind it, and the notch at the depth-of-cut line. Wear is drawn larger than life so that it can be seen at this scale.">
+  <Model3D locale="en" kind="insert" />
+</Figure>
+
+<Note kind="warn" title="Where the makers disagree">
+**Notch wear:** Mitsubishi and ISCAR recommend a more wear-resistant grade; Seco recommends a tougher one. For heat-resistant alloys Seco says a higher speed helps, ISCAR a lower one.
+**Thermal cracks and coolant:** Sandvik Coromant says apply coolant heavily or not at all; ISCAR says switch it off for interrupted cuts; Seco says apply it consistently; Mitsubishi recommends flood coolant. All agree that the cause is the temperature swing, so the common ground is to avoid intermittent cooling.
+</Note>
+
+## When is a tool worn out?
+
+A tool-life criterion is a predetermined value of a wear measure at which the tool is considered worn out. Standard tests use fixed values so that results from different laboratories can be compared.
+
+**ISO 3685:1993, single-point turning tools:**
+
+| Tool material | Criterion |
+|---|---|
+| Sintered carbide | Average flank wear VB<sub>B</sub> = 0.3 mm, if the flank is worn regularly |
+| | Maximum flank wear VB<sub>B max</sub> = 0.6 mm, if the flank is worn irregularly |
+| | Crater depth KT = 0.06 + 0.3 f (mm, with f the feed in mm/rev) |
+| High-speed steel | Catastrophic failure, or the VB<sub>B</sub> limits above |
+
+For a feed of 0.25 mm/rev the crater criterion is KT = 0.06 + 0.3 · 0.25 ≈ 0.14 mm.
+
+<Figure caption="Where the measures of the table are taken, drawn schematically: the flank wear land seen from the front, divided into the zones C (corner), B (straight edge) and N (the end towards the depth-of-cut line) of ISO 3685, and a section through the edge with the crater depth KT. Move the slider to see the crater criterion for another feed.">
+  <WearMeasures locale="en" />
+</Figure>
+
+**ISO 8688-2:1989, end milling:** a uniform flank wear of 0.3 mm averaged over all teeth is recommended.
+
+<Note kind="key" title="Test criteria are not shop rules">
+These are values for comparable testing. In production the right limit depends on tolerance, surface finish and the cost of a broken edge. Textbook limits for turning given by Kalpakjian and Schmid are wider: 1.5 mm for HSS and 0.4 mm for carbide. Kennametal, for indexable milling, recommends indexing at 0.38–0.50 mm flank wear for roughing and at 0.25–0.38 mm or sooner for finishing.
+</Note>
+
+## From wear to tool life
+
+The time to reach the criterion is the tool life T. It falls steeply as the cutting speed rises, which is what Taylor's equation describes. See [Taylor's tool life equation](/fundamentals/taylor-tool-life/) for how to measure it, and how to choose the speed that gives the lowest cost.

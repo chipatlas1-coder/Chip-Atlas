@@ -1,0 +1,55 @@
+---
+/* Internal turning in section: the workpiece cut along its axis, the boring bar reaching into the bore
+   from its clamp, drawn straight (dashed) and bent under the radial cutting force (bend exaggerated,
+   the cantilever line y = δ·s²(3L − s)/2L³). Overhang about 6 × D. Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { work: 'iş parçası (kesit)', bar: 'delik barası', clamp: 'bağlama ≥ 4 × D', defl: 'δ: sehim', ex: '(abartılı)', L: 'sarkma L', F: 'F' }
+  : { work: 'workpiece (section)', bar: 'boring bar', clamp: 'clamp ≥ 4 × D', defl: 'δ: deflection', ex: '(exaggerated)', L: 'overhang L', F: 'F' };
+const f1 = (v: number) => v.toFixed(1);
+const cy = 150, rb = 14, D = 2 * rb, xc = 400, L = 6 * D, xt = xc - L, dmax = 16;
+const bore = 42, xw0 = 58, xw1 = 300;
+const yd = (s: number) => (dmax * s * s * (3 * L - s)) / (2 * L ** 3);      // s from the clamp face
+const N = 30, upper: string[] = [], lower: string[] = [];
+for (let i = 0; i <= N; i++) {
+  const s = (i / N) * L, x = xc - s, y = yd(s);
+  upper.push(`${f1(x)},${f1(cy - rb + y)}`); lower.push(`${f1(x)},${f1(cy + rb + y)}`);
+}
+const bent = `M470,${cy - rb} L${upper.join(' L')} L${[...lower].reverse().join(' L')} L470,${cy + rb} Z`;
+const tipY = cy + yd(L);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <!-- chuck jaws and the workpiece in section -->
+  <rect class="metal f" style="--i:0" x="18" y="48" width="34" height="224" rx="4" />
+  <path class="hatch f" style="--i:1" d={`M${xw0},64 L${xw1},64 L${xw1},${cy - bore} L${xw0 + 40},${cy - bore} L${xw0 + 40},${cy + bore} L${xw1},${cy + bore} L${xw1},236 L${xw0},236 Z`} />
+  <path class="o2 d" style="--i:2" pathLength="1" d={`M${xw0},64 L${xw1},64 L${xw1},${cy - bore} L${xw0 + 40},${cy - bore} L${xw0 + 40},${cy + bore} L${xw1},${cy + bore} L${xw1},236 L${xw0},236 Z`} />
+  <line class="c f" style="--i:3" x1="10" y1={cy} x2="474" y2={cy} />
+
+  <!-- clamp -->
+  <rect class="carbide f" style="--i:4" x={xc} y={cy - rb - 22} width="72" height={2 * rb + 44} rx="3" />
+
+  <!-- the bar: straight (dashed) and bent under load -->
+  <path class="dash f" style="--i:5" d={`M${xc},${cy - rb} L${xt},${cy - rb} L${xt},${cy + rb} L${xc},${cy + rb}`} />
+  <path class="metal-h f" style="--i:6" d={bent} />
+  <path class="o d" style="--i:7" pathLength="1" d={bent} />
+  <path class="coat f" style="--i:8" d={`M${f1(xt - 1)},${f1(tipY - rb + 1)} L${f1(xt + 4)},${cy - bore + 2} L${f1(xt + 20)},${f1(tipY - rb + 1)} Z`} stroke="#8a6420" stroke-width="1" stroke-linejoin="round" />
+  <path class="a d" style="--i:9" pathLength="1" d={`M${f1(xt + 30)},${f1(tipY + rb + 2)} L${f1(xt + 30)},${f1(tipY + rb + 24)}`} marker-end="url(#ca-arr-acc)" />
+  <line class="b d" style="--i:10" pathLength="1" x1={f1(xt - 10)} y1={cy} x2={f1(xt - 10)} y2={f1(tipY)} marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+
+  <g class="lbl">
+    <line class="h" x1={xc} y1={cy + rb + 4} x2={xc} y2="272" />
+    <line class="h" x1={xt} y1={f1(tipY + rb + 30)} x2={xt} y2="272" />
+    <line class="h" x1={xt + 2} y1="266" x2={xc - 2} y2="266" marker-start="url(#ca-arr)" marker-end="url(#ca-arr)" />
+    <text class="t-ink" x={f1(xt + L / 2 - 36)} y="260">{T.L}</text>
+    <text class="t-sm" x="472" y={cy - rb - 30} text-anchor="end">{T.clamp}</text>
+    <text class="t-sm" x="60" y="290">{T.work}</text>
+    <text class="t-acc" x={f1(xt + 38)} y={f1(tipY + rb + 22)}>{T.F}</text>
+    <text class="t-data" x={f1(xt - 26)} y={f1(cy + 12)}>δ</text>
+    <text class="t-ink" x="318" y="40">δ = F·L³ / 3EI</text>
+    <text class="t-data t-sm" x="318" y="60">{T.defl}</text>
+    <text class="t-data t-sm" x="318" y="75">{T.ex}</text>
+    <text class="t-sm" x="316" y="190">{T.bar}</text>
+  </g>
+</svg>

@@ -1,0 +1,118 @@
+---
+key: tool-runout
+locale: tr
+slug: takim-salgisi
+title: 'Takım salgısı'
+description: 'Bir kesicinin gerçek ekseninden ne kadar kaçarak döndüğü: bunun her dişin yüküne, deliğe ve yüzeye, takım ömrüne etkisi; nerede ve nasıl ölçüleceği; takım tutucu üreticilerinin tutucuları için verdikleri değerler ve atölyedeki olağan nedenler.'
+section: 5
+subsection: toolholders
+order: 1
+updated: 2026-10-30
+tools: [milling, drilling]
+glance:
+  - value: '0,02 mm'
+    label: 'Toleranslı delik delmede ISCAR’ın istediği en büyük salgı (T.I.R., radyal ve eksenel)'
+  - value: '%10'
+    label: '0,0001 inç (2,54 µm) salgı başına takım ömrü, pratik kural olarak (BIG DAISHOWA; kendi deneyleri farklı)'
+  - value: '< 3 µm'
+    label: 'HAIMER’in shrink fit tutucuları için 3 × D’de garanti ettiği salgı'
+  - value: '2/3'
+    label: 'Sapın pens deliğini en az doldurması gereken pay (REGO-FIX)'
+sources:
+  - label: 'Harvey Performance, In The Loupe, “Reducing Tool Runout”, 2017 (değiştirilme 2023)'
+    url: https://www.harveyperformance.com/in-the-loupe/reducing-tool-runout/
+  - label: 'Harvey Performance, In The Loupe, “Key Tool Holding Considerations”, 2017 (değiştirilme 2024)'
+    url: https://www.harveyperformance.com/in-the-loupe/key-tool-holding-considerations/
+  - label: 'BIG DAISHOWA–Americas, “Your Complete Guide to Runout in Machining and How to Avoid It” (güncelleme 2025)'
+    url: https://www.bigdaishowa.com/en/node/1618
+  - label: 'BIG DAISHOWA–Americas, “Combat Rising Carbide Costs with Better Tool Holders” (güncelleme 2026)'
+    url: https://www.bigdaishowa.com/en/blog/combat-rising-carbide-costs-better-tool-holders
+  - label: 'BIG DAISHOWA–Americas, J. Burley, “Tools, Holders and Runout: Uncover the Hidden Savings” (güncelleme 2025)'
+    url: https://www.bigdaishowa.com/en/node/1484
+  - label: 'BIG DAISHOWA–Americas, “Tool Holders that Maintain Runout Accuracy When It Matters”'
+    url: https://bigdaishowa.com/en/node/1167
+  - label: 'BIG DAISHOWA–Americas, NEW BABY CHUCK ürün sayfası'
+    url: https://www.bigdaishowa.com/en/products/tool-holders/collet-chucks/new-baby-chuck
+  - label: 'ISCAR, Drilling Handbook, General Purpose Drilling: Troubleshooting (flipbook s. 97)'
+    url: https://www.iscar.com/Catalogs/Publication/english_1/Drilling_Handbook/Drilling_Handbook_flipview/files/basic-html/page97.html
+  - label: 'HAIMER, “The top 10 reasons for HAIMER shrink technology”'
+    url: https://www.haimer.com/en/products/shrinking-technology/application-and-know-how/the-top-10-reasons-for-haimer-shrink-technology
+  - label: 'HAIMER, Power Clamp broşürü (Türkçe/İngilizce; dosya 2021-04), s. 5–6'
+    url: https://www.haimer.com/shop/catalog/downloads/files/2021-04-Power-Clamp-DE-EN-screen/Power-Clamp_TR-EN.pdf
+  - label: 'SCHUNK, TENDO Platinum hidrolik tutucular (ürün grubu sayfası)'
+    url: https://schunk.com/hu/en/tools/toolholder-quickfinder/tendo-platinum/c/PGR_4940
+  - label: 'SCHUNK, TENDO ES hidrolik tutucular (ürün grubu sayfası)'
+    url: https://www.schunk.com/de/en/tools/toolholder-quickfinder/tendo-es/c/PGR_4946
+  - label: 'SCHUNK, TRIBOS-M HSK-E 25 Ø6x35, ID 205267 (ürün sayfası)'
+    url: https://schunk.com/us/en/p/000000000000205267
+  - label: 'REGO-FIX, ER pens sistemi kataloğu COL1125, 01/2015, s. 2–3, 33'
+    url: https://www.productivity.com/wp-content/uploads/2020/04/Rego-Fix-_ER_System-3-25-20-Interactive.pdf
+  - label: 'MAPAL, K. Rehor, “Sustainability through hydraulic expansion technology”, 2022'
+    url: https://mapal.com/en/a/nachhaltigkeit-spannen
+  - label: 'M. Xie, X. Yu, W. Bao, C. Liu, M. Xia, “Side-Milling-Force Model Considering Tool Runout and Workpiece Deformation”, Electronics 12 (2023) 968'
+    url: https://www.mdpi.com/2079-9292/12/4/968
+  - label: 'T.C. Millî Eğitim Bakanlığı, CNC Freze Tezgâhları, Ankara 2013 (Türkçe terimler için)'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/08111652_CNC_Freze_TezgahlarY.pdf
+  - label: 'A. Sert, “Farklı takım tutuculara bağlanan parmak frezenin düzlem yüzey frezelemedeki performansının araştırılması”, yüksek lisans tezi, Gebze Yüksek Teknoloji Enstitüsü, 2008 (Türkçe terimler için)'
+    url: https://acikerisim.gtu.edu.tr/items/241d8317-c867-4fe0-90b0-57fdee3aecf9
+---
+import RunoutTeeth from '../../../components/mdx/RunoutTeeth.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Harvey Performance salgıyı (*runout*) tek cümleyle tanımlar: bir kesici takımın, tutucunun ya da iş milinin gerçek ekseninin ne kadar dışında döndüğünün ölçüsüdür. Nedenleri zincirin her bağlantısındadır; salgıyı takım ekseninin bir kaçıklığı (*eccentricity*) ve eğikliğiyle (*tilt*) tanımlayıp yalnızca kaçıklığı modelleyen Xie ve arkadaşlarına göre takım ve iş mili parçalarının imalat ve bağlama hataları, takım ekseni ile iş milinin ideal dönme ekseni arasında kaymaya (*drift*) ve kaçıklığa yol açar. Harvey: makine ile kestiği iş parçası arasına eklenen her bağlantı salgıyı artırır. Harvey’e göre salgı, takım dönerken çapındaki değişimi ölçen bir göstergeyle ölçülür; ISCAR ve REGO-FIX onu T.I.R. olarak verir; REGO-FIX kısaltmayı *Total Indicated Runout* diye açar.
+
+## Kesmeye etkisi
+
+Ekseninden kaçarak dönen bir kesici işi dişleri arasında eşit paylaştırmaz. BIG DAISHOWA’ya göre bir matkap ya da freze kendi ekseni etrafında eş merkezli dönmezse kuvvet en büyük payın yönünde artar ve işin çoğunu takımın yalnızca bir tarafı yapar. Örneği: altı dişli bir freze inçin binde birinden (25,4 µm) fazla salgıyla dönüyorsa büyük olasılıkla dişlerin yalnızca üçü gerçekten kullanılmaktadır. Şekil bu mekanizmayı bu sayfanın kendi geometrik modelinde gösterir, BIG DAISHOWA’nın örneğini değil. Modelde 25 µm T.I.R.’de altı dişten üçünün kesmeyi bırakması için fz’nin yaklaşık 0,005–0,006 mm olması gerekir; fz 0,013 mm’den itibaren altı diş de, eşit olmayan paylarla, keser.
+
+<Figure caption="Salgılı bir frezenin eksenden görünüşü ve her dişin aldığı talaş. Bu sayfanın geometrik modelinde frezenin ekseni iş mili ekseninden e kadar kaçıktır (çizimde abartılı); bu yüzden yuvarlak gövdeye dayanan bir komparatörün ibresi 2e, yani T.I.R. kadar salınır. Her diş, önceki dişlerin bıraktığını keser: kendinden önceki dişten daha dışarıda duran diş diş başına ilerlemeden fazlasını, daha içeride duran daha azını alır; T.I.R. fz’ye göre yeterince büyüyünce bazı dişler hiç kesmez. Kaçıklık 1 numaralı dişe doğru çizildi; başka yönlerde paylar biraz değişir. Yükler her zaman devir başına ilerlemeye eşit toplanır. Modelde sehim ya da aşınma yoktur; bir üretici değeri değil, etkinin yönünü gösterir. Örnek değerler: T.I.R. 20 µm, fz 0,03 mm, dört diş.">
+  <RunoutTeeth locale="tr" tir={0.02} fz={0.03} z={4} />
+</Figure>
+
+Modelde paylar yalnızca T.I.R.’nin fz’ye oranına bağlıdır; modelde rijitlik, sehim ya da takım dayanımı olmadığı için çap hesaba girmez. Küçük bir fz’de aynı salgı payları daha da dengesizleştirir. Harvey’in söylediği takımın kendisiyle ilgilidir: salgının takım çapına oranı büyüdükçe takım hasarı tehlikesi artar. BIG DAISHOWA: çapı ¾ inç ve üzerindeki takımlarda 0,0005 inçlik (12,7 µm) salgı takım ömrünü kısaltmayabilir.
+
+Delik delmede ISCAR’ın sorun giderme tablosu birkaç kusur için tek bir kontrol değeri verir. Tolerans dışı delikler için salgının 0,02 mm T.I.R. içinde olduğunun (radyal ve eksenel, *radial and axial*, kesme noktalarında) ve *chisel point* salgısının (matkap ucunun tam ortasındaki kenar) da 0,02 mm T.I.R. içinde olduğunun kontrol edilmesini ister; aynı kontrol, radyal ve eksenel 0,02 mm T.I.R., pürüzlü yüzey ve hatalı delik konumu için de geçer. Tolerans dışı delikler (ve çıkıştaki çapaklar) için tablo ayrıca bağlantının kontrol edilmesini ve hidrolik bir tutucu (*hydraulic chuck*), ISCAR’ın MAXIN *power chuck*’ı ya da yandan sıkmalı (*side clamping*) sistemler kullanılmasını önerir.
+
+## Takım ömrüne etkisi
+
+Bulunan değerlerin hepsi tek bir takım tutucu üreticisinden, BIG DAISHOWA’dan gelir. Pratik kuralı: 0,0001 inçlik salgı takım ömrünü %10 artırır ya da azaltır. Parmak frezeler için: salgıdaki her 0,0001 inçlik azalma, karbür parmak frezenin kullanılabilir ömrünü yaklaşık %10 artırır. Ayrıca birçok atölyede yaklaşık 0,0005 inç (12,7 µm) T.I.R.’lik ortalama salgının olağan kabul edildiğini ve bu düzeyde beklenen takım ömrünün sıfıra yakın salgıya göre şimdiden kabaca yarıya indiğini yazar.
+
+Kendi değerleri tek bir kurala uymaz. Çeliğe 0,118 inç (3 mm) karbür matkapla 0,590 inç derinlikte delerken tablosu 0,00008 inç (2,0 µm) salgıda 2.300, 0,0006 inç (15,2 µm) salgıda 800 delik verir: neredeyse üç kat. 4 ağızlı Ø10 mm’lik tam karbür bir parmak frezede aynı değişim, yani salgıyı 0,0006 inçten 0,00008 inçe indirmek, kesme boyunu yaklaşık %30 artırmıştır. 0,0001 inç başına %10’luk bir kural ikisini birden veremez: 5,2 onda bir, her onda birin ömre %10 eklediği okumada 1,5 kat, her onda birin sıfıra yakın salgıdaki ömrün %10’unu götürdüğü okumada (0,0005 inç örneğinin ima ettiği gibi) 2,3 kat eder (bu sayfanın hesabı). İki sayfa da kesme koşullarını vermez. İki sonuç da aynı yönü gösterir; Harvey ve SCHUNK yalnızca yönü söyler.
+
+## Nerede ve nasıl ölçülür
+
+Harvey: salgı, takımın keseceği noktada, genellikle takımın ucunda ya da kesme boyunun bir bölümü boyunca ölçülmelidir. Komparatörlerin (*dial indicator*) mevcut lazer göstergeler kadar doğru olmadığını, takımın kanallarının düzensiz biçimi yüzünden bir komparatörün bu durumlarda uygun olmayabileceğini ve çoğu parmak freze üreticisinin mümkün olan her yerde komparatör yerine lazerli salgı göstergesi önerdiğini yazar. Minyatür ve mikro takımlarda yalnızca lazer kullanılmalıdır. Matkaplar için ISCAR noktaları sayar: radyal ve eksenel kesme noktaları ve *chisel point*.
+
+## Tutucu üreticilerinin verdikleri
+
+Her üretici değerini kendi koşulunda verir ve koşullar farklıdır; bu yüzden bu sayılar birbirine göre sıralanamaz:
+
+| Tutucu | Üretici, ürün | Verilen salgı | Verilen koşul |
+|---|---|---|---|
+| Shrink fit | HAIMER | 3 × D’de < 3 µm (garanti); Türkçe broşürde "3xD de 0,003 mm salgı garantisi verir." | 3 × D |
+| Hidrolik (*hydraulic*) | SCHUNK TENDO Platinum, TENDO ES | salgı ve tekrarlama doğruluğu < 0,003 mm | uzunluk verilmemiş |
+| Hidrolik | BIG DAISHOWA | 0,00004 inçe (1 µm) kadar düşük | burunda (*nose*) |
+| Poligon (*polygonal*) | SCHUNK TRIBOS-M, Ø6 | sayfa hem 2,5 × D’de ≤ 0,003 mm hem de Ø 6 mm için ≤ 0,005 mm verir | 2,5 × D serbest boy (*unclamped length*) |
+| ER pens | REGO-FIX ER | T.I.R. ≤ 0,0004 inç (10 µm), bütün sıkma aralığında | uzunluk verilmemiş |
+| ER pens, ultra hassas | REGO-FIX ER-UP | T.I.R. ≤ 0,0002 inç (5 µm), bütün sıkma aralığında | uzunluk verilmemiş |
+| Hassas pens takım tutucu (*precision collet chuck*) | BIG DAISHOWA NEW BABY CHUCK | 1 mikron salgı (garanti) | pensin burnunda (*collet nose*) |
+
+Harvey türleri sözle karşılaştırır: shrink fit ve *press-fit* tutucular daha az parçadan oluştukları için salgıyı en aza indirmede doğal olarak daha iyidir; pens takım tutucular ek parçaları yüzünden çoğu zaman fazladan salgı getirir. Sıkma vidalı (*set screw*) tutucular için açık konuşur: bunlardan kaçınılmalıdır, çünkü eşit olmayan sıkma basınçlarıyla takımı merkezin dışına iterler; Weldon düzlükleri (*Weldon flats*) de birçok atölyede büyük miktarda salgı eklemekten suçludur.
+
+Bir shrink fit tutucunun doğruluğunu zamanla koruyup korumadığı konusunda yalnızca üretici iddiaları var. Hidrolik tutucu satan BIG DAISHOWA, shrink fit tutucuların takım değiştirmek için gereken aşırı ısıtma ve soğutma çevrimleri yüzünden çoğu zaman yavaş yavaş doğruluk kaybettiğini yazar. Hem shrink fit hem hidrolik tutucu üreten ve hidrolik tutucuyu savunan MAPAL ise radyal salgının (*radial run-out*) ve rijitliğin ilk kullanımdan itibaren bozulmaya devam ettiğini yazar. Shrink fit tutucu satan HAIMER, Power Clamp makinelerindeki kontakt soğutma için Türkçe broşüründe şöyle der: "Tutucu deformasyona uğramaz. Salgı değeri korunur." Çok sayıda ısıtma çevriminden sonraki salgı için bir değer vermez. Bağımsız bir deney bulunamadı.
+
+## Atölyedeki nedenler
+
+- **Talaş ve kir.** Harvey: talaş çoğu zaman iş miline sıkışır ve sistemdeki iki hassas yüzey arasında bir engel oluşturur. HAIMER: işleme sırasında tutucunun deliğine kir girerse salgı doğruluğu çoğu zaman bozulur. Harvey her işin hazırlığında tutucunun ve iş milinin talaş ve kirden arındırılmasını çok önemli sayar. MEB modülü de aynı uyarıyı verir: "Takım tutucunun içinde talaş kalıp kalmadığını kontrol ediniz ve gerekirse basınçlı hava ile temizleyiniz."
+- **Pens.** REGO-FIX: takım pens deliği boyunun 2/3’ünden az takılmamalıdır; pensin aralığından büyük bir sap sıkılmamalı, bir üst pens alınmalıdır; sıkma tork anahtarıyla yapılmalıdır. Hi-Q ERC somunları için en büyük tork önerilen sıkma torkunun %25’inden fazla üstünde olmamalıdır.
+- **Somun ve *pull stud*.** BIG DAISHOWA: düz bir somun (*solid nut*) sıkılırken anahtarın son birkaç derecesinde tork kuvvetleri pensi burar; konik eksenine göre kaçık *pull stud*’lar (tutucuyu iş miline çeken saplamalar) sisteme yanal kuvvet uygular.
+- **Eşit olmayan sıkma.** Harvey: salgıyı azaltmak için sapın bütün çevresi boyunca eşit basınç şarttır.
+- **Sap toleransı.** Shrink fit tutucular için Harvey h6 toleranslı saplar ister: h6 toleranslı sap çapları takımın shrink fit tutucuyla her zaman doğru ve güvenilir çalışmasını sağlar.
+
+<CheckList id="runout-before" locale="tr" items={[
+  { icon: 'chips', title: 'Temizlik', check: 'İş mili, tutucunun konikliği ve deliği.', fix: 'Her işten önce talaş ve kirden arındırın (Harvey, HAIMER, MEB).', src: 'Harvey Performance; HAIMER; MEB' },
+  { icon: 'clamp', title: 'Pens', check: 'Sap çapının pens aralığına göre durumu; sapın ne kadar girdiği.', fix: 'Büyük sap yok; delik boyunun en az 2/3’ü; tork anahtarı, Hi-Q ERC somunlarında önerilen torkun en çok %25 üstü (REGO-FIX).', src: 'REGO-FIX' },
+  { icon: 'holder', title: 'Tutucu türü', check: 'Sıkma vidalı, Weldon, pens, hidrolik, shrink fit.', fix: 'Sıkma vidalı tutuculardan kaçının; shrink fit ve press-fit tutucularda daha az parça vardır (Harvey).', src: 'Harvey Performance' },
+  { icon: 'align', title: 'Ölçme', check: 'Kesme noktasındaki salgı.', fix: 'Mümkünse lazer, minyatür ve mikro takımlarda yalnızca lazer; komparatör takımı itebilir ve kanallarda uygun olmayabilir (Harvey); matkaplarda radyal, eksenel ve chisel point (ISCAR).', src: 'Harvey Performance; ISCAR' },
+  { icon: 'hole', title: 'Toleranslı delik', check: 'T.I.R.’nin delik toleransına göre durumu.', fix: 'Radyal ve eksenel 0,02 mm T.I.R. içinde (ISCAR).', src: 'ISCAR' },
+]} />

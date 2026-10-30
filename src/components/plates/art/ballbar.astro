@@ -1,0 +1,28 @@
+---
+/* Ballbar test. A telescoping bar between a ball at the spindle and a ball on the table, the circle it is swept
+   around, and a magnified polar trace with a squareness-type ellipse. Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr ? { nom: 'anma çemberi', ccw: 'saat ibresine ters', cw: 'saat ibresi yönünde' } : { nom: 'nominal circle', ccw: 'counter-clockwise', cw: 'clockwise' };
+const cx = 170, cy = 160, R = 110;
+const pts = (k: number, dir: number) => { let d = ''; for (let i = 0; i <= 180; i++) { const t = (2 * Math.PI * i) / 180; const r = R + k * Math.sin(t) * Math.cos(t) + (dir > 0 ? 3 : -3) * Math.sin(2 * t + 0.8) * 0.5; d += `${i ? 'L' : 'M'}${(cx + r * Math.cos(t)).toFixed(1)},${(cy - r * Math.sin(t)).toFixed(1)}`; } return d + 'Z'; };
+const bx = cx + R * Math.cos(0.7), by = cy - R * Math.sin(0.7);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <circle class="f" style="--i:0" cx={cx} cy={cy} r={R} fill="none" stroke="#9aa6b2" stroke-width="1.2" stroke-dasharray="5 4" />
+  {[-2, -1, 1, 2].map((k) => <circle class="f" style="--i:0" cx={cx} cy={cy} r={R + k * 14} fill="none" stroke="#e3e8ee" />)}
+  <path class="d" style="--i:2" pathLength="1" d={pts(26, 1)} fill="none" stroke="#c2413b" stroke-width="2.2" />
+  <path class="d" style="--i:3" pathLength="1" d={pts(26, -1)} fill="none" stroke="#1e5fc4" stroke-width="2.2" />
+  <!-- the bar -->
+  <line class="f" style="--i:4" x1={cx} y1={cy} x2={bx} y2={by} stroke="#5f6c79" stroke-width="9" stroke-linecap="round" />
+  <line class="f" style="--i:4" x1={cx + (bx - cx) * 0.35} y1={cy + (by - cy) * 0.35} x2={bx} y2={by} stroke="#c3ccd5" stroke-width="5" stroke-linecap="round" />
+  <circle class="f" style="--i:5" cx={cx} cy={cy} r="11" fill="url(#ca-metal)" stroke="#364554" stroke-width="1.5" />
+  <circle class="f" style="--i:5" cx={bx} cy={by} r="11" fill="url(#ca-metal)" stroke="#364554" stroke-width="1.5" />
+  <g class="lbl">
+    <text class="t-sm" x="330" y="96">{T.nom}</text>
+    <line x1="326" y1="92" x2={cx + R * 0.96} y2={cy - R * 0.28} stroke="#9aa6b2" />
+    <text class="t-sm" x="330" y="236" style="fill:#b23a34">{T.ccw}</text>
+    <text class="t-sm" x="330" y="254" style="fill:#1e5fc4">{T.cw}</text>
+  </g>
+</svg>

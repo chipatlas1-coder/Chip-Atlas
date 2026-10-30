@@ -1,0 +1,104 @@
+---
+key: mql
+locale: tr
+slug: minimum-miktarda-yaglama
+title: 'Minimum miktarda yağlama (MMY, MQL)'
+description: 'Saatte birkaç mililitre yağ, aerosol olarak dışarıdan ya da iş mili ve takımın içinden kesici kenara taşınır: ne kadar yağ, tek ve iki kanallı sistemler, takımın ne istediği, hangi yağlar, nerede işe yarar, nerede yaramaz, yağ sisi ve yangın.'
+section: 8
+subsection: coolant
+order: 3
+updated: 2026-10-30
+tools: []
+glance:
+  - value: '5–50 ml/saat'
+    label: 'Olağan yağ miktarı (DGUV; MAPAL: en çok 50 ml/saat); başka kaynaklar daha yükseğe çıkar'
+  - value: '< %2'
+    label: 'DGUV’nin talaşı kuru saydığı, talaşa yapışan yağ oranı'
+  - value: '≥ 150 °C'
+    label: 'MMY yağının parlama noktası (DGUV); 250 °C’de buharlaşma kaybı ≤ %65'
+  - value: '≈ 0,1 s'
+    label: 'İki kanallı bir sistemin tepki süresi (DGUV)'
+sources:
+  - label: 'DGUV, DGUV Information 209-025, Minimum quantity lubrication for machining operations (DGUV MMY kılavuzunun İngilizce baskısı), Kasım 2010'
+    url: https://publikationen.dguv.de/widgets/pdf/download/article/806
+  - label: 'DGUV, BGI/GUV-I 718 = DGUV Information 209-024, Minimalmengenschmierung in der spanenden Fertigung, 2006/2010 (Vorbemerkung)'
+    url: https://umwelt-online.de/recht/arbeitss/uvv/bgi/718a.htm
+  - label: 'DGUV Fachbereich Holz und Metall, FBHM-006, Emissionsarme Metallbearbeitung mit Minimalmengenschmierung, 13.08.2021'
+    url: https://publikationen.dguv.de/widgets/pdf/download/article/4328
+  - label: 'IFA / DGUV, KSS-Lexikon: Minimalmengenschmierung'
+    url: https://dguv.de/ifa/praxishilfen/kuehlschmierstoffe/lexikon/minimalmengenschmierung/index.jsp
+  - label: 'IFA / DGUV, KSS-Lexikon: Arbeitsplatzgrenzwerte'
+    url: https://dguv.de/ifa/praxishilfen/kuehlschmierstoffe/lexikon/arbeitsplatzgrenzwerte/index.jsp
+  - label: 'L. Schumski ve ark., “Minimum Quantity Lubrication (MQL) Supply through Internal Cooling Channels in Drilling Processes”, J. Manuf. Mater. Process. 8 (2024) 69'
+    url: https://www.mdpi.com/2504-4494/8/2/69/html
+  - label: 'SKF, LubriLean – Minimal Quantity Lubrication, broşür 1-5102-EN, 07/2014'
+    url: https://www.skf.com/mm/0901d19680126cc5
+  - label: 'MAPAL, “Minimum quantity lubrication with MAPAL: Green tools protect resources”, MAPAL News, 16 Kasım 2022'
+    url: https://mapal.com/medias/sys_master/root/h3e/h0d/9101467713566/MAPAL_News_Minimum%20quantity%20lubrication.e/MAPAL-News-Minimum-quantity-lubrication.e.pdf
+  - label: 'FUCHS, PLANTO MIKRO 30 HD ürün sayfası'
+    url: https://www.fuchs.com/de/en/product/product/148603-PLANTO-MIKRO-30-HD
+  - label: 'Oemeta, Minimum quantity lubricants (MICROTOL), E 355 08/22'
+    url: https://de.oemeta.com/fileadmin/redakteure/bilder/4_Informationen/Downloads/Broschueren-Flyer-EN/oemeta-minimum-quantity-lubricants.pdf
+  - label: 'BOHS, Guidance for Occupational Hygienists on the Assessment and Control of the Health Risks from Metalworking Fluid (MWF), v1.1, Mart 2025'
+    url: https://www.bohs.org/app/uploads/2025/03/Guidance-for-Occupational-Hygienists-on-the-Assessment-and-Control-of-the-Health-Risks-from-Metalworking-Fluid-1.1.pdf
+  - label: 'A. Aşkan, “Delme Operasyonlarında Kesme Sıvısı Uygulamaları: Derleme Çalışması”, Journal of Aerospace Science and Management (Erciyes Üniversitesi) 1(1), 2021, 36–63 (Türkçe terimler için)'
+    url: https://jasam.erciyes.edu.tr/ckfinder/userfiles/files/Abdulhalim%20A%c5%9fkan%20Tam%20Metin.pdf
+  - label: 'F. Günan, “Hastelloy C276 alaşımının frezelenmesinde minimum miktarda yağlamanın yüzey pürüzlülüğü ve takım aşınması üzerindeki etkilerinin araştırılması”, yüksek lisans tezi, Düzce Üniversitesi, 2019 (Türkçe terim için)'
+    url: https://acikerisim.duzce.edu.tr/items/1f13a075-c88e-470e-8cb7-3b2798c2bf3a/full
+---
+import MqlFlow from '../../../components/mdx/MqlFlow.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Minimum miktarda yağlama (MMY; İngilizce *minimum quantity lubrication*, MQL), sıvı akışının yerine SKF’nin deyişiyle içinde ince dağılmış yağ damlacıkları taşıyan bir hava akışını, yani aerosolü koyar. Türkçe bir derleme yöntemi şöyle tanımlar: "MMY uygulaması basınçlı hava ve kesme sıvısı karışımını işleme bölgesine minimum miktarda ve atomize bir şekilde püskürtmektedir." DGUV kılavuzu iki yolu anlatır: yağlayıcı dışarıdan, basınçlı havayla aerosol olarak verilir ya da dönen iş milinin içinden beslenir. BOHS, yöntemin bazen *near-dry machining* diye anıldığını yazar; aynı derleme bunu "yakın kuru işleme" diye karşılar.
+
+Adını miktarından alır. DGUV’ye göre talaşlı işlemede yalnızca birkaç damla yağ, yaklaşık saatte 5 ila 50 ml kullanılır; bol sıvıyla yağlamanın (*flood lubrication*) aksine yalnızca birkaç mililitre. MAPAL MMY’yi en çok 50 ml/saat olarak tanımlar ve tam karbür bir matkapla bir delik için gereken yağı yalnızca 0,002 ml olarak verir. Herkes 50’de durmaz: aynı DGUV kılavuzunun yangın bölümü saatte en çok 100 ml’den söz eder, Schumski ve arkadaşları 5 ile 200 ml/saat arası verir. Bu kadar az yağ işi neredeyse kuru bırakır: DGUV’ye göre yağlayıcı miktarındaki aşırı azalma neredeyse kuru iş parçaları ve talaş verir; talaşa yapışan yağ %2’nin altındaysa talaşı kuru sayar. MMY’nin yerini aldığı sıvılar için [kesme sıvısı türleri](/tr/sogutma-ve-yaglama/kesme-sivisi-turleri/) sayfasına bakın.
+
+## Yağı kesici kenara ulaştırmak
+
+Schumski ve arkadaşları: dıştan beslemede oluşan yağ sisi temas bölgesine dış meme (*nozzle*) sistemleriyle taşınır; içten beslemede ise doğrudan temas bölgesine. İçten besleme, talaş oluşum bölgesine erişimin zor olduğu delme gibi işlerde yararlıdır. Türkçe derleme de iki kategori sayar: "Dıştan püskürmeli MMY tekniğinde" ve "İçten beslemeli yağlama sistemi kesme sıvısını takımın ucuna akıtarak". DGUV dıştan beslemeyi testereyle kesme, delme, frezeleme ve tornalama gibi basit standart işler için özellikle uygun bulur; derin delik delmede içten besleme için çok derin deliklerin çok yüksek kesme hızlarında güvenle delinebildiğini yazar.
+
+İçten beslemeli sistemler iki türdür. DGUV: tek kanallı (*1-channel*) sistemlerde aerosol tankta, yani iş miline girmeden önce üretilir; iki kanallı (*2-channel*) sistemlerde yağ ve hava iş milinden ayrı geçer ve iş milinden çıkarken karışarak aerosolü takımın hemen önünde oluşturur. Schumski ve arkadaşları da aynı biçimde anlatır, SKF ikisini de satar. Tepki süresi (*response time*) takım değişiminde önem kazanır: DGUV’ye göre iki kanallı sistemin tepki süresi yaklaşık 0,1 saniyedir. Tek kanallı sistemler için bir değer vermez, ama karşılaştırma tablosunda baypas (*by-pass*) ile çalışmada tepki süresinin iki kanallı teknolojiyle neredeyse aynı olduğunu belirtir.
+
+<Figure caption="Kesme bölgesine üç yol, şematik: dış meme; aerosolün bir aerosol üretecinde (*aerosol generator*) üretilip iş mili ve takımın içinden taşındığı içten besleme (tek kanal); yağ ve havanın iş milinden ayrı geçip iş milinden çıkarken takımın hemen önünde karıştığı besleme (iki kanal), DGUV kılavuzuna göre. Altta DGUV’nin 5–50 ml/saat aralığında yağ miktarı ve 8 saat kesmede ettiği miktar (bu sayfanın hesabı).">
+  <MqlFlow locale="tr" />
+</Figure>
+
+Damlacıklar küçüktür, ama kaynaklar ne kadar küçük olduklarında anlaşmaz: Schumski ve arkadaşları kendi üreteçleri için 20 µm’nin altında boyutlar, SKF kendi sistemi için 0,5 µm verir. Takımın içinde çoğu düz uçmaz; Schumski ve arkadaşları, önceki çalışmalara dayanarak: soğutma kanallarındaki aerosol damlacıklarının büyük çoğunluğu (%90’dan fazlası) kanal duvarlarına çarpar ve yağ sisinin büyük damlacıkları kanallarda duvar filmi (*wall film*) olarak birikebilir.
+
+Takım ve tutucu buna göre yapılmalıdır. DGUV: içten beslemeyle sorunsuz çalışmanın temel noktası takım sapının geometrik biçimidir ve sap ile iş mili arasındaki birleşme bölgesi tam sızdırmaz olmalıdır. MAPAL MMY takımlarını anlatır: ıslak işleme takımlarına göre çıkış delikleri kesme noktasına daha yakındır ve çıkış açıları daha diktir; MMY’ye uygun takımlarda talaş boşlukları helisli, parlatılmış ve gerektiğinde büyütülmüştür.
+
+## Yağ
+
+DGUV’ye göre endüstriyel üretimde buharlaşma davranışı uygun ve parlama noktası yüksek sentetik ester yağları ve yağ alkolleri (*fatty alcohols*) kullanılır; Almanca kılavuzu da yalnızca yeni, temiz, ester ya da yağ alkolü bazlı yağlayıcıların kullanıldığını belirtir. Kılavuz ayrıca yol gösterici değerler (*guide values*) verir: 40 °C’de 10 mm²/s’nin üstünde viskozite, en az 150 °C parlama noktası, 250 °C’de en çok %65 buharlaşma kaybı (Noack); 2021 tarihli bülten aynı değerleri tekrarlar. 2010 kılavuzu ayrıca 40 °C’de 15–50 mm²/s, bazen 100 mm²/s’ye kadar bir aralıkta iyi sonuçlar alındığını yazar; 2021 bülteni yüksek viskoziteli ürünleri tercih eder, çünkü denemelerinde düşük viskoziteli bir yağ (3 mm²/s) katlarca fazla emisyon vermiştir. DGUV doğal yağları MMY’ye uygun olmayan yağlayıcılar arasında sayar: oksitlenmeye çok yatkındırlar ve makine elemanlarında yapışkan, reçinemsi kalıntı bırakma eğilimindedirler; BOHS da bitkisel yağ (*vegetable oil*) bazlı MMY sıvılarının kimyasal olarak değiştirilmedikçe kolayca oksitlenip hidrolize uğradığını yazar.
+
+| Üretici, ürün | Baz | 40 °C’de viskozite | Parlama noktası |
+|---|---|---|---|
+| FUCHS PLANTO MIKRO 30 HD | ester | 30,5 mm²/s | 211 °C |
+| Oemeta MICROTOL FA 20 | yağ alkolü | 21 mm²/s | |
+| Oemeta MICROTOL EC 46 | sentetik ester | 46 mm²/s | |
+
+## Nerede işe yarar, nerede yaramaz
+
+DGUV frezeleme, tornalama ya da delme gibi geometrisi belirli kesici kenarlarla (*geometrically defined cutting edges*) işlemeyi sayar; metallerin testereyle kesilmesinde de MMY ile yağlamanın birçok sektörde teknolojinin bilinen durumu sayıldığını yazar. Malzemelerde: dökme malzemelerin MMY ile işlenmesi özellikle etkilidir; 800 N/mm² çekme dayanımına kadar çelikler ve %1’e kadar Si içeren alüminyum da sayılır; süreç en iyi biçimde tasarlanırsa işlenmesi zor malzemeler bile MMY ile işlenebilir. 2010’da taşlama istisnalar arasında sayılıyordu: taşlama gibi işlemler MMY ile henüz ekonomik değildi. İş hijyeni kuruluşu BOHS ise MMY’yi freze tezgâhları için kabul edilebilir bulur, ama delme ve kılavuz çekmeye uygun olmadığını yazar ve bir gerekçe vermez; DGUV ve buradaki öteki kaynaklar içten beslemeli delmeyi anlatır.
+
+Sınırlardan biri ısıdır. Schumski ve arkadaşları: birçok çalışma MMY’de ısıl yükün (*thermal load*) bol sıvıyla yağlamaya göre daha yüksek olduğunu gösterir. DGUV, artan ısıl çarpılmanın (*thermal distortion*) boyut hatalarına ve biçim ve konum hatalarına yol açabileceğini, talaşın da makineden hızla çıkması gerektiğini ekler; iyi talaş tahliyesinin temeli çalışma alanının düzenidir. MAPAL, MMY’nin basınçlı hava kullanımını artırdığını kabul eder, ama toplamda %40’a varan enerji tasarrufu olanağı görür; bu bir üretici rakamıdır.
+
+## Ne kazandırır
+
+Sıvı devresi ortadan kalkar: DGUV’ye göre bol sıvıyla yağlamanın bakım, kontrol, hazırlama ve atık giderleri artık söz konusu değildir; talaşı atmadan önce temizleme ve kurutma gideri yoktur ve neredeyse kuru talaş, daha az yağla kirlendiği için kolayca geri dönüştürülür. DGUV ölçümleri havayı da daha temiz bulmuştur: MMY’de özellikle emiş akımındaki emisyonlar bol sıvıyla ölçülen değerlerin yarısından azdır. Takım üreticisi MAPAL, MMY’nin yağ içeren sıvıların tüketimini %98’e varan oranda azaltabildiğini yazar; bu bir üretici rakamıdır.
+
+## Yağ sisi, cilt ve yangın
+
+Az yağ, havada yağ olmadığı anlamına gelmez. BOHS’a göre işleme sırasında görünür bir sis yoktur, ama çıplak gözle görülmeyen ince parçacıklar vardır; bunlar uygun filtreli yerel emişle (*local exhaust ventilation*, LEV) denetlenmeli ve parçacıkların boyutu yüzünden yüksek verimli filtreler gerekebilir. DGUV: makine muhafazasının içinde hafif bir negatif basınç olmalıdır. Türkçe derleme de MMY bağlamında "yağ sisi" ve "yağ buharı" terimlerini kullanır.
+
+Sınırlar ülkeye göre değişir. Almanya’da IFA, parlama noktası 100 °C’nin üstündeki suyla karışmayan sıvılar için 10 mg/m³’lük bir değerlendirme ölçütü (*assessment benchmark*, Alm. Beurteilungsmaßstab) verir (*inhalable* fraksiyon, Alm. E-Fraktion; buhar ve aerosol birlikte) ve kesme sıvıları için sağlık etkilerine dayalı bir işyeri sınır değerinin bugüne kadar türetilemediğini ekler. BOHS, Birleşik Krallık’ta bir maruziyet sınırı konmadığını ve HSE’nin 1,0 mg/m³’lük eski kılavuz değerinin geri çekildiğini yazar. DGUV’nin 2010 kılavuzunda MMY’li makinelerde ölçülen değerlerin %95’inden fazlası, kesme sıvıları için eski Alman hava sınır değerinin (orada 10 mg/m³ olarak verilir) yarısının epey altındadır; 2021 bülteni de hava sınır değerlerinin aşıldığı bir duruma rastlamamıştır.
+
+DGUV’nin değerlendirmesine göre, parlama noktası yüksek bir yağlayıcı ve düşük miktarlarla tehlike püskürtmeden çok birikintilerdedir. DGUV: saatte en çok 100 ml’lik tüketim ve parlama noktası yüksek bir yağlayıcıyla patlayıcı karışımlar normalde beklenmez ve püskürtmenin kendisinden doğan sis tehlikeli bir patlayıcı ortam oluşturmaz. Ama filtrelerde sık sık metal tozu ve yağlayıcıdan oluşan topaklı, yapışkan bir kütle bulunabilir ve biriken yanıcı toz havalanırsa tehlikeli toz/hava karışımları oluşabilir. Bu yüzden parlama noktası en az 150 °C olan yağlayıcıları ve makinelerin düzenli temizlenmesini önerir. Cilt için DGUV, ester yağlarının ve yağ alkollerinin uzun vadede yağ alıcı ve dolayısıyla kurutucu bir etkisi olabileceği uyarısını yapar.
+
+<CheckList id="mql-before" locale="tr" items={[
+  { icon: 'coolant', title: 'Yol', check: 'İşlem için dış meme mi, içten besleme mi.', fix: 'Delme gibi erişimi zor kesmelerde içten besleme (Schumski ve ark.); basit standart işler için özellikle uygun olan dıştan besleme (DGUV).', src: 'Schumski ve ark.; DGUV' },
+  { icon: 'holder', title: 'Takım ve tutucu', check: 'Kanallar, çıkışlar ve sap ile iş mili arasındaki birleşme.', fix: 'Sızdırmaz birleşme, MMY’ye göre biçimlenmiş takım sapı (DGUV); kenara yakın çıkışlar, büyütülmüş, parlatılmış talaş boşlukları (MAPAL).', src: 'DGUV; MAPAL' },
+  { icon: 'feed', title: 'Yağ', check: 'Baz, parlama noktası, buharlaşma, viskozite.', fix: 'Sentetik ester ya da yağ alkolü; parlama noktası ≥ 150 °C; 250 °C’de Noack ≤ %65; 40 °C’de > 10 mm²/s, düşük emisyon için daha yüksek viskozite (DGUV).', src: 'DGUV' },
+  { icon: 'hard', title: 'Isı', check: 'Isınan parçaların ölçüleri.', fix: 'Bol sıvıya göre daha yüksek ısıl yük (Schumski ve ark.) ve ısıl çarpılma bekleyin (DGUV).', src: 'Schumski ve ark.; DGUV' },
+  { icon: 'chips', title: 'Emiş ve temizlik', check: 'Muhafaza, emiş ve filtreler.', fix: 'Muhafazada hafif negatif basınç (DGUV), uygun filtreli yerel emiş (BOHS); birikintileri düzenli temizleyin (DGUV).', src: 'DGUV; BOHS' },
+]} />

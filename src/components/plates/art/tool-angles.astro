@@ -1,0 +1,38 @@
+---
+/* Rake, clearance and wedge angles in a section square to the cutting edge. Rake γ = 10° from the reference line,
+   clearance α = 7° from the machined surface, wedge β = 73°; shear angle about 25°, uncut layer 26 units, the chip's
+   free side parallel to the rake face. Schematic but drawn to the angles. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { rake: 'talaş yüzeyi', flank: 'yan yüzey', ref: 'referans', sum: 'α + β + γ = 90°' }
+  : { rake: 'rake face', flank: 'flank', ref: 'reference', sum: 'α + β + γ = 90°' };
+const EX = 250, EY = 190;
+const rad = (d: number) => (d * Math.PI) / 180;
+const pt = (r: number, a: number) => `${(EX + r * Math.cos(rad(a))).toFixed(1)},${(EY - r * Math.sin(rad(a))).toFixed(1)}`;
+const g = 10, al = 7;
+const rakeA = 90 - g;
+const tool = `M${EX},${EY} L${pt(170, rakeA)} L470,${(EY - 170 * Math.sin(rad(rakeA))).toFixed(1)} L470,${(EY - 220 * Math.tan(rad(al))).toFixed(1)} Z`;
+const work = `M20,164 L194,164 L${EX},${EY} L470,${EY} L470,300 L20,300 Z`;
+const chip = `M194,164 L${EX},${EY} L264,111 C268,86 256,62 232,56 L214,74 C222,78 218,92 205,101 Z`;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <path class="metal-h f" style="--i:0" d={work} />
+  <path class="o2 d" style="--i:1" pathLength="1" d={`M20,164 L194,164 L${EX},${EY} L470,${EY}`} />
+  <path class="chip f" style="--i:2" d={chip} stroke="#a35a1f" stroke-width="1.2" />
+  <path class="carbide f" style="--i:2" d={tool} stroke="#364554" stroke-width="1.6" />
+  <line class="dash f" style="--i:3" x1={EX} y1={EY} x2={EX} y2="34" />
+  <path class="d" style="--i:4" pathLength="1" d={`M${pt(122, 90)} A122,122 0 0 1 ${pt(122, rakeA)}`} fill="none" stroke="#e2601a" stroke-width="3" />
+  <path class="d" style="--i:5" pathLength="1" d={`M${pt(170, 0)} A170,170 0 0 0 ${pt(170, al)}`} fill="none" stroke="#13998a" stroke-width="3" />
+  <path class="d" style="--i:6" pathLength="1" d={`M${pt(64, al)} A64,64 0 0 0 ${pt(64, rakeA)}`} fill="none" stroke="#8b52c9" stroke-width="3" />
+  <g class="lbl">
+    <text class="it" x={EX + 6} y="60" style="fill:#c94f0c">γ</text>
+    <text class="it" x={EX + 178} y={EY - 6} style="fill:#0f7a6e">α</text>
+    <text class="it" x={EX + 52} y={EY - 44} style="fill:#8b52c9">β</text>
+    <text class="t-sm" x={EX - 8} y="46" text-anchor="end">{T.ref}</text>
+    <text class="t-sm" x="300" y="98">{T.rake}</text>
+    <text class="t-sm" x="352" y={EY - 34}>{T.flank}</text>
+    <text class="t-acc t-sm" x="30" y="40">{T.sum}</text>
+  </g>
+</svg>

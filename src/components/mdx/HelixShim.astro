@@ -1,0 +1,142 @@
+---
+/**
+ * Helix angle of a thread against the standard 1.5° shim: pick the major diameter, the pitch and the number
+ * of starts (ISO metric pitch diameter d2 = d − 0.6495 P). The dial shows φ = arctan(P·n / π·d2), Hoffmann's
+ * approximation 20·P/D and the 1.5° most holders are supplied with; the chart shows φ against the diameter for
+ * several pitches. Arithmetic and drawing in src/lib/threadturn.ts.
+ */
+import { drawGauge, drawHelixChart, helix, helixApprox, pitchD } from '../../lib/threadturn';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { std: 'standart altlık', approx: 'yaklaşık', deg: '°', d: 'dış çap d (mm)', phi: 'φ', pLab: 'eğriler: adım P (mm)', dL: 'Dış çap d', pL: 'Adım P', sL: 'Ağız sayısı', d2: 'Bölüm dairesi çapı d₂', phiR: 'Helis açısı φ', apxR: 'Hoffmann: 20·P/D', diffR: '1,5°’lik altlıktan fark', aria: 'Diş helis açısı: seçilen çap, adım ve ağız sayısı için helis açısı, Hoffmann yaklaşımı ve 1,5°’lik standart altlık; farklı adımlar için helis açısı–çap grafiği' }
+  : { std: 'standard shim', approx: 'approx.', deg: '°', d: 'major diameter d (mm)', phi: 'φ', pLab: 'curves: pitch P (mm)', dL: 'Major diameter d', pL: 'Pitch P', sL: 'Starts', d2: 'Pitch diameter d₂', phiR: 'Helix angle φ', apxR: 'Hoffmann: 20·P/D', diffR: 'Off the 1.5° shim by', aria: 'Thread helix angle: the helix angle for the chosen diameter, pitch and number of starts, Hoffmann’s approximation and the standard 1.5° shim; chart of helix angle against diameter for several pitches' };
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+const PITCHES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6];
+const d0 = 20, P0 = 2.5, s0 = 1;
+const phi0 = helix(P0, pitchD(d0, P0), s0), apx0 = helixApprox(P0, d0, s0);
+const Gg = [drawGauge(phi0, apx0, T, dec, false), drawGauge(phi0, apx0, T, dec, true)];
+const Gc = [drawHelixChart(d0, P0, s0, T, dec, false), drawHelixChart(d0, P0, s0, T, dec, true)];
+const sgn = (v: number) => `${v >= 0 ? '+' : '−'}${dec(Math.abs(v).toFixed(2))}°`;
+---
+<div class="hx" data-hx data-locale={locale} data-anim>
+  <div class="controls">
+    <label class="field"><span>{T.dL} <output data-o="d">{d0}</output> mm</span><input type="range" min="3" max="200" step="1" value={d0} data-i="d" /></label>
+    <label class="field"><span>{T.pL}</span><select data-i="p">{PITCHES.map((p) => <option value={p} selected={p === P0}>{dec(String(p))} mm</option>)}</select></label>
+    <div class="field"><span>{T.sL}</span>
+      <div class="seg" role="radiogroup" aria-label={T.sL}>{[1, 2, 3, 4].map((s) => <button type="button" role="radio" aria-checked={s === s0 ? 'true' : 'false'} class:list={[{ on: s === s0 }]} data-s={s}>{s}</button>)}</div>
+    </div>
+  </div>
+  <div class="views">
+    <svg viewBox={`0 0 ${Gg[0].W} ${Gg[0].H}`} class="wide" role="img" aria-label={T.aria} data-v="gw" set:html={Gg[0].svg} />
+    <svg viewBox={`0 0 ${Gc[0].W} ${Gc[0].H}`} class="wide" aria-hidden="true" data-v="cw" set:html={Gc[0].svg} />
+    <svg viewBox={`0 0 ${Gg[1].W} ${Gg[1].H}`} class="narrow" role="img" aria-label={T.aria} data-v="gn" set:html={Gg[1].svg} />
+    <svg viewBox={`0 0 ${Gc[1].W} ${Gc[1].H}`} class="narrow" aria-hidden="true" data-v="cn" set:html={Gc[1].svg} />
+  </div>
+  <dl class="read">
+    <div><dt>{T.d2}</dt><dd class="num" data-o="d2">{dec(pitchD(d0, P0).toFixed(3))} mm</dd></div>
+    <div class="big"><dt>{T.phiR}</dt><dd class="num" data-o="phi">{dec(phi0.toFixed(2))}°</dd></div>
+    <div><dt>{T.apxR}</dt><dd class="num" data-o="apx">{dec(apx0.toFixed(2))}°</dd></div>
+    <div><dt>{T.diffR}</dt><dd class="num" data-o="diff">{sgn(phi0 - 1.5)}</dd></div>
+  </dl>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .hx { display: grid; gap: 0.8rem; }
+  .controls { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0.7rem 1rem; align-items: end; }
+  @media (max-width: 40rem) { .controls { grid-template-columns: 1fr 1fr; } .controls > :first-child { grid-column: 1 / -1; } }
+  .field { display: grid; gap: 0.3rem; min-width: 0; }
+  .field > span { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  select { width: 100%; font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--bg-sunk); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.35rem 0.5rem; min-height: 2.1rem; }
+  .seg { display: flex; border: 1px solid var(--line-strong); border-radius: 4px; overflow: hidden; }
+  .seg button { flex: 1; font: inherit; font-size: 0.85rem; color: var(--ink-2); background: var(--bg-sunk); border: 0; padding: 0.35rem 0.4rem; min-height: 2.1rem; cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--line-strong); }
+  .seg button.on { background: var(--accent); color: #fbfdff; }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .views { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.13fr); gap: 0.5rem; }
+  .views svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .views .narrow { display: none; }
+  @media (max-width: 40rem) { .views { grid-template-columns: 1fr; } .views .wide { display: none; } .views .narrow { display: block; } }
+  .read { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+  @media (max-width: 40rem) { .read { grid-template-columns: 1fr 1fr; } }
+  .read dt { font-size: 0.75rem; color: var(--ink-3); }
+  .read dd { margin: 0.1rem 0 0; color: var(--ink); font-size: 0.95rem; }
+  .read .big dd { color: #c94f0c; font-size: 1.35rem; font-weight: 500; }
+  .hx :global(.hx-track) { fill: none; stroke: var(--line-strong); stroke-width: 10; stroke-linecap: round; opacity: 0.55; }
+  .hx :global(.hx-gap) { fill: none; stroke: #e2601a; stroke-width: 10; opacity: 0.55; }
+  .hx :global(.hx-tick) { stroke: var(--ink-3); stroke-width: 1.2; }
+  .hx :global(.hx-std) { stroke: #13998a; stroke-width: 3; }
+  .hx :global(.hx-apx) { stroke: #2a78d6; stroke-width: 2; }
+  .hx :global(.hx-k.std) { fill: #13998a; } .hx :global(.hx-k.apx) { fill: #2a78d6; }
+  .hx :global(.hx-needle) { stroke: #e2601a; stroke-width: 3; stroke-linecap: round; }
+  .hx :global(.hx-hub) { fill: #f7fbfe; stroke: #e2601a; stroke-width: 2.5; }
+  .hx :global(.hx-grid) { stroke: var(--line); stroke-width: 1; }
+  .hx :global(.hx-stdl) { stroke: #13998a; stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .hx :global(.hx-c) { fill: none; stroke: #767e86; stroke-width: 1.1; opacity: 0.7; }
+  .hx :global(.hx-c.on) { stroke: #e2601a; stroke-width: 2.6; opacity: 1; }
+  .hx :global(.hx-dot) { fill: #f7fbfe; stroke: #e2601a; stroke-width: 2.6; }
+  .hx :global(.hx-t) { font: 11px var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; }
+  .hx :global(.hx-t.s) { font-size: 10.5px; fill: var(--ink-3); }
+  .hx :global(.hx-t.s.on) { fill: #e2601a; }
+  .hx :global(.hx-t.std) { font-size: 10.5px; fill: #13998a; }
+  .hx :global(.hx-t.apx) { font-size: 10.5px; fill: #2a78d6; }
+  .hx :global(.hx-t.big) { font-size: 17px; font-weight: 600; fill: #c94f0c; }
+  :global(html.anim) .hx[data-anim][data-in]:not(.settled) :global(.hx-c) { stroke-dasharray: 1; animation: ca-draw 1s 0.2s ease-out backwards; }
+</style>
+
+<script>
+  import { drawGauge, drawHelixChart, helix, helixApprox, pitchD } from '../../lib/threadturn';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-hx]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const sgn = (v: number) => `${v >= 0 ? '+' : '−'}${dec(Math.abs(v).toFixed(2))}°`;
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const dIn = q<HTMLInputElement>('[data-i="d"]'), pIn = q<HTMLSelectElement>('[data-i="p"]');
+    let starts = 1, shown = 0, raf = 0;
+    const read = () => { const d = Number(dIn.value), P = Number(pIn.value); return { d, P, phi: helix(P, pitchD(d, P), starts), apx: helixApprox(P, d, starts) }; };
+    const gauge = (phi: number, apx: number) => {
+      q('[data-v="gw"]').innerHTML = drawGauge(phi, apx, T, dec, false).svg;
+      q('[data-v="gn"]').innerHTML = drawGauge(phi, apx, T, dec, true).svg;
+    };
+    // the needle swings to the new value
+    const swing = (to: number, apx: number, dur = 500) => {
+      cancelAnimationFrame(raf);
+      const from = shown, t0 = performance.now();
+      const step = (now: number) => {
+        const u = Math.min(1, (now - t0) / dur), e = 1 - (1 - u) ** 3;
+        shown = from + (to - from) * e; gauge(shown, apx);
+        if (u < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+    const render = (animate = true) => {
+      const s = read();
+      q('[data-v="cw"]').innerHTML = drawHelixChart(s.d, s.P, starts, T, dec, false).svg;
+      q('[data-v="cn"]').innerHTML = drawHelixChart(s.d, s.P, starts, T, dec, true).svg;
+      q('[data-o="d"]').textContent = String(s.d);
+      q('[data-o="d2"]').textContent = `${dec(pitchD(s.d, s.P).toFixed(3))} mm`;
+      q('[data-o="phi"]').textContent = `${dec(s.phi.toFixed(2))}°`;
+      q('[data-o="apx"]').textContent = `${dec(s.apx.toFixed(2))}°`;
+      q('[data-o="diff"]').textContent = sgn(s.phi - 1.5);
+      if (animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) swing(s.phi, s.apx, 260); else { shown = s.phi; gauge(s.phi, s.apx); }
+    };
+    dIn.addEventListener('input', () => { root.classList.add('settled'); render(); });
+    pIn.addEventListener('change', () => { root.classList.add('settled'); render(); });
+    const segs = [...root.querySelectorAll<HTMLButtonElement>('.seg button')];
+    segs.forEach((b) => b.addEventListener('click', () => {
+      starts = Number(b.dataset.s); root.classList.add('settled');
+      segs.forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', String(x === b)); });
+      render();
+    }));
+    if (document.documentElement.classList.contains('anim')) {
+      const s = read(); shown = 0; gauge(0, s.apx);
+      whenIn(root, () => { swing(s.phi, s.apx, 1100); setTimeout(() => root.classList.add('settled'), 1600); });
+    } else { shown = read().phi; }
+  });
+</script>

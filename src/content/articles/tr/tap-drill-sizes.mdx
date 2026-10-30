@@ -1,0 +1,149 @@
+---
+key: tap-drill-sizes
+locale: tr
+slug: kilavuz-matkap-caplari
+title: 'Metrik dişler için kılavuz matkap çapları'
+description: 'Kılavuz çekmeden önce hangi matkap: d − P kuralı ve DIN 336 / ISO 2306 tablosu, deliğin neden 6H küçük çap sınırları içinde kalması gerektiği, ezme kılavuzunun ne kadar büyük delik istediği ve "diş yüzdesi"nin anlamı.'
+section: 2
+subsection: hole-making
+order: 10
+updated: 2026-10-11
+tools: [tapdrill, drilling]
+glance:
+  - value: 'd − P'
+    label: 'Kesme kılavuzu için matkap'
+  - value: '8,5'
+    unit: 'mm'
+    label: 'M10 için matkap'
+  - value: '≈ %92'
+    label: 'd − P deliğinin 5H/8 esasına göre diş yüzdesi (OSG)'
+  - value: '9,30'
+    unit: 'mm'
+    label: 'M10 ezme kılavuzu deliği (BAER, Hommel Hercules)'
+sources:
+  - label: 'ISO 2306:1972, Drills for use prior to tapping screw threads (katalog sayfası; 2022''de onaylandı)'
+    url: https://www.iso.org/standard/7135.html
+  - label: 'ISO 2306:1972 önizlemesi (kapsam ve Tablo 1)'
+    url: https://webstore.ansi.org/preview-pages/ISO/preview_ISO+2306-1972.pdf
+  - label: 'DIN 336:2003, kılavuz delikleri için matkap çapları (ANSI webstore kaydı; ezme kılavuzlarına uygulanmaz)'
+    url: https://webstore.ansi.org/standards/din/din3362003
+  - label: 'Gühring (Hartner), kılavuz deliği çapları posteri, 2025'
+    url: https://www.hartner.de/wp-content/uploads/2025/07/HAR_Plakat_Kernlochdurchmesser_Bohren_2025_EN.pdf
+  - label: 'GSR, threading tools guide (M64''e kadar kılavuz matkapları)'
+    url: https://threadingtoolsguide.com/en/?p=7843
+  - label: 'Ganter, technical information: threads (6H sınırları)'
+    url: https://www.ganternorm.com/fileadmin/user_upload/downloads/technischer%20anhang/technical_information/13_gewinde.pdf
+  - label: 'CDE Fasteners, metric internal threads 6H'
+    url: https://cdefasteners.com/sites/default/files/product-specs/metintthread.pdf
+  - label: 'Dormer Pramet, "Which size should I pre-drill?"'
+    url: https://www.dormerpramet.com/cz/en/which-size-should-I-pre-drill
+  - label: 'OSG, Tap Technical Guide Vol. 1 (ezme kılavuzu delik formülü, kılavuz çekme hızları)'
+    url: https://res.cloudinary.com/osg-usa-inc/image/upload/v1709319427/Literature/03%20-%20Charts%20and%20Guides/Technical%20Guides/OSG_-_Literature_-_Other_-_Technical_Data_-_Tap_-_Vol_1_-_IA.pdf
+  - label: 'OSG, Tapping Guide Vol. 3, 2024 (diş yüzdesi, inç formülü)'
+    url: https://res.cloudinary.com/osg-usa-inc/image/upload/v1717093846/Literature/03%20-%20Charts%20and%20Guides/OSG_-_Chart_-_Tap_Drill_Size_and_Pitch_Diameter_Limit_-_Vol_3_-_2024_-_IA.pdf
+  - label: 'BAER, "Core hole dimensions for screw taps"'
+    url: https://baer.tools/en/blog/core-hole-dimensions-for-screw-taps-everything-you-need-to-know
+  - label: 'Hommel Hercules, "Grundlagen Gewinde" (ezme kılavuzu delik tablosu)'
+    url: https://www.hommel-hercules.com/uploads/schnittdaten/Grundlagen_Gewinde.pdf
+  - label: 'Völkel, "Calculate tap drill size"'
+    url: https://voelkel.com/en/blog/calculate-tap-drill-size
+---
+import TapBands from '../../../components/mdx/TapBands.astro';
+import TapHoles from '../../../components/mdx/TapHoles.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { osgTapSpeeds } from '../../../data/figures';
+
+Kılavuzla açılan bir dişin sonucunu kılavuzdan çok delik belirler. Delik çok küçükse kılavuz daha fazla malzeme kesmek zorunda kalır; bu da torku ve onunla birlikte kılavuzun kırılma riskini artırır. Çok büyükse diş sığ kalır. Doğru matkabı bulmak kolaydır ve arkasındaki kural tablolardaki her değeri açıklar.
+
+## Kural: d − P
+
+Kesme kılavuzu için matkap çapı, anma çapı eksi adımdır:
+
+$$
+D_{\text{matkap}} \approx d - P
+$$
+
+M10'un adımı 1,5 mm'dir, matkap 8,5 mm olur; M6 × 1 için 5,0 mm; M20 × 1,5 için 18,5 mm. Kural ISO 2306'da, DIN 336'da ve takım üreticilerinin tablolarında yer alır. DIN 336 ve üretici tabloları sonucu standart bir matkap çapına yuvarlar; normal adım serisinde yalnızca iki değer d − P'den farklıdır:
+
+| Diş | M3 | M4 | M5 | M6 | M8 | M10 | M12 | M14 | M16 | M20 | M24 | M30 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Matkap (mm)** | 2,5 | 3,3 | 4,2 | 5,0 | **6,8** | 8,5 | **10,2** | 12,0 | 14,0 | 17,5 | 21,0 | 26,5 |
+
+M8 için d − P 6,75 mm, M12 için 10,25 mm olurdu. İnce adım serisi de aynı biçimde yuvarlanır: Gühring'in DIN 336 tablosu M10 × 1,25 için 8,8 mm, M12 × 1,25 için 10,8 mm verir; d − P ise 8,75 ve 10,75 mm olurdu. M1'den M64'e ince adımlarla birlikte tam tablo [kılavuz deliği hesaplayıcısında](/tr/araclar/kilavuz-deligi-hesaplayicisi/) bulunur.
+
+## d − P neden işe yarar: 6H sınırları
+
+Matkap, **somun dişinin küçük çapı D1**'i oluşturur. ISO 965, D1'e bir tolerans verir: yaygın 6H sınıfında D1, temel değeri ile temel değer artı yalnızca adıma bağlı bir tolerans arasında olabilir.
+
+| Diş | D1 en küçük (mm) | D1 en büyük (mm) | Matkap (mm) |
+|---|---|---|---|
+| M6 | 4,917 | 5,153 | 5,0 |
+| M8 | 6,647 | 6,912 | 6,8 |
+| M10 | 8,376 | 8,676 | 8,5 |
+| M12 | 10,106 | 10,441 | 10,2 |
+| M16 | 13,835 | 14,210 | 14,0 |
+| M20 | 17,294 | 17,744 | 17,5 |
+| M24 | 20,752 | 21,252 | 21,0 |
+
+<Figure caption="6H toleransı kayıtlı her normal adımlı diş: bant D1 en küçükten D1 en büyüğe uzanır, nokta DIN 336 matkabıdır. Sayılar için bir satırın üzerine gelin.">
+  <TapBands locale="tr" />
+</Figure>
+
+Her standart matkap sınırların içinde, D1 en küçükten D1 en büyüğe doğru bandın %28 ile %58'i arasında kalır; çoğu bandın ortasının altındadır. ISO 2306 bu seçimin arkasındaki ilkeyi şöyle ifade eder: küçük çap toleransı içinde, delinen delik ne kadar büyükse kılavuz çekme o kadar ekonomiktir. Daha büyük bir delik kılavuza daha az kesilecek malzeme bırakır; bu da kesme torkunu düşürür.
+
+<Note kind="warn" title="Matkap toleransı ve malzeme de önemlidir">
+Tablo değerleri sıradan bir helisel matkabı varsayar. Dormer Pramet, değerlerin h8 helisel matkaplara dayandığını belirtir; h7 yüksek performanslı matkaplar için 0,1 mm, paslanmaz çelikte, delinen delik daha küçük çıkabildiği için 0,1 mm (tam karbür matkapla 0,2 mm'ye kadar) eklemeyi önerir. Diş kritikse deliği ölçün.
+</Note>
+
+## Ezme kılavuzu daha büyük delik ister
+
+Ezme (form) kılavuzu talaş kaldırmaz. Malzemeyi yerinden iter ve malzeme dişin üst kısımlarına akar; bu yüzden delik daha büyük olmalıdır. DIN 336 ezme kılavuzlarını açıkça kapsamaz ve yayımlanmış öneriler farklıdır:
+
+| Diş | BAER: d − 0,5 P + 0,05 | Hommel Hercules tablosu |
+|---|---|---|
+| M6 | 5,55 | 5,55 |
+| M8 | 7,425 | 7,40 |
+| M10 | 9,30 | 9,30 |
+| M12 | 11,175 | 11,10 |
+
+Hommel Hercules belgesi tablosunu "Gewindeschneiden" (diş kesme) başlığı altında basar, ama değerler ezme kılavuzu delikleridir: hepsi 6H üst sınırının epey üstündedir ve bir kesme kılavuzu bunları kullanamaz.
+
+OSG, istenen diş yüzdesine ve kılavuzun tolerans sınıfına da bağlı bir formül kullanır; M10 için %90'da 9,24 mm verir. Kaynaklar kabaca d − 0,45 P ile d − 0,51 P arasında uyuşur. Kullandığınız kılavuzun üreticisinin değerini alın ve ilk ezilen dişin küçük çapını ölçün.
+
+<Figure caption="Ölçekli M10, somun dişi kesitte. d − P deliğindeki kesme kılavuzu boşlukları talaş olarak keser. Ezme kılavuzu daha büyük delik ister: boşlukları bastırarak açar ve malzeme eksene doğru akarak dişin üst kısımlarını oluşturur. Bu kısımların ne kadar dolacağı deliğe bağlıdır; OSG'nin delik çapını bir diş yüzdesine bağlamasının nedeni budur. Akış şematik çizilmiştir; kesikli çizgi temel profildir.">
+  <TapHoles locale="tr" mode="cutform" />
+</Figure>
+
+## Diş yüzdesi
+
+"Diş yüzdesi", gerçek diş örtüşmesini tam bir dişle karşılaştırır; ama kaynaklar %100 için iki farklı tanım kullanır:
+
+- OSG'nin metrik rehberi temel örtüşme **5H/8**'i esas alır. Bu esasa göre d − P deliği yaklaşık **%92** verir.
+- OSG'nin inç formülü **3H/4**'ü esas alır. Bu esasa göre aynı delik yaklaşık **%77** verir.
+
+OSG'nin kılavuz çekme rehberi, çoğu ihtiyaç için %55 ile %65 arası dişin yeterli olduğunu belirtir. İki tablodaki yüzdeleri karşılaştırmadan önce her birinin hangi tanımı kullandığına bakın.
+
+<Figure caption="Ölçekli M10. d − P deliği büyük çapın altında P/2 diş derinliği bırakır; tam diş için iki tanım aynı derinliği %92 ya da %77 yapar.">
+  <TapHoles locale="tr" mode="percent" />
+</Figure>
+
+## Kılavuz çekme hızı
+
+OSG'nin teknik rehberi kendi kılavuzları için şu kesme hızlarını m/dak cinsinden verir. Kaplamalı kılavuzlar %30 ila %50 daha hızlı çalışabilir.
+
+| İş malzemesi | El ve helisel oluklu kılavuzlar | Spiral uçlu kılavuzlar | Ezme kılavuzları |
+|---|---|---|---|
+| Düşük karbonlu çelik | 8–13 | 15–25 | 8–13 |
+| Orta karbonlu çelik | 7–12 | 10–15 | 7–10 |
+| Yüksek karbonlu çelik | 6–9 | 8–13 | 5–8 |
+| Alaşımlı çelik | 7–12 | 10–15 | 5–8 |
+| Paslanmaz çelik | 4–7 (el), 5–8 (helisel oluklu) | 8–13 | 5–10 |
+| Alüminyum döküm | 10–15 | 15–20 | 10–15 |
+
+Bunlar tek bir üreticinin kendi kılavuzları için verdiği değerlerdir. İş mili devri n = 1000 · vc / (π · d) bağıntısından çıkar ve bir kılavuzun devir başına ilerlemesi her zaman adımdır.
+
+<Figure caption="OSG tablosu aralıklar olarak. Tablodaki her çelikte en yüksek aralık spiral uçlu kılavuzlarındır; kaplamalı kılavuzlar için OSG %30 ila %50 daha fazlasına izin verir.">
+  <RangeChart locale="tr" {...osgTapSpeeds("tr")} min={0} max={26} ticks={[0, 5, 10, 15, 20, 25]} unit="m/dak" axisLabel="Kesme hızı" labelWidth={150} aria="İş malzemesi ve kılavuz tipine göre OSG kılavuz çekme hızları" />
+</Figure>
+
+Bu sayıların arkasındaki diş geometrisi için bkz. [ISO metrik vida dişleri](/tr/teknik-resim-ve-toleranslar/iso-metrik-vida-disleri/).

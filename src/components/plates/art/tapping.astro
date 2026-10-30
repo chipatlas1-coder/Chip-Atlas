@@ -1,0 +1,218 @@
+---
+/* Tapping: a right-hand spiral-flute machine tap, M10 × 1.5, chamfer form C, drawn in an
+   orthographic view rolled so its axis runs level (geom3d.orthoLevel). Square drive, shank (broken to
+   save length), thread with its crest and root lines, three right-hand helical flutes with their
+   cutting edges, the chamfer over the last 2.5 threads and the fluted end face. Proportions are
+   schematic (the pitch is drawn coarser than M10's so the thread reads). World X runs along the
+   axis to the tip; a point on the surface at angle t is [X, ρ cos t, ρ sin t]. */
+import { orthoLevel, prism, f1, pt, type V3, type P2 } from '../geom3d';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { sub: 'ISO 2 (6H) · form C · 40° sağ helis', cham: 'ağız: 2–3 diş (form C)', flute: 'helisel oluk', edge: 'kesici kenar', pitch: 'adım P', shank: 'sap', sq: 'kare' }
+  : { sub: 'ISO 2 (6H) · form C · 40° right-hand helix', cham: 'chamfer: 2–3 threads (form C)', flute: 'helical flute', edge: 'cutting edge', pitch: 'pitch P', shank: 'shank', sq: 'square' };
+const id = (s: string) => `tp-${s}-${locale}`;
+
+const cam = orthoLevel(26, 20, 1.3, 26, 212);
+const dv = cam.dv;
+const R = 28, P = 11, r = R - 0.6 * P, rs = 20;               // major and minor radius, pitch, shank radius
+const X0 = 206, Xc = 322.5, Xt = 350, r0 = r - 1.5;           // thread start, chamfer start, tip, radius at the tip
+const TAU = Math.PI * 2;
+const nrm = (t: number): V3 => [0, Math.cos(t), Math.sin(t)];
+const at = (X: number, t: number, rho: number): P2 => cam.P([X, rho * Math.cos(t), rho * Math.sin(t)]);
+const vis = (t: number) => Math.cos(t) * dv[1] + Math.sin(t) * dv[2];
+// screen up is e2; the silhouettes are the generators whose normals are ±e2
+const up = (() => { const a = cam.P([0, 0, 0]), b = cam.P([0, 1, 0]), c = cam.P([0, 0, 1]); return { y: a[1] - b[1], z: a[1] - c[1] }; })();
+const tTop = Math.atan2(up.z, up.y), tBot = tTop + Math.PI;
+const ta = vis(tTop + Math.PI / 2) > 0 ? tTop : tBot;          // the seen half runs ta → ta + π
+
+// thread profile (crest p/8, root p/4, 60° flanks), u = 0 at a crest
+const profile = (u: number) => {
+  const c = 1 / 16, fl = (1 - 1 / 8 - 1 / 4) / 2;
+  u = ((u % 1) + 1) % 1;
+  if (u < c || u > 1 - c) return R;
+  if (u < c + fl) return R - ((u - c) / fl) * (R - r);
+  if (u < c + fl + 1 / 4) return r;
+  return r + ((u - c - fl - 1 / 4) / fl) * (R - r);
+};
+const envelope = (X: number) => {
+  let e = Math.min(R, r + ((R - r) * (X - X0)) / (1.2 * P));  // thread runs out at the neck
+  if (X > Xc) e = Math.min(e, R - ((R - r0) * (X - Xc)) / (Xt - Xc));
+  return e;
+};
+// right-hand helical flutes, helix 40°: the centre angle grows with X (same hand as the thread)
+const NF = 3, FW = (52 * Math.PI) / 180, depth = 0.55 * R, phi0 = 0.35;
+const Lf = (TAU * R) / Math.tan((40 * Math.PI) / 180);
+const tc = (X: number, k: number) => phi0 + (TAU * (X - X0)) / Lf + (k * TAU) / NF;
+const groove = (X: number, t: number) => {
+  let g = Infinity;
+  for (let k = 0; k < NF; k++) {
+    let d = ((t - tc(X, k)) % TAU + TAU) % TAU; if (d > Math.PI) d -= TAU;
+    if (Math.abs(d) < FW / 2) g = Math.min(g, R - depth * Math.sqrt(1 - (2 * d / FW) ** 2));
+  }
+  return g;
+};
+const rho = (X: number, t: number) => Math.min(profile((X - X0) / P - t / TAU), envelope(X), groove(X, t));
+
+// outline of neck + thread + end face
+const sil = (t: number, from: number, to: number, step: number) => {
+  const q: P2[] = [];
+  for (let X = from; step > 0 ? X <= to + 1e-6 : X >= to - 1e-6; X += step) q.push(at(X, t, X < X0 ? rs + ((r - rs) * (X - 196)) / 10 : rho(X, t)));
+  return q;
+};
+const topLine = [...sil(tTop, 196, X0, 1), ...sil(tTop, X0, Xt, 0.25)];
+const botLine = [...sil(tBot, X0, Xt, 0.25), ...sil(tBot, 196, X0, 1)].sort((a, b) => b[0] - a[0]);
+// end face: the disc of radius r0 less the flute notches; its outer half closes the outline
+const face: P2[] = Array.from({ length: 241 }, (_, i) => { const t = (i / 240) * TAU; return at(Xt, t, Math.min(r0, groove(Xt, t))); });
+const capC = cam.P([Xt, 0, 0]);
+const iTop = face.reduce((b, p, i) => (p[1] < face[b][1] ? i : b), 0), iBot = face.reduce((b, p, i) => (p[1] > face[b][1] ? i : b), 0);
+const outerHalf = (() => {
+  const a: P2[] = [], b: P2[] = [];
+  for (let i = iTop; ; i = (i + 1) % face.length) { a.push(face[i]); if (i === iBot) break; }
+  for (let i = iTop; ; i = (i - 1 + face.length) % face.length) { b.push(face[i]); if (i === iBot) break; }
+  const mx = (q: P2[]) => q.reduce((s, p) => s + p[0], 0) / q.length;
+  return mx(a) > mx(b) ? a : b;
+})();
+const body = `M${[...topLine, ...outerHalf, ...botLine].map(pt).join(' L')} Z`;
+const faceD = `M${face.map(pt).join(' L')} Z`;
+
+// helix lines on the seen half: crests (light) and roots (dark)
+const helix = (u0: number, rr: (X: number) => number) => {
+  const out: string[] = [];
+  for (let k = -1; k < 16; k++) {
+    const q: P2[] = [];
+    for (let j = 0; j <= 40; j++) {
+      const t = ta + (Math.PI * j) / 40;
+      const X = X0 + P * (k + u0 + t / TAU);
+      if (X < X0 + 0.7 * P || X > Xt - 0.2) continue;
+      q.push(at(X, t, rr(X)));
+    }
+    if (q.length > 1) out.push(`M${q.map(pt).join(' L')}`);
+  }
+  return out.join(' ');
+};
+const crest = helix(0, (X) => Math.min(R, envelope(X)) + 0.15);
+const root = helix(0.5, () => r + 0.15);
+
+// flute bands on the seen half: the band's (X, t) parallelogram, clipped to ta ≤ t ≤ ta + π and densified
+type Q = [number, number];
+const clip = (poly: Q[], keep: (p: Q) => number) => {
+  const out: Q[] = [];
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length], fa = keep(a), fb = keep(b);
+    if (fa >= 0) out.push(a);
+    if ((fa >= 0) !== (fb >= 0)) { const s = fa / (fa - fb); out.push([a[0] + s * (b[0] - a[0]), a[1] + s * (b[1] - a[1])]); }
+  }
+  return out;
+};
+const dense = (poly: Q[], close = true) => {
+  const q: Q[] = [];
+  const n = close ? poly.length : poly.length - 1;
+  for (let i = 0; i < n; i++) { const a = poly[i], b = poly[(i + 1) % poly.length]; for (let j = 0; j < 24; j++) q.push([a[0] + ((b[0] - a[0]) * j) / 24, a[1] + ((b[1] - a[1]) * j) / 24]); }
+  if (!close) q.push(poly[poly.length - 1]);
+  return q;
+};
+const bands: string[] = [], edges: string[] = [];
+for (let k = 0; k < NF; k++) for (let m = -3; m <= 3; m++) {
+  const s = m * TAU, xa = X0 - 4, xb = Xt + 1;
+  let poly: Q[] = [[xa, tc(xa, k) - FW / 2 + s], [xa, tc(xa, k) + FW / 2 + s], [xb, tc(xb, k) + FW / 2 + s], [xb, tc(xb, k) - FW / 2 + s]];
+  poly = clip(clip(poly, (p) => p[1] - ta), (p) => ta + Math.PI - p[1]);
+  if (poly.length > 2) bands.push(`M${dense(poly).map(([X, t]) => pt(at(X, t, R + 0.5))).join(' L')} Z`);
+  // the cutting edge: the flute wall at the leading side of the land behind it (the low-t edge)
+  let e: Q[] = [[xa, tc(xa, k) - FW / 2 + s], [xb, tc(xb, k) - FW / 2 + s]];
+  const inside = (p: Q) => p[1] >= ta && p[1] <= ta + Math.PI;
+  if (!inside(e[0]) || !inside(e[1])) {
+    const cut = (p: Q, q: Q, tt: number): Q => { const u = (tt - p[1]) / (q[1] - p[1]); return [p[0] + u * (q[0] - p[0]), tt]; };
+    const lo = ta, hi = ta + Math.PI;
+    if (e[1][1] < lo || e[0][1] > hi) e = [];
+    else { if (e[0][1] < lo) e[0] = cut(e[0], e[1], lo); if (e[1][1] > hi) e[1] = cut(e[0], e[1], hi); }
+  }
+  if (e.length === 2) edges.push(`M${dense(e, false).map(([X, t]) => pt(at(X, t, Math.min(R, envelope(X)) + 0.4))).join(' L')}`);
+}
+
+// shank (broken) and square drive
+const shankPart = (x0: number, x1: number, wavyL: boolean, wavyR: boolean) => {
+  const wave = (X: number, dir: number) => Array.from({ length: 13 }, (_, i) => {
+    const s = i / 12, t = dir > 0 ? tTop + Math.PI * s : tBot - Math.PI * s;
+    const p = at(X, tTop, rs), q = at(X, tBot, rs);
+    const y = dir > 0 ? p[1] + (q[1] - p[1]) * s : q[1] + (p[1] - q[1]) * s;
+    void t;
+    return [p[0] + 4.5 * Math.sin(TAU * s) * dir, y] as P2;
+  });
+  const top: P2[] = [at(x0, tTop, rs), at(x1, tTop, rs)];
+  const right = wavyR ? wave(x1, 1) : [at(x1, tBot, rs)];
+  const bot: P2[] = [at(x1, tBot, rs), at(x0, tBot, rs)];
+  const left = wavyL ? wave(x0, -1) : [];
+  return `M${[...top, ...right, ...bot, ...left].map(pt).join(' L')} Z`;
+};
+const sh1 = shankPart(44, 96, false, true), sh2 = shankPart(118, 197, true, false);
+const hs = 15.5, cc = Math.sqrt(rs * rs - hs * hs) - 0.3;
+const oct = (X: number): V3[] => [[X, hs, cc], [X, cc, hs], [X, -cc, hs], [X, -hs, cc], [X, -hs, -cc], [X, -cc, -hs], [X, cc, -hs], [X, hs, -cc]];
+const sqFaces = prism(cam, oct(44), oct(0));
+const breakL = shankPart(44, 96, false, true);
+void breakL; void nrm;
+
+// labels
+const pTop = at(X0 + 4 * P, tTop, R);
+const dimY = pTop[1] - 16;
+const crestX = (k: number) => at(X0 + P * (k + tTop / TAU - Math.floor(tTop / TAU)), tTop, R)[0];
+const p1 = crestX(5), p2 = crestX(6);
+const chamA = at(Xc, tBot, R), chamB = at(Xt, tBot, r0);
+const flAt = at(262, ta + 1.25, R);
+const edAt = at(300, ta + 0.6, R);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id={id('body')} gradientUnits="userSpaceOnUse" x1="0" y1={f1(at(300, tTop, R)[1])} x2="0" y2={f1(at(300, tBot, R)[1])}>
+      <stop offset="0" stop-color="#7e878f" /><stop offset="0.18" stop-color="#ecf0f3" /><stop offset="0.38" stop-color="#c9d0d6" /><stop offset="0.75" stop-color="#8c959e" /><stop offset="1" stop-color="#6a7278" />
+    </linearGradient>
+    <linearGradient id={id('shank')} gradientUnits="userSpaceOnUse" x1="0" y1={f1(at(100, tTop, rs)[1])} x2="0" y2={f1(at(100, tBot, rs)[1])}>
+      <stop offset="0" stop-color="#7e878f" /><stop offset="0.2" stop-color="#e7ecf0" /><stop offset="0.42" stop-color="#c1c9cf" /><stop offset="0.78" stop-color="#889299" /><stop offset="1" stop-color="#6a7278" />
+    </linearGradient>
+    <radialGradient id={id('face')} cx="0.42" cy="0.38" r="0.7">
+      <stop offset="0" stop-color="#eaeef1" /><stop offset="1" stop-color="#acb5bb" />
+    </radialGradient>
+    <clipPath id={id('clip')}><path d={body} /></clipPath>
+  </defs>
+
+  <text class="t-big f" style="--i:0" x="24" y="52">M10 × {tr ? '1,5' : '1.5'}</text>
+  <text class="t-sm f" style="--i:1" x="26" y="74">{T.sub}</text>
+
+  <line class="c f" style="--i:2" x1={f1(cam.P([-14, 0, 0])[0])} y1={f1(cam.P([-14, 0, 0])[1])} x2={f1(cam.P([Xt + 26, 0, 0])[0])} y2={f1(cam.P([Xt + 26, 0, 0])[1])} />
+  <!-- square drive and shank -->
+  <g class="f" style="--i:3">
+    {sqFaces.map((fc) => <path d={fc.d} fill={fc.kind === 'side' ? (fc.n[1] > 0.3 ? '#2c3033' : fc.n[1] < -0.3 ? '#b1bac2' : '#636b70') : '#4b5257'} stroke="#1e2123" stroke-width="0.6" stroke-linejoin="round" />)}
+    <path d={sh1} fill={`url(#${id('shank')})`} />
+    <path d={sh2} fill={`url(#${id('shank')})`} />
+  </g>
+  <path class="o d" style="--i:3" pathLength="1" d={sh1} />
+  <path class="o d" style="--i:4" pathLength="1" d={sh2} />
+
+  <!-- threaded body -->
+  <path class="f" style="--i:5" d={body} fill={`url(#${id('body')})`} />
+  <g class="f" style="--i:6" clip-path={`url(#${id('clip')})`}>
+    <path d={root} fill="none" stroke="#fefeff" stroke-opacity="0.5" stroke-width="1.1" />
+    <path d={crest} fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="0.9" />
+    {bands.map((b) => <path d={b} fill="#f4f9fe" />)}
+    {edges.map((e) => <path d={e} fill="none" stroke="#e2601a" stroke-width="1.3" stroke-linecap="round" />)}
+  </g>
+  <g class="f" style="--i:7">
+    <path d={faceD} fill={`url(#${id('face')})`} stroke="#1e2123" stroke-width="0.6" />
+    <circle cx={f1(capC[0])} cy={f1(capC[1])} r="2.4" fill="#e0e8ed" stroke="#474e54" stroke-width="0.5" />
+  </g>
+  <path class="o d" style="--i:6" pathLength="1" d={body} />
+
+  <g class="lbl">
+    <path class="h" d={`M${f1(p1)},${f1(dimY - 4)} V${f1(dimY + 8)} M${f1(p2)},${f1(dimY - 4)} V${f1(dimY + 8)} M${f1(p1)},${f1(dimY)} H${f1(p2)}`} />
+    <text class="t-sm" x={f1((p1 + p2) / 2)} y={f1(dimY - 8)} text-anchor="middle">{T.pitch}</text>
+    <path class="h" d={`M${f1(chamA[0])},${f1(chamA[1] + 10)} V${f1(chamA[1] + 18)} H${f1(chamB[0])} V${f1(chamB[1] + 10)}`} stroke="#e2601a" />
+    <text class="t-acc t-sm" x={f1(chamB[0] + 6)} y={f1(chamA[1] + 34)} text-anchor="end">{T.cham}</text>
+    <text class="t-sm" x={f1(flAt[0] - 40)} y="118" text-anchor="middle">{T.flute}</text>
+    <line class="h" x1={f1(flAt[0] - 40)} y1="122" x2={f1(flAt[0])} y2={f1(flAt[1])} />
+    <text class="t-acc t-sm" x="458" y="146" text-anchor="end">{T.edge}</text>
+    <line class="h" x1="430" y1="150" x2={f1(edAt[0])} y2={f1(edAt[1])} stroke="#e2601a" />
+    <text class="t-sm" x={f1(at(156, tBot, rs)[0])} y={f1(at(156, tBot, rs)[1] + 22)} text-anchor="middle">{T.shank}</text>
+    <text class="t-sm" x={f1(at(22, tBot, rs)[0])} y={f1(at(22, tBot, rs)[1] + 22)} text-anchor="middle">{T.sq}</text>
+  </g>
+</svg>

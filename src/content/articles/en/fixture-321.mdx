@@ -1,0 +1,107 @@
+---
+key: fixture-321
+locale: en
+slug: 3-2-1-locating-principle
+title: 'The 3-2-1 locating principle'
+description: 'How a fixture puts every part in the same place: six degrees of freedom, three locators on the first plane, two on the second, one on the third, and clamps that hold the part against them. Redundant locating, extra supports, pins for holes, V-blocks, and the points only one source makes.'
+section: 5
+subsection: fixture-design
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: '3 + 2 + 1'
+    label: 'Locating points on three mutually perpendicular planes (Tekiner and Şeker); “the minimum requirement for location” (Applied Engineering notes)'
+  - value: '6 or 12'
+    label: 'Degrees of freedom of a free body, or twelve movements when both directions are counted (ASEE; Carr Lane; Tekiner and Şeker)'
+  - value: '9 + 3'
+    label: 'Of the twelve movements, the six locators stop nine and the clamps the remaining three (Carr Lane; GCE Kalahandi notes; the nine also IRIMEE)'
+  - value: '20–50 %'
+    label: 'Fixture tolerance as a share of the part tolerance (Carr Lane); about 40 % as a rule of thumb in the Applied Engineering notes'
+sources:
+  - label: 'Carr Lane Manufacturing, Guide To Locating & Clamping Principles'
+    url: https://www.carrlane.com/engineering-resources/fixture-design-principles/locating-clamping-principles
+  - label: 'Carr Lane Manufacturing, Types of Locating Pins & Their Applications'
+    url: https://carrlane.com/engineering-resources/technical-information/manual-workholding/locating-devices/locating-pins
+  - label: 'Carr Lane Manufacturing, Workpiece Fixture & Design Principles'
+    url: https://www.carrlane.com/engineering-resources/fixture-design-priciples
+  - label: 'N. Schroeder, Jig and Fixture Design, Applied Engineering Inc., 2009 (draws on E. K. Hendriksen, Jig and Fixture Design Manual, Industrial Press, 1973)'
+    url: https://go-applied.com/wp-content/uploads/2014/12/Jig-and-Fixture-Design.pdf
+  - label: 'IRIMEE (Indian Railways Institute of Mechanical & Electrical Engineering), Jigs and Fixtures (slides)'
+    url: https://rskr.irimee.in/sites/default/files/Jigs%20and%20Fixtures_0.pDF
+  - label: 'D. K. Bagal, Product Design and Production Tooling, Module III (lecture notes), Government College of Engineering, Kalahandi'
+    url: https://gcekbpatna.ac.in/assets/documents/lecturenotes/MODULE_3-PDPT_NOTE_BY_DILIP_compressed.pdf
+  - label: 'McGraw-Hill Education, Web Chapter 5 – Jigs and Fixtures (textbook web supplement)'
+    url: https://highered.mheducation.com/sites/dl/free/0070659923/579530/MDW5_Jigs.pdf
+  - label: 'S. Sivaloganathan, R. Ganithi, “Teaching Work-Holding in Undergraduate Classes”, ASEE Annual Conference, 2016'
+    url: https://peer.asee.org/27354.pdf
+  - label: 'Z. Tekiner, U. Şeker, “Bağlama Kalıbı Tasarımında Bağlama Kuvveti Hesaplarının Otomasyonu”, Turkish Journal of Engineering and Environmental Sciences 25, 2001, 19–30 (in Turkish)'
+    url: https://aj.tubitak.gov.tr/engineering/issues/muh-01-25-1/muh-25-1-3-9904-3.pdf
+  - label: 'W. W. Cai, Optimal fixture configuration design for deformable sheet metal part assembly, PhD dissertation, University of Michigan, 1996 (abstract)'
+    url: https://deepblue.lib.umich.edu/items/555bdaf2-81aa-4ef2-ba36-ad9d60986fa0/full
+  - label: 'J. A. Camelio, S. J. Hu, “Multiple Fault Diagnosis for Sheet Metal Fixtures Using Designated Component Analysis”, Journal of Manufacturing Science and Engineering 126, 2004'
+    url: https://research.me.mtu.edu/pubs/Camelio-%20Multiple%20Fault%20Diagnosis%20for%20Sheet%20Metal%20Fixtures.pdf
+  - label: 'CNCCookbook, Beginner’s Guide to GD&T: Datums'
+    url: https://s3.amazonaws.com/s3.cnccookbook.com/GD&T/GD&TDatums.html
+  - label: 'C. Bemis, The Datum Reference Frame, GD&T Basics, 2022'
+    url: https://www.gdandtbasics.com/datum-reference-frame/
+---
+import FixtureLocate from '../../../components/mdx/FixtureLocate.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+A fixture has two jobs: to put every part in the same place, and to keep it there while it is cut. The first is locating, the second clamping and supporting. The 3-2-1 principle is the usual way to do the first for a block-shaped part; Tekiner and Şeker (Gazi University), in a Turkish study of fixture design, describe it as developed from the six freedoms and twelve movements of a free body and as the most widely used method in the field. Applied Engineering’s jig and fixture notes (Schroeder, 2009, drawing on Hendriksen’s *Jig and Fixture Design Manual*) put its limits plainly: "The first, 3-2-1 locating, is the minimum requirement for location." and "It provides equilibrium but not necessarily stability."
+
+## Six degrees of freedom, or twelve movements
+
+A free body can move in six ways. The ASEE paper by Sivaloganathan and Ganithi: "a solid body has six degrees of freedom made up of three translational and three of rotational movements." Some sources count each of them in both directions and arrive at twelve: Carr Lane speaks of "six axial degrees of freedom and six radial degrees of freedom" (axial for straight-line movement, radial for rotation), the IRIMEE slides note that "some researchers have referred this to the twelve degrees of freedom by considering the +/- movements in each category", and Tekiner and Şeker write of six freedoms and twelve movements. The two counts describe the same layout. The twelve-movement count makes one thing visible: in Carr Lane’s account each locator stops movement only towards itself (the three primary locators restrict "axial movement downward"), so the clamps have to hold the part against them.
+
+## Three, two, one
+
+- **Three points on the first plane.** Three points, not in a line, define a plane: "A minimum of three point must be used to locate a horizontal flat surface" (GCE Kalahandi notes). They stop translation normal to that plane and rotation about the two axes lying in it: the ASEE paper calls points 1 to 3 "a planar constraint", and GD&T Basics says of the primary datum: "Datum A locks in three degrees of freedom (one translation: Y, and two rotations: u & w)". The IRIMEE slides add: "While selecting the surface for the largest locators, consideration should be given to the largest area of the workpiece." Only that one fixture source says so; Tekiner and Şeker instead describe the first plane as usually the part’s reference plane.
+- **Two points on the second plane.** "Points (4 and 5): Eliminate one more rotational (Rz) and one more translational (Dx) degree of freedom." (ASEE).
+- **One point on the third plane.** "Point (6): Eliminate the last translational degree of freedom (Dy)." (ASEE). The axis letters are each source’s own; in the figure Z is normal to the first plane, Y to the second and X to the third.
+- **Perpendicular planes.** The three planes chosen are perpendicular to each other (Tekiner and Şeker).
+
+In the twelve-movement count, Carr Lane writes that the three primary locators "restrict five degrees of freedom", the next two an additional three, and "Together, these six locators restrict nine degrees of freedom." The remaining three, the movements away from the locators, are left to the clamps; the GCE Kalahandi notes and the IRIMEE slides arrive at the same nine.
+
+<Figure caption="A block-shaped part and its six locators, in isometric view. The free part drifts in every direction; the three locators of the first plane leave it free to slide and turn in that plane (and to lift off), the two of the second leave it one slide, and the one of the third leaves only the movements away from the locators. The movement badges at the bottom show the twelve movements of Carr Lane’s count: each locator group takes the ones in its colour, and the clamps the last three. Each of the four clamps pushes towards a locator: on top, directly over a first-plane locator; at the sides, directly opposite a locator. The part is drawn translucent so that the locators under it show as dashed lines.">
+  <FixtureLocate locale="en" />
+</Figure>
+
+**Spacing.** Carr Lane: "You should place locators as far apart as possible to avoid inaccuracies and ensure stability." and "Wide spacing helps compensate for any irregularities in the locators or the workpiece, ensuring maximum stability." The IRIMEE slides and the GCE Kalahandi notes say the same.
+
+## Locating is not clamping
+
+- **Locators take the cutting force.** Carr Lane: "Locators are designed to handle the main cutting forces during machining, not the clamps."; IRIMEE: "Clamps should not be used to resist tool forces."; ASEE: "Withstanding the primary cutting force is the job of the locators and not the job of the clamps." Carr Lane’s example: "Cutting forces in a milling operation should be directed into the solid jaw and base of the vise."
+- **Clamps push towards the locators.** "Clamps should always be positioned to direct the clamping force into the supports or locators." (Carr Lane); "Clamping force shall be directed towards support / locators." (GCE Kalahandi notes).
+- **Over support, without deforming the part.** Carr Lane: "Position clamps over strong support points to avoid deformation"; the GCE Kalahandi notes: "Clamping on unsupported part bends slender workpieces, affects accuracy of operation."; Tekiner and Şeker: the clamping force should bear directly on the rigid parts of the workpiece so that it does not distort.
+- **Friction is not a guarantee.** The McGraw-Hill chapter: "Clamping forces are generally due to friction only and cannot be relied upon completely."
+
+## One locator too many
+
+Carr Lane: "When creating a workholder, it’s important to avoid using redundant locators, which means not using multiple locators to control the same movement." The reason: "Because parts vary slightly in size, they will unlikely touch both locators simultaneously." In the IRIMEE slides, "Adding one more locator in Plane 1 would not serve any purpose."
+
+Extra support is a different thing from extra location. The GCE Kalahandi notes want "additional supporting pins" to be "spring loaded or adjustable"; Carr Lane uses adjustable supports mainly for cast or forged parts with uneven mounting surfaces, and equalizing supports that "float to accommodate workpiece variations". The equalizer in the Applied Engineering notes is there to "distribute force equally or proportionately and eliminate redundancy". Tekiner and Şeker add that bodies that are not rigid always need extra support. For flexible sheet metal, Cai (1996) proposed an N-2-1 principle: because the sheet is flexible normal to its surface, more than three locators are generally needed on the first plane. Camelio and Hu (2004), from the same research group, write that it "is widely used in industry".
+
+Where possible, locate on machined surfaces: "Always try to place locators on the machined surface of the workpiece." (Carr Lane). The Applied Engineering notes: commonly flat buttons for machined surfaces, crowned buttons for unmachined ones.
+
+## Holes and round parts
+
+- **Two holes: a round pin and a diamond pin.** "one of the pins has to be diamond shaped to accommodate tolerance on the distance between the holes" (GCE Kalahandi notes). IRIMEE: the second locator "is made slightly smaller than the hole and relieved from both sides". Carr Lane’s diamond pin has four machined flats, and "Since a diamond pin locates in only one axis, the contact areas of the pin must be positioned as shown."
+- **Round parts: V-blocks.** The GCE Kalahandi notes use vee blocks and cones for self-locating solid and hollow cylindrical parts; the Applied Engineering notes list V-blocks among the centralizers, with self-centering chucks and conical locators. Tekiner and Şeker also work through a part clamped in a V-block.
+
+## The link to datums
+
+GD&T has a 3-2-1 rule of its own. CNCCookbook: "The 3-2-1 rule defines the minimum number of points of contact required for a part datum feature", with at least three points for the primary, two for the secondary and one for the tertiary datum feature, and "The 3-2-1 rule only applies to planer [sic] datum features." GD&T Basics: "Lower precedent datums only control the degrees of freedom not already controlled by higher precedent datums." Carr Lane’s advice against redundant locating starts from the drawing: "check the shop print to find which workpiece feature is the reference feature". The sources read for this page do not state a rule that the locators must copy the drawing’s datum reference frame.
+
+## How accurate the fixture must be
+
+Carr Lane: workholder tolerances typically "range from 20% to 50% of the workpiece’s tolerances", and making a tolerance twice as strict "could quintuple the cost". A rule of thumb in the Applied Engineering notes: "the tolerance for the fixture should be roughly 40% of the tolerance of the finished part."
+
+<CheckList id="fixture-321" locale="en" items={[
+  { icon: 'align', title: '3-2-1', check: 'Three fixed points on the first plane, two on the second, one on the third: no more.', fix: 'Remove a redundant locator, or turn it into an adjustable, spring-loaded or equalizing support (Carr Lane; GCE Kalahandi notes).', src: 'Carr Lane; GCE Kalahandi' },
+  { icon: 'support', title: 'Spacing', check: 'Locators as far apart as the part allows.', fix: 'Wide spacing compensates for irregularities; spread them (Carr Lane; IRIMEE).', src: 'Carr Lane; IRIMEE' },
+  { icon: 'clamp', title: 'Clamps', check: 'Each clamp pushes towards a locator or support, over a supported area.', fix: 'Move the clamp over the support and point it into the locators; on an unsupported span it can bend a slender part (Carr Lane; GCE Kalahandi notes).', src: 'Carr Lane; GCE Kalahandi' },
+  { icon: 'feed', title: 'Cutting force', check: 'Where the main cutting force goes.', fix: 'Into the locators or the solid jaw, not into a clamp (Carr Lane; IRIMEE; ASEE).', src: 'Carr Lane; IRIMEE; ASEE' },
+  { icon: 'chips', title: 'Chips', check: 'Chips on the locating surfaces.', fix: 'Relieved locators reduce locating problems caused by chips (Carr Lane).', src: 'Carr Lane' },
+]} />

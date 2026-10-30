@@ -1,0 +1,97 @@
+---
+key: tool-angles
+locale: tr
+slug: talas-bosluk-kama-acilari
+title: 'Talaş, boşluk ve kama açıları'
+description: 'Bir kesici kenarın, kenara dik kesitteki üç açısı: talaş açısı γ, boşluk açısı α ve kama açısı β nasıl tanımlanır, toplamları neden 90° eder, daha pozitif ya da negatif bir talaş açısı ne yapar, boşluk açısı ne işe yarar, uç kodundaki boşluk harfi ve kenarın kendisi.'
+section: 4
+subsection: tool-geometry
+order: 1
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'α + β + γ = 90°'
+    label: 'Boşluk, kama ve talaş açısı birlikte (Patras; Handwerk und Technik)'
+  - value: '≈ %1'
+    label: 'Talaş açısının pozitif yönde her derecesinde kesme gücündeki azalma (Mitsubishi; koşul verilmemiş)'
+  - value: '8–12°'
+    label: 'Bir Alman ders kitabının tablosunda iş malzemesine göre boşluk açısı; başka kaynaklar 3–8°, 6–8° ya da 3–15° verir'
+  - value: 'N = 0°'
+    label: 'Negatif ucun boşluk harfi (Sumitomo; Mitsubishi); C = 7°, P = 11° (Sumitomo)'
+sources:
+  - label: 'T.C. Millî Eğitim Bakanlığı, MEGEP, Alet Bileme İşlemleri (521MMI114), Ankara 2011, s. 21 ve 37'
+    url: https://odemismtal.meb.k12.tr/meb_iys_dosyalar/35/18/165933/dosyalar/2021_01/10121516_Alet_Bileme_YYlemleri.pdf
+  - label: 'Ankara Üniversitesi Açık Ders Malzemeleri, Torna tezgâhı ve torna işleri (kaynak 35038)'
+    url: https://acikders.ankara.edu.tr/mod/resource/view.php?id=35038
+  - label: 'Düzce Üniversitesi, Dr. Engin Pak Cumayeri MYO, MAK 4307 Kesici Takım Teknolojisi, ders sunusu (G. Çakır) (Türkçe terimler için)'
+    url: https://ebs.duzce.edu.tr/Uploads/DersMateryal/10699-e9e718c1-ff17-4b5b-9774-db0842d37f190.pdf
+  - label: 'Verlag Handwerk und Technik, 3030 numaralı kitabın örnek sayfaları (öğrenme durumları LS 1.1, LS 1.3, LS 3.2), s. 16, 17 ve 43, Almanca'
+    url: https://www.handwerk-technik.de/_files_media/probeseiten/3030_01.pdf
+  - label: 'University of Patras, Makine ve Havacılık Mühendisliği Bölümü, G. Chryssolouris, K. Salonitis, Cutting Tool Geometry (ders notları, Yunanca)'
+    url: https://eclass.upatras.gr/modules/document/file.php/MECH1111/%CE%95%CE%BA%CF%80%CE%B1%CE%B9%CE%B4%CE%B5%CF%85%CF%84%CE%B9%CE%BA%CF%8C%20%CE%A5%CE%BB%CE%B9%CE%BA%CF%8C/Cutting%20Tool%20Geometry.pdf
+  - label: 'Veer Surendra Sai University of Technology (VSSUT), Üretim Mühendisliği Bölümü, Theory of Metal Cutting (BPE 301), ders notları'
+    url: https://vssut.ac.in/lecture_notes/lecture1424265177.pdf
+  - label: 'Mitsubishi Materials, Technical information: Function of Tool Features for Turning, talaş açısı'
+    url: https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/information/t_sukui.html
+  - label: 'Mitsubishi Materials, e-öğrenme kursu 75, Advanced Turning: Tool geometry'
+    url: https://www.mmc-carbide.com/permanent/courses/75/tool-geometry.html
+  - label: 'Mitsubishi Materials, e-öğrenme kursu 75, Advanced Turning: Importance of honing'
+    url: https://www.mmc-carbide.com/permanent/courses/75/importance-of-honing.html
+  - label: 'Mitsubishi Materials, e-öğrenme kursu 85, Basic Turning: Insert turning identification code'
+    url: https://www.mmc-carbide.com/permanent/courses/85/insert-turning-identification-code.html
+  - label: 'Sumitomo Electric, General Catalog 2025–2026, s. 495, uç tanımlama (boşluk açısı)'
+    url: https://online.flippingbook.com/view/410142785/495/
+---
+import ToolAngles from '../../../components/mdx/ToolAngles.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Her kesici kenar bir kamadır ve onu kenara dik bir kesitte üç açı tanımlar. Millî Eğitim Bakanlığı’nın modülü bunları kısaca anlatır: "Talaş açısı, kalemin talaş yüzeyine verilen açı olup kalemin rahat kesmesini sağlar ve çıkan talaşların akışını kolaylaştırır.", "Kama açısı kesici ağzın sivriliğini oluşturan açıdır." ve "Boşluk açısı kalemin işe sürtünmesini önler, aynı zamanda kesici ağzın oluşmasını sağlar." Ankara Üniversitesi’nin ders metni aynı açıya serbest açı da der. VSSUT’un ders notlarına göre talaş açısı (*rake angle*) talaş yüzeyinin referans düzleminden (*reference plane*) eğimi, boşluk açısı (*clearance angle*) ise yan yüzeyin (*flank*) bitmiş yüzeyden (*finished surface*) eğimidir. Verlag Handwerk und Technik’in bir Alman ders kitabı aynı şeyi açıları sınırlayan yüzeylerle söyler: talaş yüzeyi ile kesme yüzeyine (Alm. *Schnittfläche*, İng. *cut surface*) dik düşünülen bir doğru talaş açısı γ’yı, kesme yüzeyi ile yan yüzey boşluk açısı α’yı, yan yüzey ile talaş yüzeyi de kenara kesmek için gereken sağlamlığı veren kama açısı β’yı sınırlar.
+
+Bu sayfa boşluk açısı için α, kama açısı için β, talaş açısı için γ yazar; Patras ders notları, Alman ders kitabı ve MEB modülü de böyle yazar. Talaş oluşumu üzerine kitaplar talaş açısını çoğu zaman α ile gösterir; [talaş oluşumu](/tr/temeller/talas-olusumu/) sayfası, klasik kayma açısı denklemleri öyle yayımlandığı için onları izler.
+
+## Toplamları neden 90° eder
+
+Patras ders notları bağıntıyı α + β + γ = 90° olarak verir; Alman ders kitabı da toplam 90°’nin üç açı arasında paylaşıldığını yazar. Kitaba göre talaş açısı negatif yapılırsa toplam 90°’nin biraz üstüne çıkar. Tablosu bunun ne demek olduğunu gösterir: sertleştirilmiş dökme demir (*chilled cast iron*, Alm. Hartguss) için α 8°, β 97° ve γ −15° verir. Boşluk ve kama açısı tek başına 105° eder; işaretiyle sayılan talaş açısı üçünü yeniden 90°’ye getirir. Bu son adım, kitabın satırının bu sayfadaki okumasıdır.
+
+<Figure caption="Kesici kenara dik bir kesit, iki kaydırıcıdan çizilir: işlenmiş yüzeye dik referans çizgisinden ölçülen talaş açısı γ, yan yüzey ile işlenmiş yüzey arasındaki boşluk açısı α ve takıma kalan kama açısı β = 90° − α − γ. 0°’nin altında γ talaş yüzeyini öne yatırır ve kama 90° − α’dan büyük olur. Takımın üstündeki ok, takımın işe göre kesme yönüdür; çizimde takım durur, iş parçası kayar. Talaş ve iş parçası şematiktir; yalnızca açılar değerine göre çizilir.">
+  <ToolAngles locale="tr" />
+</Figure>
+
+## Talaş açısı neyi değiştirir
+
+- **Kuvvet ve güç.** Mitsubishi’ye göre talaş açısını pozitif (+) yönde 1° artırmak kesme gücünü yaklaşık %1 azaltır. Sayfa deney koşulu vermez; Mitsubishi’nin tornalama kursu aynı %1’i kesme direnci için söyler. VSSUT’a göre pozitif talaş açısı kesme kuvvetini ve dolayısıyla gereken kesme gücünü azaltmaya yardım eder. MEB modülü HSS bir kalemde çelik için talaş açısını normal şartlarda 8°–10° verir ve ters yönü anlatır: "Talaş açısı bu değerden daha küçük verilirse talaşların kaleme yapacağı baskı artar." Sandvik Coromant da Mitsubishi’ninkine benzer bir pratik kural verir; ISCAR ile Machining Doctor’ın bunu özgül kesme kuvvetine nasıl kattığı [kesme kuvvetleri](/tr/temeller/kesme-kuvvetleri/) sayfasındadır.
+- **Keskinlik ve sağlamlık.** Mitsubishi’ye göre talaş açısını pozitif yönde artırmak keskinliği iyileştirir, kesici kenarın sağlamlığını düşürür; negatif yönde kesme direnci artar. VSSUT fazla talaş açısının kesici kenarları mekanik ve ısıl olarak zayıflattığını yazar. MEB modülü de talaş açısı normalden fazla verilirse kama açısı küçüleceği için kalemin "körlenmesi çabuklaşır" diye yazar.
+- **Sıcaklık.** VSSUT notlarında büyüyen talaş açısı kesme sıcaklığını önce düşürür, ama kama inceldiği için talaş açısının fazla artması sıcaklığı yeniden yükseltir. Okunan kaynaklar arasında bu dönüşü yalnızca VSSUT anlatır.
+- **Talaş.** VSSUT’a göre kayma açısı talaş açısı arttıkça hem doğrudan hem dolaylı olarak artar; modeller talaş oluşumu sayfasındadır. Alman ders kitabı küçük talaş açısını daha sert ya da gevrek malzemelerdeki kopuk, yırtık talaşa (Alm. Reißspan) bağlar; Mitsubishi de talaş açısının kesme direnci, talaş tahliyesi, kesme sıcaklığı ve takım ömrü üzerinde büyük etkisi olduğunu yazar.
+
+**Negatif mi, pozitif mi.** Mitsubishi negatif talaş açısını sert iş parçası için ve kesintili kesme ya da işlenmemiş kabuk gibi kesici kenar sağlamlığının gerektiği durumlar için önerir; pozitif talaş açısını yumuşak iş parçası için, iş parçası kolay işleniyorsa ve iş parçası ya da tezgâh rijit değilse önerir. VSSUT negatif talaş açısını kenar sağlamlığını ve takım ömrünü artırmak için, sıfır talaş açısını form takımlarının tasarımını ve üretimini kolaylaştırmak için verir. Alman ders kitabı negatif talaş açısını sert malzemeler için kazıyıcı (Alm. *schabend*) bir geometri olarak anlatır; Patras ders notları da yüksek kesme hızlarında talaş açısının negatif olduğunu ekler.
+
+## Boşluk açısı ne işe yarar
+
+Yan yüzey, yeni kesilmiş yüzeye sürtmemelidir. VSSUT boşluk açısını takımın yan yüzeyinin işlenmiş yüzeye sürtmemesi için verir; Mitsubishi’nin *side flank angle* dediği boşluk açısı, takımın yan yüzeyi ile iş parçası arasındaki sürtünmeyi önler ve kesici kenarı parçaya yönlendirir. MEB modülü öbür ucu anlatır: boşluk açısı fazla büyük verilirse kama açısı küçülür ve kalem daha kısa zamanda körlenir; freze dişleri de çabuk aşınır ve gürültülü çalışır. Ankara Üniversitesi’nin ders metni ikisi arasındaki en iyi noktayı anlatır: kesme koşulları aynı kaldıkça serbest açı ve talaş açısı sıfırdan büyüdükçe "kalem ömrü (T) önce artar ve bir maksimum değerden geçtikten sonra düşmeye başlar." Düzce Üniversitesi’nin ders sunusu yan yüzey aşınmasının "Boşluk açısının verildiği yan yüzeyde" ortaya çıktığını yazar; aşınma [takım aşınması](/tr/temeller/takim-asinmasi/) sayfasındadır.
+
+Ne kadar boşluk açısı gerektiğinde kaynaklar anlaşmaz. VSSUT’a göre pozitif olmalıdır; takım ve iş malzemesine ve işleme göre 3° ile 15° arasındadır. Patras ders notları iş ve takım malzemesinden bağımsız olarak 6° ile 8°, MEB modülü makine yapım çelikleri için 3°–8° verir. Alman ders kitabının tablosu ise iş malzemesine göre değiştirir:
+
+| İş malzemesi (Handwerk und Technik) | Boşluk α | Kama β | Talaş γ |
+|---|---|---|---|
+| Yumuşak, örn. alüminyum alaşımları | 12° | 53° | 25° |
+| Sağlam, örn. çelik | 10° | 70° | 10° |
+| Sert ve gevrek, örn. sertleştirilmiş dökme demir | 8° | 97° | −15° |
+
+Ders kitabının tablosu bir takım malzemesi adlandırmaz; bu sayfa için bir sert metal üreticisinin malzemeye göre değerleri bulunamadı.
+
+## Uç kodunda boşluk açısı
+
+Değiştirilebilir bir uçta boşluk açısı ISO kodunun ikinci harfidir. Sumitomo’nun listesi: N 0°, A 3°, B 5°, C 7°, P 11°, D 15°, E 20°, F 25° ve G 30°; O özel uçlar içindir. Mitsubishi’ye göre N harfiyle gösterilen 0° boşluk açılı uca negatif uç (*negative insert*), boşluk açısı 0°’den farklı uca pozitif uç (*positive insert*) denir. Birçok tornalama ucunun boşluk açısı P, C ya da N harfiyle gösterilir; negatif bir uçta talaş kırıcı bir ya da iki yüzde olabilir, pozitif bir uçta yalnızca bir yüzdedir. Ucun kendisinde 0° olunca kesmedeki boşluk açısı, tutucunun ucu eğik oturtmasından gelmek zorundadır. Bu, bu sayfanın çıkarımıdır: okunan kaynakların hiçbiri bu eğimi anlatmaz ya da yuva açısını (*seat angle*) vermez. Tam bir uç kodunu okumak için [uç kodu çözücüyü](/tr/araclar/uc-kodu-cozucu/) kullanın.
+
+## Kenarın kendisi
+
+Keskin bir kenar çoğu zaman keskin bırakılmaz. Mitsubishi olağan kenar hazırlama (*honing*) yöntemleri olarak kenarın yuvarlatılmasını (*round honing*) ve pahlanmasını (*chamfer honing*) sayar: aynı genişlikte yuvarlatılmış kenar pahlı kenardan daha sağlamdır ve en uygun kenar hazırlama genişliği genellikle ilerlemenin yaklaşık %50’sidir. Daha geniş bir kenar hazırlama kenarı sağlamlaştırır ama kesme direncini artırır, titreşim riski doğar; Mitsubishi küçük derinlik ve ilerlemeyle ince işlemede dar bir kenar hazırlama kullanır, alüminyum alaşımları gibi yumuşak malzemelerde ise kenar hazırlaması yapılmamış keskin bir kenar ister. Bir kenar hazırlamanın ya da talaş yüzeyindeki düz bandın (*land*) etkin talaş açısını ne kadar değiştirdiğini bu sayfa için okunan kaynakların hiçbiri vermez.
+
+<CheckList id="tool-angles-before" locale="tr" items={[
+  { icon: 'hard', title: 'İş malzemesi', check: 'İşin ne kadar sert ve gevrek olduğu.', fix: 'Sert işte küçük ya da negatif, yumuşak işte daha büyük talaş açısı (Mitsubishi; Handwerk und Technik).', src: 'Mitsubishi; Handwerk und Technik' },
+  { icon: 'edge', title: 'Kesintili kesme', check: 'Kesintiler, tufal ya da işlenmemiş kabuk.', fix: 'Kenar sağlamlığı gereken yerde negatif talaş açısı; kesintili kesmede daha geniş kenar hazırlama (Mitsubishi).', src: 'Mitsubishi' },
+  { icon: 'align', title: 'Rijitlik', check: 'İnce bir parça ya da hafif bir tezgâh.', fix: 'İş parçası ya da tezgâh rijit değilse pozitif talaş açısı (Mitsubishi).', src: 'Mitsubishi' },
+  { icon: 'depth', title: 'Boşluk açısı', check: 'Yan yüzeyde sürtme izleri ya da çabuk körlenen kenarlar.', fix: 'Sürtmeyi önleyecek kadar boşluk (VSSUT), kamayı zayıflatacak kadar fazla değil (MEB).', src: 'VSSUT; MEB' },
+  { icon: 'feed', title: 'Kenar hazırlama', check: 'Kenar hazırlamanın (honing) ilerlemeye oranı.', fix: 'Genişlik ilerlemenin yaklaşık %50’si; alüminyum alaşımlarında kenar hazırlama yok (Mitsubishi).', src: 'Mitsubishi' },
+]} />

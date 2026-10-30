@@ -1,0 +1,120 @@
+---
+key: chip-formation
+locale: en
+slug: chip-formation
+title: 'Chip formation'
+description: 'How a cutting edge turns a layer of metal into a chip. The orthogonal cutting model, the shear plane and shear angle, chip thickness ratio and shear strain, and what the Merchant and Lee–Shaffer models predict.'
+section: 1
+subsection: chip-formation
+order: 1
+updated: 2026-10-11
+tools: [turning]
+glance:
+  - value: 'r < 1'
+    label: 'Chip thickness ratio h/hc: the chip is always thicker than the layer'
+  - value: '22.9°'
+    label: 'Shear angle from a measured chip: α = 10°, h = 0.20 mm, hc = 0.50 mm'
+  - value: '2.59'
+    label: 'Shear strain in the same example'
+  - value: '≈ 1 %'
+    label: 'Power change per degree of rake angle (Sandvik Coromant, milling)'
+sources:
+  - label: 'M. E. Merchant, "Mechanics of the Metal Cutting Process. I. Orthogonal Cutting and a Type 2 Chip", Journal of Applied Physics 16(5), 267–275, 1945'
+    url: https://doi.org/10.1063/1.1707586
+  - label: 'E. H. Lee, B. W. Shaffer, "The Theory of Plasticity Applied to a Problem of Machining", Journal of Applied Mechanics 18, 405–413, 1951'
+  - label: 'S. Kalpakjian, S. R. Schmid, Manufacturing Engineering and Technology, SI 6th ed., ch. 21 (lecture slides, King Saud University)'
+    url: https://fac.ksu.edu.sa/sites/default/files/5-machining_fundamentals_ams_may01_13.pdf
+  - label: 'King Saud University, "Mechanics of metal cutting" lecture notes (chip thickness ratio, shear angle, shear strain)'
+    url: https://faculty.ksu.edu.sa/sites/default/files/lecture-03-mechanics_of_metal_cutting_-_dr_saqib.pdf
+  - label: 'P. L. B. Oxley, M. J. M. Welsh, Cranfield Memo M&P 67 (Merchant''s modified relation; later workers failed to reproduce its agreement with experiment)'
+    url: https://dspace.lib.cranfield.ac.uk/bitstream/1826/10832/1/COA_M_M%2bP_67.pdf
+  - label: 'Sandvik Coromant, Metalcutting Technical Guide, milling section (power change with rake angle)'
+    url: https://dcngli4g50fhp.cloudfront.net/userfiles/ad/sandvik/documents/sandvik_5747275_catalog.pdf
+---
+import ShearAngle from '../../../components/mdx/ShearAngle.astro';
+import LineChart from '../../../components/mdx/LineChart.astro';
+import { shearModels, shearStrain } from '../../../data/figures';
+
+A cutting edge does not split metal the way an axe splits wood. It shears it. Material just ahead of the edge is compressed, slides along a narrow zone that runs from the edge up to the free surface, and leaves as a chip that is thicker and shorter than the layer it came from. Everything else in machining — forces, heat, tool wear, surface finish — follows from what happens in that zone.
+
+## The orthogonal cutting model
+
+To analyse chip formation, the cut is simplified to **orthogonal cutting**: a straight edge perpendicular to the cutting velocity, removing a layer of constant width. The deformation zone is treated as a single plane, the **shear plane**, running from the edge to the surface of the work.
+
+Four quantities describe the geometry:
+
+- **h**, the uncut chip thickness: the thickness of the layer before it is cut. In turning, h = f · sin κr.
+- **hc**, the thickness of the chip after it is formed.
+- **α**, the rake angle of the tool.
+- **φ**, the shear angle between the shear plane and the cutting direction.
+
+<Note kind="note" title="A note on symbols">
+Textbooks on chip formation write the rake angle as α. ISO 3002, which defines tool angles, writes the rake angle as γ and uses α for the clearance angle. This page follows the textbook convention because the classic equations are published in it.
+</Note>
+
+<Figure caption="Orthogonal cutting drawn to scale from the selected model. Raise the rake angle or lower the friction and the shear angle grows: the shear plane gets shorter, the chip thinner, the strain lower. h is fixed at 1.">
+  <ShearAngle locale="en" />
+</Figure>
+
+## Chip thickness ratio
+
+The chip is always thicker than the uncut layer. Their ratio, the **chip thickness ratio**, is smaller than 1; its reciprocal is the chip compression ratio.
+
+$$
+r = \frac{h}{h_c} = \frac{\sin\varphi}{\cos(\varphi-\alpha)}
+$$
+
+The shear angle cannot be seen during the cut, but the chip can be measured afterwards. Rearranged, the same relation gives φ from a measured chip:
+
+$$
+\tan\varphi = \frac{r\cos\alpha}{1-r\sin\alpha}
+$$
+
+**Example.** A tool with α = 10° cuts a layer h = 0.20 mm thick and the chip measures hc = 0.50 mm. Then r = 0.40, tan φ = 0.4 · cos 10° / (1 − 0.4 · sin 10°) = 0.423, and φ ≈ 22.9°.
+
+## Shear strain
+
+Every element of metal that passes through the shear plane is sheared by
+
+$$
+\gamma = \cot\varphi + \tan(\varphi-\alpha)
+$$
+
+For the example above, γ ≈ 2.59. Shear strains of 5 or more occur when the shear angle is small or the rake angle is low or negative. A small shear angle therefore means a thick chip, a long shear plane and a large strain, all of which cost energy.
+
+<Figure caption="Shear strain against shear angle for three rake angles, from the formula above. Each curve has its lowest strain at φ = 45° + α/2; below that the strain climbs steeply, and a lower rake angle lifts the whole curve. The point is the example.">
+  <LineChart locale="en" series={shearStrain("en")} marks={[{ x: 22.94, y: 2.59, label: "φ 22.9°, γ 2.59", place: "ne" }]} hlines={[{ y: 5, label: "γ = 5" }]} xMin={8} xMax={60} yMin={0} yMax={10} xTicks={[10, 20, 30, 40, 50, 60]} yTicks={[0, 2, 4, 6, 8, 10]} xLabel="shear angle φ (°)" yLabel="shear strain γ" endLabels={false} xDec={1} yDec={2} aria="Shear strain against shear angle for rake angles −10°, 0° and +10°" />
+</Figure>
+
+## Predicting the shear angle
+
+Two classic models try to predict φ from the rake angle and the friction on the rake face. Friction is expressed as the friction angle β, with μ = tan β.
+
+**Merchant (1945)** assumed the shear plane settles where the cutting force is smallest:
+
+$$
+\varphi = 45^\circ + \frac{\alpha}{2} - \frac{\beta}{2}
+$$
+
+**Lee and Shaffer (1951)** treated the chip as an ideal plastic material and placed the shear plane along the direction of maximum shear stress:
+
+$$
+\varphi = 45^\circ + \alpha - \beta
+$$
+
+Both models agree on the direction of every effect. A larger rake angle raises φ; more friction lowers it. A larger φ means a shorter shear plane, a thinner chip, less strain and lower forces.
+
+<Note kind="warn" title="Use the models for direction, not for numbers">
+Merchant's modified relation, which lets the shear strength of the work material depend on the hydrostatic stress, was confirmed by his own experiments, but later workers failed to obtain such agreement. The friction coefficient on the rake face is rarely known either: with an assumed μ = 0.6, the example above would give φ = 34.5° by Merchant and 24.0° by Lee–Shaffer, against the measured 22.9°. In practice the shear angle is measured from the chip, not predicted.
+</Note>
+
+<Figure caption="Shear angle predicted by Merchant and by Lee and Shaffer against the rake angle α, for a friction coefficient μ = 0.6 (β ≈ 31°), with the value measured in the example above (α = 10°, φ = 22.9°). Both models get the trend right; neither hits the measured value. Hover to read both lines.">
+  <LineChart locale="en" series={shearModels('en')} marks={[{ x: 10, y: 22.9, label: 'measured 22.9°' }]} xMin={-10} xMax={30} yMin={0} yMax={60} xTicks={[-10, 0, 10, 20, 30]} yTicks={[0, 10, 20, 30, 40, 50, 60]} xLabel="rake angle α (°)" yLabel="shear angle φ (°)" xDec={1} yDec={1} aria="Shear angle against rake angle, Merchant and Lee–Shaffer" />
+</Figure>
+
+## What this means at the machine
+
+- **More positive rake, less force.** Raising the rake angle raises φ, which lowers the cutting force and power. Sandvik Coromant gives a rule of thumb for milling: power consumption changes by about 1 % for each degree of change in rake angle.
+- **Negative rake for strength.** A negative rake angle gives a stronger edge for hard materials and interrupted cuts, at the cost of more force and power.
+- **Lower friction helps.** A sharp, smooth or coated rake face and effective cutting fluid lower β, which raises φ.
+- **The chip has to go somewhere.** Whether it comes off as one long ribbon or breaks into short pieces depends on the material, the speed and the chip breaker. See [chip types](/fundamentals/chip-types/) for what happens to the chip next.

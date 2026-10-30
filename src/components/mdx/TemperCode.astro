@@ -1,0 +1,129 @@
+---
+/**
+ * Reading an aluminium temper designation (EN 515 / ANSI H35.1 vocabulary): pick a code, see what
+ * each character means and which process steps it stands for. Definitions as the article sources
+ * give them (Kaufman, ASM; Alcobra; Righton Blackburns; Total Materia; RAANZ). Every code is
+ * rendered on the server; the script only switches which one is shown.
+ */
+type Code = 'O' | 'T4' | 'T5' | 'T6' | 'T651' | 'T6511' | 'T73' | 'T7351';
+interface Props { locale: 'en' | 'tr'; codes: Code[]; initial: Code }
+const { locale, codes, initial } = Astro.props;
+const tr = locale === 'tr';
+
+type Seg = { g: string; h: string; t: string; c: 'a' | 'b' | 'c' | 'd' };
+const S: Record<string, Seg> = tr
+  ? {
+      O: { g: 'O', h: 'Tavlanmış', t: 'Yeniden kristalleşmiş; plastik şekil verilmiş ürünün en yumuşak temperi.', c: 'a' },
+      T: { g: 'T', h: 'Isıl işlem görmüş', t: 'F, O ve H dışında kararlı bir tempere ısıl işlemle getirilmiş.', c: 'a' },
+      4: { g: '4', h: 'Doğal yaşlandırılmış', t: 'Çözeltiye alınmış, sonra oda sıcaklığında büyük ölçüde kararlı hâle gelene dek yaşlandırılmış.', c: 'b' },
+      5: { g: '5', h: 'Presten soğutulup yaşlandırılmış', t: 'Yüksek sıcaklıktaki şekillendirmeden (çoğunlukla ekstrüzyon) soğutulmuş, sonra yapay yaşlandırılmış.', c: 'b' },
+      6: { g: '6', h: 'Yapay yaşlandırılmış', t: 'Çözeltiye alınmış, sonra yapay yaşlandırılmış.', c: 'b' },
+      7: { g: '7', h: 'Aşırı yaşlandırılmış', t: 'Çözeltiye alınmış, sonra en yüksek dayanımın ötesine yaşlandırılmış; korozyon direnci gibi bir özelliği iyileştirmek için.', c: 'b' },
+      3: { g: '3', h: 'Gerilmeli korozyon çeşidi', t: '7075 için gerilmeli korozyona dirençli olacak biçimde özel yaşlandırılmış.', c: 'c' },
+      51: { g: '51', h: 'Gerdirilmiş', t: 'Çözeltiye almadan sonra gerdirilerek gerilim giderilmiş. Kalıcı uzama levhada %1½–3, çubuk ve ekstrüzyon profillerinde %1–3.', c: 'd' },
+      '1x': { g: '1', h: 'Hafif doğrultma', t: 'Gerdirmeden sonra standart toleranslara girmek için hafif doğrultmaya izin verilir.', c: 'c' },
+    }
+  : {
+      O: { g: 'O', h: 'Annealed', t: 'Recrystallized; the softest temper of a wrought product.', c: 'a' },
+      T: { g: 'T', h: 'Heat treated', t: 'Thermally treated to a stable temper other than F, O or H.', c: 'a' },
+      4: { g: '4', h: 'Naturally aged', t: 'Solution heat-treated, then aged at room temperature to a substantially stable condition.', c: 'b' },
+      5: { g: '5', h: 'Aged from the press', t: 'Cooled from an elevated-temperature shaping process, usually extrusion, then artificially aged.', c: 'b' },
+      6: { g: '6', h: 'Artificially aged', t: 'Solution heat-treated, then artificially aged.', c: 'b' },
+      7: { g: '7', h: 'Overaged', t: 'Solution heat-treated, then aged beyond the point of maximum strength to improve a property such as corrosion resistance.', c: 'b' },
+      3: { g: '3', h: 'Stress-corrosion variant', t: 'For 7075: specially aged to resist stress corrosion cracking.', c: 'c' },
+      51: { g: '51', h: 'Stretched', t: 'Stress-relieved by stretching after solution treatment. Permanent set 1½–3 % for plate, 1–3 % for rod, bar and extruded shapes.', c: 'd' },
+      '1x': { g: '1', h: 'Minor straightening', t: 'Straightening after stretching is allowed to meet standard tolerances.', c: 'c' },
+    };
+const SEGS: Record<Code, string[]> = {
+  O: ['O'], T4: ['T', '4'], T5: ['T', '5'], T6: ['T', '6'], T651: ['T', '6', '51'], T6511: ['T', '6', '51', '1x'], T73: ['T', '7', '3'], T7351: ['T', '7', '3', '51'],
+};
+
+type Step = 'ann' | 'shape' | 'sol' | 'q' | 'str' | 'nat' | 'art' | 'over';
+const STEP: Record<Step, string> = tr
+  ? { ann: 'Tavlama', shape: 'Sıcak şekillendirme, presten soğutma', sol: 'Çözeltiye alma', q: 'Su verme', str: 'Gerdirme', nat: 'Oda sıcaklığında yaşlanma', art: 'Yapay yaşlandırma', over: 'Aşırı yaşlandırma' }
+  : { ann: 'Anneal', shape: 'Hot shaping, cooled from the press', sol: 'Solution treatment', q: 'Quench', str: 'Stretch', nat: 'Age at room temperature', art: 'Artificial ageing', over: 'Overageing' };
+const ROUTE: Record<Code, Step[]> = {
+  O: ['ann'], T4: ['sol', 'q', 'nat'], T5: ['shape', 'art'], T6: ['sol', 'q', 'art'], T651: ['sol', 'q', 'str', 'art'],
+  T6511: ['sol', 'q', 'str', 'art'], T73: ['sol', 'q', 'over'], T7351: ['sol', 'q', 'str', 'over'],
+};
+// mini temperature–time sketches (40 × 26), one per step
+const ICON: Record<Step, string> = {
+  ann: 'M2,23 L8,5 L22,5 L38,21',
+  shape: 'M2,6 L14,6 M14,3 L14,9 M14,6 L26,6 L38,22',
+  sol: 'M2,23 L9,5 L38,5',
+  q: 'M2,5 L10,5 L13,23 L38,23',
+  str: 'M4,13 L36,13 M4,13 l5,-4 M4,13 l5,4 M36,13 l-5,-4 M36,13 l-5,4',
+  nat: 'M2,22 L38,22',
+  art: 'M2,23 L8,12 L32,12 L38,23',
+  over: 'M2,23 L6,15 L16,15 L19,9 L34,9 L38,23',
+};
+const pick = tr ? 'Temper' : 'Temper';
+const rTitle = tr ? 'Süreç' : 'Route';
+---
+<div class="temper" data-temper>
+  <div class="pick" role="radiogroup" aria-label={pick}>
+    {codes.map((c) => <button type="button" role="radio" aria-checked={c === initial ? 'true' : 'false'} data-c={c}>{c}</button>)}
+  </div>
+  {codes.map((c) => (
+    <div class="tc-panel" data-p={c} hidden={c !== initial}>
+      <div class="code">
+        {SEGS[c].map((k) => (
+          <div class:list={['tc-seg', S[k].c]}>
+            <span class="tc-g">{S[k].g}</span>
+            <span class="tc-h">{S[k].h}</span>
+            <span class="tc-t">{S[k].t}</span>
+          </div>
+        ))}
+      </div>
+      <div class="route" aria-label={`${rTitle}: ${ROUTE[c].map((s) => STEP[s]).join(', ')}`}>
+        {ROUTE[c].map((s, i) => (
+          <span class="rstep">
+            {i > 0 && <span class="arr" aria-hidden="true">→</span>}
+            <span class:list={['step', s]}>
+              <svg viewBox="0 0 40 26" aria-hidden="true"><path d={ICON[s]} /></svg>
+              <span>{STEP[s]}</span>
+            </span>
+          </span>
+        ))}
+      </div>
+    </div>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-temper]').forEach((root) => {
+    root.querySelectorAll<HTMLButtonElement>('.pick button').forEach((btn) => btn.addEventListener('click', () => {
+      root.querySelectorAll<HTMLElement>('.tc-panel').forEach((p) => { p.hidden = p.dataset.p !== btn.dataset.c; });
+      root.querySelectorAll('.pick button').forEach((b) => b.setAttribute('aria-checked', String(b === btn)));
+    }));
+  });
+</script>
+
+<style>
+  .temper { display: grid; gap: 1rem; padding: 1rem 1.1rem 1.05rem; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .pick button { font-family: var(--font-sans); font-weight: 500; font-size: 0.86rem; padding: 0.3rem 0.8rem; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink-2); transition: border-color 150ms, color 150ms, background-color 150ms; }
+  .pick button:hover { border-color: var(--ink-3); color: var(--ink); }
+  .pick button[aria-checked="true"] { border-color: var(--accent); color: var(--ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+  .tc-panel { display: grid; gap: 1.1rem; }
+  .tc-panel[hidden] { display: none; }
+  .code { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0.9rem 1rem; align-items: start; }
+  .tc-seg { display: grid; gap: 0.25rem; min-width: 0; align-content: start; }
+  .tc-g { font-family: var(--font-sans); font-weight: 500; font-size: clamp(2.2rem, 5.5vw, 3rem); line-height: 1; color: var(--ink); padding-bottom: 0.4rem; border-bottom: 2px solid var(--color-spark-400); }
+  .b .tc-g { border-bottom-color: #1e6fd6; }
+  .c .tc-g { border-bottom-color: #7a4fd0; }
+  .d .tc-g { border-bottom-color: #1b1d1e; }
+  .tc-h { font-family: var(--font-sans); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-2); font-weight: 600; }
+  .tc-t { font-family: var(--font-sans); font-size: 0.84rem; color: var(--ink-3); line-height: 1.45; }
+  .route { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem 0.5rem; padding-top: 0.85rem; border-top: 1px dashed var(--line-strong); }
+  .step { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.65rem 0.3rem 0.4rem; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--bg-panel); font-size: 0.8rem; color: var(--ink-2); }
+  .step svg { width: 34px; height: 22px; flex: none; }
+  .step path { fill: none; stroke: #1b1d1e; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .step.sol path, .step.ann path, .step.shape path { stroke: #e2601a; }
+  .step.q path { stroke: #2a78d6; }
+  .step.art path, .step.over path, .step.nat path { stroke: #1e6fd6; }
+  .step.str path { stroke: #1b1d1e; }
+  .rstep { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .arr { color: var(--ink-3); font-size: 0.9rem; }
+  @media (max-width: 40rem) { .code { grid-template-columns: repeat(2, minmax(0, 1fr)); } .temper { padding: 0.9rem 0.85rem; } }
+</style>

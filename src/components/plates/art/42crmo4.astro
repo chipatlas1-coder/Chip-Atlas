@@ -1,0 +1,98 @@
+---
+/* 42CrMo4: heat analysis limits from EN ISO 683-2 (the article's table) and the +QT strength by
+   section size: five bars drawn to one scale (d ≤ 16, 40, 100, 160, 250 mm) with the minimum
+   yield strength of each band. The end faces show, schematically, why strength falls with size:
+   Ovako gives through-hardening in oil up to about Ø60 mm, so the two small bars are hardened
+   through and the larger ones keep a hardened rim of that depth round a softer core. */
+import Elements from '../Elements.astro';
+import { ortho, cylinder, f1, path, type V3 } from '../geom3d';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const d = (s: string) => (tr ? s.replaceAll('.', ',') : s);
+const items = [
+  { el: 'C', z: 6, v: d('0.38–0.45') },
+  { el: 'Mn', z: 25, v: d('0.60–0.90') },
+  { el: 'Cr', z: 24, v: d('0.90–1.20') },
+  { el: 'Mo', z: 42, v: d('0.15–0.30') },
+];
+const T = tr
+  ? { hard: 'sertleşmiş', core: 'daha yumuşak çekirdek', note: 'yağda ≈ Ø60’a kadar tam sertleşir (Ovako)' }
+  : { hard: 'hardened', core: 'softer core', note: 'hardens through in oil up to ≈ Ø60 (Ovako)' };
+
+// Re min (+QT) by diameter band, from the article's table
+const bands = [
+  { d: 16, re: 900 },
+  { d: 40, re: 750 },
+  { d: 100, re: 650 },
+  { d: 160, re: 550 },
+  { d: 250, re: 500 },
+];
+const az = 24, k = 0.336, ground = 282;
+const cam = ortho(az, 18, k, 22, ground);
+const tz = Math.tan((az * Math.PI) / 180);
+const xs = [103.3, 288.2, 522.0, 804.8, 1082.1];            // centres along X, mm (screen x 60, 128, 214, 318, 420)
+const hardDepth = 30;                                         // radius that hardens through (Ø60, Ovako)
+const L = 260;                                                // drawn length before the bar fades out
+const bars = bands.map((b, i) => {
+  const r = b.d / 2, X = xs[i], Z = -X * tz;                 // staggered back so the front caps sit on one line
+  const c = cylinder(cam, [X, r, Z - L], [X, r, Z], r);
+  const front = cam.P([X, r, Z]);
+  const back = cam.P([X, r, Z - L]);
+  const full = r <= hardDepth;
+  const inner = full ? 0 : (r - hardDepth) / r;
+  const below = cam.P([X, 0, Z]);
+  return { ...b, r, c, front, back, full, inner, below, i };
+});
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    {bars.map((b) => (
+      <>
+        <linearGradient id={`cm-bar${b.i}-${locale}`} gradientUnits="userSpaceOnUse" {...b.c.across(0.6)}>
+          <stop offset="0" stop-color="#727980" /><stop offset="0.2" stop-color="#e0e5e9" /><stop offset="0.42" stop-color="#b5bec5" /><stop offset="0.8" stop-color="#7e878f" /><stop offset="1" stop-color="#636a6f" />
+        </linearGradient>
+        <linearGradient id={`cm-fade${b.i}-${locale}`} gradientUnits="userSpaceOnUse" x1={f1(b.front[0])} y1={f1(b.front[1])} x2={f1(b.back[0])} y2={f1(b.back[1])}>
+          <stop offset="0.4" stop-color="#fff" /><stop offset="1" stop-color="#fff" stop-opacity="0" />
+        </linearGradient>
+        <mask id={`cm-mask${b.i}-${locale}`} maskUnits="userSpaceOnUse" x="0" y="0" width="480" height="320">
+          <rect width="480" height="320" fill={`url(#cm-fade${b.i}-${locale})`} />
+        </mask>
+        <radialGradient id={`cm-end${b.i}-${locale}`} cx="0.5" cy="0.5" r="0.5">
+          {b.full
+            ? [<stop offset="0" stop-color="#b35a24" />, <stop offset="1" stop-color="#c9601e" />]
+            : [<stop offset="0" stop-color="#838c94" />, <stop offset={f1(Math.max(0, b.inner - 0.1))} stop-color="#929ba3" />, <stop offset={f1(Math.min(1, b.inner + 0.08))} stop-color="#b35a24" />, <stop offset="1" stop-color="#c9601e" />]}
+        </radialGradient>
+      </>
+    ))}
+    <radialGradient id={`cm-shadow-${locale}`}>
+      <stop offset="0" stop-color="#000" stop-opacity="0.2" /><stop offset="1" stop-color="#000" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <text class="t-big f" style="--i:0" x="24" y="52">42CrMo4</text>
+  <text class="t-sm f" style="--i:1" x="26" y="74">1.7225, EN ISO 683-2 {tr ? '(kütlece %)' : '(% by mass)'}</text>
+  <Elements items={items} x={24} y={90} />
+
+  <!-- bars, the farthest first -->
+  {[...bars].reverse().map((b) => (
+    <g class="f" style={`--i:${5 + b.i}`}>
+      <ellipse cx={f1(b.below[0])} cy={f1(b.below[1] + 1)} rx={f1(b.r * k * 1.15 + 4)} ry={f1(3 + b.r * k * 0.12)} fill={`url(#cm-shadow-${locale})`} />
+      <path d={b.c.body} fill={`url(#cm-bar${b.i}-${locale})`} stroke="#474e54" stroke-width="0.6" mask={`url(#cm-mask${b.i}-${locale})`} />
+      <path d={b.c.cap()} fill={`url(#cm-end${b.i}-${locale})`} stroke="#b26117" stroke-width="0.8" />
+    </g>
+  ))}
+
+  <g class="lbl">
+    <rect x="26" y="199" width="9" height="9" rx="1.5" fill="#c76928" />
+    <text class="t-sm" x="40" y="207">{T.hard}</text>
+    <rect x={tr ? 116 : 104} y="199" width="9" height="9" rx="1.5" fill="#9fa8ad" />
+    <text class="t-sm" x={tr ? 130 : 118} y="207">{T.core}</text>
+    <text class="t-sm" x="26" y="224">{T.note}</text>
+    {bars.map((b, i) => (
+      <g>
+        <text class="t-sm" x={f1(b.front[0])} y={ground + 17} text-anchor="middle">{i === 0 ? `d ≤ ${b.d}` : `≤ ${b.d}`}{i === bars.length - 1 ? ' mm' : ''}</text>
+        <text class="t-data t-sm" x={f1(b.front[0])} y={ground + 31} text-anchor="middle">{i === 0 ? `Re ≥ ${b.re}` : `${b.re}`}{i === bars.length - 1 ? ' MPa' : ''}</text>
+      </g>
+    ))}
+  </g>
+</svg>

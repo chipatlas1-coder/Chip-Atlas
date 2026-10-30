@@ -1,0 +1,231 @@
+---
+/**
+ * Why climb milling needs a backlash-free feed drive.
+ * Each panel: peripheral milling on a table driven by a lead screw and nut (nut in section), and an
+ * enlarged detail of the nut thread. The work feeds to the left, so the screw pushes the nut to the
+ * left through the screw flanks on the right of each nut tooth (the driving flanks).
+ * Conventional: the cut pushes the work back (against the feed), the nut stays on the driving flanks.
+ * Climb: the cut pulls the work forward; with play b the table and nut can move ahead until the nut
+ * meets the opposite flanks. The detail shows the previous position dashed. Play drawn exaggerated.
+ * Trapezoidal thread profile with 30° included flank angle.
+ */
+import { cutterPath, trapWave, pts } from '../plates/cuttergeom';
+
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const L = tr
+  ? {
+      aria: 'Zıt ve aynı yönlü frezelemede ilerleme vidası ile somun arasındaki boşluk',
+      feed: 'tabla ilerlemesi', screw: 'vida', nut: 'somun (kesit)', contact: 'temas', before: 'önceki konum', gap: 'boşluk b', exag: 'boşluk abartılı',
+      panels: [
+        { name: 'Zıt yönlü frezeleme', force: 'iş parçasını geri iter', note: 'Somun tahrik yanaklarına bastırılı kalır.' },
+        { name: 'Aynı yönlü frezeleme', force: 'iş parçasını ileri çeker', note: 'Tabla, boşluk b kadar öne kaçabilir.' },
+      ],
+    }
+  : {
+      aria: 'Backlash between lead screw and nut in conventional and climb milling',
+      feed: 'table feed', screw: 'screw', nut: 'nut (section)', contact: 'contact', before: 'before', gap: 'backlash b', exag: 'play exaggerated',
+      panels: [
+        { name: 'Conventional (up) milling', force: 'cut pushes the work back', note: 'The nut stays pressed on the driving flanks.' },
+        { name: 'Climb (down) milling', force: 'cut pulls the work forward', note: 'The table can run ahead by the backlash b.' },
+      ],
+    };
+
+/* ---- machine (both panels share the geometry) ---- */
+const C = { x: 200, y: 90 }, R = 36, ae = 14;
+const yFin = C.y + R, yTop = yFin - ae;
+const phiE = Math.acos(1 - ae / R);
+const arcPt = (phi: number, r: number) => [C.x + r * Math.sin(phi), C.y + r * Math.cos(phi)];
+const [ex, ey] = arcPt(phiE, R);
+const work = `M76,${yFin} L${C.x},${yFin} A${R},${R} 0 0,0 ${ex.toFixed(2)},${ey.toFixed(2)} L316,${yTop} L316,154 L76,154 Z`;
+const chip = (() => {
+  const a: string[] = [], b: string[] = [];
+  for (let k = 0; k <= 24; k++) {
+    const phi = (phiE * k) / 24;
+    const [x1, y1] = arcPt(phi, R), [x2, y2] = arcPt(phi, R + 9 * Math.sin(phi) + 0.4);
+    a.push(`${x1.toFixed(2)},${y1.toFixed(2)}`); b.push(`${x2.toFixed(2)},${y2.toFixed(2)}`);
+  }
+  return `M${a.join(' L')} L${b.reverse().join(' L')} Z`;
+})();
+const tslot = (x: number) => `M${x - 3},154 L${x - 3},160 L${x - 7},160 L${x - 7},165 L${x + 7},165 L${x + 7},160 L${x + 3},160 L${x + 3},154 Z`;
+
+/* lead screw, side view: axis ay, trapezoidal thread, pitch p, single start, right hand */
+const ay = 214, Rmaj = 12, Rmin = 7.5, p = 12, wc = 0.366 * p, wf = (Rmaj - Rmin) * Math.tan((15 * Math.PI) / 180);
+const t0 = 46, t1 = 324, ph = 40;
+const top = trapWave(t0, t1, ph, p, wf, wc, ay - Rmin, ay - Rmaj);
+const bot = trapWave(t0, t1, ph + p / 2, p, wf, wc, ay + Rmin, ay + Rmaj);
+const screw = `M28,${ay - Rmin} L${t0},${ay - Rmin} L${pts(top)} L342,${ay - Rmin} L342,${ay + Rmin} L${t1},${ay + Rmin} L${pts([...bot].reverse())} L28,${ay + Rmin} Z`;
+const helix: string[] = [];
+for (let x = ph + p / 2; x < t1; x += p) if (x > t0 + 2 && x + p / 2 < t1 - 2) helix.push(`M${x.toFixed(2)},${ay - Rmaj + 0.6} L${(x + p / 2).toFixed(2)},${ay + Rmaj - 0.6}`);
+const roots: string[] = [];
+for (let x = ph; x < t1; x += p) if (x > t0 + 2 && x + p / 2 < t1 - 2) roots.push(`M${x.toFixed(2)},${ay - Rmin + 0.6} L${(x + p / 2).toFixed(2)},${ay + Rmin - 0.6}`);
+const n0 = 160, n1 = 240, Rn = 22;
+const nutTopProfile = trapWave(n0, n1, ph, p, wf, wc, ay - Rmin, ay - Rmaj).map(([x, y]) => [x, y - 0.7] as [number, number]);
+const nutBotProfile = trapWave(n0, n1, ph + p / 2, p, wf, wc, ay + Rmin, ay + Rmaj).map(([x, y]) => [x, y + 0.7] as [number, number]);
+const nutTop = `M${n0},${ay - Rn} L180,${ay - Rn} L180,180 L220,180 L220,${ay - Rn} L${n1},${ay - Rn} L${pts([...nutTopProfile].reverse())} Z`;
+const nutBot = `M${pts(nutBotProfile)} L${n1},${ay + Rn} L${n0},${ay + Rn} Z`;
+
+/* ---- enlarged detail of the lower mesh: screw above (teeth down), nut below (teeth up) ---- */
+const B = { x0: 24, x1: 346, y0: 262, y1: 382 }, mid = (B.x0 + B.x1) / 2;
+const P = 96, H = 36, cl = 4, bb = 14;
+const zwf = H * Math.tan((15 * Math.PI) / 180), zwc = 0.366 * P;
+const sRoot = 290, sCrest = sRoot + H;            // screw: root line and tooth tips
+const nTip = sRoot + cl, nRoot = sCrest + cl;      // nut: tooth tips and root line
+const nutTooth = (shift: number) => {
+  // nut tooth fits the space between screw teeth less the play bb; same flank angle
+  const spaceAtCrest = P - zwc;                     // space width at y = sCrest
+  const wAtCrest = spaceAtCrest - bb;
+  const wTip = wAtCrest - 2 * zwf * ((sCrest - nTip) / H);
+  return { phase: mid + shift - P / 2, wcN: wTip };
+};
+const screwPhase = mid - P / 2 - P / 2;            // screw tooth centres at mid ± P/2
+const zScrew = trapWave(B.x0 - 4, B.x1 + 4, screwPhase, P, zwf, zwc, sRoot, sCrest);
+const zScrewPath = `M${B.x0 - 4},${B.y0 - 4} L${pts(zScrew)} L${B.x1 + 4},${B.y0 - 4} Z`;
+const zNut = (shift: number) => { const t = nutTooth(shift); return trapWave(B.x0 - 4, B.x1 + 4, t.phase, P, zwf * ((nRoot - nTip) / H), t.wcN, nRoot, nTip); };
+const zNutPath = (shift: number) => `M${pts(zNut(shift))} L${B.x1 + 4},${B.y1 + 4} L${B.x0 - 4},${B.y1 + 4} Z`;
+// flank lines between y = nTip and y = sCrest for each nut tooth (k = −2 … 2)
+const flank = (shift: number, side: -1 | 1, k: number) => {
+  const t = nutTooth(shift), c = mid + shift + k * P;
+  const hw = (y: number) => t.wcN / 2 + zwf * ((y - nTip) / H);
+  return [[c + side * hw(nTip), nTip], [c + side * hw(sCrest), sCrest]] as [number, number][];
+};
+const screwFlank = (side: -1 | 1, k: number) => {
+  // flank of the screw tooth centred at mid + side·P/2 + kP facing the nut tooth k
+  const c = mid + side * (P / 2) + k * P;
+  const hw = (y: number) => zwc / 2 + zwf * ((sCrest - y) / H);
+  return [[c - side * hw(nTip), nTip], [c - side * hw(sCrest), sCrest]] as [number, number][];
+};
+const ks = [-2, -1, 0, 1, 2];
+const gap = (shift: number, side: -1 | 1, k: number) => { const a = flank(shift, side, k), s = screwFlank(side, k); return `M${pts([a[0], a[1], s[1], s[0]])} Z`; };
+
+const panels = [
+  { climb: false, dir: -1, shift: bb / 2, contact: 1 as const, open: -1 as const },
+  { climb: true, dir: 1, shift: -bb / 2, contact: -1 as const, open: 1 as const },
+];
+const f = (v: number) => v.toFixed(2);
+---
+<div class="backlash" role="group" aria-label={L.aria}>
+  {panels.map((Pn, i) => {
+    const T = L.panels[i];
+    const fx = Pn.climb ? [72, 28] : [320, 352];
+    return (
+      <svg viewBox="0 0 360 418" role="img" aria-label={`${T.name}. ${T.force}. ${T.note}`}>
+        <defs>
+          <clipPath id={`bl-clip-${locale}-${i}`}><rect x={B.x0} y={B.y0} width={B.x1 - B.x0} height={B.y1 - B.y0} rx="6" /></clipPath>
+          <radialGradient id={`bl-disc-${locale}-${i}`} cx="0.38" cy="0.32" r="0.8">
+            <stop offset="0" stop-color="#ecf0f3" /><stop offset="0.45" stop-color="#c0c8cf" /><stop offset="1" stop-color="#7c868d" />
+          </radialGradient>
+        </defs>
+
+        <text x="16" y="26" class="ttl">{T.name}</text>
+        <text x="16" y="45" class="acc sm">{T.force}</text>
+
+        <!-- table with T-slots, feed arrow on its front face -->
+        <rect x="24" y="154" width="322" height="26" rx="2" class="table" />
+        <line x1="25" y1="154.6" x2="345" y2="154.6" class="hi" />
+        <path d={tslot(44)} class="slot" /><path d={tslot(330)} class="slot" />
+        <line x1="150" y1="167" x2="62" y2="167" class="feed" marker-end="url(#ca-arr-data)" />
+        <text x="158" y="171" class="data sm">{L.feed}</text>
+
+        <!-- work, chip, cutter -->
+        <path d={work} fill="url(#ca-metal)" class="edge" />
+        <path d={chip} fill="url(#ca-chip)" />
+        <g class={Pn.dir > 0 ? 'turn' : 'turn ccw'}>
+          <path d={cutterPath(C.x, C.y, R, 10, Pn.dir, 9, 3.4)} fill={`url(#bl-disc-${locale}-${i})`} class="edge2" />
+          <circle cx={C.x} cy={C.y} r="17" fill="none" stroke="#a5aeb6" stroke-width="1" />
+          <circle cx={C.x} cy={C.y} r="7" fill="#f9fbfe" stroke="#656e74" />
+          <rect x={C.x - 2} y={C.y - 10} width="4" height="3.5" fill="#f9fbfe" />
+        </g>
+        <path d={Pn.dir > 0
+              ? `M${f(C.x + 46 * Math.cos(-1.40))},${f(C.y + 46 * Math.sin(-1.40))} A46,46 0 0,1 ${f(C.x + 46 * Math.cos(-0.35))},${f(C.y + 46 * Math.sin(-0.35))}`
+              : `M${f(C.x + 46 * Math.cos(-0.35))},${f(C.y + 46 * Math.sin(-0.35))} A46,46 0 0,0 ${f(C.x + 46 * Math.cos(-1.40))},${f(C.y + 46 * Math.sin(-1.40))}`}
+          class="rot" marker-end="url(#ca-arr-acc)" />
+        <line x1={fx[0]} y1="133" x2={fx[1]} y2="133" class="force" marker-end="url(#ca-arr-acc)" />
+
+        <!-- lead screw, bearings, nut in section -->
+        <rect x="30" y={ay - 16} width="14" height="42" rx="2" class="brg" />
+        <rect x="326" y={ay - 16} width="14" height="42" rx="2" class="brg" />
+        <path d={screw} fill="url(#ca-metal)" class="edge" />
+        {roots.map((d) => <path d={d} class="root" />)}
+        {helix.map((d) => <path d={d} class="helix" />)}
+        <path d={nutTop} fill="url(#ca-hatch)" class="edge" />
+        <path d={nutBot} fill="url(#ca-hatch)" class="edge" />
+        <text x="252" y="196" class="sm ink">{L.nut}</text>
+        <text x="56" y="244" class="sm ink">{L.screw}</text>
+
+        <!-- magnifier -->
+        <circle cx="200" cy={ay + Rmaj} r="8" class="mag" />
+        <line x1="192.4" y1={ay + Rmaj + 2.5} x2={B.x0 + 4} y2={B.y0} class="lead" />
+        <line x1="207.6" y1={ay + Rmaj + 2.5} x2={B.x1 - 4} y2={B.y0} class="lead" />
+
+        <!-- detail -->
+        <rect x={B.x0} y={B.y0} width={B.x1 - B.x0} height={B.y1 - B.y0} rx="6" class="box" />
+        <g clip-path={`url(#bl-clip-${locale}-${i})`}>
+          <path d={zScrewPath} fill="url(#ca-face)" />
+          <path d={`M${pts(zScrew)}`} class="zedge" />
+          <path d={zNutPath(Pn.shift)} fill="url(#ca-hatch)" />
+          {ks.map((k) => <path d={gap(Pn.shift, Pn.open, k)} class="gap" />)}
+          {Pn.climb && <path d={`M${pts(zNut(-Pn.shift))}`} class="ghost" />}
+          <path d={`M${pts(zNut(Pn.shift))}`} class="zedge" />
+          {ks.map((k) => { const a = flank(Pn.shift, Pn.contact, k); return <path d={`M${pts(a)}`} class="contact" />; })}
+        </g>
+        <text x={mid + Pn.shift + Pn.open * 27.5} y="316" class="data b" text-anchor="middle">b</text>
+        <line x1={mid + Pn.shift - Pn.contact * 20} y1="356" x2={mid + Pn.shift + Pn.contact * 20} y2="356" class="force" marker-end="url(#ca-arr-acc)" />
+        <g class="tag"><rect x={B.x0 + 8} y={B.y0 + 8} width={tr ? 34 : 46} height="17" rx="3" /><text x={B.x0 + 14} y={B.y0 + 20}>{L.screw}</text></g>
+        <g class="tag"><rect x={B.x0 + 8} y={B.y1 - 25} width={tr ? 90 : 92} height="17" rx="3" /><text x={B.x0 + 14} y={B.y1 - 13}>{L.nut}</text></g>
+        <g class="tag"><rect x={B.x1 - 114} y={B.y0 + 8} width="106" height="17" rx="3" /><text x={B.x1 - 108} y={B.y0 + 20}>{L.exag}</text></g>
+        <g class="key">
+          <line x1={B.x1 - 118} y1={B.y1 - 16} x2={B.x1 - 104} y2={B.y1 - 16} class="contact" />
+          <text x={B.x1 - 99} y={B.y1 - 12}>{L.contact}</text>
+          <rect x={B.x1 - 42} y={B.y1 - 22} width="10" height="12" class="gap" />
+          <text x={B.x1 - 27} y={B.y1 - 12}>b</text>
+          {Pn.climb && <line x1={B.x1 - 118} y1={B.y1 - 34} x2={B.x1 - 104} y2={B.y1 - 34} class="ghost" />}
+          {Pn.climb && <text x={B.x1 - 99} y={B.y1 - 30}>{L.before}</text>}
+        </g>
+
+        <text x="16" y="406" class="note">{T.note}</text>
+      </svg>
+    );
+  })}
+</div>
+
+<style>
+  .backlash { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+  @media (max-width: 40rem) { .backlash { grid-template-columns: 1fr; } }
+  .backlash svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .backlash text { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-2); }
+  .backlash .ttl { font-family: var(--font-sans); font-size: 14px; font-weight: 600; fill: var(--ink); }
+  .backlash .sm { font-size: 10.5px; }
+  .backlash .acc { fill: var(--color-spark-400); }
+  .backlash .data { fill: var(--color-metro-400); }
+  .backlash .ink { fill: var(--ink-2); }
+  .backlash .note { font-family: var(--font-sans); font-size: 12px; fill: var(--ink); }
+  .backlash .b { font-size: 13px; font-weight: 600; paint-order: stroke; stroke: #fbfdff; stroke-width: 3px; }
+  .backlash .table { fill: #e0e8ed; stroke: #656e74; stroke-width: 1; }
+  .backlash .hi { stroke: #2c3033; stroke-opacity: 0.5; stroke-width: 1; }
+  .backlash .slot { fill: #f9fbfe; stroke: #a5aeb6; stroke-width: 0.8; }
+  .backlash .edge { stroke: #2c3033; stroke-width: 1.1; stroke-linejoin: round; }
+  .backlash .edge2 { stroke: #1b1d1e; stroke-width: 1.3; stroke-linejoin: round; }
+  .backlash .brg { fill: #dee5ea; stroke: #656e74; stroke-width: 1; }
+  .backlash .helix { stroke: #a6afb7; stroke-width: 0.9; fill: none; }
+  .backlash .root { stroke: #656e74; stroke-width: 0.6; fill: none; opacity: 0.6; }
+  .backlash .feed { stroke: #1e6fd6; stroke-width: 2; }
+  .backlash .force { stroke: #e2601a; stroke-width: 2.6; }
+  .backlash .rot { fill: none; stroke: #e2601a; stroke-width: 1.8; }
+  .backlash .mag { fill: none; stroke: #1b1d1e; stroke-width: 1.2; }
+  .backlash .lead { stroke: #656e74; stroke-width: 0.9; stroke-dasharray: 3 3; }
+  .backlash .box { fill: #f7fbfe; stroke: #a5aeb6; stroke-width: 1; }
+  .backlash .zedge { fill: none; stroke: #1b1d1e; stroke-width: 1.4; stroke-linejoin: round; }
+  .backlash .ghost { fill: none; stroke: #1b1d1e; stroke-opacity: 0.75; stroke-width: 1.3; stroke-dasharray: 4 3; }
+  .backlash .gap { fill: color-mix(in oklab, #1e6fd6 34%, transparent); stroke: #1e6fd6; stroke-width: 0.8; }
+  .backlash .contact { stroke: #e2601a; stroke-width: 3.2; stroke-linecap: round; fill: none; }
+  .backlash .tag rect { fill: #fbfdff; fill-opacity: 0.82; }
+  .backlash .tag text, .backlash .key text { font-size: 10px; fill: var(--ink-2); }
+  .backlash .key text { paint-order: stroke; stroke: #fbfdff; stroke-width: 3px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .backlash .turn { transform-box: fill-box; transform-origin: center; animation: bl-turn 10s linear infinite; }
+    .backlash .turn.ccw { animation-direction: reverse; }
+  }
+  @keyframes bl-turn { to { transform: rotate(360deg); } }
+</style>

@@ -1,0 +1,32 @@
+---
+/* Parting off. A bar in the chuck, the blade plunged nearly to the centre, a tightly curled chip leaving the slot,
+   the part about to come off and the feed arrow slowing (shorter) near the centre. Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr ? { slow: 'merkeze yakın yavaş', pip: 'kesilmemiş merkez' } : { slow: 'slow near the centre', pip: 'uncut centre' };
+const cy = 186, R = 62, xg = 262, w = 14;
+const core = 9;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <rect class="metal f" style="--i:0" x="22" y={cy - 96} width="44" height="192" rx="5" />
+  <path class="metal-h f" style="--i:1" d={`M66,${cy - R} L${xg - w / 2},${cy - R} L${xg - w / 2},${cy + R} L66,${cy + R} Z`} />
+  <path class="metal-h f" style="--i:2" d={`M${xg + w / 2},${cy - R} L410,${cy - R} L410,${cy + R} L${xg + w / 2},${cy + R} Z`} />
+  <rect class="metal-h f" style="--i:2" x={xg - w / 2} y={cy - core} width={w} height={core * 2} />
+  <path class="o2 d" style="--i:3" pathLength="1" d={`M66,${cy - R} L410,${cy - R} L410,${cy + R} L66,${cy + R}`} />
+  <line class="c f" style="--i:3" x1="14" y1={cy} x2="430" y2={cy} />
+  <!-- blade and insert -->
+  <path class="carbide f" style="--i:4" d={`M${xg - w / 2},${cy - core} L${xg + w / 2},${cy - core} L${xg + w / 2 + 3},${cy - core - 30} L${xg + w / 2 + 3},14 L${xg - w / 2 - 3},14 L${xg - w / 2 - 3},${cy - core - 30} Z`} stroke="#5f6c79" stroke-width="1.2" />
+  <path class="coat f" style="--i:5" d={`M${xg - w / 2},${cy - core} L${xg + w / 2},${cy - core} L${xg + w / 2 + 1},${cy - core - 12} L${xg - w / 2 - 1},${cy - core - 12} Z`} stroke="#8a6420" stroke-width="0.8" />
+  <!-- clock-spring chip curling out of the slot -->
+  <path class="d" style="--i:6" pathLength="1" d={`M${xg + 4},${cy - core - 14} C${xg + 30},${cy - core - 30} ${xg + 52},${cy - core - 70} ${xg + 36},${cy - core - 92} C${xg + 22},${cy - core - 110} ${xg - 6},${cy - core - 96} ${xg + 6},${cy - core - 78} C${xg + 16},${cy - core - 64} ${xg + 34},${cy - core - 76} ${xg + 28},${cy - core - 88}`} fill="none" stroke="#c96f2e" stroke-width="4" stroke-linecap="round" />
+  <!-- feed arrows: long far out, short near the centre -->
+  <line class="a d" style="--i:7" pathLength="1" x1={xg - 40} y1="40" x2={xg - 40} y2="86" marker-end="url(#ca-arr-acc)" />
+  <line class="a d" style="--i:8" pathLength="1" x1={xg - 40} y1="104" x2={xg - 40} y2="120" marker-end="url(#ca-arr-acc)" stroke="#c2413b" />
+  <circle class="f" style="--i:9" cx={xg} cy={cy} r="4" fill="#e2601a" />
+  <path class="f" style="--i:9" d={`M${xg - w / 2 - 2},${cy + R + 10} L${xg + w / 2 + 2},${cy + R + 10}`} stroke="#13998a" stroke-width="2" />
+  <g class="lbl">
+    <text class="t-acc t-sm" x={xg - 50} y="118" text-anchor="end">{T.slow}</text>
+    <text class="t-ink t-sm" x={xg + 14} y={cy + 24}>{T.pip}</text>
+  </g>
+</svg>

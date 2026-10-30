@@ -1,0 +1,68 @@
+---
+/* 304 / 316: composition limits of 1.4301 and 1.4401 (the article's table, EN 10088-3) and a
+   schematic section: austenite grains with annealing twins under a chromium-rich passive film.
+   The grain map is a Voronoi tessellation of fixed seeds; the film thickness is not to scale. */
+import Elements2 from '../Elements2.astro';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const d = (s: string) => (tr ? s.replaceAll('.', ',') : s);
+const items = [
+  { el: 'Cr', z: 24, a: d('17.5–19.5'), b: d('16.5–18.5') },
+  { el: 'Ni', z: 28, a: d('8.0–10.5'), b: d('10.0–13.0') },
+  { el: 'Mo', z: 42, a: '–', b: d('2.0–2.5') },
+  { el: 'C', z: 6, a: d('≤ 0.07'), b: d('≤ 0.07') },
+];
+// ---- grain map: Voronoi cells clipped to the section rectangle ----
+const RX0 = 24, RX1 = 456, RY0 = 214, RY1 = 304;
+let s = 41; const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+const seeds: [number, number][] = [];
+for (let i = 0; i < 26; i++) seeds.push([RX0 + rnd() * (RX1 - RX0), RY0 + rnd() * (RY1 - RY0)]);
+type P = [number, number];
+const clip = (poly: P[], a: P, b: P): P[] => {
+  // keep the side of the bisector of a–b that contains a
+  const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, nx = b[0] - a[0], ny = b[1] - a[1];
+  const side = (p: P) => (p[0] - mx) * nx + (p[1] - my) * ny;
+  const out: P[] = [];
+  for (let i = 0; i < poly.length; i++) {
+    const p = poly[i], q = poly[(i + 1) % poly.length], sp = side(p), sq = side(q);
+    if (sp <= 0) out.push(p);
+    if ((sp < 0 && sq > 0) || (sp > 0 && sq < 0)) { const t = sp / (sp - sq); out.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]); }
+  }
+  return out;
+};
+const cells = seeds.map((a, i) => {
+  let poly: P[] = [[RX0, RY0], [RX1, RY0], [RX1, RY1], [RX0, RY1]];
+  seeds.forEach((b, j) => { if (i !== j) poly = clip(poly, a, b); });
+  return poly;
+});
+const pd = (poly: P[]) => 'M' + poly.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' L') + ' Z';
+// annealing twins: straight parallel-sided bands across some grains
+const twins = cells.map((poly, i) => {
+  if (i % 3 !== 0) return null;
+  const [cx, cy] = seeds[i], ang = rnd() * Math.PI, w = 3 + rnd() * 3, off = (rnd() - 0.5) * 8;
+  const ux = Math.cos(ang), uy = Math.sin(ang), nx = -uy, ny = ux, L = 60;
+  const band = [[cx + nx * off - ux * L, cy + ny * off - uy * L], [cx + nx * off + ux * L, cy + ny * off + uy * L], [cx + nx * (off + w) + ux * L, cy + ny * (off + w) + uy * L], [cx + nx * (off + w) - ux * L, cy + ny * (off + w) - uy * L]];
+  return { i, band: 'M' + band.map((p) => p.map((v) => v.toFixed(1)).join(',')).join(' L') + ' Z' };
+}).filter(Boolean) as { i: number; band: string }[];
+const shades = ['#565e63', '#40464a', '#4c5359', '#33393c', '#636b71', '#3b4144'];
+const ions = [[48, 197], [106, 187], [168, 199], [230, 189], [286, 198], [436, 185]];
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>{twins.map((t) => <clipPath id={`ss-g${t.i}-${locale}`}><path d={pd(cells[t.i])} /></clipPath>)}</defs>
+  <text class="t-big f" style="--i:0" x="24" y="44">304 / 316</text>
+  <text class="t-sm f" style="--i:1" x="26" y="64">1.4301 / 1.4401, EN 10088-3 {tr ? '(kütlece %)' : '(% by mass)'}</text>
+  <Elements2 items={items} names={['304', '316']} x={24} y={76} />
+  <!-- section: grains with twins, passive film on top -->
+  <g class="f" style="--i:6">
+    {cells.map((c, i) => <path d={pd(c)} fill={shades[(i * 7) % shades.length]} stroke="#b1bac2" stroke-width="1.1" stroke-linejoin="round" />)}
+    {twins.map((t) => <path d={t.band} clip-path={`url(#ss-g${t.i}-${locale})`} fill="#d3d9de" stroke="#8d959d" stroke-width="0.8" />)}
+  </g>
+  <rect class="f" style="--i:7" x={RX0} y={RY0 - 3} width={RX1 - RX0} height="3" fill="#e2601a" />
+  <rect class="o d" style="--i:6" pathLength="1" x={RX0} y={RY0 - 3} width={RX1 - RX0} height={RY1 - RY0 + 3} />
+  <g class="f" style="--i:8">{ions.map(([x, y]) => <text x={x} y={y} class="t-data t-sm">Cl⁻</text>)}</g>
+  <g class="lbl">
+    <text class="t-acc t-sm" x="470" y="208" text-anchor="end">{tr ? 'kromca zengin pasif film' : 'chromium-rich passive film'}</text>
+    <text class="t-sm" x="30" y="316">{tr ? 'tavlama ikizli östenit taneleri (şematik)' : 'austenite grains with annealing twins (schematic)'}</text>
+  </g>
+</svg>

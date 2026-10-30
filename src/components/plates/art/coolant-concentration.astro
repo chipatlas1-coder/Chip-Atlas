@@ -1,0 +1,60 @@
+---
+/* Coolant concentration. A hand refractometer with a pipette dropping the sample on the prism, light going in at the
+   prism end, and the view through the eyepiece: the upper field blue, the lower white, the boundary read on a Brix
+   scale. Below the view, reading × factor. Schematic (scale 0–20 as on the Blaser/ATAGO MASTER-M 20). */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { read: 'sınırdan okunur', calc: 'okuma × faktör', drops: 'birkaç damla' }
+  : { read: 'read at the boundary', calc: 'reading × factor', drops: 'a few drops' };
+const cx = 384, cy = 112, R = 70;
+const top = cy - R + 12, bot = cy + R - 12;
+const Y = (b: number) => bot - (b / 20) * (bot - top);
+const yb = Y(6.4);
+const ticks = Array.from({ length: 21 }, (_, b) => b);
+const yT = 214;
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <g transform="translate(0,22)">
+  <defs>
+    <clipPath id="ccpl-clip"><circle cx={cx} cy={cy} r={R} /></clipPath>
+    <linearGradient id="ccpl-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e5fc4" /><stop offset="1" stop-color="#6ea6e8" /></linearGradient>
+  </defs>
+  <!-- light falling on the prism end -->
+  <line class="b flow" x1="18" y1="120" x2="62" y2={yT - 22} />
+  <line class="b flow" x1="34" y1="112" x2="78" y2={yT - 22} />
+  <!-- refractometer body -->
+  <rect class="carbide f" style="--i:0" x="40" y={yT - 20} width="74" height="40" rx="6" stroke="#5f6c79" stroke-width="1.2" />
+  <rect class="metal-h f" style="--i:1" x="112" y={yT - 15} width="156" height="30" rx="8" />
+  <rect class="f" style="--i:2" x="266" y={yT - 19} width="34" height="38" rx="7" fill="#152230" />
+  <path class="o2 d" style="--i:2" pathLength="1" d={`M112,${yT - 15} L268,${yT - 15} M112,${yT + 15} L268,${yT + 15}`} />
+  <!-- daylight plate, hinged open -->
+  <path class="f" style="--i:3" d={`M44,${yT - 22} L104,${yT - 22} L102,${yT - 26} L42,${yT - 54} Z`} fill="#6ea6e8" fill-opacity="0.55" stroke="#1e5fc4" stroke-width="1.2" />
+  <!-- prism window and the sample film -->
+  <rect class="f" style="--i:3" x="50" y={yT - 23} width="52" height="5" rx="2" fill="#e2b23c" />
+  <!-- pipette and drops -->
+  <path class="o f" style="--i:4" d={`M70,26 L70,96 L76,118 L82,96 L82,26 Z`} />
+  <rect class="soft-data f" style="--i:4" x="71" y="60" width="10" height="36" />
+  <circle class="fill-data f" style="--i:5" cx="76" cy="134" r="4" />
+  <circle class="fill-data f" style="--i:6" cx="76" cy="152" r="4" />
+  <circle class="fill-data f" style="--i:7" cx="76" cy="170" r="4" />
+  <!-- eyepiece to view -->
+  <path class="dash d" style="--i:8" pathLength="1" d={`M300,${yT} C330,${yT} 300,${cy + 20} ${cx - R - 6},${cy + 10}`} />
+  <!-- the view -->
+  <circle cx={cx} cy={cy} r={R + 8} fill="#152230" class="f" style="--i:8" />
+  <g clip-path="url(#ccpl-clip)" class="f" style="--i:9">
+    <rect x={cx - R} y={cy - R} width={2 * R} height={2 * R} fill="#f7f9fb" />
+    <rect x={cx - R} y={cy - R} width={2 * R} height={yb - (cy - R)} fill="url(#ccpl-blue)" />
+    {ticks.map((b) => <line x1={cx - 4} x2={cx + (b % 5 === 0 ? 16 : 9)} y1={Y(b)} y2={Y(b)} stroke="#364554" stroke-width="1" />)}
+    {[0, 5, 10, 15, 20].map((b) => <text x={cx - 9} y={Y(b) + 4} text-anchor="end" style="font-size:10.5px; fill:#152230; stroke:none">{b}</text>)}
+  </g>
+  <circle cx={cx} cy={cy} r={R} fill="none" stroke="#0b1520" stroke-width="2.5" />
+  <line class="a d" style="--i:10" pathLength="1" x1={cx + 22} x2={cx + 62} y1={yb} y2={yb} stroke-dasharray="4 3" />
+  <g class="lbl">
+    <text class="t-acc t-sm" x={cx} y={cy + R + 28} text-anchor="middle">{T.read}</text>
+    <text class="t-ink" x={cx} y={cy + R + 50} text-anchor="middle">{T.calc}</text>
+    <text class="t-data t-sm" x="92" y="156">{T.drops}</text>
+  </g>
+  </g>
+</svg>

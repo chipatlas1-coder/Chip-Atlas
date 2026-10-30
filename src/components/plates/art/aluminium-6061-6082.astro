@@ -1,0 +1,53 @@
+---
+/* 6082 / 6061: composition limits (the article's table, EN 573-3) and the process these alloys are
+   made for: direct extrusion in section — ram, billet with flow lines, die, emerging profile and
+   the profile's cross-section. Schematic, not to scale. */
+import Elements2 from '../Elements2.astro';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const d = (s: string) => (tr ? s.replaceAll('.', ',') : s);
+const items = [
+  { el: 'Si', z: 14, a: d('0.70–1.30'), b: d('0.40–0.80') },
+  { el: 'Mg', z: 12, a: d('0.60–1.20'), b: d('0.80–1.20') },
+  { el: 'Mn', z: 25, a: d('0.40–1.00'), b: d('≤ 0.15') },
+  { el: 'Cu', z: 29, a: d('≤ 0.10'), b: d('0.15–0.40') },
+];
+// billet flow lines converging on the die opening (y 250–264) — quadratic curves
+const flows = [240, 248, 257, 266, 274].map((y0, i) => {
+  const yo = 252 + i * 2.5;
+  return `M156,${y0} C178,${y0} 200,${yo} 228,${yo}`;
+});
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <text class="t-big f" style="--i:0" x="24" y="44">6082 / 6061</text>
+  <text class="t-sm f" style="--i:1" x="26" y="64">EN AW-6082 / EN AW-6061, EN 573-3 {tr ? '(kütlece %)' : '(% by mass)'}</text>
+  <Elements2 items={items} names={['6082', '6061']} x={24} y={76} />
+  <!-- container (hatched steel) with its bore -->
+  <path class="hatch f" style="--i:6" d="M40,212 L222,212 L222,236 L40,236 Z M40,278 L222,278 L222,302 L40,302 Z" />
+  <!-- ram and dummy block -->
+  <rect class="metal f" style="--i:6" x="8" y="244" width="92" height="26" />
+  <rect class="face f" style="--i:6" x="100" y="238" width="10" height="38" />
+  <!-- billet with flow lines and dead-metal corners -->
+  <rect class="f" style="--i:7" x="110" y="238" width="112" height="38" fill="#8e98a1" />
+  <path class="f" style="--i:7" d="M222,238 L204,238 L222,250 Z M222,276 L204,276 L222,264 Z" fill="#565e63" />
+  <g class="f" style="--i:8">{flows.map((p) => <path d={p} fill="none" stroke="#8d959d" stroke-width="1" />)}</g>
+  <!-- die and emerging profile -->
+  <path class="carbide f" style="--i:7" d="M222,212 L246,212 L246,250 L222,250 Z M222,264 L246,264 L246,302 L222,302 Z" />
+  <rect class="f" style="--i:8" x="222" y="250" width="198" height="14" fill="#8e98a1" />
+  <path class="o d" style="--i:7" pathLength="1" d="M40,212 L246,212 L246,250 L420,250 L420,264 L246,264 L246,302 L40,302 Z M40,236 L222,236 M40,278 L222,278" />
+  <line class="a f" style="--i:9" x1="300" y1="282" x2="372" y2="282" marker-end="url(#ca-arr-acc)" />
+  <!-- profile cross-section -->
+  <g class="f" style="--i:9" transform="translate(396 222)">
+    <path d="M-30,-16 h60 a4,4 0 0 1 4,4 v24 a4,4 0 0 1 -4,4 h-60 a4,4 0 0 1 -4,-4 v-24 a4,4 0 0 1 4,-4 Z M-27,-12 h24 v24 h-24 Z M3,-12 h24 v24 h-24 Z" fill="#8e98a1" fill-rule="evenodd" stroke="#1b1d1e" stroke-width="1" />
+  </g>
+  <line class="dash f" style="--i:9" x1="396" y1="240" x2="396" y2="250" />
+  <g class="lbl">
+    <text class="t-sm" x="54" y="232">{tr ? 'kovan' : 'container'}</text>
+    <text class="t-sm" x="116" y="261" style="fill: #f3f8fd; stroke: none">{tr ? 'biyet' : 'billet'}</text>
+    <text class="t-sm" x="12" y="288">{tr ? 'ıstampa' : 'ram'}</text>
+    <text class="t-sm" x="226" y="316">{tr ? 'kalıp' : 'die'}</text>
+    <text class="t-acc t-sm" x="300" y="298">{tr ? 'profil' : 'profile'}</text>
+    <text class="t-sm" x="430" y="200" text-anchor="end">{tr ? 'profil kesiti' : 'profile section'}</text>
+  </g>
+</svg>

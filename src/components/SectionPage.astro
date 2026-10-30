@@ -1,0 +1,196 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from './ArticleCard.astro';
+import Emblem from './Emblem.astro';
+import ProgressStrip from './ProgressStrip.astro';
+import { href, routes, t, type Locale } from '../i18n';
+import { sections, sectionPath } from '../data/sections';
+import { toolsForSection } from '../data/tools';
+import { articlesFor, articlePath } from '../lib/articles';
+
+interface Props { locale: Locale; n: number }
+const { locale, n } = Astro.props;
+const ui = t(locale);
+const tr = locale === 'tr';
+const other: Locale = tr ? 'en' : 'tr';
+const sec = sections.find((s) => s.n === n)!;
+const pages = sec.subsections.reduce((a, b) => a + b.pages, 0);
+const related = toolsForSection(n);
+const prev = sections.find((s) => s.n === n - 1);
+const next = sections.find((s) => s.n === n + 1);
+const articles = (await articlesFor(locale)).filter((a) => a.data.section === n);
+const bySub = (slugEn: string) => articles.filter((a) => a.data.subsection === slugEn);
+const segs = sec.subsections.map((sub) => ({ name: sub.name[locale], pages: sub.pages, live: bySub(sub.slug.en).length }));
+const liveN = segs.reduce((a, b) => a + b.live, 0);
+
+const copy = tr
+  ? {
+      map: 'Bölüm haritası',
+      live: 'Yayındaki sayfalar',
+      mapLead: 'Bu bölümün alt bölümleri ve her birinde planlanan sayfa sayısı. Sayfalar aynı şablonla, bölüm sırasına göre yayına girer.',
+      phase: ['', 'Faz 1 · ilk üç ay', 'Faz 2 · 3–9. ay', 'Faz 3 · 9. aydan sonra'],
+      production: 'Bu bölüm üretimde. Yayındaki araçlar aşağıda bağlantılı; sayfalar eklendikçe bu harita dolar.',
+      partial: (a: number, p: number) => `${p} planlı sayfanın ${a} tanesi yayında. Her alt bölümdeki sayı yayında olan / planlanan sayfa sayısıdır.`,
+      prev: 'Önceki bölüm',
+      next: 'Sonraki bölüm',
+      pageCount: (p: number) => `${p} sayfa`,
+      cols: { tool: 'Araç', kind: 'Tür', status: 'Durum' },
+      stats: { live: 'Yayında', planned: 'Planlanan sayfa', subs: 'Alt bölüm', phase: 'Yayın fazı' },
+      phaseShort: ['', 'Faz 1', 'Faz 2', 'Faz 3'],
+      phaseWhen: ['', 'ilk üç ay', '3–9. ay', '9. aydan sonra'],
+      stripLabel: (l: number, p: number) => `Planlanan ${p} sayfanın ${l} tanesi yayında`,
+    }
+  : {
+      map: 'Section map',
+      live: 'Live pages',
+      mapLead: 'The subsections of this section and the number of pages planned in each. Pages go live in section order, all on the same template.',
+      phase: ['', 'Phase 1 · first three months', 'Phase 2 · months 3–9', 'Phase 3 · after month 9'],
+      production: 'This section is in production. Live tools are linked below; the map fills in as pages are added.',
+      partial: (a: number, p: number) => `${a} of ${p} planned pages are live. The figure on each subsection is pages live / pages planned.`,
+      prev: 'Previous section',
+      next: 'Next section',
+      pageCount: (p: number) => `${p} pages`,
+      cols: { tool: 'Tool', kind: 'Type', status: 'Status' },
+      stats: { live: 'Live', planned: 'Pages planned', subs: 'Subsections', phase: 'Release phase' },
+      phaseShort: ['', 'Phase 1', 'Phase 2', 'Phase 3'],
+      phaseWhen: ['', 'first three months', 'months 3–9', 'after month 9'],
+      stripLabel: (l: number, p: number) => `${l} of ${p} planned pages live`,
+    };
+
+const title = `${String(sec.n).padStart(2, '0')} ${sec.name[locale]}`;
+---
+<Base locale={locale} title={sec.name[locale]} description={sec.lead[locale]} path={sectionPath(locale, sec)} altPath={sectionPath(other, sec)}>
+  <article class="sheet section">
+    <header class="head">
+      <div class="head-text">
+        <p class="ref">{ui.common.section} {String(sec.n).padStart(2, '0')} / 18</p>
+        <h1 class="h1">{sec.name[locale]}</h1>
+        <p class="lead">{sec.lead[locale]}</p>
+      </div>
+      <div class="head-em em-host" tabindex="-1">
+        <span class="big-n num" aria-hidden="true">{String(sec.n).padStart(2, '0')}</span>
+        <Emblem n={sec.n} size="100%" />
+      </div>
+      <div class="status">
+        <dl class="stats">
+          <div><dt>{copy.stats.live}</dt><dd class="num"><span class="accent">{liveN}</span></dd></div>
+          <div><dt>{copy.stats.planned}</dt><dd class="num">{pages}</dd></div>
+          <div><dt>{copy.stats.subs}</dt><dd class="num">{sec.subsections.length}</dd></div>
+          <div><dt>{copy.stats.phase}</dt><dd>{copy.phaseShort[sec.priority]} <small>{copy.phaseWhen[sec.priority]}</small></dd></div>
+        </dl>
+        <ProgressStrip segs={segs} label={copy.stripLabel(liveN, pages)} size="lg" />
+      </div>
+    </header>
+
+    {articles.length > 0 && (
+      <section class="live">
+        <h2 class="h2">{copy.live}</h2>
+        <ul class="cards">
+          {articles.map((a) => <li class="reveal"><ArticleCard a={a} showDesc /></li>)}
+        </ul>
+      </section>
+    )}
+
+    <section class="map">
+      <h2 class="h2">{copy.map}</h2>
+      <p class="muted">{copy.mapLead}</p>
+      <ol class="subs">
+        {sec.subsections.map((sub, i) => (
+          <li class="sub panel-sunk">
+            <span class="num idx">{sec.n}.{i + 1}</span>
+            <span class="sub-name">{sub.name[locale]}</span>
+            <span class="num cnt"><b class:list={{ on: bySub(sub.slug.en).length > 0 }}>{bySub(sub.slug.en).length}</b>/{sub.pages}</span>
+            <span class="bar" aria-hidden="true"><span style={`width:${Math.min(100, (bySub(sub.slug.en).length / Math.max(1, sub.pages)) * 100).toFixed(1)}%`} /></span>
+            {bySub(sub.slug.en).length > 0 && (
+              <ul class="arts">
+                {bySub(sub.slug.en).map((a) => (
+                  <li><a href={href(articlePath(a))}>{a.data.title}</a>{a.data.status === 'review' && <span class="mark mark-review" title={ui.status.review} />}</li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ol>
+      <p class="production"><span class="mark">{ui.status.production}</span> {articles.length > 0 ? copy.partial(articles.length, pages) : copy.production}</p>
+    </section>
+
+    {related.length > 0 && (
+      <section class="related">
+        <h2 class="h2">{ui.common.relatedTools}</h2>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>{copy.cols.tool}</th><th>{copy.cols.kind}</th><th>{copy.cols.status}</th></tr></thead>
+            <tbody>
+              {related.map((tool) => (
+                <tr>
+                  <td>{tool.status === 'live' && tool.route ? <a class="inline" href={href(routes[tool.route][locale])}>{tool.name[locale]}</a> : tool.name[locale]}</td>
+                  <td class="muted">{{ decoder: tr ? 'Kod çözücü' : 'Decoder', calculator: tr ? 'Hesaplayıcı' : 'Calculator', simulator: tr ? 'Simülatör' : 'Simulator', wizard: tr ? 'Teşhis sihirbazı' : 'Diagnostic wizard', model3d: '3D', data: tr ? 'Veri aracı' : 'Data tool' }[tool.kind]}</td>
+                  <td><span class={`mark ${tool.status === 'live' ? 'mark-live' : tool.status === 'review' ? 'mark-review' : ''}`}>{tool.status === 'live' ? ui.status.live : tool.status === 'review' ? ui.status.review : ui.status.planned}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )}
+
+    <nav class="pager" aria-label={tr ? 'Bölümler arası geçiş' : 'Section navigation'}>
+      {prev ? <a href={href(sectionPath(locale, prev))}><span class="muted">{copy.prev}</span><span>{String(prev.n).padStart(2, '0')} {prev.name[locale]}</span></a> : <span />}
+      {next ? <a class="right" href={href(sectionPath(locale, next))}><span class="muted">{copy.next}</span><span>{String(next.n).padStart(2, '0')} {next.name[locale]}</span></a> : <span />}
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .section { padding-block: 2.5rem 1rem; }
+  .head { display: grid; grid-template-columns: minmax(0, 1fr) 13rem; gap: 1.5rem 3rem; align-items: center; margin-bottom: 3rem; }
+  .head-text { display: grid; gap: 0.75rem; }
+  .head-em {
+    position: relative; aspect-ratio: 1; padding: 1.6rem; border: 1px solid var(--line); border-radius: 10px; outline: none;
+    background: radial-gradient(75% 75% at 35% 30%, color-mix(in oklab, var(--color-metro-500) 13%, transparent), transparent 70%),
+      repeating-linear-gradient(0deg, transparent 0 15px, color-mix(in oklab, var(--line) 55%, transparent) 15px 16px),
+      repeating-linear-gradient(90deg, transparent 0 15px, color-mix(in oklab, var(--line) 55%, transparent) 15px 16px), var(--bg-sunk);
+  }
+  .big-n { position: absolute; right: 0.7rem; top: 0.45rem; font-size: 0.75rem; color: var(--ink-3); }
+  .status { grid-column: 1 / -1; display: grid; gap: 1rem; padding: 1.1rem 1.25rem 1.25rem; border: 1px solid var(--line); border-radius: 6px; background: var(--bg-raised); }
+  .stats { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 0.5rem 2.75rem; margin: 0; }
+  .stats div { display: grid; gap: 0.2rem; }
+  .stats dt { font-size: 0.75rem; color: var(--ink-3); }
+  .stats dd { margin: 0; font-size: 1.35rem; font-weight: 600; line-height: 1.2; }
+  .stats dd small { font-size: 0.78rem; font-weight: 400; color: var(--ink-3); margin-left: 0.25rem; }
+  .stats .accent { color: var(--accent); }
+  @media (max-width: 48rem) {
+    .head { grid-template-columns: minmax(0, 1fr) 6.5rem; gap: 1.25rem 1.25rem; align-items: start; }
+    .head-em { padding: 0.75rem; border-radius: 8px; }
+    .big-n { display: none; }
+    .stats { grid-template-columns: repeat(2, auto); gap: 0.75rem 2rem; }
+  }
+  @media (max-width: 30rem) { .head { grid-template-columns: minmax(0, 1fr) 4.75rem; } .head-em { padding: 0.5rem; } }
+  .meta { color: var(--ink-3); font-size: 0.85rem; }
+  .live { display: grid; gap: 1.25rem; margin-bottom: 3.5rem; }
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem 1.25rem; list-style: none; padding: 0; margin: 0; }
+  @media (max-width: 64rem) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 34rem) { .cards { grid-template-columns: 1fr; } }
+  .map { display: grid; gap: 1rem; }
+  .subs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 0.5rem; }
+  @media (max-width: 48rem) { .subs { grid-template-columns: 1fr; } }
+  .sub { display: grid; grid-template-columns: auto 1fr auto; gap: 0.5rem 0.75rem; align-items: baseline; padding: 0.8rem 1rem 0.9rem; }
+  .cnt { color: var(--ink-3); font-size: 0.85rem; }
+  .cnt b { font-weight: 500; color: var(--ink-3); }
+  .cnt b.on { color: var(--accent); }
+  .bar { grid-column: 1 / -1; height: 3px; border-radius: 2px; background: color-mix(in oklab, var(--line-strong) 65%, transparent); overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--accent); }
+  .idx { color: var(--ink-3); font-size: 0.82rem; }
+  .sub-name { font-weight: 500; }
+  .arts { grid-column: 2 / -1; display: grid; gap: 0.35rem; margin-top: 0.4rem; font-size: 0.95rem; }
+  .arts a { color: var(--color-metro-400); }
+  .arts a:hover { color: var(--accent); }
+  .arts .mark { margin-left: 0.4rem; vertical-align: middle; }
+  .production { margin-top: 1rem; color: var(--ink-2); font-size: 0.92rem; }
+  .related { margin-top: 3rem; display: grid; gap: 1rem; }
+  .pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+  .pager a { display: grid; gap: 0.2rem; font-weight: 500; }
+  .pager a:hover { color: var(--accent); }
+  .pager .right { text-align: right; }
+  .pager .muted { font-size: 0.8rem; font-weight: 400; }
+</style>

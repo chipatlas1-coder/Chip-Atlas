@@ -1,0 +1,63 @@
+---
+/* Face milling. Left, side view: the spindle and a 45° face mill cutting the top of a block, the cut face behind
+   it (left), the uncut stock ahead; depth of cut ap, table feed vf. Right, plan view: the cutter wider than
+   the cut, ae across the work, Dc across the cutter, the teeth turning (M03, clockwise from above). Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { side: 'yandan', plan: 'üstten', feed: 'vf', cut: 'işlenmiş yüzey', stock: 'kaldırılacak pay', work: 'iş parçası' }
+  : { side: 'side view', plan: 'plan view', feed: 'vf', cut: 'machined face', stock: 'stock to remove', work: 'workpiece' };
+const f1 = (v: number) => v.toFixed(1);
+// side view
+const yTop = 190, ap = 16, yCut = yTop + ap, xc = 150, Rb = 74, Rc = 60;
+const teethS = [-1, -0.6, -0.2, 0.2, 0.6, 1].map((u) => xc + u * (Rc - 6));
+// plan view
+const px = 384, py = 176, pR = 64, ae = 96;
+const plTeeth = Array.from({ length: 8 }, (_, i) => (i * Math.PI) / 4);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <!-- side: spindle, cutter body (45°: the body widens above the corner), inserts -->
+  <rect class="metal-h f" style="--i:0" x={xc - 26} y="16" width="52" height="70" rx="3" />
+  <rect class="metal f" style="--i:1" x={xc - 34} y="80" width="68" height="16" rx="2" />
+  <path class="metal-h f" style="--i:2" d={`M${xc - Rb},96 L${xc + Rb},96 L${xc + Rb},${yCut - 36} L${xc + Rc + 2},${yCut - 4} L${xc - Rc - 2},${yCut - 4} L${xc - Rb},${yCut - 36} Z`} />
+  <path class="o2 d" style="--i:3" pathLength="1" d={`M${xc - Rb},96 L${xc + Rb},96 L${xc + Rb},${yCut - 36} L${xc + Rc + 2},${yCut - 4} L${xc - Rc - 2},${yCut - 4} L${xc - Rb},${yCut - 36} Z`} />
+  <g class="f" style="--i:4">
+    {teethS.map((x, i) => <path class="coat" d={`M${f1(x - 7)},${yCut - 14} L${f1(x + 7)},${yCut - 14} L${f1(x + 5)},${yCut} L${f1(x - 5)},${yCut} Z`} stroke="#8a6420" stroke-width="0.8" opacity={i === 0 || i === 5 ? 1 : 0.55} />)}
+  </g>
+  <line class="c f" style="--i:4" x1={xc} y1="8" x2={xc} y2="300" />
+  <!-- workpiece: cut face behind (left), stock ahead (right) -->
+  <path class="hatch f" style="--i:5" d={`M18,${yCut} L${xc - Rc},${yCut} L${xc - Rc},${yCut} L${xc + Rc},${yCut} L${xc + Rc + 10},${yTop} L288,${yTop} L288,282 L18,282 Z`} />
+  <path class="soft-acc f" style="--i:6" d={`M${xc + Rc + 10},${yTop} L288,${yTop} L288,${yCut} L${xc + Rc},${yCut} Z`} />
+  <path class="o2 d" style="--i:7" pathLength="1" d={`M18,${yCut} L${xc + Rc},${yCut} L${xc + Rc + 10},${yTop} L288,${yTop} L288,282 L18,282 Z`} />
+  <line class="d" style="--i:8" pathLength="1" x1="22" y1={yCut} x2={xc - Rc} y2={yCut} stroke="#13998a" stroke-width="3" />
+  <!-- feed and rotation -->
+  <line class="a d" style="--i:9" pathLength="1" x1={xc - 40} y1="54" x2={xc - 104} y2="54" marker-start="url(#ca-arr-acc)" />
+  <path class="b d" style="--i:10" pathLength="1" d={`M${xc + 34},66 A34,9 0 0,1 ${xc - 34},66`} marker-end="url(#ca-arr-data)" />
+  <line class="h" x1="300" y1={yTop} x2="300" y2={yCut} />
+  <line class="h" x1="294" y1={yTop} x2="306" y2={yTop} /><line class="h" x1="294" y1={yCut} x2="306" y2={yCut} />
+
+  <!-- plan: work strip, cutter over it, wider than the cut -->
+  <rect class="sunk f" style="--i:11" x="318" y={py - ae / 2} width="152" height={ae} />
+  <rect class="hatch f" style="--i:11" x={px} y={py - ae / 2} width={470 - px} height={ae} />
+  <g class="spin" style="--spin: 5s">
+    <circle class="metal" cx={px} cy={py} r={pR} fill-opacity="0.6" stroke="#364554" stroke-width="1.2" />
+    {plTeeth.map((a) => <rect class="coat" x={f1(px + (pR - 7) * Math.cos(a) - 5)} y={f1(py + (pR - 7) * Math.sin(a) - 5)} width="10" height="10" rx="2" transform={`rotate(${f1((a * 180) / Math.PI + 45)} ${f1(px + (pR - 7) * Math.cos(a))} ${f1(py + (pR - 7) * Math.sin(a))})`} stroke="#8a6420" stroke-width="0.7" />)}
+  </g>
+  <circle cx={px} cy={py} r="2.5" fill="#152230" />
+  <path class="a d" style="--i:12" pathLength="1" d={`M${f1(px + pR * Math.cos(-0.9))},${f1(py + pR * Math.sin(-0.9))} A${pR},${pR} 0 0,1 ${f1(px + pR * Math.cos(0.9))},${f1(py + pR * Math.sin(0.9))}`} stroke-width="4" />
+  <line class="b d" style="--i:13" pathLength="1" x1="330" y1={py - ae / 2} x2="330" y2={py + ae / 2} marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+  <line class="b d" style="--i:13" pathLength="1" x1={px - pR} y1={py + pR + 16} x2={px + pR} y2={py + pR + 16} marker-start="url(#ca-arr-data)" marker-end="url(#ca-arr-data)" />
+
+  <g class="lbl">
+    <text class="t-ink" x="18" y="28">{T.side}</text>
+    <text class="t-ink" x="466" y="28" text-anchor="end">{T.plan}</text>
+    <text class="t-acc t-sm" x={xc - 112} y="58" text-anchor="end">{T.feed}</text>
+    <text class="t-sm" x="310" y={yCut - 2}>ap</text>
+    <text class="t-sm" x="24" y={yCut - 8} fill="#0f7a6e">{T.cut}</text>
+    <text class="t-acc t-sm" x="284" y={yCut + 20} text-anchor="end">{T.stock}</text>
+    <text class="t-sm" x="30" y="300">{T.work}</text>
+    <text class="t-data t-sm" x="336" y={py + 4}>ae</text>
+    <text class="t-data t-sm" x={px} y={py + pR + 32} text-anchor="middle">Dc</text>
+  </g>
+</svg>

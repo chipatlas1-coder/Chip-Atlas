@@ -1,0 +1,347 @@
+---
+import ToolShell from '../ToolShell.astro';
+import type { Locale } from '../../i18n';
+import { tolerances, toleranceNote, fixing, thicknesses, radii, sources } from '../../data/iso1832.js';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+
+const copy = tr
+  ? {
+      title: 'ISO 1832 uç kodu çözücü',
+      description: 'CNMG 120408 gibi bir ISO 1832 uç kodunu yaz; şekil, boşluk açısı, tolerans sınıfı, delik ve talaş kırıcı tipi, ölçü, kalınlık ve köşe radyüsü çizimle birlikte okunur.',
+      lead: 'Kodu yaz, her hanenin anlamını ve ucun ölçülü çizimini gör. Tablolar ISO 1832 ve üretici kataloglarından alınmıştır; her satır kaynağına bağlıdır.',
+      inputLabel: 'ISO 1832 uç kodu',
+      placeholder: 'ör. CNMG 12 04 08',
+      examples: 'Örnekler',
+      invalid: 'Kod okunamadı. İlk on hane şöyle olmalı: 4 harf + 2 rakam (ölçü) + 2 hane (kalınlık, T1–T3 olabilir) + 2 hane (radyüs, yuvarlak uçta M0).',
+      anatomy: 'Kodun anatomisi',
+      positions: [
+        ['1', 'Şekil', 'C = 80° eşkenar dörtgen'],
+        ['2', 'Boşluk açısı', 'N = 0° (negatif uç)'],
+        ['3', 'Tolerans sınıfı', 'M = preslenmiş, genel amaçlı'],
+        ['4', 'Delik ve talaş kırıcı', 'G = silindirik delik, iki yüzde talaş kırıcı'],
+        ['5–6', 'Kesme kenarı uzunluğu', '12 → 12,9 mm (d = 12,7 mm)'],
+        ['7–8', 'Kalınlık', '04 → 4,76 mm'],
+        ['9–10', 'Köşe radyüsü', '08 → 0,8 mm'],
+        ['11–12', 'Kenar durumu, yön (isteğe bağlı)', 'E = honlanmış, R = sağ'],
+        ['—', 'Üretici eki', '-PM 4425: geometri ve kalite'],
+      ],
+      tolTitle: 'Tolerans sınıfları (± mm)',
+      tolCols: ['Sınıf', 'm', 's', 'd'],
+      fixTitle: 'Delik ve talaş kırıcı kodları',
+      fixCols: ['Kod', 'Anlamı'],
+      sizeTitle: 'Kalınlık ve radyüs kodları',
+      sizeCols: ['Kalınlık kodu', 's (mm)', 'Radyüs kodu', 'rε (mm)'],
+      reviewNote: 'Ölçü tablosundaki kenar uzunluğu / iç teğet çember çiftleri geometriden türetildi ve iki üretici kaynağıyla karşılaştırıldı; Mustafa Mert Kayhan\u2019ın son onayını bekliyor.',
+    }
+  : {
+      title: 'ISO 1832 insert code decoder',
+      description: 'Type an ISO 1832 insert designation such as CNMG 120408 and read every position: shape, clearance, tolerance, hole and chipbreaker, size, thickness and corner radius, with a dimensioned drawing.',
+      lead: 'Type the code, read what each position means and see the insert drawn to its dimensions. Tables come from ISO 1832 and manufacturer catalogues; every row links to its source.',
+      inputLabel: 'ISO 1832 insert code',
+      placeholder: 'e.g. CNMG 12 04 08',
+      examples: 'Examples',
+      invalid: 'Code not readable. The first ten positions must be: 4 letters + 2 digits (size) + 2 characters (thickness, T1–T3 allowed) + 2 characters (radius, M0 for round inserts).',
+      anatomy: 'Anatomy of the code',
+      positions: [
+        ['1', 'Shape', 'C = 80° rhombic'],
+        ['2', 'Clearance angle', 'N = 0° (negative insert)'],
+        ['3', 'Tolerance class', 'M = pressed, general purpose'],
+        ['4', 'Hole and chipbreaker', 'G = cylindrical hole, chipbreaker both faces'],
+        ['5–6', 'Cutting edge length', '12 → 12.9 mm (d = 12.7 mm)'],
+        ['7–8', 'Thickness', '04 → 4.76 mm'],
+        ['9–10', 'Corner radius', '08 → 0.8 mm'],
+        ['11–12', 'Edge condition, hand (optional)', 'E = honed, R = right-hand'],
+        ['—', 'Manufacturer suffix', '-PM 4425: geometry and grade'],
+      ],
+      tolTitle: 'Tolerance classes (± mm)',
+      tolCols: ['Class', 'm', 's', 'd'],
+      fixTitle: 'Hole and chipbreaker codes',
+      fixCols: ['Code', 'Meaning'],
+      sizeTitle: 'Thickness and radius codes',
+      sizeCols: ['Thickness code', 's (mm)', 'Radius code', 'rε (mm)'],
+      reviewNote: 'Edge-length / inscribed-circle pairs in the size table were derived from geometry and compared with two supplier references; awaiting final sign-off by Mustafa Mert Kayhan.',
+    };
+
+const thicknessOrder = ['01', 'T1', '02', 'T2', '03', 'T3', '04', '05', '06', '07', '09', '11', '12'];
+const radiusOrder = ['00', '01', '02', '04', '08', '12', '16', '20', '24', '32'];
+const examples = ['CNMG 12 04 08', 'DCMT 11 T3 04', 'WNMG 08 04 08', 'TNMG 16 04 04', 'VBMT 16 04 04', 'SNMG 12 04 08', 'CCGT 09 T3 04', 'RCMT 10 T3 M0'];
+const mm = (v: string | number) => (tr ? String(v).replace(/\./g, ',') : String(v));
+const fmtMm = mm;
+---
+<ToolShell locale={locale} route="decoder" title={copy.title} description={copy.description} lead={copy.lead} sectionN={4} sources={sources} review>
+  <div class="tool-grid-2" data-decoder data-locale={locale}>
+    <div class="panel inputs">
+      <label class="field">
+        <span>{copy.inputLabel}</span>
+        <input type="text" data-code autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder={copy.placeholder} value="CNMG 12 04 08" />
+      </label>
+      <div>
+        <p class="hint" style="margin-bottom:0.4rem">{copy.examples}</p>
+        <div class="chips">
+          {examples.map((ex) => <button type="button" class="chip" data-example={ex}>{ex}</button>)}
+        </div>
+      </div>
+      <p class="warn" data-error hidden>{copy.invalid}</p>
+      <dl class="decoded" data-results></dl>
+    </div>
+
+    <div class="figure">
+      <svg data-drawing viewBox="0 0 640 400" role="img" aria-label={tr ? 'Ucun ölçülü çizimi' : 'Dimensioned drawing of the insert'}></svg>
+    </div>
+  </div>
+
+  <section class="block-tables">
+    <h2 class="h2">{copy.anatomy}</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>{tr ? 'Hane' : 'Position'}</th><th>{tr ? 'Anlamı' : 'Meaning'}</th><th>CNMG 12 04 08 ER-PM 4425</th></tr></thead>
+        <tbody>
+          {copy.positions.map(([pos, meaning, example]) => (
+            <tr><td class="num">{pos}</td><td>{meaning}</td><td>{example}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="h2">{copy.tolTitle}</h2>
+    <p class="hint">{toleranceNote[locale]}</p>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr>{copy.tolCols.map((c) => <th class={c === 'Class' || c === 'Sınıf' ? '' : 'num'}>{c}</th>)}</tr></thead>
+        <tbody>
+          {Object.entries(tolerances).map(([cls, v]) => (
+            <tr><td class="num">{cls}</td><td class="num">±{mm(v.m)}</td><td class="num">±{mm(v.s)}</td><td class="num">±{mm(v.d)}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="h2">{copy.fixTitle}</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr>{copy.fixCols.map((c) => <th>{c}</th>)}</tr></thead>
+        <tbody>
+          {Object.entries(fixing).map(([code, v]) => (
+            <tr><td class="num">{code}</td><td>{v[locale]}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="h2">{copy.sizeTitle}</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr>{copy.sizeCols.map((c) => <th class="num">{c}</th>)}</tr></thead>
+        <tbody>
+          {thicknessOrder.map((code, i) => {
+            const s = thicknesses[code as keyof typeof thicknesses];
+            const rad = radiusOrder[i] ? [radiusOrder[i], radii[radiusOrder[i] as keyof typeof radii]] : null;
+            return (
+              <tr>
+                <td class="num">{code}</td><td class="num">{fmtMm(s)}</td>
+                <td class="num">{rad ? rad[0] : ''}</td><td class="num">{rad ? fmtMm(rad[1]) : ''}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint"><span class="mark mark-review">{tr ? 'İncelemede' : 'Under review'}</span> {copy.reviewNote}</p>
+  </section>
+</ToolShell>
+
+<style>
+  .decoded { display: grid; grid-template-columns: auto 1fr; gap: 0.45rem 1rem; font-size: 0.95rem; }
+  .decoded dt { color: var(--ink-3); white-space: nowrap; }
+  .decoded dd { color: var(--ink); }
+  .decoded dd .num { color: var(--data); margin-left: 0.35rem; }
+  .decoded .unknown { color: var(--color-spark-200); }
+  .block-tables { margin-top: 3rem; display: grid; gap: 1rem; }
+  .block-tables .h2 { margin-top: 1.5rem; }
+</style>
+
+<script>
+  import { parseInsertCode, shapes, clearances, tolerances, fixing, edgeConditions, hands } from '../../data/iso1832.js';
+
+  const root = document.querySelector('[data-decoder]') as HTMLElement;
+  const locale = (root.dataset.locale as 'en' | 'tr') || 'en';
+  const input = root.querySelector('[data-code]') as HTMLInputElement;
+  const error = root.querySelector('[data-error]') as HTMLElement;
+  const results = root.querySelector('[data-results]') as HTMLElement;
+  const svg = root.querySelector('[data-drawing]') as SVGSVGElement;
+
+  const L = locale === 'tr'
+    ? { shape: 'Şekil', clearance: 'Boşluk açısı', tolerance: 'Tolerans', fixing: 'Delik / talaş kırıcı', size: 'Kenar uzunluğu l', ic: 'İç teğet çember d', thick: 'Kalınlık s', radius: 'Köşe radyüsü rε', edge: 'Kenar durumu', hand: 'Yön', suffix: 'Üretici eki', unknown: 'tanımsız', angle: 'uç açısı', mm: 'mm', negative: 'negatif uç', positive: 'pozitif uç', deg: '°', roundRadius: 'yuvarlak uçta köşe radyüsü yoktur (M0 = metrik, 00 = inç ölçü)' }
+    : { shape: 'Shape', clearance: 'Clearance', tolerance: 'Tolerance', fixing: 'Hole / chipbreaker', size: 'Edge length l', ic: 'Inscribed circle d', thick: 'Thickness s', radius: 'Corner radius rε', edge: 'Edge condition', hand: 'Hand', suffix: 'Manufacturer suffix', unknown: 'not defined', angle: 'included angle', mm: 'mm', negative: 'negative insert', positive: 'positive insert', deg: '°', roundRadius: 'a round insert has no corner radius (M0 = metric, 00 = inch size)' };
+
+  const num = (v: number | null, unit = L.mm) => (v == null ? `<span class="unknown">${L.unknown}</span>` : `<span class="num">${v.toLocaleString(locale)} ${unit}</span>`);
+
+  function row(dt: string, dd: string) {
+    return `<dt>${dt}</dt><dd>${dd}</dd>`;
+  }
+
+  function render() {
+    const parsed = parseInsertCode(input.value);
+    root.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.example!.replace(/\s/g, '') === input.value.toUpperCase().replace(/\s/g, ''))));
+    if (!parsed) {
+      error.hidden = false;
+      results.innerHTML = '';
+      svg.innerHTML = '';
+      return;
+    }
+    error.hidden = true;
+    const sh = shapes[parsed.shape as keyof typeof shapes];
+    const cl = clearances[parsed.clearance as keyof typeof clearances];
+    const tol = tolerances[parsed.tolerance as keyof typeof tolerances];
+    const fx = fixing[parsed.fixing as keyof typeof fixing];
+    const out: string[] = [];
+    out.push(row(L.shape, sh ? `<b>${parsed.shape}</b> · ${sh[locale]}` : `<b>${parsed.shape}</b> · <span class="unknown">${L.unknown}</span>`));
+    out.push(row(L.clearance, cl === undefined ? `<b>${parsed.clearance}</b> · <span class="unknown">${L.unknown}</span>` : cl === null ? `<b>${parsed.clearance}</b> · other` : `<b>${parsed.clearance}</b> · <span class="num">${cl}${L.deg}</span> ${cl === 0 ? `(${L.negative})` : `(${L.positive})`}`));
+    out.push(row(L.tolerance, tol ? `<b>${parsed.tolerance}</b> · m ±${tol.m}, s ±${tol.s}, d ±${tol.d} ${L.mm}` : `<b>${parsed.tolerance}</b> · <span class="unknown">${L.unknown}</span>`));
+    out.push(row(L.fixing, fx ? `<b>${parsed.fixing}</b> · ${fx[locale]}` : `<b>${parsed.fixing}</b> · <span class="unknown">${L.unknown}</span>`));
+    out.push(row(L.size, `<b>${parsed.size}</b> · ${num(parsed.edgeLength)}`));
+    out.push(row(L.ic, num(parsed.inscribedCircle)));
+    out.push(row(L.thick, `<b>${parsed.thicknessCode}</b> · ${num(parsed.thickness)}`));
+    if (sh && sh.kind === 'round') out.push(row(L.radius, `<b>${parsed.radiusCode}</b> · ${L.roundRadius}`));
+    else out.push(row(L.radius, `<b>${parsed.radiusCode}</b> · ${num(parsed.radius)}`));
+    if (parsed.edge) out.push(row(L.edge, `<b>${parsed.edge}</b> · ${edgeConditions[parsed.edge as keyof typeof edgeConditions]?.[locale] ?? L.unknown}`));
+    if (parsed.hand) out.push(row(L.hand, `<b>${parsed.hand}</b> · ${hands[parsed.hand as keyof typeof hands]?.[locale] ?? L.unknown}`));
+    if (parsed.suffix) out.push(row(L.suffix, `<b>${parsed.suffix}</b>`));
+    results.innerHTML = out.join('');
+    draw(parsed, sh, fx);
+  }
+
+  // ---------------------------------------------------------------------
+  // Drawing: plan view with corner radii + inscribed circle, side view with s.
+  // ---------------------------------------------------------------------
+  type Pt = [number, number];
+  function polygonFor(shape: any, d: number, l: number | null): Pt[] | null {
+    if (!shape) return null;
+    const rad = (deg: number) => (deg * Math.PI) / 180;
+    if (shape.kind === 'rhombus') {
+      const e = rad(shape.angle);
+      const side = l ?? d / Math.sin(e);
+      const p = side * Math.cos(e / 2), q = side * Math.sin(e / 2);
+      return [[0, -p], [q, 0], [0, p], [-q, 0]];
+    }
+    if (shape.kind === 'polygon') {
+      const n = shape.sides as number;
+      const R = d / 2 / Math.cos(Math.PI / n);
+      const pts: Pt[] = [];
+      for (let i = 0; i < n; i++) {
+        const a = -Math.PI / 2 + (2 * Math.PI * i) / n + (n % 2 === 0 ? Math.PI / n : 0);
+        pts.push([R * Math.cos(a), R * Math.sin(a)]);
+      }
+      return pts;
+    }
+    if (shape.kind === 'trigon') {
+      // Hexagon with alternating 80° (cutting) and 160° corners; tangent circle d.
+      const R1 = d / (2 * Math.sin(rad(40)));
+      const R2 = 0.6528 * R1;
+      const pts: Pt[] = [];
+      for (let i = 0; i < 6; i++) {
+        const a = -Math.PI / 2 + (Math.PI * i) / 3;
+        const R = i % 2 === 0 ? R1 : R2;
+        pts.push([R * Math.cos(a), R * Math.sin(a)]);
+      }
+      return pts;
+    }
+    if (shape.kind === 'parallelogram') {
+      const e = rad(shape.angle);
+      const a = d / Math.sin(e), b = 1.7 * a;
+      const h = a * Math.sin(e), dx = a * Math.cos(e);
+      return [[-b / 2 - dx / 2, h / 2], [b / 2 - dx / 2, h / 2], [b / 2 + dx / 2, -h / 2], [-b / 2 + dx / 2, -h / 2]];
+    }
+    if (shape.kind === 'rectangle') {
+      return [[-d, -d / 2], [d, -d / 2], [d, d / 2], [-d, d / 2]];
+    }
+    return null;
+  }
+
+  /** SVG path for a polygon with rounded corners of radius r (same units as points). */
+  function roundedPath(pts: Pt[], r: number): string {
+    const n = pts.length;
+    let dPath = '';
+    for (let i = 0; i < n; i++) {
+      const p0 = pts[(i + n - 1) % n], p1 = pts[i], p2 = pts[(i + 1) % n];
+      const v1 = [p0[0] - p1[0], p0[1] - p1[1]], v2 = [p2[0] - p1[0], p2[1] - p1[1]];
+      const l1 = Math.hypot(v1[0], v1[1]), l2 = Math.hypot(v2[0], v2[1]);
+      const u1 = [v1[0] / l1, v1[1] / l1], u2 = [v2[0] / l2, v2[1] / l2];
+      const theta = Math.acos(Math.max(-1, Math.min(1, u1[0] * u2[0] + u1[1] * u2[1])));
+      const tLen = Math.min(r / Math.tan(theta / 2), l1 / 2.05, l2 / 2.05);
+      const a = [p1[0] + u1[0] * tLen, p1[1] + u1[1] * tLen];
+      const b = [p1[0] + u2[0] * tLen, p1[1] + u2[1] * tLen];
+      const cross = u1[0] * u2[1] - u1[1] * u2[0];
+      const sweep = cross < 0 ? 1 : 0;
+      dPath += (i === 0 ? `M${a[0]} ${a[1]}` : `L${a[0]} ${a[1]}`) + (tLen > 0 && r > 0 ? ` A${r} ${r} 0 0 ${sweep} ${b[0]} ${b[1]}` : ` L${b[0]} ${b[1]}`);
+    }
+    return dPath + ' Z';
+  }
+
+  function draw(p: any, shape: any, fx: any) {
+    const d = p.inscribedCircle ?? 12.7;
+    const l = p.edgeLength;
+    const re = p.radius ?? 0;
+    const s = p.thickness ?? 4.76;
+    const scale = 150 / d; // 150 px per inscribed-circle diameter
+    const cx = 200, cy = 190;
+    const stroke = 'var(--color-steel-500)';
+    const font = 'font-family="IBM Plex Mono, monospace" font-size="13"';
+    const label = (x: number, y: number, text: string, fill = 'var(--ink-2)', anchor = 'start') => `<text x="${x}" y="${y}" ${font} fill="${fill}" text-anchor="${anchor}">${text}</text>`;
+    const parts: string[] = [];
+
+    // Plan view
+    parts.push(`<circle cx="${cx}" cy="${cy}" r="${(d / 2) * scale}" fill="none" stroke="var(--data)" stroke-width="1" stroke-dasharray="4 4"/>`);
+    if (shape?.kind === 'round') {
+      parts.push(`<circle cx="${cx}" cy="${cy}" r="${(d / 2) * scale}" fill="none" stroke="${stroke}" stroke-width="2"/>`);
+    } else {
+      const pts = polygonFor(shape, d, l);
+      if (pts) {
+        const scaled = pts.map(([x, y]) => [cx + x * scale, cy + y * scale] as Pt);
+        parts.push(`<path d="${roundedPath(scaled, re * scale)}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"/>`);
+        // Cutting corner highlight: the lowest vertex.
+        const low = scaled.reduce((a, b) => (b[1] > a[1] ? b : a));
+        parts.push(`<circle cx="${low[0]}" cy="${low[1] - Math.max(re * scale, 3) * 0.9}" r="${Math.max(re * scale, 3) + 4}" fill="none" stroke="var(--accent)" stroke-width="1.5"/>`);
+        parts.push(label(low[0] + 18, low[1] + 4, `rε ${re.toLocaleString(locale)}`, 'var(--accent)'));
+        // Edge length dimension along the right-hand upper edge.
+        if (l) {
+          const top = scaled.reduce((a, b) => (b[1] < a[1] ? b : a));
+          const right = scaled.reduce((a, b) => (b[0] > a[0] ? b : a));
+          const mx = (top[0] + right[0]) / 2 + 16, my = (top[1] + right[1]) / 2 - 10;
+          parts.push(label(mx, my, `l ${l.toLocaleString(locale)}`));
+        }
+      }
+    }
+    // Hole
+    if (fx && fx.hole !== 'none' && fx.hole !== 'special') {
+      const hole = d * 0.4;
+      parts.push(`<circle cx="${cx}" cy="${cy}" r="${(hole / 2) * scale}" fill="none" stroke="${stroke}" stroke-width="1.5"/>`);
+      if (fx.hole.includes('countersink')) parts.push(`<circle cx="${cx}" cy="${cy}" r="${(hole / 2) * scale * 1.45}" fill="none" stroke="${stroke}" stroke-width="1"/>`);
+    }
+    // inside the dashed inscribed circle, below the hole: clear of every outline
+    parts.push(label(cx, cy + (d / 2) * scale * 0.62, `d ${d.toLocaleString(locale)}`, 'var(--data)', 'middle'));
+
+    // Side view: thickness
+    const sx = 470, sy = cy;
+    const w = Math.min((l ?? d) * scale, 160), h = Math.max(s * scale, 10);
+    parts.push(`<rect x="${sx - w / 2}" y="${sy - h / 2}" width="${w}" height="${h}" fill="none" stroke="${stroke}" stroke-width="2"/>`);
+    if (fx && fx.chipbreaker !== 'none' && fx.chipbreaker !== 'special') {
+      parts.push(`<path d="M${sx - w / 2 + 8} ${sy - h / 2} q ${w / 2 - 8} 10 ${w - 16} 0" fill="none" stroke="var(--ink-3)" stroke-width="1"/>`);
+      if (fx.chipbreaker === 'both') parts.push(`<path d="M${sx - w / 2 + 8} ${sy + h / 2} q ${w / 2 - 8} -10 ${w - 16} 0" fill="none" stroke="var(--ink-3)" stroke-width="1"/>`);
+    }
+    parts.push(`<line x1="${sx + w / 2 + 14}" y1="${sy - h / 2}" x2="${sx + w / 2 + 14}" y2="${sy + h / 2}" stroke="var(--ink-3)"/>`);
+    parts.push(label(sx + w / 2 + 22, sy + 5, `s ${s.toLocaleString(locale)}`));
+    parts.push(label(sx, sy + h / 2 + 28, locale === 'tr' ? 'yan görünüş' : 'side view', 'var(--ink-3)', 'middle'));
+    parts.push(label(cx, 372, locale === 'tr' ? 'üst görünüş · mm' : 'plan view · mm', 'var(--ink-3)', 'middle'));
+    // Title
+    parts.push(label(24, 30, p.code, 'var(--ink)'));
+    svg.innerHTML = parts.join('');
+  }
+
+  input.addEventListener('input', render);
+  root.querySelectorAll<HTMLButtonElement>('[data-example]').forEach((b) => b.addEventListener('click', () => { input.value = b.dataset.example!; render(); }));
+  render();
+</script>

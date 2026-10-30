@@ -1,0 +1,38 @@
+---
+/* A shrink-fit chuck in section with its nose heated inside an induction coil (tint on the holder only) and the
+   carbide shank going in. Schematic. */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const T = tr ? { coil: 'indüktif bobin', fit: '≈ 0,01 mm sıkılık (CTE)' } : { coil: 'induction coil', fit: '≈ 0.01 mm interference (CTE)' };
+const CY = 150;
+const half = (s: 1 | -1) => {
+  const Y = (h: number) => CY - s * h;
+  return `M24,${CY} L24,${Y(24)} L92,${Y(34)} L92,${Y(62)} L134,${Y(62)} L134,${Y(48)} L250,${Y(42)} L392,${Y(32)} L392,${Y(22)} L262,${Y(22)} L262,${CY} Z`;
+};
+const coils = Array.from({ length: 7 }, (_, k) => 276 + k * 17);
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <linearGradient id={`thc-glow-${locale}`} x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e2601a" stop-opacity="0" /><stop offset="0.35" stop-color="#e2601a" stop-opacity="0.5" /><stop offset="1" stop-color="#c2413b" stop-opacity="0.65" />
+    </linearGradient>
+  </defs>
+  <rect class="carbide f" style="--i:1" x="330" y={CY - 20} width="140" height="40" stroke="#364554" stroke-width="1.2" />
+  <g class="f" style="--i:1" stroke="#5f6c79" stroke-width="1.3">
+    {[0, 1, 2, 3].map((k) => <path d={`M${420 + k * 13},${CY - 20} L${440 + k * 13},${CY + 20}`} />)}
+  </g>
+  <path class="hatch f" style="--i:0" d={half(1)} stroke="#364554" stroke-width="1.5" />
+  <path class="hatch f" style="--i:0" d={half(-1)} stroke="#364554" stroke-width="1.5" />
+  <clipPath id={`thc-clip-${locale}`}><path d={half(1)} /><path d={half(-1)} /></clipPath>
+  <rect class="f" style="--i:2" x="262" y={CY - 44} width="130" height="88" fill={`url(#thc-glow-${locale})`} clip-path={`url(#thc-clip-${locale})`} />
+  <g class="f" style="--i:3">
+    {coils.map((x) => <rect x={x} y={CY - 66} width="11" height="10" rx="3" fill="#b87333" />)}
+    {coils.map((x) => <rect x={x} y={CY + 56} width="11" height="10" rx="3" fill="#b87333" />)}
+  </g>
+  <line class="c f" style="--i:1" x1="14" y1={CY} x2="476" y2={CY} />
+  <g class="lbl">
+    <text class="t-acc t-sm" x="276" y={CY - 76}>{T.coil}</text>
+    <text class="t-sm" x="262" y={CY + 92}>{T.fit}</text>
+  </g>
+</svg>

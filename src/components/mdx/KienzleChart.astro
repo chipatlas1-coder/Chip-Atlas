@@ -1,0 +1,136 @@
+---
+/**
+ * kc = kc1.1 · h^−mc for the same material from two catalogues (ISCAR and Seco), on log–log axes,
+ * where each is a straight line of slope −mc. Pick a material; hover to read both values at any h.
+ */
+import { kienzle } from '../../data/kienzle';
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const hMin = 0.02, hMax = 1, kMin = 600, kMax = 12000;
+const xt = [0.02, 0.05, 0.1, 0.2, 0.5, 1];
+const yt = [1000, 2000, 5000, 10000];
+const n = (v: number) => (tr ? String(v).replace('.', ',') : String(v));
+/* Two layouts: wide, and narrow for phones. */
+const G = [false, true].map((narrow) => {
+  const W = narrow ? 360 : 640, H = narrow ? 300 : 330, L = narrow ? 50 : 64, R = narrow ? 52 : 92, T = 20, B = 46;
+  const lx = (h: number) => L + ((Math.log10(h) - Math.log10(hMin)) / (Math.log10(hMax) - Math.log10(hMin))) * (W - L - R);
+  const ly = (k: number) => T + (1 - (Math.log10(k) - Math.log10(kMin)) / (Math.log10(kMax) - Math.log10(kMin))) * (H - T - B);
+  return { narrow, W, H, L, R, T, B, lx, ly, geo: JSON.stringify({ W, H, L, R, T, B }) };
+});
+const data = JSON.stringify({ hMin, hMax, kMin, kMax, items: kienzle.map((m) => ({ key: m.key, name: m[locale], iscar: m.iscar, seco: m.seco })), tr });
+---
+<div class="kz" data-kienzle={data}>
+  <div class="pick" role="radiogroup" aria-label={tr ? 'Malzeme' : 'Material'}>
+    {kienzle.map((m, i) => <button type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} data-k={m.key}>{m[locale]}</button>)}
+  </div>
+  <div class="legend" aria-hidden="true">
+    <span><i style="background:#d4520f"></i>ISCAR</span><span><i style="background:#1e6fd6"></i>Seco</span>
+  </div>
+  {G.map(({ narrow, W, H, L, R, T, B, lx, ly, geo }) => (
+  <div class:list={['plot', narrow ? 'narrow' : 'wide']} data-geo={geo}>
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={tr ? 'Talaş kalınlığına göre özgül kesme kuvveti, iki katalog' : 'Specific cutting force against chip thickness, two catalogues'}>
+      {yt.map((v) => <g><line x1={L} x2={W - R} y1={ly(v)} y2={ly(v)} class="grid" /><text x={L - 8} y={ly(v) + 4} text-anchor="end" class="tick">{v.toLocaleString(tr ? 'tr-TR' : 'en-GB')}</text></g>)}
+      {xt.map((v) => <g><line x1={lx(v)} x2={lx(v)} y1={T} y2={H - B} class="grid" /><text x={lx(v)} y={H - B + 18} text-anchor="middle" class="tick">{n(v)}</text></g>)}
+      <line x1={lx(0.1)} x2={lx(0.1)} y1={T} y2={H - B} class="ref" />
+      <line x1={lx(0.2)} x2={lx(0.2)} y1={T} y2={H - B} class="ref" />
+      <text x={narrow ? 4 : L} y={T - 6} class="axlab">k<tspan dy="3" font-size="9">c</tspan><tspan dy="-3"> (N/mm²)</tspan></text>
+      <text x={W - R} y={H - 8} text-anchor="end" class="axlab">{tr ? 'talaş kalınlığı h (mm)' : 'chip thickness h (mm)'}</text>
+      <path data-line="iscar" fill="none" stroke="#d4520f" stroke-width="2.4" />
+      <path data-line="seco" fill="none" stroke="#1e6fd6" stroke-width="2.4" />
+      <text data-lab="iscar" class="dlab" x={W - R + 8}>ISCAR</text>
+      <text data-lab="seco" class="dlab" x={W - R + 8}>Seco</text>
+      <line data-cross x1="0" x2="0" y1={T} y2={H - B} class="cross" visibility="hidden" />
+      <circle data-dot="iscar" r="4.5" fill="#d4520f" stroke="#fbfdff" stroke-width="2" visibility="hidden" />
+      <circle data-dot="seco" r="4.5" fill="#1e6fd6" stroke="#fbfdff" stroke-width="2" visibility="hidden" />
+      <rect data-hit x={L} y={T} width={W - L - R} height={H - T - B} fill="transparent" />
+    </svg>
+    <div class="tip" hidden><span data-th></span><b data-ti></b><b data-ts></b></div>
+  </div>
+  ))}
+  <p class="foot" data-foot></p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-kienzle]').forEach((root) => {
+    const d = JSON.parse(root.dataset.kienzle!);
+    const { hMin, hMax, kMin, kMax, tr } = d;
+    const kc = (p: number[], h: number) => p[0] * Math.pow(h, -p[1]);
+    const fmt = (v: number, k = 0) => (tr ? v.toFixed(k).replace('.', ',') : v.toFixed(k));
+    let cur = d.items[0];
+    const plots = Array.from(root.querySelectorAll<HTMLElement>('.plot')).map((plot) => {
+      const { L, R, T, B, W, H } = JSON.parse(plot.dataset.geo!);
+      const lx = (h: number) => L + ((Math.log10(h) - Math.log10(hMin)) / (Math.log10(hMax) - Math.log10(hMin))) * (W - L - R);
+      const hx = (x: number) => Math.pow(10, Math.log10(hMin) + ((x - L) / (W - L - R)) * (Math.log10(hMax) - Math.log10(hMin)));
+      const ly = (k: number) => T + (1 - (Math.log10(k) - Math.log10(kMin)) / (Math.log10(kMax) - Math.log10(kMin))) * (H - T - B);
+      const svg = plot.querySelector('svg')!;
+      const draw = () => {
+        for (const s of ['iscar', 'seco']) {
+          const p = cur[s];
+          svg.querySelector(`[data-line="${s}"]`)!.setAttribute('d', `M${lx(hMin)},${ly(kc(p, hMin))} L${lx(hMax)},${ly(kc(p, hMax))}`);
+          svg.querySelector(`[data-lab="${s}"]`)!.setAttribute('y', String(ly(kc(p, hMax)) + 4));
+        }
+        const gap = Math.abs(ly(kc(cur.iscar, hMax)) - ly(kc(cur.seco, hMax)));
+        if (gap < 14) svg.querySelector('[data-lab="seco"]')!.setAttribute('y', String(Number(svg.querySelector('[data-lab="seco"]')!.getAttribute('y')) + (ly(kc(cur.seco, hMax)) >= ly(kc(cur.iscar, hMax)) ? 14 - gap : gap - 14)));
+      };
+      const tip = plot.querySelector<HTMLElement>('.tip')!, cross = svg.querySelector('[data-cross]')!;
+      const hit = svg.querySelector('[data-hit]')!;
+      const move = (ev: PointerEvent) => {
+        const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+        const p = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+        const h = Math.min(hMax, Math.max(hMin, hx(p.x)));
+        const x = lx(h);
+        cross.setAttribute('x1', String(x)); cross.setAttribute('x2', String(x)); cross.setAttribute('visibility', 'visible');
+        for (const s of ['iscar', 'seco']) { const c = svg.querySelector(`[data-dot="${s}"]`)!; c.setAttribute('cx', String(x)); c.setAttribute('cy', String(ly(kc(cur[s], h)))); c.setAttribute('visibility', 'visible'); }
+        (tip.querySelector('[data-th]') as HTMLElement).textContent = `h = ${fmt(h, h < 0.1 ? 3 : 2)} mm`;
+        (tip.querySelector('[data-ti]') as HTMLElement).textContent = `ISCAR ${fmt(kc(cur.iscar, h))} N/mm²`;
+        (tip.querySelector('[data-ts]') as HTMLElement).textContent = `Seco ${fmt(kc(cur.seco, h))} N/mm²`;
+        tip.hidden = false;
+        const rb = plot.getBoundingClientRect();
+        const px = (x / W) * rb.width;
+        tip.style.left = `${Math.min(rb.width - tip.offsetWidth - 4, Math.max(4, px + 12))}px`;
+        tip.style.top = `8px`;
+      };
+      hit.addEventListener('pointermove', move as any);
+      hit.addEventListener('pointerleave', () => { tip.hidden = true; cross.setAttribute('visibility', 'hidden'); svg.querySelectorAll('[data-dot]').forEach((c) => c.setAttribute('visibility', 'hidden')); });
+      return { draw };
+    });
+    const foot = () => {
+      const a = kc(cur.iscar, 0.2), b = kc(cur.seco, 0.2);
+      root.querySelector<HTMLElement>('[data-foot]')!.textContent = tr
+        ? `${cur.name}: ISCAR kc1.1 = ${cur.iscar[0]}, mc = ${fmt(cur.iscar[1], 2)}; Seco kc1.1 = ${cur.seco[0]}, mc = ${fmt(cur.seco[1], 2)}. h = 0,2 mm'de fark %${fmt((Math.abs(a - b) / Math.min(a, b)) * 100)}.`
+        : `${cur.name}: ISCAR kc1.1 = ${cur.iscar[0]}, mc = ${fmt(cur.iscar[1], 2)}; Seco kc1.1 = ${cur.seco[0]}, mc = ${fmt(cur.seco[1], 2)}. At h = 0.2 mm they differ by ${fmt((Math.abs(a - b) / Math.min(a, b)) * 100)} %.`;
+    };
+    const drawAll = () => { plots.forEach((p) => p.draw()); foot(); };
+    root.querySelectorAll<HTMLButtonElement>('.pick button').forEach((btn) => btn.addEventListener('click', () => {
+      root.querySelectorAll('.pick button').forEach((x) => x.setAttribute('aria-checked', String(x === btn)));
+      cur = d.items.find((m: any) => m.key === btn.dataset.k);
+      drawAll();
+    }));
+    drawAll();
+  });
+</script>
+
+<style>
+  .kz { display: grid; gap: 0.6rem; }
+  .pick { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .pick button { font-size: 0.82rem; padding: 0.35rem 0.7rem; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink-2); transition: border-color 150ms, color 150ms, background-color 150ms; }
+  .pick button:hover { border-color: var(--ink-3); color: var(--ink); }
+  .pick button[aria-checked="true"] { border-color: var(--accent); color: var(--ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+  .legend { display: flex; gap: 1.2rem; font-size: 0.8rem; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .legend i { width: 16px; height: 2.5px; border-radius: 2px; display: inline-block; }
+  .plot { position: relative; }
+  .narrow { display: none; }
+  @media (max-width: 40rem) { .wide { display: none; } .narrow { display: block; } }
+  svg { width: 100%; height: auto; touch-action: pan-y; }
+  .grid { stroke: var(--line); }
+  .ref { stroke: var(--ink-3); stroke-dasharray: 3 4; }
+  .cross { stroke: var(--ink-2); stroke-width: 1; }
+  .tick { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); }
+  .axlab { font-size: 11.5px; fill: var(--ink-3); }
+  .dlab { font-size: 12px; fill: var(--ink-2); font-weight: 500; }
+  .tip { position: absolute; pointer-events: none; display: grid; gap: 0.15rem; padding: 0.45rem 0.65rem; background: var(--bg-raised); border: 1px solid var(--line-strong); border-radius: 6px; font-size: 0.78rem; color: var(--ink-3); box-shadow: 0 8px 24px -6px rgba(21, 34, 48, 0.22); }
+  .tip b { font-family: var(--font-mono); font-weight: 500; color: var(--ink); font-size: 0.86rem; }
+  .foot { font-size: 0.82rem; color: var(--ink-3); margin: 0; max-width: none; }
+</style>

@@ -1,0 +1,210 @@
+---
+key: turning-operations
+locale: en
+slug: turning-operations
+title: 'Turning operations'
+description: 'What turning is and how DIN 8589-1 groups it; the operations a lathe performs, each with its feed direction, tool and typical problem; the entering angle and the chip it cuts; constant cutting speed with a speed limit; boring-bar overhang; and starting feeds from two tool makers.'
+section: 2
+subsection: turning
+order: 1
+updated: 2026-10-17
+tools: [turning]
+glance:
+  - value: '0.1–0.3'
+    unit: 'mm/rev'
+    label: 'Feed for finishing (Sandvik Coromant)'
+  - value: '0.71 × fn'
+    label: 'Chip thickness at κr = 45°, from hex = fn · sin κr'
+  - value: '4 × D'
+    label: 'Longest overhang for a steel boring bar (Sandvik Coromant)'
+  - value: 'up to 75 %'
+    label: 'Feed cut near the centre when parting off (Sandvik Coromant)'
+sources:
+  - label: 'DIN 8589-1:2003-09, Fertigungsverfahren Spanen – Teil 1: Drehen; Einordnung, Unterteilung, Begriffe (DIN Media product page)'
+    url: https://www.dinmedia.de/en/standard/din-8589-1/65030260
+  - label: 'H. Möllers, Maschinelle Werkstoffbearbeitung, Teil: Drehen, Christiani, 3rd ed. 2013 (publisher sample, pp. 4–5)'
+    url: https://www.christiani.de/out/media/pdf/97339-leseprobe.pdf
+  - label: 'H. Möllers, Machine-based material processing: Turning, Christiani, 2nd ed. 2014 (publisher sample, pp. 4–5)'
+    url: https://christiani-international.com/out/media/pdf/74326-leseprobe-printversion.pdf
+  - label: 'Verlag Handwerk und Technik, “2.1 Drehverfahren” (publisher sample LP_23128, p. 17)'
+    url: https://lp.hpt.at/LP_23128.pdf
+  - label: 'IndustryArena Wiki, “Drehen”'
+    url: https://de.industryarena.com/wiki/Drehen
+  - label: 'TU Dresden, Werkstatt- und Versuchsfeldverbund, “Drehen”'
+    url: https://tu-dresden.de/ing/maschinenwesen/wvv/technik/drehen
+  - label: 'Industrieverband Massivumformung, Extra-Info, chapter “2. Drehen” (DIN 8589 definition)'
+    url: https://www.massivumformung.de/fileadmin/user_upload/6_Presse_und_Medien/Veroeffentlichungen/Extra-Info/00000118.pdf
+  - label: 'Sandvik Coromant, Catalogue A, General turning, pp. A2–A8 (hosted by a distributor)'
+    url: https://www.directools.com/documents/all/Sandvik_5765051_Catalog.pdf
+  - label: 'Sandvik Coromant Academy, Metal Cutting Technology Training Handbook, sections A (general and internal turning) and B (parting and grooving); inch edition, no year in the copy consulted'
+  - label: 'US 9925594 B2, “Method to machine a metal work piece by turning”, Sandvik Intellectual Property AB, 2018 (definition of chip thickness)'
+    url: https://patents.google.com/patent/US9925594
+  - label: 'Mitsubishi Materials, “Function of tool features for turning: side cutting edge angle (lead angle)”'
+    url: https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/information/t_yokokirehakaku.html
+  - label: 'Mitsubishi Materials, cutting length formulas for turning (external, face and taper turning, chamfering)'
+    url: https://www.mmc-carbide.com/in/technical_information/formula/tec_length_formula
+  - label: 'Sumitomo Electric, General Catalog 2025-2026, Technical Guidance – Turning, N38–N40'
+    url: https://online.flippingbook.com/view/410142785/1246/
+  - label: 'Tungaloy, Technical reference, General Catalogue 2023-2024, pp. L002–L030'
+    url: https://tungaloy.com/wpdata/wp-content/uploads/GC_2023-2024_G_L_UsersGuide.pdf
+  - label: 'Siemens, SinuTrain – Einsteiger-Anleitung Fräsen und Drehen, SINUMERIK 810D/840D, 10/2003, p. 16 (G96, LIMS, G97)'
+    url: https://cache.industry.siemens.com/dl/files/723/28823723/att_863989/v1/Einsteiger_Fraesen_Drehen_1003_de.pdf
+  - label: 'Siemens, SINUMERIK live: longitudinal turning and plunge-turning, 2017'
+    url: https://static.dc.siemens.com/cnc4you/tips-n-tricks/SINUMERIK-live/sinumerik-live-longitudinal-plunge-turning-cnc4you-en.pdf
+  - label: 'Hoffmann Group, “From longitudinal turning to facing – the basic turning methods at a glance”'
+    url: https://www.hoffmann-group.com/IE/en/brownlo/online-ratgeber/zerspanung/laengs-und-plandrehen/e/1448799/
+  - label: 'Europa-Lehrmittel, Fachwissen Metalltechnik in Lernfeldern – Industriemechanik, 2024 (publisher sample, p. 17)'
+    url: https://www.europa-lehrmittel.de/leseprobe/15897-1.pdf
+  - label: 'Verlag Handwerk und Technik, Lernfeld 5 “Drehen” (publisher sample, p. 7)'
+    url: https://www.handwerk-technik.de/_files_media/probeseiten/30175_02.pdf
+  - label: 'Verlag Handwerk und Technik, Lernfeld 5 “Drehen” (publisher sample, p. 37: passive force)'
+    url: https://lesejury.de/media/samples/758/9783582301758_leseprobe.pdf
+  - label: 'Sandvik Coromant, Cutting Tools 2015 – Turning tools, General information, pp. I2–I5 (ISO 13399 symbols KAPR and PSIR; hosted by a distributor)'
+    url: https://productivitysolution.co.th/wp-content/uploads/2017/Downloadfiles/Sandvik/Turning%20Tools%202015%20Chapters%20I.pdf
+  - label: 'Wikipedia (de), “Drehen (Verfahren)” (DIN 8589 groups: Schraub-, Wälz- and NC-Formdrehen)'
+    url: https://de.wikipedia.org/wiki/Drehen_(Verfahren)
+---
+import TurningOps from '../../../components/mdx/TurningOps.astro';
+import DinGroups from '../../../components/mdx/DinGroups.astro';
+import EnteringAngle from '../../../components/mdx/EnteringAngle.astro';
+import FacingSpeed from '../../../components/mdx/FacingSpeed.astro';
+import BarOverhang from '../../../components/mdx/BarOverhang.astro';
+
+Turning makes round parts. The workpiece turns, and that rotation is the cutting motion; a tool with a single cutting point is fed along the work or across it. Sandvik Coromant puts it as the combination of two movements, the rotation of the workpiece and the feed of the tool. DIN 8589 defines turning as cutting with a closed, mostly circular cutting motion and a feed in any direction across the cutting direction.
+
+Everything that follows comes from these two motions: which way the tool is fed, which part of the edge does the cutting, and what happens to the cutting speed as the tool moves towards the axis.
+
+<Figure caption="The operations of a lathe on one part, schematic: the upper half in view, the lower half in section so the bore and the drilled hole show. Tools that work at different times are drawn together. Blue arrows are the feed directions. Pick an operation to see its tool on its own.">
+  <TurningOps
+    locale="en"
+    aria="Turning operations on one part, in half section, with the tool and feed direction of each"
+    all="All operations"
+    ops={[
+      { k: 'face', name: 'Facing', feed: 'across the axis, towards the centre' },
+      { k: 'long', name: 'Longitudinal turning', feed: 'along the axis' },
+      { k: 'prof', name: 'Profiling (contour turning)', feed: 'along and across at once' },
+      { k: 'chamfer', name: 'Chamfering', feed: 'both axes, or a 45° edge' },
+      { k: 'groove', name: 'Grooving', feed: 'across the axis, a plunge' },
+      { k: 'thread', name: 'Thread turning', feed: 'along the axis, one pitch per revolution' },
+      { k: 'part', name: 'Parting off', feed: 'across the axis, to the centre' },
+      { k: 'drill', name: 'Drilling', feed: 'along the centre line' },
+      { k: 'bore', name: 'Internal turning (boring)', feed: 'along the axis, inside a hole' },
+    ]}
+  />
+</Figure>
+
+## How DIN 8589-1 groups turning
+
+DIN 8589-1 sorts the turning processes by the kind of surface they make, by the motion of the cut and by the shape of the tool. That gives six groups: four named after the surface they produce, and two, profile and form turning, after how the shape is made:
+
+<Figure caption="The six groups of turning in DIN 8589-1, schematic. Orange is the surface the group makes; blue is the feed. Group names as German and English textbooks reproduce them (Christiani, Handwerk und Technik).">
+  <DinGroups
+    aria="The six groups of turning in DIN 8589-1"
+    groups={[
+      { de: 'Plandrehen', name: 'Facing', text: 'Plane surfaces, such as the end faces of a part.' },
+      { de: 'Runddrehen', name: 'Cylindrical (straight) turning', text: 'Round surfaces on the lateral face of a cylinder.' },
+      { de: 'Schraubdrehen', name: 'Screw turning', text: 'Threads: the feed per revolution equals the lead (the pitch, on a single-start thread).' },
+      { de: 'Wälzdrehen', name: 'Roll turning', text: 'Rolling surfaces such as gear teeth; a generating motion rides on the feed.' },
+      { de: 'Profildrehen', name: 'Profile turning', text: 'The shape is in the tool, as its negative.' },
+      { de: 'Formdrehen', name: 'Form (contour) turning', text: 'Any shape from a controlled tool path; on a CNC lathe both axes are driven.' },
+    ]}
+  />
+</Figure>
+
+In the plane, round and profile groups the prefix gives the feed direction: *Quer-* across the axis, *Längs-* along it. *Abstech-* and *Einstech-* mark parting and grooving. So facing an end face is *Quer-Plandrehen*, ordinary turning along a shaft is *Längs-Runddrehen* and parting off is *Quer-Abstechdrehen*.
+
+Two words cross the language boundary badly. What tool makers call **profiling**, a contour cut with the tool moving along and across the axis at once, is DIN *Formdrehen*, not *Profildrehen*; in DIN, profile turning means a form tool that carries the shape. And DIN names *Plandrehen* after the plane surface, whatever the feed direction, while workshop German often uses *Plandrehen* simply for a cross feed.
+
+## The operations, one by one
+
+Tool makers group the same work by what the operator does. Sandvik Coromant's general-turning catalogue starts with longitudinal turning, profiling, facing and plunging; parting and grooving and threading have chapters of their own, and internal turning has its own section within general turning. The table covers the operations of the first figure, plus plunging and taper turning.
+
+| Operation | Feed | Tool | What to watch |
+|---|---|---|---|
+| Longitudinal turning (*Längs-Runddrehen*) | Along the axis | General turning insert in a holder; Sandvik names the 80° C insert with entering angles of 95° or 93° as the usual choice | A shoulder needs an entering angle κr of at least 90°. On slender work keep κr near 90°, where the passive force is smallest |
+| Facing (*Quer-Plandrehen*) | Across the axis, usually towards the centre | General turning insert; Sandvik lists κr 75° and 95°/91° with C, S and T inserts | The cutting speed falls towards the centre unless the control raises the spindle speed (see below) |
+| Profiling (DIN *Formdrehen*) | Along and across at once | D (55°), V (35°) and T (60°) inserts are the most used (Sandvik) | How steep a contour the tool can follow: Sandvik gives each holder a largest in-copying angle; κr 93° allows 22–27° |
+| Plunging and grooving | Across the axis; face grooving along it | Grooving insert in a blade or holder | Chip evacuation; Siemens adds that chips can jam and high forces bend long, thin parts |
+| Parting off (*Quer-Abstechdrehen*) | Across the axis, to the centre | Narrow parting blade | Speed falls to zero at the centre; a pip is left; chips must get out |
+| Thread turning (*Gewindedrehen*) | Along the axis; feed per revolution = lead (= pitch on a single-start thread) | Single-profile threading insert | Speed and feed must hold the pitch exactly; usually run at constant spindle speed (G97) |
+| Internal turning (boring) | Along the axis inside a hole, plus internal facing | Boring bar | Overhang and vibration; chip evacuation; κr close to 90°, never below 75° (Sandvik) |
+| Drilling on a lathe | Along the centre line | Stationary drill | Constant spindle speed, not constant cutting speed |
+| Chamfers and tapers | Along and across at once | General turning insert | Mitsubishi’s cutting-length calculator treats taper turning and chamfering as cases of their own, next to external and face turning |
+
+In the DIN scheme drilling is a process of its own, next to turning; it is in the table because lathes do so much of it. The [drilling page](/processes/drilling/) covers the drill.
+
+## The parameters every operation shares
+
+Five quantities describe any turning cut. The **depth of cut ap** is half the difference between the uncut and the cut diameter, the distance from the work surface to the machined surface. The **feed fn** is how far the tool moves per revolution of the work, in mm/rev. The **cutting speed vc** is the surface speed, in m/min, and the spindle speed n follows from it and the diameter. The **entering angle κr** is the angle between the main cutting edge and the feed direction, and the **nose radius rε** rounds the corner where the main and the minor edge meet. The formulas that link them are on the [turning formulas page](/cutting-data/turning-formulas/).
+
+One warning about angles: Sandvik and ISO give the entering angle κr, where 90° means an edge square to the feed. Sandvik also uses the lead angle, 90° − κr, and Japanese makers (Mitsubishi, Sumitomo, Tungaloy) print the side cutting edge angle in the same lead-angle sense, so a larger angle in their catalogues means a smaller κr. Always check which one a table gives.
+
+<Figure caption="The entering angle and the chip it cuts, plan view: the uncut chip is a parallelogram between the edge and its position one revolution later. Its thickness h = fn · sin κr and its width b = ap / sin κr change with κr; its section ap · fn does not. On entering the view the angle sweeps from 90° to 45° and back.">
+  <EnteringAngle locale="en" />
+</Figure>
+
+The chip a turning edge cuts is a thin parallelogram. Its thickness, measured square to the edge, is the maximum chip thickness
+
+$$
+h_{ex} = f_n \cdot \sin \kappa_r
+$$
+
+and its width along the edge is ap / sin κr, so the section ap · fn stays the same whatever the angle. At κr 90° the chip is as thick as the feed; at 45° it is 0.71 times the feed, which is the factor Sandvik prints. Sandvik's patent on turning states the definition in words: chip thickness is the feed multiplied by the sine of the entering angle. Mitsubishi, Sumitomo and Tungaloy describe the same trend from the other side: at the same feed, a larger lead angle gives a thinner chip, and Mitsubishi adds a wider one.
+
+Choosing κr is a trade:
+
+- **Turning against a shoulder:** κr must be at least 90° (Europa-Lehrmittel); Sandvik's usual holders for longitudinal turning are 95° and 93°.
+- **Slender work, light finishing cuts, a weak machine:** keep κr near 90° (Mitsubishi). The passive force is smallest at 90° and grows as κr falls (Handwerk und Technik), and a long, thin part bends under it.
+- **A smaller κr** spreads the load over a longer edge, which Mitsubishi credits with longer tool life, and Sandvik advises an entering angle below 90° where possible to soften the impact. The cost: the chip is harder to break (Mitsubishi), the radial force is higher, and the tool cannot reach a square shoulder.
+
+## Facing and parting: the speed runs out at the centre
+
+At a fixed spindle speed the cutting speed falls with the diameter and is zero at the centre; Hoffmann's advice for machines without constant cutting speed is to calculate with the average diameter. A CNC lathe can hold the cutting speed instead. On a Siemens SINUMERIK control **G96** keeps vc constant, and because the spindle speed would in theory climb without end as the diameter shrinks, a speed limit has to be programmed, for example `G96 S180 LIMS=3000`. From the diameter where the limit is reached, the spindle stays at the limit and the cutting speed falls to zero at the centre, as Sandvik describes for parting off.
+
+<Figure caption="Facing at constant cutting speed with a speed limit, computed from n = 1000 · vc / (π · D). Above, the spindle speed climbs as the diameter falls until it meets the limit; the dotted curve is what constant vc would need without one. Below, vc holds until that diameter and then falls to zero at the centre. It starts at the Siemens example above (vc 180 m/min, limit 3000 rpm). On entering the view the tool travels once from the outside to the centre; point at or drag along the chart to move it.">
+  <FacingSpeed locale="en" vc={180} nmax={3000} />
+</Figure>
+
+Siemens programs drilling and, usually, thread turning with **G97**, constant spindle speed; for these the speed must not change with the diameter. For parting off, Sandvik reduces the feed by up to 75 % about 2 mm before the part comes off, to keep the pip small, and calls chip evacuation a critical factor.
+
+## Boring: the overhang decides
+
+A boring bar is a cantilever inside the part, and its length against its diameter decides whether the cut is quiet. Sandvik's rule is the largest bar diameter and the shortest overhang the job allows, with these limits by bar type:
+
+<Figure caption="Longest recommended overhang of a boring bar, in bar diameters, by bar type: Sandvik Coromant’s training handbook (one manufacturer). Bars drawn to one scale; the blue band marks a damping element.">
+  <BarOverhang
+    aria="Longest recommended boring bar overhang in bar diameters: steel 4, carbide 6, short dampened 7, long dampened 10, carbide-reinforced dampened 14"
+    unit="overhang, in bar diameters D"
+    clamp="clamp"
+    bars={[
+      { label: 'Steel bar', times: 4 },
+      { label: 'Carbide bar', times: 6, carbide: true },
+      { label: 'Short dampened bar', times: 7, damped: true },
+      { label: 'Long dampened bar', times: 10, damped: true },
+      { label: 'Carbide-reinforced dampened bar', times: 14, damped: true, carbide: true },
+    ]}
+  />
+</Figure>
+
+Sandvik also keeps the entering angle close to 90° in boring and never below 75°, because a smaller angle raises the radial force that pushes the bar away from the wall. Tungaloy's troubleshooting table gives the same remedy for chatter: shorten the overhang of the toolholder.
+
+## Starting feeds from two makers
+
+Both makers sort turning into finishing, medium and roughing and give a feed range for each. Sandvik's ranges come from its insert-size chart and Sumitomo's are its first-choice conditions; both are for their own inserts, not limits; Sumitomo's table goes with particular grades and chipbreakers and is printed in inches, converted here.
+
+| Category | Sandvik Coromant, fn (mm/rev) | Sumitomo, fn (≈ mm/rev) | Sumitomo, ap (≈ mm) |
+|---|---|---|---|
+| Finishing | 0.1–0.3 | 0.05–0.20 | 0.13–1.5 |
+| Medium / general purpose | 0.2–0.5 | 0.20–0.51 | 1.0–5.1 |
+| Roughing | 0.5–1.5 | 0.38–0.66 | 5.1 |
+
+The two agree on the order and roughly on the middle range; for roughing, Sandvik's chart reaches much higher feeds than Sumitomo's table.
+
+## Common mistakes
+
+- **Constant cutting speed without a limit.** As the tool nears the axis the control would raise the spindle speed without end; Siemens asks for a programmed limit because of the centrifugal forces.
+- **G96 for drilling or threading.** Drilling needs a constant spindle speed, and thread turning usually runs at one too (G97 on SINUMERIK).
+- **A κr below 90° against a shoulder.** The edge cannot reach the corner; use a 93° or 95° holder.
+- **A long boring bar.** Take the largest bar that fits and the shortest overhang; past the limits above, use a dampened or carbide bar.
+- **Full feed to the end of a parting cut.** Reduce it about 2 mm before the part comes off, or the pip grows.
+- **Mixing angle conventions.** κr 75° and a 15° lead angle are the same holder; a Japanese catalogue’s “side cutting edge angle 15°” is that holder too.

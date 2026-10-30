@@ -1,0 +1,140 @@
+---
+key: rk-parameters
+locale: en
+slug: rk-parameters
+title: 'Rk, Rpk, Rvk — reading a plateau-honed surface'
+description: 'Why Ra cannot describe a cylinder bore, how the Abbott–Firestone curve is split into peaks, core and valleys under ISO 13565-2, what Rk, Rpk, Rvk, Mr1 and Mr2 mean, and published target values for engine bores and seal counter-surfaces.'
+section: 10
+subsection: surface-roughness
+order: 2
+status: review
+updated: 2026-10-11
+tools: [roughness]
+glance:
+  - value: '40 %'
+    label: 'Secant of least gradient that defines the core'
+  - value: '5'
+    label: 'Parameters: Rk, Rpk, Rvk, Mr1, Mr2'
+  - value: '< 0.20'
+    unit: 'µm'
+    label: 'Rpk target for passenger-car bores (MS Motorservice)'
+  - value: 'Rmrk1, Rmrk2'
+    label: 'New names of Mr1 and Mr2 in ISO 21920-2'
+sources:
+  - label: 'ImageMet, ISO 13565 roughness analysis (filter, construction of Rk, Mr1, Mr2, Rpk, Rvk)'
+    url: https://www.imagemet.com/WebHelp6/Content/RoughnessAnalysis/RoughnessISO13565.htm
+  - label: 'D. Hüser et al. (PTB), arXiv:1603.00746 (definitions of the Rk family)'
+    url: https://arxiv.org/pdf/1603.00746
+  - label: 'M. Krystek (PTB), arXiv:1012.0678, 2010 (ISO 13565-1 filter and its successors)'
+    url: https://arxiv.org/pdf/1012.0678
+  - label: 'Mahr, MarSurf parameter guide, Rk parameters'
+    url: https://parameter.mahr.com/html/english/MarSurf/rrrmm.html
+  - label: 'Digital Surf, guide to ISO 13565 parameters'
+    url: https://guide.digitalsurf.com/en/guide-iso-13565-parameters.html
+  - label: 'W. Graboń, P. Pawlus, Metrology and Measurement Systems 23(4), 2016 (ISO 13565-3 parameters)'
+    url: https://www.czasopisma.pan.pl//Content/106351/PDF/10.1515mms-2016-0046%20paper%2009.pdf
+  - label: 'ISO 13565-1:1996, catalogue page (confirmed 2026)'
+    url: https://www.iso.org/standard/22279.html
+  - label: 'BS EN ISO 21920-2:2022 preview (forewords; ISO 13565-2 and -3 replaced)'
+    url: https://webstore.ansi.org/preview-pages/BSI/preview_30458657.pdf
+  - label: 'Hoffmann / Perschmann, Oberflächenkenngrößen (Mr1/Mr2 renamed Rmrk1/Rmrk2), 2022'
+    url: https://www.perschmann.de/_Resources/Persistent/c/1/7/5/c1752cfe94f0cd28c408a508401d8ae59a418843/messtechnik-oberflaechenkenngroessen-perschmann.pdf
+  - label: 'MS Motorservice, Technipedia, "Honing results — assessment"'
+    url: https://www.ms-motorservice.com/sg/en/technipedia/honing-results-assessment
+  - label: 'Trelleborg Sealing Solutions, "An introduction to counter surfaces", whitepaper, 2019'
+    url: https://www.trelleborg.com/seals/-/media/tss-media-repository/tss_website/services-and-tools/technical-library/whitepapers/introduction-to-counter-surfaces-whitepaper_en.pdf?rev=-1
+  - label: 'Parker Hannifin, Fluid Power Seal Design Guide EPS 5370/USA (third-party copy)'
+    url: https://www.hdslippers.com/cgi-bin/pdf/Catalogues/Fluid Power Parker Seals.pdf
+  - label: 'Freudenberg, Merkel Compact Seal S8 datasheet'
+    url: https://products.fst.com/pim/assets/design/productdatasheets/merkel_compact_seal_s8__en.pdf
+  - label: 'SKF, K02-RD piston seal datasheet, 2019'
+    url: https://cdn.skfmediahub.skf.com/api/public/0901d196802a94db/pdf_preview_medium/0901d196802a94db_pdf_preview_medium.pdf
+---
+import AbbottRk from '../../../components/mdx/AbbottRk.astro';
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { msBoreTargets } from '../../../data/figures';
+
+A plateau-honed cylinder bore has two jobs at once. Its smooth plateaus carry the piston rings; its deep honing grooves hold oil. Ra averages both into one number and says nothing about either. The Rk parameters of ISO 13565-2 were made for exactly this kind of surface: they split the profile into peaks that will wear off during running-in, a core that carries the load, and valleys that retain lubricant.
+
+## The material ratio curve
+
+Sort all heights of the roughness profile from the highest to the lowest and plot them against the share of the evaluation length that lies above each height. The result is the **material ratio curve**, or Abbott–Firestone curve. At the top only the highest peak is cut (0 %); at the bottom everything is (100 %).
+
+For a plateau-honed surface the curve is S-shaped: steep at the top where a few peaks stand out, flat through the plateau, and steep again at the bottom where the deep grooves are.
+
+<Figure caption="A synthetic plateau-honed profile (left) and its material ratio curve (right), on one height scale, with the ISO 13565-2 construction. The buttons build it in the order of the steps below. All values are calculated from the profile drawn.">
+  <AbbottRk locale="en" />
+</Figure>
+
+## The construction, step by step
+
+1. **Equivalent straight line.** A secant spanning 40 % of material ratio is moved along the curve until its slope is smallest. That position marks the core of the profile.
+2. **Rk, the core roughness depth.** Extend the line to 0 % and 100 %. The height between those two intersections is Rk.
+3. **Mr1 and Mr2.** Horizontal lines through the two ends of the core cut the curve at Mr1, the smallest material ratio of the core, and Mr2, the largest.
+4. **Rpk, the reduced peak height.** The area A1 between the curve and the upper core line, from 0 % to Mr1, is replaced by a right triangle of equal area on the base Mr1:
+
+$$
+Rpk = \frac{2\,A_1}{Mr_1}
+$$
+
+5. **Rvk, the reduced valley depth.** In the same way, the area A2 between the lower core line and the curve, from Mr2 to 100 %, gives:
+
+$$
+Rvk = \frac{2\,A_2}{100\,\% - Mr_2}
+$$
+
+Read in terms of function:
+
+- **Rpk** describes the peaks that will be worn away in running-in. Small is good.
+- **Rk** describes the core that carries the load over the long term.
+- **Rvk** describes the valleys that hold the oil. It must be large enough to retain lubricant.
+- **Mr1** is the share of the length occupied by the peaks; **100 % − Mr2** is the share occupied by the valleys.
+
+<Note kind="note" title="Filtering and validity">
+The parameters are defined on a profile filtered by the special two-stage filter of ISO 13565-1, which keeps the deep valleys from pulling the mean line down: the profile is filtered, everything below the first mean line is replaced by that line, and this modified profile is filtered again; the new mean line, subtracted from the original profile, gives the roughness profile. Robust filters have since been introduced as successors. Digital Surf notes that the parameters are meaningful only when the material ratio curve is S-shaped.
+</Note>
+
+## Names under ISO 21920
+
+ISO 21920-2:2021 replaced ISO 13565-2 and -3. Rk, Rpk and Rvk keep their names; Mr1 and Mr2 became **Rmrk1** and **Rmrk2**. The status of the filter standard differs by body: ISO lists ISO 13565-1 as current and confirmed it in 2026, while BSI and Mahr's DIN-based summary list it as withdrawn.
+
+ISO 13565-3 added a second family, Rpq, Rvq and Rmq, based on the material probability curve: the slopes of the plateau and valley regions on a normal-probability scale, and the material ratio at their transition. They were intended for two-component surfaces such as cylinder liners and fuel injectors.
+
+## Published target values
+
+<Note kind="warn" title="Under review — single sources">
+Each set of values below comes from one manufacturer's publication and applies to that maker's products and measuring conditions. They have not yet been confirmed by a second independent source. Always use the values on the drawing or in the specification of the engine or seal maker.
+</Note>
+
+### Engine cylinder bores (MS Motorservice)
+
+| Parameter | Passenger car, petrol and diesel | Diesel utility vehicle |
+|---|---|---|
+| Ra (µm) | 0.15–0.40 | 0.30–0.50 |
+| Rpk (µm) | < 0.20 | 0.20–0.40 |
+| Rk (µm) | 0.20–0.60 | 0.50–1.50 |
+| Rvk (µm) | 1.40–1.80 | 1.50–2.00 |
+| Mr1 (%) | 4–12 | 4–10 |
+| Mr2 (%) | 75–90 | 80–90 |
+| Honing angle | 25–45° | 40–60° |
+
+Measured over a traverse length of 4.8 mm with a 2 µm, 90° stylus tip. Note how Rvk is several times Rpk: the surface is meant to be mostly plateau, with deep oil-holding grooves. A liner maker's patent (Zynp) and a paper by Gruszka, Pawlus and Mathia give similar ranges; they are compared in [honing and plateau honing](/processes/honing-and-plateau-honing/).
+
+<Figure caption="The Rpk, Rk and Rvk ranges of the table for the two kinds of engine. The dotted bar is an upper limit only.">
+  <RangeChart locale="en" {...msBoreTargets("en")} min={0} max={2.2} ticks={[0, 0.5, 1, 1.5, 2]} unit="µm" axisLabel="Height" labelWidth={70} aria="MS Motorservice cylinder bore targets for passenger cars and diesel utility vehicles" />
+</Figure>
+
+### Counter-surfaces for hydraulic seals
+
+| Maker, surface | Ra (µm) | Other limits | Material ratio |
+|---|---|---|---|
+| Trelleborg, honed or ground bores | 0.05–0.4 | Rz 0.6–2.5; Rpk 0.05–0.40; Rvk 0.10–1.4 | Rmr 50–70 % |
+| Parker, dynamic surfaces, hydraulic oil | 0.08–0.3 (≤ 0.3 for PTFE) | Rz ≤ 8 · Ra, at most 1.8 (1.6 for PTFE) | Rmr 45–70 % thermoplastic, 55–85 % rubber, 60–90 % PTFE |
+| Freudenberg, Merkel S8 sliding surface | 0.05–0.3 | Rz1max ≤ 3.0 | Mr 50–90 % |
+| SKF, K02-RD piston seal sliding surface | 0.05–0.2 | Rt max ≤ 2.5 | see note |
+
+<Note kind="key" title="Material ratios are not comparable between makers">
+Trelleborg and Parker measure Rmr at a cut depth of 0.25 · Rz below a reference line at 5 % material ratio (Trelleborg uses 5 % for chrome and soft coatings, 2 % for nitrided or hardened surfaces and 0 % for ceramic). Freudenberg measures at c = Rz/2 with the reference at 0 %; SKF's datasheet gives 50–95 % at a cut depth of 0.5 · Rz with the reference at 0 %, without saying which surface this applies to. The same surface therefore gives different percentages under the two conventions.
+</Note>
+
+To see how feed and nose radius set the roughness of a turned surface before honing or grinding, use the [theoretical roughness calculator](/tools/theoretical-roughness/).

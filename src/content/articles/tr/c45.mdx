@@ -1,0 +1,132 @@
+---
+key: c45
+locale: tr
+slug: c45
+title: 'C45 / C45E (Ck45) — 1.0503 / 1.1191'
+description: 'Orta karbonlu ıslah çeliği C45 ve C45E (eski adıyla Ck45) ile C45R türevleri: gösterimler ve eşdeğerler, kimyasal bileşim, normalize ve ıslah edilmiş durumda dayanım, sertlik, ısıl işlem, kaynak kabiliyeti ve kesme verileri.'
+section: 6
+subsection: steels
+order: 1
+updated: 2026-10-11
+tools: [turning, milling]
+glance:
+  - value: '0,42–0,50'
+    unit: '% C'
+    label: 'Karbon içeriği, EN ISO 683-1'
+  - value: '700–850'
+    unit: 'MPa'
+    label: 'Çekme dayanımı, ıslah edilmiş, d ≤ 16 mm'
+  - value: '207'
+    unit: 'HB'
+    label: 'En çok sertlik, yumuşatma tavlaması yapılmış (+A)'
+  - value: '1045 / S45C'
+    label: 'Yaklaşık AISI ve JIS eşdeğerleri'
+sources:
+  - label: 'EN ISO 683-1:2018, Heat-treatable steels — Part 1: Non-alloy steels for quenching and tempering (SIS katalog sayfası)'
+    url: https://www.sis.se/en/produkter/metallurgy/iron-and-steel-products/heattreatable-steels/ss-en-iso-683-12018
+  - label: 'DIN EN ISO 683-1:2018-09 (DIN Media; EN 10083-1 ve -2''nin yerini alır)'
+    url: https://www.dinmedia.de/de/norm/din-en-iso-683-1/291176752
+  - label: 'Saarstahl, Werkstoffdatenblatt C45 (1.0503)'
+    url: https://en.saarstahl.com/app/uploads/2024/03/20160401102929-0503_C45.pdf
+  - label: 'Saarstahl, Werkstoffdatenblatt C45E / C45R'
+    url: https://www.saarstahl.com/app/uploads/2024/03/20160226042521-1191_1201_C45E_C45R.pdf
+  - label: 'Deutsche Edelstahlwerke, Werkstoffdatenblatt 1.1191 / 1.1201 (C45E / C45R), 2011'
+    url: https://swisssteel-group.com/content-media/documents/Data-Sheets/Engineering-Steel/1.1191_1.1201_de.pdf
+  - label: 'thyssenkrupp Materials Schweiz, THYROQUENCH 1191 (C45E), 2021'
+    url: https://ucpcdn.thyssenkrupp.com/_binary/UCPthyssenkruppBAMXSchweiz/de/downloads/werkstoffdatenblaetter-baustahl/datenblatt-baustahl-thyroquench-1191/edelbau_1191.pdf
+  - label: 'Swiss Steel, C45E / C45R veri sayfası (EN ISO 683-1:2018)'
+    url: https://swisssteel-group.com/content-media/documents/Data-Sheets/Engineering-Steel/C45E-C45R_de.pdf
+  - label: 'Lucefin, teknik kart C45E (ISO 683-1:2018), 2024'
+    url: https://lucefin.com/wp-content/uploads/2025/01/ENG-C45E.pdf
+  - label: 'Ovako, Steel Navigator: C45'
+    url: https://steelnavigator.ovako.com/steel-grades/c45/
+  - label: 'MISUMI, malzeme karşılaştırma tablosu (JIS / AISI / DIN), yalnızca referans için'
+    url: https://sg.misumi-ec.com/tech-info/categories/technical_data/td01/a0203.html
+  - label: 'ISCAR, "Materials and Grades according to DIN/ISO 513 and VDI 3323" (malzeme grupları, kc1.1)'
+    url: https://www.iscar.com/lms/wp-content/uploads/2021/04/Materials-group.pdf
+  - label: 'Seco Tools, Frezeleme kataloğu 2025, "Workpiece materials — Classification" (bayi kopyası)'
+    url: https://maskin.sde.dk/wp-content/uploads/2025/03/GB-Milling-2025SN1-1.pdf
+---
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { c45Heat } from '../../../data/steel-charts';
+import StepChart from '../../../components/mdx/StepChart.astro';
+import JominyBand from '../../../components/mdx/JominyBand.astro';
+
+import { qtSeries } from '../../../data/steel-charts';
+
+C45, alaşımsız, orta karbonlu bir ıslah çeliğidir: alaşım elementi olmadan yapı çeliğinden daha yüksek dayanım. Normalize edilmiş, yumuşatma tavlaması yapılmış, makasla kesilebilirlik için işlem görmüş ya da ıslah edilmiş olarak teslim edilir.
+
+## Gösterimler
+
+| Ad | Numara | Not |
+|---|---|---|
+| C45 | 1.0503 | Temel kalite |
+| C45E | 1.1191 | Daha düşük en büyük P ve S; eski adıyla **Ck45** (DIN 17200) |
+| C45R | 1.1201 | Tanımlı kükürt aralığı %0,020–0,040; eski adıyla Cm45 |
+
+Yaklaşık eşdeğerler: AISI/SAE **1045**, JIS **S45C**. Eşdeğer kaliteler hiçbir zaman özdeş değildir; satın aldığınız standardın bileşimine ve özelliklerine bakın.
+
+Geçerli standart **EN ISO 683-1:2018**'dir; EN 10083-1 ve EN 10083-2'nin (2006) yerini almıştır. Birçok üretici veri sayfası hâlâ EN 10083'e atıf yapar.
+
+## Kimyasal bileşim
+
+Döküm analizi, kütlece %, EN ISO 683-1:
+
+| C | Si | Mn | P en çok | S en çok | Cr en çok | Mo en çok | Ni en çok | Cr+Mo+Ni en çok | Cu en çok |
+|---|---|---|---|---|---|---|---|---|---|
+| 0,42–0,50 | 0,10–0,40 | 0,50–0,80 | 0,045 (C45) · 0,025 (C45E) | 0,045 (C45) · 0,035 (C45E) | 0,40 | 0,10 | 0,40 | 0,63 | 0,30 |
+
+C45R'de S %0,020–0,040'tır. Eski EN 10083-2 silisyumu alt sınır olmadan en çok %0,40 olarak veriyordu; %0,10'luk alt sınır EN ISO 683-1 ile gelir. C45E'nin en büyük P değeri için Lucefin %0,020 basarken diğer sayfalar %0,025 verir.
+
+## Mekanik özellikler
+
+**Normalize edilmiş (+N),** en küçük değerler:
+
+| Çap d (mm) | ReH (MPa) | Rm (MPa) | A (%) |
+|---|---|---|---|
+| ≤ 16 | 340 | 620 | 14 |
+| 16 < d ≤ 100 | 305 | 580 | 16 |
+| 100 < d ≤ 250 | 275 | 560 | 16 |
+
+**Islah edilmiş (+QT):**
+
+| Çap d (mm) | Re en küçük (MPa) | Rm (MPa) | A en küçük (%) | Z en küçük (%) |
+|---|---|---|---|---|
+| ≤ 16 | 490 | 700–850 | 14 | 35 |
+| 16 < d ≤ 40 | 430 | 650–800 | 16 | 40 |
+| 40 < d ≤ 100 | 370 | 630–780 | 17 | 45 |
+
+C45E ve C45R için Saarstahl, Deutsche Edelstahlwerke ve thyssenkrupp üç bantta da en küçük darbe enerjisi KV'yi 25 J verir; Lucefin 15 J basar. Çap, ısıl işlem gören kesitin çapıdır; C45 yalnızca sınırlı bir derinliğe kadar sertleştiği için çubuk kalınlaştıkça dayanım düşer. C45E'nin sertleşebilirlik bandı (thyssenkrupp, Lucefin) bunun ne kadar hızlı olduğunu gösterir: su verilen uçtan 1,5 mm'de 55–62 HRC, 5 mm'de 28–57 HRC, 11 mm'de 22–32 HRC.
+
+<Figure caption="C45E'nin sertleşebilirlik bandı, yukarıda verilen üç uzaklıkta: bir ucundan su verilen çubuğun gösterebileceği sertlik aralığı. Su verilen uçtan 11 mm içinde en düşük değer 55'ten 22 HRC'ye iner. Yalnızca verilen üç nokta çizilmiştir.">
+  <JominyBand locale="tr" />
+</Figure>
+
+<Figure caption="Islah edilmiş (+QT): ısıl işlem gören kesitin çapına göre en küçük akma dayanımı Re (çizgi) ve çekme dayanımı aralığı Rm (bant); değerler tablolardaki EN ISO 683-1 ve EN ISO 683-2 değerleridir. C45 yalnızca 100 mm'ye kadar listelenir. Okumak için bir basamağın üzerine gelin.">
+  <StepChart locale="tr" series={qtSeries} xLabel="d" yLabel="Dayanım" xMax={250} yMax={1400} yTicks={[0, 200, 400, 600, 800, 1000, 1200, 1400]} xTicks={[0, 16, 40, 100, 160, 250]} lineLabel="Re en küçük" bandLabel="Rm" aria="C45 ve 42CrMo4 için ıslah edilmiş durumda çapa göre Re ve Rm basamak grafiği" />
+</Figure>
+
+**Sertlik:** yumuşatma tavlaması yapılmış (+A) en çok **207 HB**; makasla kesilebilirlik için işlem görmüş (+S) en çok **255 HB**.
+
+## Isıl işlem
+
+Çelik üreticilerinin verdiği sıcaklıklar, °C:
+
+| İşlem | Aralık | Notlar |
+|---|---|---|
+| Normalizasyon | 840–880 | DEW ve Ovako 840–870 verir |
+| Yumuşatma tavlaması | 650–710 | Saarstahl 680–710; DEW ve Ovako 650–700 |
+| Sertleştirme | 820–860 | Su ya da yağ (Saarstahl). Suda yağdakinden düşüktür: DEW suda 820–850, yağda 830–860; Ovako 820–850 ve 840–870. thyssenkrupp 840–880 verir |
+| Menevişleme | 550–660 | Yukarıdaki +QT dayanımları için |
+
+<Figure caption="Yukarıdaki tablodaki ısıl işlem sıcaklıkları. Kalın çubuk bu sayfanın kullandığı aralık, ince çubuklar tek tek üreticilerin bastığı değerlerdir. Okumak için bir çubuğun üzerine gelin.">
+  <RangeChart locale="tr" rows={c45Heat("tr")} min={500} max={950} ticks={[500, 600, 700, 800, 900]} unit="°C" axisLabel="Sıcaklık" aria="Isıl işlem sıcaklık aralıkları" />
+</Figure>
+
+## Kaynak kabiliyeti
+
+Deutsche Edelstahlwerke, C45E ve C45R'yi zor kaynak edilir olarak tanımlar ve kaynaklı konstrüksiyonlarda kullanılmamalarını önerir. Lucefin, kaynak kaçınılmazsa 250 °C ön ısıtma ve kaynaktan sonra 550 °C'de gerilim giderme verir.
+
+## Talaşlı işleme
+
+C45, ISO 513'te P grubu bir malzemedir. Kesme kuvveti hesapları için ISCAR tavlanmış C45'i 2. grubuna koyar (190 HB, kc1.1 = 1500 N/mm², mc = 0,22); Seco ise C45E'yi P4 grubunun referans malzemesi olarak kullanır (kc1.1 = 2000 N/mm², mc = 0,15). İki veri seti farklıdır; karıştırmadan önce [kesme kuvvetleri](/tr/temeller/kesme-kuvvetleri/) sayfasını okuyun. Ovako, takım aşınmasını azaltmak ve talaş kontrolünü iyileştirmek için kalsiyumla işlem görmüş bir "M-Steel" sürümü sunar.

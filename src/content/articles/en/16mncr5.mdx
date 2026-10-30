@@ -1,0 +1,106 @@
+---
+key: 16mncr5
+locale: en
+slug: 16mncr5
+title: '16MnCr5 — 1.7131 case-hardening steel'
+description: 'The manganese-chromium case-hardening steel 16MnCr5: designations, chemical composition, hardness in the delivery conditions, carburizing and hardening temperatures, weldability and machining — and why its core strength has no single value.'
+section: 6
+subsection: steels
+order: 4
+updated: 2026-10-11
+tools: [turning, milling]
+glance:
+  - value: '0.14–0.19'
+    unit: '% C'
+    label: 'Carbon content, EN ISO 683-3'
+  - value: '880–980'
+    unit: '°C'
+    label: 'Carburizing temperature'
+  - value: '57–64'
+    unit: 'HRC'
+    label: 'Surface hardness after case hardening (Lucefin)'
+  - value: '5115'
+    label: 'Approximate AISI/SAE equivalent'
+sources:
+  - label: 'EN ISO 683-3:2022, Heat-treatable steels — Part 3: Case-hardening steels (SIS catalogue page)'
+    url: https://www.sis.se/en/produkter/metallurgy/iron-and-steel-products/stainless-steels/ss-en-iso-683-32022/
+  - label: 'EN ISO 683-3:2022 (iTeh catalogue entry)'
+    url: https://iteh.es/catalog/standards/cen/4b5d9cfd-6f83-4fec-9ebd-c397d5e8a2d3/en-iso-683-3-2022
+  - label: 'DIN EN ISO 683-3:2019-04 (DIN Media; replaced by the 2022-06 edition)'
+    url: https://dinmedia.de/en/standard/din-en-iso-683-3/301622813
+  - label: 'Deutsche Edelstahlwerke, Carbodur 7131 / 7139 (16MnCr5 / 16MnCrS5) data sheet, 2016'
+    url: https://swisssteel-group.com/content-media/documents/Data-Sheets/Engineering-Steel/1.7131_1.7139_de.pdf
+  - label: 'Saarstahl, Werkstoffdatenblatt 16MnCr5 / 16MnCrS5'
+    url: https://www.saarstahl.com/app/uploads/2024/03/20160318114954-16MnCr5-16MnCrS5-.pdf
+  - label: 'Lucefin, technical card 16MnCr5 (ISO 683-3:2018), 2024'
+    url: https://lucefin.com/wp-content/uploads/2025/01/ENG-16MnCr5.pdf
+  - label: 'Ovako, Steel Navigator: 16MnCr5'
+    url: https://steelnavigator.ovako.com/steel-grades/16mncr5/
+---
+import RangeChart from '../../../components/mdx/RangeChart.astro';
+import { mncrHeat } from '../../../data/steel-charts';
+import CaseRoute from '../../../components/mdx/CaseRoute.astro';
+
+16MnCr5 is a low-carbon manganese-chromium steel made to be case hardened. Carburizing adds carbon to a thin surface layer, which then hardens on quenching, while the low-carbon core stays tough. The result is a hard, wear-resistant surface on a tough core.
+
+## Designations
+
+| Name | Number | Note |
+|---|---|---|
+| 16MnCr5 | 1.7131 | Base grade |
+| 16MnCrS5 | 1.7139 | Specified sulphur range 0.020–0.040 %; described by Deutsche Edelstahlwerke as particularly suitable for machining |
+
+Approximate equivalent: AISI/SAE **5115**. No JIS equivalent could be confirmed.
+
+The current standard is **EN ISO 683-3:2022**. It replaced the 2019 and 2018 editions and, before them, EN 10084:2008. Many mill data sheets still cite EN 10084.
+
+## Chemical composition
+
+Heat analysis, % by mass, EN ISO 683-3:
+
+| C | Si | Mn | P max | S max | Cr | Cu max |
+|---|---|---|---|---|---|---|
+| 0.14–0.19 | 0.15–0.40 | 1.00–1.30 | 0.025 | 0.035 | 0.80–1.10 | 0.40 |
+
+16MnCrS5 has S 0.020–0.040 %. The silicon minimum of 0.15 % appears in the EN ISO 683-3 based sheets of Ovako and Lucefin; EN 10084 gave only a maximum of 0.40 %.
+
+## Hardness in the delivery conditions
+
+| Condition | Hardness (HB) |
+|---|---|
+| +A, soft annealed | max 207 |
+| +FP, treated to ferrite-pearlite and hardness range | 140–187 |
+| +N, normalized | 138–187 |
+| +TH, treated to hardness range | 156–207 (Deutsche Edelstahlwerke) |
+
+## Heat treatment
+
+| Step | Temperature (°C) | Notes |
+|---|---|---|
+| Carburizing | 880–980 | |
+| Core hardening | 860–900 | Oil or polymer |
+| Case hardening | 780–820 | Saarstahl and DEW; Lucefin gives 810–840 |
+| Tempering | 150–200 | |
+| Soft annealing | 650–700 | Ovako 670–710 |
+
+<Figure caption="Heat treatment temperatures from the table above. The thick bar is the range this page uses; thin bars are the values individual makers print. Hover a bar to read it.">
+  <RangeChart locale="en" rows={mncrHeat("en")} min={100} max={1000} ticks={[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]} unit="°C" axisLabel="Temperature" aria="Heat treatment temperature ranges" />
+</Figure>
+
+Lucefin gives a surface hardness of about 57–64 HRC after carburizing and hardening.
+
+<Note kind="warn" title="Core strength has no standard value">
+The strength of the core after case hardening depends on the section size and the treatment. The makers' guide values disagree: for an 11 mm section, Deutsche Edelstahlwerke gives Rm 880–1180 MPa (blank-hardening guide values from the superseded DIN 17210), Lucefin 1030–1370 MPa. None of them is a requirement of the standard. Specify and test the core strength the part needs.
+</Note>
+
+## Weldability
+
+Deutsche Edelstahlwerke rates 16MnCr5 as generally weldable. Lucefin recommends welding before carburizing, a preheat of 150–350 °C and stress relieving at about 600 °C.
+
+## Machining
+
+Machining is normally done before carburizing, in the +A, +FP or +N condition, so the hardness ranges above are what the tool sees. Where machinability matters, 16MnCrS5 with its controlled sulphur, or Ovako's calcium-treated version, is offered. After case hardening, finishing is done by grinding or hard turning. In ISO 513 the soft steel belongs to group P and the hardened case to group H.
+
+<Figure caption="The route of a case-hardened part in the order described on this page, with the temperatures and hardness values from the tables above.">
+  <CaseRoute locale="en" />
+</Figure>

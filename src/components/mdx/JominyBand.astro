@@ -1,0 +1,73 @@
+---
+/**
+ * Hardenability band of C45E at the three distances quoted in the article (thyssenkrupp,
+ * Lucefin): 55–62 HRC at 1.5 mm from the quenched end, 28–57 HRC at 5 mm, 22–32 HRC at 11 mm.
+ * Only those three distances are drawn; nothing is interpolated between them.
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const pts = [
+  { x: 1.5, lo: 55, hi: 62 },
+  { x: 5, lo: 28, hi: 57 },
+  { x: 11, lo: 22, hi: 32 },
+];
+const W = 420, L = 44, R = 18, top = 26, sh = 30, cT = 92, cB = 300, H = 336;
+const X = (mm: number) => L + (mm / 16) * (W - L - R);
+const Y = (hrc: number) => cT + (1 - (hrc - 15) / 50) * (cB - cT);
+const n = (v: number) => (tr ? String(v).replace('.', ',') : String(v));
+const T = tr
+  ? { end: 'su verilen uç', spec: 'uçtan su verilmiş deney çubuğu', x: 'su verilen uçtan uzaklık (mm)', y: 'HRC', aria: 'C45E sertleşebilirlik bandı: üç uzaklıkta HRC aralığı' }
+  : { end: 'quenched end', spec: 'end-quenched test bar', x: 'distance from the quenched end (mm)', y: 'HRC', aria: 'C45E hardenability band: HRC range at three distances' };
+---
+<div class="jominy">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={T.aria}>
+    <defs>
+      <linearGradient id={`jb-bar-${locale}`} x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#ecf0f3" /><stop offset="0.35" stop-color="#b5bec5" /><stop offset="1" stop-color="#7e878f" />
+      </linearGradient>
+      <linearGradient id={`jb-q-${locale}`} x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#1e6fd6" stop-opacity="0.9" /><stop offset="1" stop-color="#1e6fd6" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+    <!-- test bar -->
+    <rect x={X(0)} y={top} width={X(16) - X(0)} height={sh} fill={`url(#jb-bar-${locale})`} />
+    <rect x={X(0)} y={top} width="22" height={sh} fill={`url(#jb-q-${locale})`} />
+    <line x1={X(0)} x2={X(0)} y1={top - 4} y2={top + sh + 4} class="qend" />
+    <path d={`M${X(16) - 6},${top - 3} l6,9 l-6,9 l6,9 l-6,9`} class="brk" />
+    <text x={X(0) + 6} y={top + sh + 16} class="sm acc">{T.end}</text>
+    <text x={X(16) - 10} y={top - 7} text-anchor="end" class="sm">{T.spec}</text>
+    <!-- chart -->
+    {[20, 30, 40, 50, 60].map((h) => <g><line x1={L} x2={W - R} y1={Y(h)} y2={Y(h)} class="grid" /><text x={L - 8} y={Y(h) + 4} text-anchor="end" class="tick">{h}</text></g>)}
+    {[0, 2, 4, 6, 8, 10, 12, 14, 16].map((m) => <g><line x1={X(m)} x2={X(m)} y1={cB} y2={cB + 4} class="ax" /><text x={X(m)} y={cB + 16} text-anchor="middle" class="tick">{m}</text></g>)}
+    <line x1={L} x2={W - R} y1={cB} y2={cB} class="ax" />
+    <text x={L} y={cT - 8} class="axl">{T.y}</text>
+    <text x={W - R} y={H - 2} text-anchor="end" class="axl">{T.x}</text>
+    {pts.map((p) => (
+      <g>
+        <line x1={X(p.x)} x2={X(p.x)} y1={top + sh} y2={Y(p.hi) - 4} class="guide" />
+        <circle cx={X(p.x)} cy={top + sh / 2} r="3.5" class="probe" />
+        <rect x={X(p.x) - 7} y={Y(p.hi)} width="14" height={Y(p.lo) - Y(p.hi)} rx="7" class="rng" />
+        <text x={X(p.x) + 12} y={(Y(p.hi) + Y(p.lo)) / 2 + 4} class="val">{p.lo}–{p.hi}</text>
+        <text x={X(p.x)} y={cB - 6} text-anchor="middle" class="sm dim">{n(p.x)}</text>
+      </g>
+    ))}
+  </svg>
+</div>
+
+<style>
+  .jominy svg { width: 100%; max-width: 600px; margin: 0 auto; height: auto; display: block; }
+  .grid { stroke: var(--line); }
+  .ax { stroke: var(--line-strong); }
+  .tick { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-3); }
+  .axl { font-size: 10.5px; fill: var(--ink-3); }
+  .qend { stroke: #1e6fd6; stroke-width: 2.5; }
+  .brk { fill: none; stroke: #fbfdff; stroke-width: 3; }
+  .sm { font-family: var(--font-mono); font-size: 9.5px; fill: var(--ink-3); }
+  .acc { fill: #2a78d6; }
+  .dim { fill: var(--ink-3); }
+  .guide { stroke: #656e74; stroke-width: 1; stroke-dasharray: 2 3; }
+  .probe { fill: #e2601a; stroke: #fbfdff; stroke-width: 1.5; }
+  .rng { fill: color-mix(in oklab, #e2601a 70%, transparent); }
+  .val { font-family: var(--font-mono); font-size: 11px; fill: var(--ink); paint-order: stroke; stroke: var(--bg); stroke-width: 4px; }
+</style>

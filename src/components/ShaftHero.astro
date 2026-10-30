@@ -1,0 +1,242 @@
+---
+/**
+ * Hero: a turned shaft modelled from a lathe profile, spinning at the
+ * spindle speed the reader sets. The readouts are the turning formulas
+ * running live on the shaft's own diameter (Ø40 mm at the cut).
+ */
+import type { Locale } from '../i18n';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+---
+<div class="stage" data-shaft-stage>
+  <canvas id="shaft-canvas" aria-label={tr ? 'Dönen tornalanmış şaft modeli' : 'Rotating turned-shaft model'} role="img"></canvas>
+  <!-- Static fallback drawn as a section view, shown only if WebGL is unavailable. -->
+  <svg class="fallback" viewBox="0 0 640 260" aria-hidden="true">
+    <g fill="none" stroke="var(--color-steel-500)" stroke-width="1.5">
+      <path d="M40 100 h70 l6 -6 h90 v-14 h110 v14 h40 l20 20 h120 v8 h80 l6 6 v18 l-6 6 h-80 v8 h-120 l-20 20 h-40 v14 h-110 v-14 h-90 l-6 -6 h-70 z" />
+      <line x1="20" y1="130" x2="620" y2="130" stroke-dasharray="14 6 3 6" stroke="var(--ink-3)" stroke-width="1" />
+    </g>
+  </svg>
+  <div class="controls" data-shaft-controls>
+    <label class="field range">
+      <span>{tr ? 'Devir n' : 'Spindle speed n'} <output class="num" data-out="n">1200</output> <span class="unit">rpm</span></span>
+      <input type="range" min="100" max="3000" step="10" value="1200" data-in="n" />
+    </label>
+    <label class="field range">
+      <span>{tr ? 'İlerleme f' : 'Feed f'} <output class="num" data-out="f">0.20</output> <span class="unit">mm/rev</span></span>
+      <input type="range" min="0.05" max="0.60" step="0.01" value="0.20" data-in="f" />
+    </label>
+  </div>
+</div>
+
+<style>
+  .stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: 280px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background:
+      radial-gradient(60% 70% at 55% 45%, color-mix(in oklab, var(--color-metro-500) 7%, transparent), transparent 70%),
+      var(--bg-sunk);
+    overflow: hidden;
+  }
+  @media (max-width: 48rem) { .stage { aspect-ratio: 4 / 3; } }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: pan-y; }
+  .fallback { position: absolute; inset: 0; width: 100%; height: 100%; padding: 8%; display: none; }
+  .stage.no-webgl canvas { display: none; }
+  .stage.no-webgl .fallback { display: block; }
+  .controls {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    background: linear-gradient(to top, color-mix(in oklab, var(--bg-sunk) 92%, transparent), transparent);
+  }
+  .range > span { display: flex; align-items: baseline; gap: 0.4rem; font-size: 0.8rem; color: var(--ink-2); }
+  .range output { color: var(--data); font-weight: 500; }
+</style>
+
+<script>
+  import * as THREE from 'three';
+  import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+  import { cuttingSpeed, geometricRoughness, fmt } from '../lib/calc.js';
+
+  const stage = document.querySelector('[data-shaft-stage]') as HTMLElement | null;
+  const canvas = document.getElementById('shaft-canvas') as HTMLCanvasElement | null;
+
+  /** Shared state: the readouts elsewhere on the page listen to this. */
+  const state = { D: 40, n: 1200, f: 0.2, re: 0.8 };
+
+  function publish() {
+    const vc = cuttingSpeed(state.D, state.n);
+    const rough = geometricRoughness(state.f, state.re, 95, 5);
+    document.querySelectorAll<HTMLElement>('[data-readout]').forEach((el) => {
+      const key = el.dataset.readout;
+      if (key === 'vc') el.textContent = fmt(vc, 3);
+      if (key === 'n') el.textContent = String(Math.round(state.n));
+      if (key === 'f') el.textContent = state.f.toFixed(2);
+      if (key === 'ra') el.textContent = fmt(rough.Ra, 3);
+      if (key === 'vf') el.textContent = String(Math.round(state.f * state.n));
+    });
+    document.querySelectorAll<HTMLOutputElement>('[data-out]').forEach((el) => {
+      if (el.dataset.out === 'n') el.value = String(Math.round(state.n));
+      if (el.dataset.out === 'f') el.value = state.f.toFixed(2);
+    });
+  }
+
+  document.querySelectorAll<HTMLInputElement>('[data-in]').forEach((input) => {
+    input.addEventListener('input', () => {
+      const v = Number(input.value);
+      if (input.dataset.in === 'n') state.n = v;
+      if (input.dataset.in === 'f') state.f = v;
+      publish();
+    });
+  });
+  publish();
+
+  function supportsWebGL() {
+    try {
+      const c = document.createElement('canvas');
+      return Boolean(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  }
+
+  if (stage && canvas && supportsWebGL()) {
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.92;
+
+    const scene = new THREE.Scene();
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+    const camera = new THREE.PerspectiveCamera(32, 16 / 9, 0.1, 2000);
+    camera.position.set(150, 95, 235);
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableZoom = false;
+    controls.enablePan = false;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minPolarAngle = Math.PI * 0.3;
+    controls.maxPolarAngle = Math.PI * 0.62;
+    controls.target.set(0, 0, 0);
+    // On touch screens the hero must not swallow the page scroll.
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      controls.enabled = false;
+      canvas.style.touchAction = 'pan-y';
+    }
+
+    // ---- Shaft: a lathe profile (radius, z) in mm, revolved ----------
+    // Stepped shaft: centre drill, chamfer, Ø32 journal, shoulder to Ø40 body,
+    // relief groove, Ø40 body with a thread section, taper to Ø26, chamfer.
+    const profilePts: [number, number][] = [
+      [0, -120], [4, -120], [4, -118], // centre hole mouth
+      [14.5, -118], [16, -116.5],       // chamfer to Ø32 journal
+      [16, -78], [20, -74],             // shoulder to Ø40
+      [20, -40], [18.2, -40], [18.2, -34], [20, -34], // relief groove
+    ];
+    // Thread section Ø40 x 2 pitch, modelled as a fine saw profile
+    for (let z = -30; z < 10; z += 2) {
+      profilePts.push([20, z], [18.9, z + 1]);
+    }
+    profilePts.push([20, 10], [20, 48], [13, 96], [13, 110], [11.5, 111.5], [4, 111.5], [4, 113], [0, 113]);
+
+    const shaftGeo = new THREE.LatheGeometry(
+      profilePts.map(([r, z]) => new THREE.Vector2(r, z)),
+      160,
+    );
+    const steel = new THREE.MeshStandardMaterial({ color: 0xa9b0b6, metalness: 0.9, roughness: 0.36 });
+    const shaft = new THREE.Mesh(shaftGeo, steel);
+    shaft.rotation.z = -Math.PI / 2; // lathe axis along X
+    scene.add(shaft);
+
+    // Fine turning marks: a second, barely-visible wireframe gives the metal grain.
+    const marks = new THREE.Mesh(
+      shaftGeo,
+      new THREE.MeshBasicMaterial({ color: 0x2a2f33, wireframe: true, transparent: true, opacity: 0.06 }),
+    );
+    marks.rotation.z = -Math.PI / 2;
+    scene.add(marks);
+
+    // ---- Insert and holder, feeding along the Ø40 body ----------------
+    const holder = new THREE.Group();
+    const insertShape = new THREE.Shape();
+    const s = 6.45, a = (80 * Math.PI) / 180; // CNMG-like 80° rhombus, l = 12.9 mm
+    const dx = s * Math.sin(a / 2), dy = s * Math.cos(a / 2);
+    insertShape.moveTo(0, -dy); insertShape.lineTo(dx, 0); insertShape.lineTo(0, dy); insertShape.lineTo(-dx, 0); insertShape.closePath();
+    const insertGeo = new THREE.ExtrudeGeometry(insertShape, { depth: 4.76, bevelEnabled: true, bevelSize: 0.5, bevelThickness: 0.4 });
+    const insert = new THREE.Mesh(insertGeo, new THREE.MeshStandardMaterial({ color: 0xd9a35a, metalness: 0.5, roughness: 0.45, emissive: 0xff6a1a, emissiveIntensity: 0.25 }));
+    // Shape Y → world −Z (nose points into the shaft); extrusion → world +Y.
+    insert.rotation.x = -Math.PI / 2;
+    insert.position.set(0, -4.76, 0);
+    holder.add(insert);
+    // Shank: 16 mm square section, sitting under the insert and running back toward the operator.
+    const shankGeo = new THREE.BoxGeometry(16, 16, 44);
+    const shank = new THREE.Mesh(shankGeo, new THREE.MeshStandardMaterial({ color: 0x8a949d, metalness: 0.7, roughness: 0.5 }));
+    shank.position.set(2, -12.8, dy + 24);
+    holder.add(shank);
+    // Nose corner on the Ø40 surface, at centre height, on the operator's side (+Z).
+    holder.position.set(0, 0, 20 + dy);
+    scene.add(holder);
+
+    // ---- Lights: key with a spark-orange warmth, rim in metrology blue --
+    const key = new THREE.DirectionalLight(0xfff0e4, 1.7);
+    key.position.set(120, 180, 160);
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0x4fb3ff, 1.4);
+    rim.position.set(-160, 60, -140);
+    scene.add(rim);
+    scene.add(new THREE.AmbientLight(0xc8d0d8, 0.55));
+
+    // ---- Sizing ---------------------------------------------------------
+    function resize() {
+      const { clientWidth: w, clientHeight: h } = stage!;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      // Pull the camera back on narrow screens so the whole shaft fits.
+      const dist = w < 600 ? 330 : w < 900 ? 290 : 235;
+      const dir = camera.position.clone().normalize();
+      camera.position.copy(dir.multiplyScalar(dist));
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ---- Animation -------------------------------------------------------
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let visible = true;
+    new IntersectionObserver((entries) => { visible = entries[0].isIntersecting; }).observe(stage);
+    let last = performance.now();
+    let feedPos = 0;
+    function frame(now: number) {
+      requestAnimationFrame(frame);
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      if (!visible) return;
+      if (!reduce) {
+        // Visual speed is scaled: 1200 rpm reads as 2.4 rev/s so the form stays legible.
+        shaft.rotation.x += (state.n / 500) * 2 * Math.PI * dt;
+        marks.rotation.x = shaft.rotation.x;
+        // Feed: f mm per visual revolution, exaggerated ×8 so the traverse is visible.
+        feedPos += state.f * (state.n / 500) * 8 * dt;
+        const span = 78; // from x=-30 to x=48 along the Ø40 body
+        holder.position.x = -30 + (feedPos % span);
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(frame);
+  } else if (stage) {
+    stage.classList.add('no-webgl');
+  }
+</script>

@@ -1,0 +1,99 @@
+---
+key: bue
+locale: en
+slug: built-up-edge
+title: 'Built-up edge (BUE)'
+description: 'Work material that welds to the cutting edge, grows, breaks off and leaves fragments on the part: what it is, which materials and conditions bring it on, what it does to finish, size and tool, and the remedies tool makers give, with the points where they disagree.'
+section: 12
+subsection: tool-problems
+order: 2
+updated: 2026-10-30
+tools: []
+glance:
+  - value: 'too cold'
+    label: 'Cutting zone below the work material’s recrystallization temperature (Mitsubishi); no source read gives a speed number'
+  - value: 'steel · stainless · Al'
+    label: 'Low-carbon steel, stainless steels and aluminium named together (ISCAR, Machining Doctor, Sandvik Coromant)'
+  - value: '12–16 %'
+    label: 'Average drop in Ra when the rake angle went from −5°, 0° and 5° to 10°, 15° and 20° in turning AA2011 and AA7075 (Sekmen, Günay, Şeker)'
+  - value: '+ rake'
+    label: 'More positive rake, sharp edge, polished face: the remedies most makers agree on'
+sources:
+  - label: 'Mitsubishi Materials, e-learning course 78, Causes of tool damage (built-up wear, welding)'
+    url: https://www.mmc-carbide.com/permanent/courses/78/causes-of-tool-damage.html
+  - label: 'ISCAR, Milling Inserts Wear Troubleshooting'
+    url: https://www.iscar.com/products.aspx/countryid/5/productid/12356
+  - label: 'ISCAR, Drilling Inserts Wear Problems and Solutions'
+    url: https://www.iscar.com/products.aspx/countryid/5/productid/12345
+  - label: 'PMPA, Craftsman Cribsheet “Built Up Edge: What It Is and What To Do”, September 2021'
+    url: https://www.pmpa.org/wp-content/uploads/2021/10/Craftsman-Cribsheet-Built-Up-Edge-—-What-It-Is-and-What-To-Do-1.pdf
+  - label: 'Harvey Performance Company, “Built-Up Edge Causes and Effects in Turning”, In The Loupe, 2020'
+    url: https://www.harveyperformance.com/in-the-loupe/causes-effects-of-built-up-edge-bue-in-turning-applications/
+  - label: 'Machining Doctor, glossary: Built-Up Edge (BUE)'
+    url: https://www.machiningdoctor.com/glossary/built-up-edge-bue/
+  - label: 'S. Kim, Metal Cutting II, MIT OpenCourseWare 2.008, spring 2004 (slides)'
+    url: https://ocw.mit.edu/courses/2-008-design-and-manufacturing-ii-spring-2004/0251504d88dc4cdf3cab815aececaf3e_08cutting_2_6_f.pdf
+  - label: 'Slides for Manufacturing Engineering Technology in SI Units, 6th ed., ch. 21 Fundamentals of Machining, Pearson, 2010'
+    url: https://people.iut.ac.ir/sites/default/files/users/mosafavi/course_files/fundamental_of_machining.pdf
+  - label: 'M. Sekmen, M. Günay, U. Şeker, “Alüminyum Alaşımlarının İşlenmesinde Kesme Hızı ve Talaş Açısının Yüzey Pürüzlülüğü, Yığıntı Talaş ve Yığıntı Katmanı Oluşumu Üzerine Etkisi”, Politeknik Dergisi 18(3), 2015, 141–148 (in Turkish)'
+    url: https://dergipark.org.tr/en/download/article-file/385737
+  - label: '“Built-up edge effect on tool wear when turning steels at low cutting speed”, Journal of Materials Engineering and Performance 13(5), 2004, 542–547 (abstract)'
+    url: https://research.manchester.ac.uk/en/publications/built-up-edge-effect-on-tool-wear-when-turning-steels-at-low-cutt/
+  - label: 'Taylor & Francis Knowledge, “Built up edge” (excerpt from D. A. Stephenson, J. S. Agapiou, Metal Cutting Theory and Practice, 2018)'
+    url: https://taylorandfrancis.com/knowledge/Engineering_and_technology/Mechanical_engineering/Built_up_edge
+  - label: 'M. Vural, EUT 231 Üretim Yöntemleri, ch. 21 “Talaş kaldırmanın teorisi”, İTÜ course slides based on Groover, Fundamentals of Modern Manufacturing 3/e (Wiley 2007), hosted by Gaziantep University (in Turkish)'
+    url: https://ntmyo.gaziantep.edu.tr/files/dosyalar/ch21-talas-kaldirmanin-teorisi.pdf
+  - label: 'Sandvik Coromant, brochure on coolant in parting and grooving, Turkish edition'
+    url: https://cdn2.sandvik.coromant.com/files/a53b485b-be0f-019d-8100-3f0d1619b9fa/34c4bb20-cfd0-405e-be15-9304ffa49fc8/coolant-in-parting-grooving-trk.pdf
+---
+import BueCycle from '../../../components/mdx/BueCycle.astro';
+import CheckList from '../../../components/mdx/CheckList.astro';
+
+Mitsubishi Materials: "A built-up edge is a piece of work hardened material that adheres to the top of the cutting edge." It protrudes from the edge and "actually machines the workpiece". The textbook slides of *Manufacturing Engineering Technology* describe it as "layers of material from the workpiece that are deposited on the tool tip", and treat it as a chip type of its own, as does the [chip types](/fundamentals/chip-types/) page.
+
+## How it forms
+
+Heat, pressure and friction weld work material to the tool. Harvey Performance: "When chips adhere to the cutting tool due to high heat, pressure, and friction."; a Turkish study of aluminium alloys names the temperature and very high pressure at the tool, which depend especially on the cutting speed, as the cause (Sekmen, Günay and Şeker). Mitsubishi adds "High affinity between a tool grade and the workpiece material." The lump does not stay: "As it grows larger, the BUE becomes unstable and eventually breaks apart" (Pearson slides), and it "periodically breaks off and reforms" (Stephenson and Agapiou). Fragments can end up on the new surface (a label on Groover's figure in İTÜ's course slides; PMPA: "As the BUE sloughs off the tool, it can weld to the workpiece").
+
+<Figure caption="An orthogonal cut, schematic: at low cutting speed a lump of work material builds up at the edge, reaches a little below it and cuts deeper while it sits there, then breaks off, and fragments can stay on the machined surface; the surface behind the tool becomes uneven. At a high enough speed (for carbide tools, in most sources) no lump forms. The speed scale has no numbers, because the sources read for this page give none and the threshold depends on the material.">
+  <BueCycle locale="en" />
+</Figure>
+
+## When it forms
+
+- **Sticky, ductile materials.** ISCAR lists "Machining of very sticky materials such as low-carbon steel, stainless steels, and aluminum"; Machining Doctor names low-carbon steel, austenitic stainless steel and aluminium, and Sandvik Coromant's Turkish brochure low-carbon steels, aluminium and duplex stainless steels. PMPA adds alloys that work-harden, and notes that resulfurized steels usually have a stable BUE, because their manganese sulphides have "anti-weld properties".
+- **A cutting zone that is too cold.** Mitsubishi's cause is "Low cutting temperatures under the recrystallization temperature of a workpiece material."; ISCAR's "Cutting zone temperature is too low". No source read for this page puts a number of m/min or °C on it. Not every source points the same way: PMPA advises reducing speed with HSS tools, Sandvik Coromant writes that in duplex stainless both too low and too high temperatures are the root cause, and in the Turkish turning tests AA7075 showed less BUE at 600 m/min than at 400 m/min while AA2011 showed no clear change.
+- **Negative geometry.** ISCAR names "Negative cutting geometry" as a cause; in the Turkish tests rake angles of −5°, 0° and 5° gave more built-up material than 10° to 20°, where the sticking was mostly a thin layer (Sekmen, Günay and Şeker). The angles themselves are on the [rake, clearance and wedge angles](/cutting-tools/rake-clearance-wedge-angles/) page.
+
+## What it does
+
+- **Surface finish.** "The built-up edge has the greatest influence on surface finish" (Pearson slides). In the Turkish aluminium tests, Ra fell by about 12 % (AA2011) and 16 % (AA7075) on average when the rake angle went from −5°…5° to 10°…20°; the authors put this down to less built-up material.
+- **Size.** Mitsubishi: it generally causes a greater depth of cut and so inaccurate parts; Harvey: "the centerline distance and the tool geometry of the cutting edge are being altered by the material that’s been welded to the rake or flank face of the tool"; PMPA speaks of losing statistical capability in dimensional control.
+- **The tool.** When it breaks away it can take tool material with it and leave "a pit on the cutting edge" (Machining Doctor); Mitsubishi names chipping of the edge. A 2004 study of turning medium- and high-strength steels at low cutting speed starts from the point that BUE "increases the wear of the tool"; with uncoated carbide tools it observed more wear and premature fracture.
+- **Not always harmful.** PMPA writes that a thin, stable BUE can mean less wear, lower power and a better finish, and Mitsubishi that chip welding forming a BUE can delay tool wear; most other sources treat it as damage (MIT's slides ask why it can be a good thing, without an answer).
+
+Harvey's way to spot it: material on the rake face or flank of the tool, which may be visible without a loupe.
+
+## Remedies
+
+What the makers recommend, with the points where they disagree:
+
+| Remedy | Recommended by | Caveat |
+|---|---|---|
+| Raise the cutting speed | Mitsubishi, ISCAR, PMPA (carbide); MIT, Pearson slides, Machining Doctor | PMPA: reduce speed with HSS tools. Harvey blames speeds or feeds that are too low |
+| More positive or larger rake | Mitsubishi, ISCAR, PMPA; MIT, Pearson slides | |
+| Sharp edge, small hone | Mitsubishi, ISCAR, Harvey; Machining Doctor, Pearson slides | |
+| Polished rake face or post-coating treatment | Mitsubishi (mirror finish, for welding), ISCAR, Harvey; Machining Doctor | |
+| A grade with lower affinity: cermet or coated | Mitsubishi; Harvey, PMPA (coating); Pearson slides | No source read names a particular coating for aluminium |
+| More coolant lubricity, pressure or volume | Mitsubishi, ISCAR, Sandvik Coromant; MIT, PMPA, Pearson slides | Sandvik Coromant, parting smearing-prone materials such as duplex stainless near the bar centre: cooling can drop the temperature into the BUE range, so the coolant is turned off there |
+| Feed | ISCAR: up for solid and indexable-head drills, down for indexable drilling inserts; MIT, PMPA: down | No single rule; Harvey names feeds that are too low as a usual cause |
+
+ISCAR also has the oil percentage of the coolant checked, and Harvey asks for a higher concentration; how that is measured is on the [coolant concentration](/coolant-and-lubrication/coolant-concentration/) page, and why the cutting speed falls towards the bar centre is on [parting off and grooving](/processes/parting-off-and-grooving/).
+
+<CheckList id="bue" locale="en" items={[
+  { icon: 'wear', title: 'Look', check: 'Material on the rake face or flank; an uneven finish; sizes drifting.', fix: 'Material on the edge, often visible without a loupe (Harvey); pits on the edge after it breaks away (Machining Doctor).', src: 'Harvey; Machining Doctor' },
+  { icon: 'speed', title: 'Speed', check: 'Whether the cutting zone runs too cold.', fix: 'Raise the speed with carbide (Mitsubishi, ISCAR); with HSS PMPA advises the opposite.', src: 'Mitsubishi; ISCAR; PMPA' },
+  { icon: 'edge', title: 'Edge', check: 'Rake angle, hone and rake-face finish.', fix: 'More positive rake, sharp edge or small hone, polished face (Mitsubishi, ISCAR, Harvey).', src: 'Mitsubishi; ISCAR; Harvey' },
+  { icon: 'coolant', title: 'Coolant', check: 'Lubricity, pressure, aim and concentration.', fix: 'More lubricity, pressure or volume, aimed at the edge (Mitsubishi, ISCAR, Harvey); check the oil percentage (ISCAR) or raise the concentration (Harvey).', src: 'Mitsubishi; ISCAR; Harvey' },
+  { icon: 'hard', title: 'Grade', check: 'Affinity between tool grade and work material.', fix: 'A cermet or coated grade with lower affinity (Mitsubishi).', src: 'Mitsubishi' },
+]} />

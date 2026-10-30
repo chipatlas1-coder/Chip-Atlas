@@ -1,0 +1,122 @@
+---
+/**
+ * Orthogonal section through a cutting edge. The tool cuts to the left relative to the work (the arrow above the tool);
+ * in the drawing the tool stands still and the work's marks move right. The tool
+ * wedge is drawn from the rake angle γ (from the reference line square to the cutting direction; positive tilts the
+ * rake face away from the chip) and the clearance angle α (between the flank and the cut surface). The wedge angle is
+ * β = 90° − α − γ. A chip slides up the rake face. Sliders for γ and α; arcs and labels follow. Geometry only.
+ */
+interface Props { locale: 'en' | 'tr'; g?: number; a?: number }
+const { locale, g = 6, a = 7 } = Astro.props;
+const tr = locale === 'tr';
+const T = tr
+  ? { g: 'Talaş açısı γ', a: 'Boşluk açısı α', b: 'Kama açısı β', vc: 'kesme yönü', work: 'iş parçası', chip: 'talaş', tool: 'takım', rake: 'talaş yüzeyi', flank: 'yan yüzey', ref: 'referans', sum: 'α + β + γ = 90°', aria: 'Kesici kenara dik kesit: talaş açısı, boşluk açısı ve kama açısı' }
+  : { g: 'Rake angle γ', a: 'Clearance angle α', b: 'Wedge angle β', vc: 'cutting direction', work: 'workpiece', chip: 'chip', tool: 'tool', rake: 'rake face', flank: 'flank', ref: 'reference', sum: 'α + β + γ = 90°', aria: 'Orthogonal section of a cutting edge: rake, clearance and wedge angles' };
+---
+<div class="ta" data-ta data-locale={locale} data-anim>
+  <svg class="sec" viewBox="0 0 560 330" role="img" aria-label={T.aria} data-sec></svg>
+  <div class="ctl">
+    <label class="field"><span>{T.g} <output data-o="g">{g}°</output></span><input type="range" min="-12" max="25" step="1" value={g} data-i="g" /></label>
+    <label class="field"><span>{T.a} <output data-o="a">{a}°</output></span><input type="range" min="2" max="15" step="1" value={a} data-i="a" /></label>
+    <div class="out"><span>{T.b}</span><b data-o="b">—</b><small>{T.sum}</small></div>
+  </div>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .ta { display: grid; gap: 0.8rem; }
+  .sec { width: 100%; height: auto; display: block; }
+  .ctl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 0.7rem 1.2rem; align-items: end; }
+  @media (max-width: 40rem) { .ctl { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.3rem; }
+  .field > span:first-child { font-size: 0.85rem; color: var(--ink-2); }
+  .field output { color: var(--data); font-family: var(--font-mono); font-weight: 600; }
+  .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .out { display: grid; text-align: right; font-size: 0.78rem; color: var(--ink-3); }
+  .out b { font: 600 1.3rem var(--font-mono); color: #8b52c9; }
+  .ta :global(.tx) { font: 12px var(--font-mono); fill: #364554; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+  .ta :global(.tl) { font: 600 13px var(--font-mono); paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+  .ta.narrow :global(.tx) { font-size: 18px; }
+  .ta.narrow :global(.tl) { font-size: 20px; }
+</style>
+
+<script>
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-ta]').forEach((root, idx) => {
+    const tr = root.dataset.locale === 'tr';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const q = <E extends Element>(s: string) => root.querySelector(s) as E;
+    const I = (k: string) => q<HTMLInputElement>(`[data-i="${k}"]`);
+    const svg = q<SVGSVGElement>('[data-sec]');
+    const rad = (d: number) => (d * Math.PI) / 180;
+    const EX = 300, EY = 200;                                   // the cutting edge
+    let t = 0, last = 0;
+    const P = (x: number, y: number) => `${x.toFixed(1)},${y.toFixed(1)}`;
+    const arc = (r: number, a0: number, a1: number, col: string, w = 2.2) => {
+      // angles in screen degrees measured from +x, counter-clockwise visually (y up)
+      const p0 = [EX + r * Math.cos(rad(a0)), EY - r * Math.sin(rad(a0))], p1 = [EX + r * Math.cos(rad(a1)), EY - r * Math.sin(rad(a1))];
+      const large = Math.abs(a1 - a0) > 180 ? 1 : 0, sweep = a1 > a0 ? 0 : 1;
+      return `<path d="M${P(p0[0], p0[1])} A${r},${r} 0 ${large} ${sweep} ${P(p1[0], p1[1])}" fill="none" stroke="${col}" stroke-width="${w}"/>`;
+    };
+    const draw = () => {
+      const g = +I('g').value, a = +I('a').value, b = 90 - a - g;
+      q('[data-o="g"]').textContent = `${g}°`; q('[data-o="a"]').textContent = `${a}°`;
+      q('[data-o="b"]').textContent = `${b}°`;
+      // math coordinates relative to the edge (x right, y up); screen x = EX + X, y = EY − Y.
+      // The tool moves left relative to the work (cutting direction); its rake face faces the uncut layer on the left,
+      // the flank rises from the edge at α above the cut surface (y = 0, to the right).
+      const S = (X: number, Y: number) => P(EX + X, EY - Y);
+      const rakeDir = 90 - g, flankDir = a;                    // degrees from +x
+      const L = 170, cd = rad(rakeDir), cf = rad(flankDir);
+      const d = [Math.cos(cd), Math.sin(cd)], n = [-Math.sin(cd), Math.cos(cd)];   // along / off the rake face
+      const rk = [L * d[0], L * d[1]], fk = [L * Math.cos(cf), L * Math.sin(cf)];
+      const tool = `M${S(0, 0)} L${S(rk[0], rk[1])} L${S(260, rk[1])} L${S(260, fk[1])} L${S(fk[0], fk[1])} Z`;
+      const h = 34, thick = h * 1.8;
+      const work = `M0,${EY - h} L${EX - 1},${EY - h} L${EX},${EY} L560,${EY} L560,330 L0,330 Z`;
+      const B = [118 * d[0], 118 * d[1]], C = [B[0] + thick * n[0], B[1] + thick * n[1]], D = [-thick * 0.75, h];
+      const chip = `M${S(-1, 1)} L${S(B[0], B[1])} Q${S(B[0] + 30 * d[0] + 26 * n[0], B[1] + 30 * d[1] + 26 * n[1])} ${S(C[0], C[1])} L${S(D[0], D[1])} Z`;
+      let stripes = '';
+      for (let k = 0; k < 6; k++) {
+        const u = 0.08 + 0.84 * ((t * 0.8 + k / 6) % 1);
+        const x0 = B[0] * u, y0 = B[1] * u;
+        stripes += `<line x1="${(EX + x0).toFixed(1)}" y1="${(EY - y0).toFixed(1)}" x2="${(EX + x0 + 0.8 * thick * n[0]).toFixed(1)}" y2="${(EY - y0 - 0.8 * thick * n[1]).toFixed(1)}" stroke="#a35a1f" stroke-width="1.2" opacity="0.5"/>`;
+      }
+      let marks = '';
+      for (let k = 0; k < 9; k++) { const x = ((k * 70 + t * 90) % 630 + 630) % 630 - 40; marks += `<line x1="${x.toFixed(1)}" y1="${EY + 30}" x2="${(x + 26).toFixed(1)}" y2="${EY + 30}" stroke="#c3ccd5" stroke-width="2"/>`; }
+      const M = [(C[0] + D[0]) / 2 + 12 * n[0], (C[1] + D[1]) / 2 + 12 * n[1]];          // outside the chip's free side
+      const flW = T.flank.length * (root.classList.contains('narrow') ? 10.8 : 7.2), flX = EX + 0.5 * fk[0];
+      const flY = EY - (flX + flW - EX) * Math.tan(cf) - 5;
+      const refX = EX, refY = EY - 156;
+      svg.innerHTML = `
+        <path d="${work}" fill="url(#ca-metal-h)"/>
+        ${marks}
+        <defs><clipPath id="ta-chip-${idx}"><path d="${chip}"/></clipPath></defs>
+        <path d="${chip}" fill="#e0a35f" stroke="#a35a1f" stroke-width="1.2"/>
+        <g clip-path="url(#ta-chip-${idx})">${stripes}</g>
+        <path d="${tool}" fill="url(#ca-carbide)" stroke="#364554" stroke-width="1.6"/>
+        <line x1="${EX}" y1="${EY}" x2="${EX}" y2="${EY - 150}" stroke="#5f6c79" stroke-width="1.2" stroke-dasharray="5 4"/>
+        <line x1="${EX}" y1="${EY}" x2="${EX + 180}" y2="${EY}" stroke="#5f6c79" stroke-width="1.2" stroke-dasharray="5 4"/>
+        ${arc(116, 90, rakeDir, '#e2601a', 3)}
+        ${arc(150, 0, flankDir, '#13998a')}
+        ${arc(60, rakeDir, flankDir, '#8b52c9', 2.6)}
+        <text x="${(EX + (g >= 0 ? 14 : -22)).toFixed(1)}" y="${(EY - 124).toFixed(1)}" class="tl" style="fill:#c94f0c">γ</text>
+        <text x="${(EX + 158).toFixed(1)}" y="${(EY - 150 * Math.sin(rad(a / 2)) - 4).toFixed(1)}" class="tl" style="fill:#0f7a6e">α</text>
+        <text x="${(EX + 70 * Math.cos(rad((rakeDir + flankDir) / 2))).toFixed(1)}" y="${(EY - 70 * Math.sin(rad((rakeDir + flankDir) / 2)) + 4).toFixed(1)}" class="tl" style="fill:#8b52c9">β</text>
+        <line x1="548" y1="16" x2="470" y2="16" stroke="#e2601a" stroke-width="2.4" marker-end="url(#ca-arr-acc)"/>
+        <text x="460" y="20" class="tx" text-anchor="end">${T.vc}</text>
+        <text x="20" y="${EY + 110}" class="tx">${T.work}</text>
+        <text x="${(EX + 0.62 * rk[0] + 14).toFixed(1)}" y="${(EY - 0.62 * rk[1]).toFixed(1)}" class="tx" style="fill:#fff;stroke:none">${T.rake}</text>
+        <text x="${flX.toFixed(1)}" y="${flY.toFixed(1)}" class="tx" style="fill:#fff;stroke:none">${T.flank}</text>
+        <text x="${refX}" y="${refY}" class="tx" text-anchor="middle">${T.ref}</text>
+        <text x="${(EX + M[0]).toFixed(1)}" y="${(EY - M[1]).toFixed(1)}" class="tx" text-anchor="end" style="fill:#a35a1f">${T.chip}</text>`;
+    };
+    ['g', 'a'].forEach((k) => I(k).addEventListener('input', draw));
+    const fit = () => { root.classList.toggle('narrow', svg.getBoundingClientRect().width > 0 && svg.getBoundingClientRect().width < 480); draw(); };
+    new ResizeObserver(fit).observe(svg);
+    draw();
+    let visible = false;
+    new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+    const step = (now: number) => { if (visible) { t += Math.min(0.05, (now - last) / 1000); draw(); } last = now; requestAnimationFrame(step); };
+    whenIn(root, () => { last = performance.now(); requestAnimationFrame(step); });
+  });
+</script>

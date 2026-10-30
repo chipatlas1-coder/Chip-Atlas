@@ -1,0 +1,104 @@
+---
+/* C45 / C45E: heat analysis limits from EN ISO 683-1 (the article's table) and a quenched and
+   tempered shaft: three diameters with chamfers, a keyway in the middle step and a centre hole in
+   the end face. The end face shows, schematically, what the article says about strength by size:
+   C45 hardens only to a limited depth, so a hardened rim surrounds a softer core. Orthographic view
+   from the right and above, rolled so the axis runs level. */
+import Elements from '../Elements.astro';
+import { orthoLevel, cylinder, f1, path, type V3, type P2 } from '../geom3d';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const d = (s: string) => (tr ? s.replaceAll('.', ',') : s);
+const items = [
+  { el: 'C', z: 6, v: d('0.42–0.50') },
+  { el: 'Si', z: 14, v: d('0.10–0.40') },
+  { el: 'Mn', z: 25, v: d('0.50–0.80') },
+  { el: 'Cr', z: 24, v: d('≤ 0.40') },
+];
+const T = tr
+  ? { shaft: 'ıslah edilmiş mil (+QT)', rim: 'sertleşmiş dış bölge', core: 'daha yumuşak çekirdek', key: 'kama kanalı' }
+  : { shaft: 'quenched and tempered shaft (+QT)', rim: 'hardened rim', core: 'softer core', key: 'keyway' };
+
+const cam = orthoLevel(30, 28, 1.04, 30, 248);
+const id = (s: string) => `c45-${s}-${locale}`;
+// shaft: left journal, middle step with keyway, right journal (world units, X along the axis)
+const s1 = { x0: 0, x1: 108, r: 21 }, s2 = { x0: 108, x1: 300, r: 30 }, s3 = { x0: 300, x1: 436, r: 23 };
+const ch = 3;
+const cyl = (x0: number, x1: number, r: number) => cylinder(cam, [x0, 0, 0], [x1, 0, 0], r);
+const c1 = cyl(s1.x0 + ch, s1.x1, s1.r);
+const c1c = cyl(s1.x0, s1.x0 + ch, s1.r - ch);               // chamfer at the far end (hidden side)
+const c2 = cyl(s2.x0, s2.x1 - 1.5, s2.r);
+const c2c = cyl(s2.x1 - 1.5, s2.x1, s2.r - 1.5);
+const c3 = cyl(s3.x0, s3.x1 - ch, s3.r);
+const endC = cam.P([s3.x1, 0, 0]);
+// keyway on top of the middle step: stadium of width w, from kx0 to kx1, depth t
+const kx0 = 150, kx1 = 258, w = 12, t = 5;
+const stadium = (n = 14): [number, number][] => {
+  const q: [number, number][] = [];
+  const rr = w / 2, xa = kx0 + rr, xb = kx1 - rr;
+  for (let i = 0; i <= n; i++) { const a = -Math.PI / 2 + (Math.PI * i) / n; q.push([xb + rr * Math.cos(a), rr * Math.sin(a)]); }
+  for (let i = 0; i <= n; i++) { const a = Math.PI / 2 + (Math.PI * i) / n; q.push([xa + rr * Math.cos(a), rr * Math.sin(a)]); }
+  return q;
+};
+const rim = path(stadium().map(([x, z]) => cam.P([x, Math.sqrt(s2.r * s2.r - z * z), z])));
+const floor = path(stadium().map(([x, z]) => cam.P([x, s2.r - t, z])));
+// label anchors
+const keyAt = cam.P([kx0 + 40, s2.r, -w / 2]);
+const rimAt = cam.P([s3.x1, s3.r * 0.86 * Math.cos(-0.3), s3.r * 0.86 * Math.sin(-0.3)]);
+const coreAt = cam.P([s3.x1, 0, 0]);
+const step = cyl(s2.x1 - 0.01, s2.x1, s2.r - 1.5);           // the shoulder face, seen from the free end
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    {[['c1', c1], ['c2', c2], ['c3', c3]].map(([n, c]) => (
+      <linearGradient id={id(n as string)} gradientUnits="userSpaceOnUse" {...(c as typeof c1).across()}>
+        <stop offset="0" stop-color="#7e878f" /><stop offset="0.17" stop-color="#ecf0f3" /><stop offset="0.36" stop-color="#c9d0d6" /><stop offset="0.74" stop-color="#8c959e" /><stop offset="1" stop-color="#6b7279" />
+      </linearGradient>
+    ))}
+    <radialGradient id={id('end')} cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8a939b" /><stop offset="0.62" stop-color="#949da6" /><stop offset="0.8" stop-color="#b35a24" /><stop offset="1" stop-color="#c9601e" />
+    </radialGradient>
+    <linearGradient id={id('floor')} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#acb5bb" /><stop offset="1" stop-color="#7e878f" />
+    </linearGradient>
+    <clipPath id={id('key')}><path d={rim} /></clipPath>
+  </defs>
+  <text class="t-big f" style="--i:0" x="24" y="52">C45 / C45E</text>
+  <text class="t-sm f" style="--i:1" x="26" y="74">1.0503 / 1.1191, EN ISO 683-1 {tr ? '(kütlece %)' : '(% by mass)'}</text>
+  <Elements items={items} x={24} y={90} />
+
+  <!-- each step: fill, then its outline, so the nearer step covers the edges it hides -->
+  <path class="f" style="--i:5" d={c1c.body} fill="#a2abb2" />
+  <path class="f" style="--i:5" d={c1.body} fill={`url(#${id('c1')})`} />
+  <path class="o d" style="--i:5" pathLength="1" d={c1.body} />
+  <path class="f" style="--i:5" d={c2.body} fill={`url(#${id('c2')})`} />
+  <path class="o d" style="--i:6" pathLength="1" d={c2.body} />
+  <g class="f" style="--i:6">
+    <path d={c2c.body} fill="#c5ccd2" />
+    <path d={step.cap()} fill="#565e63" />
+    <path d={rim} fill="#f7fbff" />
+    <path d={floor} fill={`url(#${id('floor')})`} clip-path={`url(#${id('key')})`} />
+    <path d={rim} fill="none" stroke="#1b1d1e" stroke-width="0.7" />
+  </g>
+  <path class="f" style="--i:6" d={c3.body} fill={`url(#${id('c3')})`} />
+  <path class="o d" style="--i:7" pathLength="1" d={c3.body} />
+  <g class="f" style="--i:7">
+    <path d={c3.cap(c3.b)} fill="#b8c0c7" />
+    <path d={c3.cap([s3.x1, 0, 0], s3.r - ch)} fill={`url(#${id('end')})`} />
+    <path d={c3.cap([s3.x1, 0, 0], 4.2)} fill="#e0e8ed" stroke="#474e54" stroke-width="0.5" />
+    <path d={c3.cap([s3.x1, 0, 0], 1.8)} fill="#f9fcff" />
+  </g>
+  <path class="h d" style="--i:7" pathLength="1" d={`${c3.cap([s3.x1, 0, 0], s3.r - ch)} ${step.cap()}`} />
+  <line class="c f" style="--i:6" x1={f1(cam.P([-24, 0, 0])[0])} y1={f1(cam.P([-24, 0, 0])[1])} x2={f1(cam.P([470, 0, 0])[0])} y2={f1(cam.P([470, 0, 0])[1])} />
+
+  <g class="lbl">
+    <text class="t-sm" x="26" y="306">{T.shaft}</text>
+    <text class="t-sm" x={f1(keyAt[0] - 6)} y="206" text-anchor="middle">{T.key}</text>
+    <line class="h" x1={f1(keyAt[0] - 6)} y1="210" x2={f1(keyAt[0])} y2={f1(keyAt[1] - 2)} />
+    <text class="t-acc t-sm" x="470" y="206" text-anchor="end">{T.rim}</text>
+    <line class="h" x1="440" y1="210" x2={f1(rimAt[0])} y2={f1(rimAt[1])} stroke="#e2601a" />
+    <text class="t-sm" x="470" y="306" text-anchor="end">{T.core}</text>
+    <line class="h" x1="452" y1="296" x2={f1(coreAt[0] + 2)} y2={f1(coreAt[1] + 2)} />
+  </g>
+</svg>

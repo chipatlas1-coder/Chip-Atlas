@@ -1,0 +1,103 @@
+---
+/**
+ * Interactive 3D tap (src/lib/models/tap.ts): a spiral-flute tap screwing into a blind hole of a
+ * block cut open by a quarter, the internal thread appearing behind the chamfer. Same stage, labels
+ * and touch behaviour as Model3D (Three.js loads only near the viewport; without WebGL a note shows).
+ */
+interface Props { locale: 'en' | 'tr' }
+const { locale } = Astro.props;
+const tr = locale === 'tr';
+const VIEWS = [
+  { k: 'all', en: 'Tapping', tr: 'Kılavuz çekme' },
+  { k: 'tap', en: 'The tap', tr: 'Kılavuz' },
+  { k: 'section', en: 'In the hole', tr: 'Delikte' },
+];
+const LABELS: { k: string; en: string; tr: string; c?: string; dx?: number; dy?: number }[] = [
+  { k: 'chamfer', en: 'chamfer, 2.5 threads (form C)', tr: 'ağız, 2,5 diş (C formu)', dx: 70, dy: 34 },
+  { k: 'edge', en: 'cutting edge', tr: 'kesici kenar', dx: 80, dy: -6 },
+  { k: 'flute', en: 'right-hand flute, 40°', tr: 'sağ helisel oluk, 40°', c: 'data', dx: 76, dy: -40 },
+  { k: 'thread', en: 'M10 × 1.5 thread, cut', tr: 'açılan M10 × 1,5 diş', c: 'ink', dx: 90, dy: -26 },
+  { k: 'drill', en: 'tap drill Ø 8.5', tr: 'kılavuz matkabı Ø 8,5', c: 'ink', dx: 84, dy: 30 },
+];
+const T = tr
+  ? { hint: 'Döndürmek için sürükleyin', hintTouch: 'Görünüm düğmeleriyle döndürün', load: '3B model yükleniyor…', nogl: 'Bu tarayıcı WebGL desteklemiyor; 3B model gösterilemiyor.' }
+  : { hint: 'Drag to turn', hintTouch: 'Use the view buttons to turn', load: 'Loading 3D model…', nogl: 'This browser has no WebGL, so the 3D model cannot be shown.' };
+---
+<div class="m3d" data-tap3d data-locale={locale}>
+  <div class="stage">
+    <canvas aria-hidden="true"></canvas>
+    <div class="labels" aria-hidden="true">
+      <svg class="leaders">{LABELS.map((l) => <g data-leader={l.k} class:list={[l.c]}><line /><circle r="3" /></g>)}</svg>
+      {LABELS.map((l) => <span class:list={['lab', l.c]} data-label={l.k} data-dx={l.dx ?? 0} data-dy={l.dy ?? 0}>{tr ? l.tr : l.en}</span>)}
+    </div>
+    <p class="status" data-status>{T.load}</p>
+    <p class="hint"><span class="fine">{T.hint}</span><span class="coarse">{T.hintTouch}</span></p>
+  </div>
+  <div class="bar">
+    <div class="views" role="group" aria-label={tr ? 'Görünümler' : 'Views'}>
+      {VIEWS.map((v, i) => <button type="button" data-view={v.k} aria-pressed={i === 0 ? 'true' : 'false'}>{tr ? v.tr : v.en}</button>)}
+    </div>
+  </div>
+  <p class="nogl" hidden data-nogl>{T.nogl}</p>
+</div>
+
+<script>
+  const gl = (() => { try { const c = document.createElement('canvas'); return Boolean(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; } })();
+  document.querySelectorAll<HTMLElement>('[data-tap3d]').forEach((root) => {
+    const canvas = root.querySelector('canvas')!;
+    const stage = root.querySelector<HTMLElement>('.stage')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    if (!gl) { stage.hidden = true; root.querySelector<HTMLElement>('.bar')!.hidden = true; root.querySelector<HTMLElement>('[data-nogl]')!.hidden = false; return; }
+    const labels: Record<string, HTMLElement> = {};
+    root.querySelectorAll<HTMLElement>('[data-label]').forEach((el) => (labels[el.dataset.label!] = el));
+    let api: { show: (v: string) => void } | null = null;
+    const io = new IntersectionObserver(async (entries) => {
+      if (!entries[0].isIntersecting || api) return;
+      io.disconnect();
+      try {
+        const m = await import('../../lib/models/tap');
+        api = m.mountTap(stage, canvas, labels);
+        status.hidden = true;
+        stage.classList.add('ready');
+      } catch (err) { status.textContent = String(err); }
+    }, { rootMargin: '300px 0px' });
+    io.observe(root);
+    root.querySelectorAll<HTMLButtonElement>('[data-view]').forEach((b) => b.addEventListener('click', () => {
+      root.querySelectorAll('[data-view]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      root.dataset.active = b.dataset.view;
+      api?.show(b.dataset.view!);
+    }));
+  });
+</script>
+
+<style>
+  .m3d { display: grid; gap: 0.6rem; }
+  .stage { position: relative; aspect-ratio: 16 / 10; min-height: 280px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+    background: radial-gradient(70% 80% at 55% 40%, color-mix(in oklab, var(--color-metro-500) 9%, transparent), transparent 70%), var(--bg-sunk); }
+  @media (max-width: 40rem) { .stage { aspect-ratio: 4 / 4.2; } }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 600ms ease; }
+  .ready canvas { opacity: 1; cursor: grab; }
+  .ready canvas:active { cursor: grabbing; }
+  .status { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-3); }
+  .hint { position: absolute; right: 0.7rem; bottom: 0.55rem; margin: 0; font-size: 0.72rem; color: var(--ink-3); pointer-events: none; }
+  .hint .coarse { display: none; }
+  @media (pointer: coarse) { .hint .fine { display: none; } .hint .coarse { display: inline; } }
+  .labels { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 400ms ease 300ms; }
+  .ready .labels { opacity: 1; }
+  @media (max-width: 40rem) { .m3d:not([data-active]) .labels, .m3d[data-active="all"] .labels { display: none; } }
+  .lab { position: absolute; left: 0; top: 0; padding: 0.15rem 0.45rem; border-radius: 4px; background: color-mix(in oklab, #fbfdff 78%, transparent); border: 1px solid color-mix(in oklab, currentColor 45%, transparent); font-family: var(--font-mono); font-size: 0.72rem; color: #e2601a; white-space: nowrap; transition: opacity 200ms; }
+  .lab.data { color: #2a78d6; }
+  .lab.ink { color: #1b1d1e; }
+  .leaders { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .leaders line { stroke: #e2601a; stroke-width: 1; opacity: 0.85; }
+  .leaders circle { fill: #e2601a; stroke: #fbfdff; stroke-width: 1.5; }
+  .leaders .data line { stroke: #2a78d6; } .leaders .data circle { fill: #2a78d6; }
+  .leaders .ink line { stroke: #1b1d1e; } .leaders .ink circle { fill: #1b1d1e; }
+  .leaders g { transition: opacity 200ms; }
+  .bar { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; align-items: center; justify-content: space-between; }
+  .views { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .views button { font-size: 0.8rem; padding: 0.3rem 0.75rem; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink-2); transition: border-color 150ms, color 150ms, background-color 150ms; }
+  .views button:hover { border-color: var(--ink-3); color: var(--ink); }
+  .views button[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+  .nogl { margin: 0; padding: 1rem; border: 1px dashed var(--line-strong); border-radius: 6px; color: var(--ink-3); font-size: 0.86rem; }
+</style>

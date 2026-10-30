@@ -1,0 +1,28 @@
+---
+/* ISO 513:2012 main groups with their identification colours (same table as the article). */
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const g = [
+  { k: 'P', c: '#276ede', m: tr ? 'Çelik' : 'Steel' },
+  { k: 'M', c: '#d9a600', m: tr ? 'Paslanmaz çelik' : 'Stainless steel' },
+  { k: 'K', c: '#c2413b', m: tr ? 'Dökme demir' : 'Cast iron' },
+  { k: 'N', c: '#1b9f57', m: tr ? 'Demir dışı' : 'Non-ferrous' },
+  { k: 'S', c: '#8d592c', m: tr ? 'Süper alaşım, Ti' : 'Superalloys, Ti' },
+  { k: 'H', c: '#676d72', m: tr ? 'Sert malzemeler' : 'Hard materials' },
+];
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  {g.map((t, i) => {
+    const x = 22 + (i % 3) * 148, y = 26 + Math.floor(i / 3) * 140;
+    return (
+      <g>
+        <rect class="f" style={`--i:${i}`} x={x} y={y} width="138" height="128" rx="6" fill="#f5f9fd" stroke="#e2e8ed" />
+        <rect class="f" style={`--i:${i}`} x={x} y={y} width="138" height="10" rx="3" fill={t.c} />
+        <rect class="d" style={`--i:${i + 1}`} pathLength="1" x={x} y={y} width="138" height="128" rx="6" fill="none" stroke={t.c} stroke-opacity="0.6" stroke-width="1.4" />
+        <text class="f" style={`--i:${i + 2}; font-family: var(--font-sans); font-weight: 600; font-size: 58px; fill: ${t.c}`} x={x + 14} y={y + 76}>{t.k}</text>
+        <text class="lbl t-ink" x={x + 14} y={y + 108}>{t.m}</text>
+      </g>
+    );
+  })}
+</svg>

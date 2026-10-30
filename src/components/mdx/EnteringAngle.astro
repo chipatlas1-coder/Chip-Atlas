@@ -1,0 +1,138 @@
+---
+/**
+ * Entering angle κr and the uncut chip in turning (plan view), with the chip section magnified.
+ * h = fn · sin κr, b = ap / sin κr, A = ap · fn. Geometry in src/lib/entering.ts, shared with
+ * the script so the first paint (no script) and the live view are the same drawing.
+ * On entering the view the angle sweeps 90° → 45° → 90° once; any input stops it.
+ */
+import { drawEntering, chipOf, type EnteringText } from '../../lib/entering';
+interface Props { locale: 'en' | 'tr'; kr?: number; fn?: number; ap?: number }
+const { locale, kr = 90, fn = 0.3, ap = 2 } = Astro.props;
+const tr = locale === 'tr';
+const T: EnteringText & Record<string, string> = tr
+  ? { feed: 'ilerleme', machined: 'işlenmiş yüzey', unmachined: 'işlenmemiş yüzey', zoom: 'büyütülmüş talaş kesiti', insert: 'uç', work: 'iş parçası', h: 'h', b: 'b', kr: 'Yanaşma açısı κr', fnL: 'İlerleme fn', apL: 'Kesme derinliği ap', hL: 'Talaş kalınlığı h = fn · sin κr', bL: 'Talaş genişliği b = ap / sin κr', AL: 'Kesit A = ap · fn', rL: 'h / fn', aria: 'Tornalamada yanaşma açısı ve kesilmemiş talaş kesiti, üstten görünüş', unitF: 'mm/dev' }
+  : { feed: 'feed', machined: 'machined surface', unmachined: 'unmachined surface', zoom: 'magnified chip section', insert: 'insert', work: 'workpiece', h: 'h', b: 'b', kr: 'Entering angle κr', fnL: 'Feed fn', apL: 'Depth of cut ap', hL: 'Chip thickness h = fn · sin κr', bL: 'Chip width b = ap / sin κr', AL: 'Section A = ap · fn', rL: 'h / fn', aria: 'Entering angle and the uncut chip section in turning, plan view', unitF: 'mm/rev' };
+const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+const s0 = { kr, fn, ap };
+const uid = `ea${locale}${Math.round(kr)}${Math.round(fn * 100)}${Math.round(ap * 10)}`;
+const G = [drawEntering(s0, T, false, dec, uid), drawEntering(s0, T, true, dec, uid)];
+const c0 = chipOf(s0);
+const presets = [45, 60, 75, 90, 95];
+---
+<div class="enter" data-enter data-locale={locale} data-uid={uid} data-anim>
+  <svg viewBox={`0 0 ${G[0].W} ${G[0].H}`} class="wide" role="img" aria-label={T.aria} data-svg="w" set:html={G[0].svg} />
+  <svg viewBox={`0 0 ${G[1].W} ${G[1].H}`} class="narrow" role="img" aria-label={T.aria} data-svg="n" set:html={G[1].svg} />
+  <div class="controls">
+    <div class="row1">
+      <label class="field"><span>{T.kr} <output class="num" data-o="kr">{kr}</output>°</span>
+        <input type="range" min="35" max="95" step="1" value={kr} data-i="kr" /></label>
+      <div class="presets" role="group" aria-label={T.kr}>
+        {presets.map((p) => <button type="button" data-p={p} aria-pressed={String(p === kr)}>{p}°</button>)}
+      </div>
+    </div>
+    <div class="row2">
+      <label class="field"><span>{T.fnL} <output class="num" data-o="fn">{dec(fn.toFixed(2))}</output> {T.unitF}</span>
+        <input type="range" min="0.05" max="0.6" step="0.01" value={fn} data-i="fn" /></label>
+      <label class="field"><span>{T.apL} <output class="num" data-o="ap">{dec(ap.toFixed(1))}</output> mm</span>
+        <input type="range" min="0.5" max="2.5" step="0.1" value={ap} data-i="ap" /></label>
+    </div>
+  </div>
+  <dl class="read">
+    <div><dt>{T.hL}</dt><dd class="num" data-o="h">{dec(c0.h.toFixed(3))} mm</dd></div>
+    <div><dt>{T.bL}</dt><dd class="num" data-o="b">{dec(c0.b.toFixed(2))} mm</dd></div>
+    <div><dt>{T.AL}</dt><dd class="num" data-o="A">{dec(c0.A.toFixed(2))} mm²</dd></div>
+    <div><dt>{T.rL}</dt><dd class="num" data-o="r">{dec((c0.h / fn).toFixed(2))}</dd></div>
+  </dl>
+  <script type="application/json" data-text set:html={JSON.stringify(T)} />
+</div>
+
+<style>
+  .enter { display: grid; gap: 0.8rem; }
+  .enter svg { width: 100%; height: auto; display: block; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 4px; }
+  .narrow { display: none !important; }
+  @media (max-width: 40rem) { .wide { display: none !important; } .narrow { display: block !important; } }
+  .controls { display: grid; gap: 0.9rem; }
+  .row1 { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem 1.2rem; align-items: end; }
+  .row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 1.2rem; }
+  @media (max-width: 34rem) { .row1, .row2 { grid-template-columns: minmax(0, 1fr); } }
+  .field > span { display: flex; gap: 0.35rem; align-items: baseline; font-size: 0.85rem; flex-wrap: wrap; }
+  .field output { color: var(--data); }
+  .field input { width: 100%; accent-color: var(--accent); }
+  .presets { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .presets button { font: 500 0.8rem var(--font-mono); padding: 0.3rem 0.6rem; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--ink-2); background: transparent; transition: border-color 0.15s, color 0.15s, background-color 0.15s; }
+  .presets button:hover { border-color: var(--ink-3); color: var(--ink); }
+  .presets button[aria-pressed='true'] { border-color: var(--accent); color: var(--ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+  .read { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+  @media (max-width: 48rem) { .read { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .read dt { font-size: 0.78rem; color: var(--ink-3); line-height: 1.3; }
+  .read dd { color: var(--data); font-size: 1.1rem; margin: 0; }
+  .read div:first-child dd { color: var(--color-spark-400); }
+
+  .enter :global(.ea-shank) { fill: url(#ca-metal-h); stroke: #656e74; stroke-width: 1; }
+  .enter :global(.ea-chip) { fill: url(#ca-hatch-acc); stroke: #e2601a; stroke-width: 1; stroke-linejoin: round; }
+  .enter :global(.ea-next) { fill: none; stroke: #e2601a; stroke-width: 0.9; stroke-dasharray: 4 3; }
+  .enter :global(.ea-insert) { stroke: #2c3033; stroke-width: 1.1; stroke-linejoin: round; }
+  .enter :global(.ea-zchip) { fill: color-mix(in oklab, #e2601a 30%, #f7fbfe); stroke: #e2601a; stroke-width: 1.2; stroke-linejoin: round; }
+  .enter :global(.ea-edge) { stroke: #e2601a; stroke-width: 2.6; stroke-linecap: round; }
+  .enter :global(.ea-arc) { fill: none; stroke: #e2601a; stroke-width: 1.3; }
+  .enter :global(.ea-feed) { stroke: #1e6fd6; stroke-width: 2; }
+  .enter :global(.ea-dim) { stroke: var(--ink-2); stroke-width: 1; }
+  .enter :global(.ea-hdim) { stroke: #e2601a; stroke-width: 1.4; }
+  .enter :global(.ea-ext) { stroke: var(--ink-3); stroke-width: 0.8; stroke-dasharray: 2 3; }
+  .enter :global(.ea-lead) { stroke: var(--ink-3); stroke-width: 0.9; stroke-dasharray: 3 3; }
+  .enter :global(.ea-lens) { fill: none; stroke: #1b1d1e; stroke-width: 1.1; }
+  .enter :global(.ea-zbg) { fill: #f7fbfe; }
+  .enter :global(.ea-zring) { fill: none; stroke: #1b1d1e; stroke-width: 1.4; }
+  .enter :global(.ea-t) { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-2); paint-order: stroke; stroke: #f7fbfe; stroke-width: 3px; stroke-linejoin: round; }
+  .enter :global(.ea-t.acc) { fill: #e2601a; }
+  .enter :global(.ea-t.dat) { fill: #2a78d6; }
+  .enter :global(.ea-t.mut) { fill: var(--ink-3); }
+  .enter .narrow :global(.ea-t) { font-size: 12.5px; }
+</style>
+
+<script>
+  import { drawEntering, chipOf } from '../../lib/entering';
+  import { whenIn } from '../../lib/motion';
+  document.querySelectorAll<HTMLElement>('[data-enter]').forEach((root) => {
+    const tr = root.dataset.locale === 'tr';
+    const uid = root.dataset.uid || 'ea';
+    const T = JSON.parse((root.querySelector('[data-text]') as HTMLElement).textContent || '{}');
+    const dec = (v: string) => (tr ? v.replace('.', ',') : v);
+    const inp = (k: string) => root.querySelector(`[data-i="${k}"]`) as HTMLInputElement;
+    const out = (k: string) => root.querySelector(`[data-o="${k}"]`) as HTMLElement;
+    const svgs = { w: root.querySelector('[data-svg="w"]') as SVGSVGElement, n: root.querySelector('[data-svg="n"]') as SVGSVGElement };
+    const presets = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-p]'));
+    let sweeping = 0;
+    function render(kr = Number(inp('kr').value)) {
+      const s = { kr, fn: Number(inp('fn').value), ap: Number(inp('ap').value) };
+      svgs.w.innerHTML = drawEntering(s, T, false, dec, uid).svg;
+      svgs.n.innerHTML = drawEntering(s, T, true, dec, uid).svg;
+      const c = chipOf(s);
+      out('kr').textContent = String(Math.round(kr));
+      out('fn').textContent = dec(s.fn.toFixed(2));
+      out('ap').textContent = dec(s.ap.toFixed(1));
+      out('h').textContent = `${dec(c.h.toFixed(3))} mm`;
+      out('b').textContent = `${dec(c.b.toFixed(2))} mm`;
+      out('A').textContent = `${dec(c.A.toFixed(2))} mm²`;
+      out('r').textContent = dec((c.h / s.fn).toFixed(2));
+      presets.forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.p) === Math.round(kr))));
+    }
+    const stop = () => { if (sweeping) { cancelAnimationFrame(sweeping); sweeping = 0; render(); } };
+    ['kr', 'fn', 'ap'].forEach((k) => inp(k).addEventListener('input', () => { stop(); render(); }));
+    presets.forEach((b) => b.addEventListener('click', () => { stop(); inp('kr').value = b.dataset.p!; render(); }));
+    // one sweep 90° → 45° → back to the set value, eased
+    whenIn(root, () => {
+      const end = Number(inp('kr').value), t0 = performance.now(), dur = 3600;
+      const ease = (x: number) => 0.5 - 0.5 * Math.cos(Math.PI * x);
+      const step = (t: number) => {
+        const x = Math.min(1, (t - t0) / dur);
+        const kr = x < 0.5 ? 90 - 45 * ease(x / 0.5) : 45 + (end - 45) * ease((x - 0.5) / 0.5);
+        inp('kr').value = String(Math.round(kr));
+        render(kr);
+        if (x >= 1) { inp('kr').value = String(end); render(end); }
+        sweeping = x < 1 ? requestAnimationFrame(step) : 0;
+      };
+      sweeping = requestAnimationFrame(step);
+    });
+  });
+</script>

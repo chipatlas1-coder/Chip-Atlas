@@ -1,0 +1,122 @@
+---
+/* 16MnCr5: limits from EN ISO 683-3 (the article's table) and a case-hardened gear: a rim segment
+   of a spur gear (involute teeth, 20° pressure angle) seen from the front, right and above, cut on
+   its front face so the carburized case shows as a band following the flanks and the root, round a
+   tough core. Surface hardness from the article (Lucefin, 57–64 HRC). Case depth exaggerated. */
+import Elements from '../Elements.astro';
+import { ortho, f1, path, dot, unit, type V3, type P2 } from '../geom3d';
+interface Props { locale: 'en' | 'tr'; label?: string }
+const { locale, label } = Astro.props;
+const tr = locale === 'tr';
+const d = (s: string) => (tr ? s.replaceAll('.', ',') : s);
+const items = [
+  { el: 'C', z: 6, v: d('0.14–0.19') },
+  { el: 'Si', z: 14, v: d('0.15–0.40') },
+  { el: 'Mn', z: 25, v: d('1.00–1.30') },
+  { el: 'Cr', z: 24, v: d('0.80–1.10') },
+];
+const T = tr
+  ? { case: 'sert kabuk', hrc: '57–64 HRC', core: 'tok çekirdek' }
+  : { case: 'hard case', hrc: '57–64 HRC', core: 'tough core' };
+
+/* ---- gear: module m, z teeth, pressure angle 20°, plate units */
+const z = 60, m = 16, alpha = (20 * Math.PI) / 180;
+const r = (m * z) / 2, rb = r * Math.cos(alpha), ra = r + m, rf = r - 1.25 * m;
+const inv = (a: number) => Math.tan(a) - a;
+const half = Math.PI / (2 * z) + inv(alpha);                 // half tooth angle at the base of the involute
+const flankAngle = (rho: number) => half - inv(Math.acos(Math.min(1, rb / rho)));
+const pitch = (2 * Math.PI) / z;
+const C = { x: 240, y: 222 + ra };                            // gear centre, far below the plate
+const toXY = (rho: number, ang: number): [number, number] => [C.x + rho * Math.sin(ang), -(C.y - rho * Math.cos(ang))];   // ang from the top, clockwise; world Y up
+/* ---- camera; the sector is centred on the tooth that the camera sees highest, so the rim arc
+   reads symmetric on the plate (for this view the highest point of the front circle lies at
+   atan(−sin az · sin el / cos el) from the top) */
+const az = 20, el = 22, rr = Math.PI / 180;
+const cam = ortho(az, el, 1, 0, 0);
+const a0 = Math.atan2(-Math.sin(az * rr) * Math.sin(el * rr), Math.cos(el * rr));
+// outer profile, left to right, of teeth k = -K … K round a0 (angle measured from the top, clockwise)
+const K = 6, nF = 7;
+const prof: [number, number][] = [];
+for (let k = -K; k <= K; k++) {
+  const c = a0 + k * pitch;
+  const rho = (i: number) => rf + ((ra - rf) * i) / nF;
+  const left: [number, number][] = [], right: [number, number][] = [];
+  for (let i = 0; i <= nF; i++) { const p = rho(i); left.push(toXY(p, c - flankAngle(p))); right.push(toXY(p, c + flankAngle(p))); }
+  // root arc from the previous tooth
+  if (k > -K) {
+    const a0 = c - pitch + flankAngle(rf), a1 = c - flankAngle(rf);
+    for (let j = 1; j < 4; j++) prof.push(toXY(rf, a0 + ((a1 - a0) * j) / 4));
+  }
+  prof.push(...left);
+  const t0 = c - flankAngle(ra), t1 = c + flankAngle(ra);
+  for (let j = 1; j < 3; j++) prof.push(toXY(ra, t0 + ((t1 - t0) * j) / 3));
+  prof.push(...[...right].reverse());
+}
+// inward offset of the profile: the case depth (exaggerated)
+const chd = 0.3 * m;
+const off = prof.map((p, i) => {
+  const a = prof[Math.max(0, i - 1)], b = prof[Math.min(prof.length - 1, i + 1)];
+  let nx = -(b[1] - a[1]), ny = b[0] - a[0];                  // left normal of the left-to-right profile (points outwards, up)
+  const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
+  return [p[0] - nx * chd, p[1] - ny * chd] as [number, number];
+});
+
+/* ---- faces */
+const B = 92;                                                 // face width
+const P0 = (p: [number, number], zz: number): V3 => [p[0], p[1], zz];
+const light = unit([-0.45, 0.8, 0.4]);
+const lerp = (a: number[], b: number[], t: number) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const hex = (c: number[]) => `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+const dark = [0x2a, 0x30, 0x35], lite = [0xe6, 0xea, 0xed];
+const sides: { d: string; depth: number; fill: string }[] = [];
+for (let i = 0; i < prof.length - 1; i++) {
+  const a = prof[i], b = prof[i + 1];
+  let nx = -(b[1] - a[1]), ny = b[0] - a[0];
+  const l = Math.hypot(nx, ny); nx /= l; ny /= l;
+  const n: V3 = [nx, ny, 0];
+  if (!cam.seen(n)) continue;
+  const q = [P0(a, 0), P0(b, 0), P0(b, -B), P0(a, -B)];
+  const br = 0.22 + 0.78 * Math.max(0, dot(n, light));
+  sides.push({ d: cam.poly(q), depth: cam.depth([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, -B / 2]), fill: hex(lerp(dark, lite, br)) });
+}
+sides.sort((p, q) => p.depth - q.depth);
+// front face: profile closed far below the plate; case band between the profile and its offset
+const bottom = -(C.y - 120);
+const face = cam.poly([...prof.map((p) => P0(p, 0)), P0([prof[prof.length - 1][0], bottom], 0), P0([prof[0][0], bottom], 0)]);
+const band = cam.poly([...prof.map((p) => P0(p, 0)), ...[...off].reverse().map((p) => P0(p, 0))]);
+const edge = path(prof.map((p) => cam.P(P0(p, 0))), false);
+const inner = path(off.map((p) => cam.P(P0(p, 0))), false);
+// shift everything so the drawing sits in the lower part of the plate
+const Pc = cam.P(P0(toXY(ra, a0), 0));
+const dx = 236 - Pc[0], dy = 222 - Pc[1];
+// label anchors (front face): case on a flank of the tooth left of centre, core below its root
+const flankPt = cam.P(P0(off[Math.round(prof.length * 0.36)], 0));
+const caseAt: P2 = [flankPt[0] + dx, flankPt[1] + dy];
+---
+<svg viewBox="0 0 480 320" role="img" aria-label={label}>
+  <defs>
+    <clipPath id={`mc-clip-${locale}`}><rect x="0" y="178" width="480" height="142" /></clipPath>
+  </defs>
+  <text class="t-big f" style="--i:0" x="24" y="52">16MnCr5</text>
+  <text class="t-sm f" style="--i:1" x="26" y="74">1.7131, EN ISO 683-3 {tr ? '(kütlece %)' : '(% by mass)'}</text>
+  <Elements items={items} x={24} y={90} />
+  <g clip-path={`url(#mc-clip-${locale})`}>
+    <g transform={`translate(${f1(dx)} ${f1(dy)})`}>
+      <g class="f" style="--i:5">
+        {sides.map((s) => <path d={s.d} fill={s.fill} stroke={s.fill} stroke-width="0.6" stroke-linejoin="round" />)}
+      </g>
+      <g class="f" style="--i:6">
+        <path d={face} class="hatch" />
+        <path d={band} class="hatch-acc" />
+      </g>
+      <path class="o2 d" style="--i:6" pathLength="1" d={edge} />
+      <path class="d" style="--i:7" pathLength="1" d={inner} fill="none" stroke="#e2601a" stroke-width="1" />
+    </g>
+  </g>
+  <g class="lbl">
+    <text class="t-acc t-sm" x="26" y="206">{T.case}</text>
+    <text class="t-acc t-sm" x="26" y="220">{T.hrc}</text>
+    <line class="h" x1="92" y1="208" x2={f1(caseAt[0])} y2={f1(caseAt[1])} stroke="#e2601a" />
+    <text class="t-ink t-sm" x="240" y="304" text-anchor="middle">{T.core}</text>
+  </g>
+</svg>
