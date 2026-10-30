@@ -1,6 +1,6 @@
 /** Site-wide settings. */
 export const site = {
-  url: 'https://chipatlas.com',
+  url: 'https://chipatlas.net',
   name: 'Chip Atlas',
   /** Channel links, shown as icons in the header and footer (Social.astro); empty strings are skipped. */
   channels: {

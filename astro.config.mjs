@@ -26,7 +26,7 @@ const devPages = {
 };
 
 export default defineConfig({
-  site: 'https://chipatlas.com',
+  site: 'https://chipatlas.net',
   trailingSlash: preview ? 'never' : 'always',
   build: { format: preview ? 'file' : 'directory', assets: 'assets' },
   integrations: [
